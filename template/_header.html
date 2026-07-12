@@ -2,17 +2,44 @@
 <html lang="__lang__">
 <head>
     <style>
-        /* LeadConnector chat widget is blocked site-wide, keep it hidden until the blocker script removes it */
+        /* Third-party chat widgets (ClosedGPT, LeadConnector) are blocked site-wide, keep their markup hidden until the blocker script removes it */
         chat-widget, #chat-widget-container, .lc_text-widget {
             display: none !important;
         }
     </style>
     <script>
         (function() {
-            var reBlockedSrc = /leadconnectorhq\.com|msgsndr\.(com|net)/i;
+            var reBlockedSrc = /apiii\.co|leadconnectorhq\.com|msgsndr\.(com|net)/i;
             var isWidgetNode = function(oNode) {
                 return 'CHAT-WIDGET' == oNode.tagName || 'chat-widget-container' == oNode.id || (oNode.classList && oNode.classList.contains('lc_text-widget'));
             };
+
+            /* Stop dynamically created loaders (createElement + src assignment) before the browser fetches them */
+            var oSrcProp = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+            if (oSrcProp && oSrcProp.configurable)
+                Object.defineProperty(HTMLScriptElement.prototype, 'src', {
+                    get: function() {
+                        return oSrcProp.get.call(this);
+                    },
+                    set: function(sUrl) {
+                        if (reBlockedSrc.test(String(sUrl))) {
+                            this.type = 'javascript/blocked';
+                            sUrl = '';
+                        }
+                        oSrcProp.set.call(this, sUrl);
+                    }
+                });
+
+            var fSetAttribute = HTMLScriptElement.prototype.setAttribute;
+            HTMLScriptElement.prototype.setAttribute = function(sName, sValue) {
+                if ('src' == String(sName).toLowerCase() && reBlockedSrc.test(String(sValue))) {
+                    this.type = 'javascript/blocked';
+                    return;
+                }
+                return fSetAttribute.apply(this, arguments);
+            };
+
+            /* Neutralize parser-inserted script tags and remove widget markup as it appears */
             new MutationObserver(function(aMutations) {
                 aMutations.forEach(function(oMutation) {
                     Array.prototype.forEach.call(oMutation.addedNodes, function(oNode) {
