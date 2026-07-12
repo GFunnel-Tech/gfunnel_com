@@ -1,0 +1,23 @@
+<script type="text/javascript">
+	var oAqbMap = null;
+
+	$(document).ready(function(){
+		var map_height = 0;
+		if ($('#aqb_map').width() > 500) map_height = Math.round($('#aqb_map').width()/2);
+		else map_height = Math.round($('#aqb_map').width());
+
+		$('#aqb_map').css('height', map_height + 'px');
+		oAqbMap = new AqbMap('aqb_map', __options__);
+
+		oAqbMap.on_view_change(function(){
+			var view = oAqbMap.getMapView();
+			$('select[name="aqb_locations_map_def_zoom"]').val(view.zoom);
+			$('input[name="aqb_locations_map_def_lat"]').val(view.lat);
+			$('input[name="aqb_locations_map_def_lng"]').val(view.lng);
+			bx_loading('aqb_map', true);
+			$.post(sUrlRoot+'modules/index.php?r=aqb_locations_map/set_default_map_view', view, function(){ bx_loading('aqb_map', false); });
+		});
+	});
+</script>
+
+<div id="aqb_map" style="max-width: 800px; margin: auto;"></div>

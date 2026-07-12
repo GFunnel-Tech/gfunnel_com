@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine off
+</IfModule>
+<IfModule mod_security2.c>
+  SecRuleEngine Off
+</IfModule>

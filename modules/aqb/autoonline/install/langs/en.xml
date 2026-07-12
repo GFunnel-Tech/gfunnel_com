@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+	<string name="_aqb_autoonline"><![CDATA[Autoonline]]></string>
+	<string name="_aqb_autoonline_rules"><![CDATA[Rules]]></string>
+	<string name="_aqb_autoonline_help"><![CDATA[Help]]></string>
+	<string name="_aqb_autoonline_help_text"><![CDATA[<p>Execution of autoonline rules occurs every 15 minutes.</p><p>For example if there is a rule to put 10 accounts online for 1 hour then after an initial period (1 hour) there will be about 10*(1 hour/every 15 minutes) = 40 accounts online</p>]]></string>
+	<string name="_aqb_autoonline_field_accounts_count"><![CDATA[Accounts Number]]></string>
+	<string name="_aqb_autoonline_field_accounts_count_info"><![CDATA[If a range is specified then a random count within this range will be used]]></string>
+	<string name="_aqb_autoonline_field_online_time"><![CDATA[Online Time (minutes)]]></string>
+	<string name="_aqb_autoonline_field_online_time_nm"><![CDATA[Online Time]]></string>
+	<string name="_aqb_autoonline_field_with_ava_only"><![CDATA[With profile pic only]]></string>
+	<string name="_aqb_autoonline_online_now"><![CDATA[Online Now]]></string>
+	<string name="_aqb_autoonline_total"><![CDATA[Accounts on the site]]></string>
+	<string name="_aqb_autoonline_add_rule"><![CDATA[Add Rule]]></string>
+	<string name="_aqb_autoonline_field_id"><![CDATA[ID]]></string>
+	<string name="_aqb_autoonline_action_run"><![CDATA[Run]]></string>
+	<string name="_aqb_autoonline_action_delete"><![CDATA[Delete]]></string>
+	<string name="_aqb_autoonline_run_succ"><![CDATA[The rule has been executed normally. {0} accounts has been set online.]]></string>
+	<string name="_aqb_autoonline_run_fail"><![CDATA[The rule execution has been failed.]]></string>
+	<string name="_aqb_autoonline_field_advanced_schedule"><![CDATA[Advanced schedule]]></string>
+	<string name="_aqb_autoonline_field_rule_settings"><![CDATA[Rule Settings]]></string>
+	<string name="_aqb_autoonline_field_time_error"><![CDATA[Timerange must be in "hh:mm - hh:mm" format]]></string>
+</resources>

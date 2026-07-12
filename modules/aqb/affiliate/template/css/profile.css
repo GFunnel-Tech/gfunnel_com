@@ -1,0 +1,85 @@
+div.aqb-affiliate-profile-info{
+    overflow:hidden;
+    display: grid;
+    grid-row-gap: 0.5rem;
+    grid-template-rows:1fr 1fr;
+}
+
+#programs-info .aqb-affiliate-admin-program-item div.bx-form-section-wrapper{
+    display: block;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+#programs-info .aqb-affiliate-admin-program-item div.bx-form-section-wrapper div{
+    text-align: left;
+}
+
+#programs-info .bx-form-section-content{
+    max-height:8rem;
+    overflow-y:auto;
+    margin:0;
+}
+
+#programs-info .bx-form-section-header legend{
+    text-transform: capitalize;
+}
+
+#programs-info .bx-form-collapsable .bx-form-section-toggler{
+    top:0px;
+}
+
+div.aqb-affiliate-referral-links-block{
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    grid-row-gap: 0.5rem;
+    overflow: hidden;
+}
+
+div.aqb-affiliate-referral-links-block > span:first-child{
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+div.aqb-affiliate-referral-links-block > span:last-child{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+div.aqb-affiliate-referral-links-block > span:first-child > span:first-child{
+    white-space: nowrap;
+    margin-bottom: 0.5rem;
+}
+
+div.aqb-affiliate-referral-links-block > span:last-child span{
+    max-height: 28px;
+    margin-right: 1rem;
+}
+
+div.aqb-affiliate-referral-links-block > span:first-child button{
+    float:right;
+}
+
+div.aqb-affiliate-referral-links-block #aqb-referral-link {
+   margin-right: 2rem;
+}
+
+.aqb-affiliate-referral-link .bx-form-input-wrapper-input_set
+{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+div.aqb-affiliate-referral-links-block .bx-form-value,
+span.aqb-affiliate-referral-link {
+  width: 100%;
+}
+
+#invite-from div.bx-form-input-wrapper-input_set button{
+    float:left;
+    margin-right: 1rem;
+}

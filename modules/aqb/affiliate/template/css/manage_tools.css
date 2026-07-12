@@ -1,0 +1,72 @@
+@import url(../../../../base/general/template/css/manage_tools.css);
+
+#bx-grid-wrap-aqb_points_common div.bx-grid-header div#bx-form-element-date{
+    margin-top:0rem;
+}
+
+div.bx-grid-header div.bx-form-element-wrapper{
+    width:auto;
+}
+
+div.bx-grid-header div.bx-grid-header-controls-filter{
+    /*display:flex;
+    flex-direction: column;
+    justify-content: space-between;*/
+    width:100%;
+}
+
+div.bx-grid-header div.bx-grid-header-controls-filter > div{
+    margin:0.5rem;
+}
+
+div.bx-grid-header div.bx-grid-header-controls-filter div.bx-form-element-wrapper:first-child{
+    float:left;
+}
+
+div.bx-grid-header div.bx-grid-header-controls-filter div.bx-form-element-wrapper:last-child{
+    float:right;
+}
+
+#bx-grid-wrap-aqb_points_common .bx-form-element-wrapper .bx-form-element{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width:100%;
+    margin-right: 1rem;
+}
+
+#bx-grid-wrap-aqb_points_common .bx-form-element-wrapper .bx-form-element .bx-form-value{
+    width:100%;
+}
+
+/*#bx-grid-wrap-aqb_points_common .bx-form-input-wrapper-input_set{
+    width:100%;
+}*/
+
+#bx-grid-wrap-aqb_points_common .bx-form-input-wrapper-input_set input[type="datepicker"],
+#bx-grid-wrap-aqb_points_common .bx-form-input-wrapper-input_set button{
+   float:left;
+   margin-right: 1rem;
+}
+
+div.bx-grid-header div.bx-grid-header-controls-filter div.bx-form-element-wrapper:first-child .bx-form-value div:first-child{
+    display: flex;
+    flex-direction: column;
+}
+
+
+@media screen and (max-width: 760px) {
+    div.bx-grid-header div.bx-grid-header-controls-filter div.bx-form-element-wrapper:last-child{
+        float:left;
+    }
+
+    div.bx-grid-header div.bx-grid-header-controls-filter div.bx-form-element-wrapper:last-child .bx-form-input-wrapper-input_set > button{
+        margin:0.5rem 0.5rem 0.5rem 0 !important;
+    }
+
+    #bx-grid-wrap-aqb_points_common .bx-form-input-wrapper-input_set #aqb_points_common-search,
+    #bx-grid-wrap-aqb_points_common .bx-form-input-wrapper-input_set #aqb_points_common-activities{
+        width:calc(20.4rem + 1rem);
+        margin-bottom: 1rem;
+    }
+}

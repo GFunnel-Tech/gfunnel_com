@@ -1,0 +1,111 @@
+.aqb-affiliate-referral-matrix-block{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+	grid-gap: 1rem;
+}
+
+div.aqb-affiliate-quick-info{
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+div.aqb-affiliate-quick-info span.value {
+	font-weight: bold;
+}
+
+div.aqb-affiliate-quick-info > span
+{
+	/*margin-top: 0.5rem;
+	padding-top: 0.5rem;*/
+	border-top: 1px solid rgba(0,0,0,0.04);
+}
+
+div.aqb-affiliate-quick-info > span:first-child {
+	border-top: none;
+	margin-top: 0;
+	padding-top: 0;
+	display: flex;
+	justify-content: space-between;
+}
+
+.aqb-affiliate-profile-info-main {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.aqb-affiliate-profile-info-main .bx-btn {
+	margin-left:0.5rem;
+}
+
+div.aqb-affiliate-quick-info .area > span{
+	margin-left: 0.5rem;
+}
+
+div.aqb-affiliate-quick-info div.info{
+	position: absolute;
+	right: 0.5rem;
+}
+
+div.aqb-affiliate-quick-info > span{
+	display: grid;
+	grid-template-columns: 3fr 2fr;
+	grid-column-gap: 0.5rem;
+	/*border-bottom: 1px solid rgba(0, 0, 0, 0.04);*/
+	align-items: center;
+	line-height: 2.5rem;
+}
+
+div.aqb-affiliate-quick-info > span:last-child{
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+div.aqb-affiliate-quick-info > span > span:last-child{
+	text-align: right;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+div.aqb-affiliate-quick-info .aqb-three-items{
+	display: flex;
+	justify-content: space-between;
+}
+
+.aqb-affiliate-referral-links-page-block .aqb-affiliate-referral-link{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
+}
+
+.aqb-affiliate-referral-links-page-block .aqb-affiliate-referral-link input{
+	width: 100%;
+}
+
+.aqb-affiliate-referral-links-page-block .aqb-affiliate-referral-link .bx-form-input-wrapper-input_set{
+	margin-right: 1rem;
+	width: 100%;
+}
+
+.aqb-affiliate-referral-links-page-block .aqb-affiliate-referral-links-page-block-buttons {
+	display: flex;
+	width: 100%;
+	align-items: center;
+}
+
+.aqb-affiliate-referral-links-page-block .aqb-affiliate-referral-links-page-block-buttons span{
+	margin-right: 0.5rem;
+	align-items: center;
+	display: flex;
+}
+
+.aqb-affiliate-referral-links-page-block .aqb-affiliate-referral-links-page-block-buttons .bx-btn.bx-btn-small{
+	height: 1.75rem;
+}
+
+#send-invitations-form .bx-form-input-wrapper-input_set{
+	display: flex;
+	justify-content: space-between;
+}

@@ -1,0 +1,256 @@
+.aqb-affiliate-admin-programs{
+    display:grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    margin: 0.5rem;
+}
+.aqb-affiliate-admin-program-item{
+    box-shadow: 0 0 2px 2px rgba(0,0,0,0.08);
+    border-radius: 1rem;
+    padding: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.aqb-affiliate-admin-program-item > div{
+    display:flex;
+    align-items: center;
+    justify-items: center;
+}
+
+.aqb-affiliate-admin-program-item.disabled{
+   background-color: rgba(0, 0, 0, 0.04);
+   color:rgba(0,0,0, 0.4);
+}
+
+.aqb-affiliate-admin-program-item > div > div{
+    flex-direction: column;
+    display:flex;
+    text-align: center;
+    flex: 1;
+    height:100%;
+}
+
+.aqb-affiliate-admin-program-item > div:not(.buttons) div:first-child {
+    flex: 0 1 30%;
+    overflow: hidden;
+}
+
+.aqb-affiliate-admin-program-item div.title span:last-child{
+    display: flex;
+    min-height: 4rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.aqb-affiliate-admin-program-item div.title span:first-child{
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 10rem;
+    margin: 0.2rem;
+}
+
+.aqb-affiliate-admin-program-item div.title i{
+    font-size: 4rem;
+}
+
+.aqb-affiliate-admin-program-item div.info{
+    padding-left:0.5rem;
+    text-align: left;
+    margin-top: 0.5rem;
+}
+
+.aqb-affiliate-admin-program-item div.info > span{
+    font-size: 0.8rem;
+    text-transform:lowercase;
+    margin-bottom: 0.3rem;
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.aqb-affiliate-admin-program-item div.info span:first-child{
+    justify-content: space-between;
+}
+
+.aqb-affiliate-admin-program-item div.info span:nth-child(2){
+    justify-content: space-between;
+}
+
+.aqb-affiliate-admin-program-item div.info button{
+    max-width: 2rem;
+}
+
+/*.aqb-affiliate-admin-program-item div.info > span:last-child{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(1.5rem, 2rem));
+    grid-gap: 0.5rem;
+    justify-content: flex-start;
+}*/
+
+.aqb-affiliate-admin-program-item div.info span:last-child button{
+    padding:0;
+    min-width: 1.5rem;
+}
+
+.aqb-affiliate-admin-program-item .buttons{
+   display: flex;
+   align-items: center;
+   margin: 0.5rem;
+}
+
+.aqb-affiliate-admin-program-item .buttons button{
+    margin-right: 0.5rem;
+}
+
+.aqb-affiliate-admin-program-item .buttons button:first-child i.sys-icon{
+    color:limegreen;
+}
+
+.aqb-affiliate-admin-program-item .buttons button:first-child i.sys-icon.disabled{
+    color: lightgrey;
+}
+
+.aqb_aff_programs_wrapper > div:first-child .bx-form-input-wrapper-input_set {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 2rem 2fr 3fr;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.aqb_aff_programs_wrapper .bx-form-section-content > div:last-child .bx-form-input-wrapper-input_set
+{
+  display:block;
+}
+
+.aqb_aff_programs_wrapper .bx-form-input-wrapper-input_set .commission{
+  justify-self:end;
+  max-width: 100%;
+}
+
+.aqb_aff_programs_wrapper .bx-form-section-content{
+  padding:1rem;
+}
+
+.aqb-affiliate-admin-program-item .title .status{
+    font-size:1rem;
+}
+
+.aqb-affiliate-admin-program-item .title img{
+    max-height: 96px;
+}
+
+.aqb-affiliate-commissions-upgrade-fields
+{
+   display:flex;
+}
+
+.aqb-affiliate-commissions-fields{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.aqb-aff-programs .bx-def-margin-top{
+    margin-top: 1rem;
+}
+
+.aqb-affiliate-commissions-upgrade-fields .percentage-commission{
+    display: grid;
+    align-items: center;
+    grid-template-columns: 2fr 3fr;
+}
+
+.aqb-affiliate-commissions-upgrade-fields{
+    margin-bottom:0.5rem;
+}
+
+#aqb-popup-program-form .bx-def-padding {
+    padding:1rem;
+}
+
+#aqb-popup-program-form .bx-form-element-wrapper.bx-def-margin-top {
+    margin: 0;
+}
+
+.aqb-affiliate-commissions-levels{
+    display: grid;
+    grid-template-columns: 4rem repeat(auto-fit, minmax(100px, 1fr));
+    grid-gap: 0.4rem;
+}
+
+.aqb-affiliate-commissions-levels > span {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-column-gap: 0.3rem;
+    align-items: center;
+    border: 1px dashed rgba(0,0,0,0.4);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.aqb-affiliate-commissions-levels > span:first-child{
+    border: none;
+}
+
+.aqb-affiliate-commissions-levels .bx-def-margin-top{
+    margin-top: 0;
+}
+
+.aqb-affiliate-admin-matrix-levels-area {
+    display: grid;
+    grid-template-columns: 2rem auto;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#matrix-levels-commissions{
+    width:80%;
+}
+
+#matrix-levels-commissions .percentage-commission{
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-self: flex-end;
+}
+#matrix-levels-commissions .percentage-commission span.main{
+    display: flex;
+    flex-direction: column;
+}
+
+#matrix-levels-commissions .percentage-commission span.percentage{
+    display: flex;
+    align-items: center;
+}
+#matrix-levels-commissions .bx-popup-width {
+    width: 100%;
+}
+
+#matrix-levels-commissions .bx-popup-content.bx-def-padding{
+    padding:1rem;
+}
+
+#matrix-levels-commissions .bx-form-input-wrapper.bx-form-input-wrapper-custom div.aqb-affiliate-admin-matrix-levels-area:nth-child(even){
+    background-color: rgba(0,0,0,0.04);
+}
+
+.aqb-affiliate-matrix-rebuild-area {
+    margin: 1rem 1rem;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    text-align: justify;
+}
+
+.aqb-affiliate-matrix-rebuild-area .bx-btn {
+    margin-right: 0.5rem;
+}
+
+#aqb_affiliate_matrix {
+    overflow-x: auto;
+}

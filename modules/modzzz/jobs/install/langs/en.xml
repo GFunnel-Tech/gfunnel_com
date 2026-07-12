@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_mz_jobs"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_cmts"><![CDATA[Jobs' Comments]]></string>
+    <string name="_mz_jobs_reactions"><![CDATA[Jobs' Reactions]]></string>
+
+    <string name="_mz_jobs_option_summary_chars"><![CDATA[Number of characters in auto-cropped job summary]]></string>
+    <string name="_mz_jobs_option_plain_summary_chars"><![CDATA[Number of characters in plain job description when job hasn't thumb]]></string>
+    <string name="_mz_jobs_option_per_page_browse"><![CDATA[Number of items per page]]></string>
+    <string name="_mz_jobs_option_per_page_profile"><![CDATA[Number of items on profile/group page]]></string>
+    <string name="_mz_jobs_option_rss_num"><![CDATA[Number of items in RSS feed]]></string>
+    <string name="_mz_jobs_option_searchable_fields"><![CDATA[Searchable fields for keyword search]]></string>
+
+    <string name="_mz_jobs_form_category"><![CDATA[Category]]></string>
+    <string name="_mz_jobs_form_category_display_add"><![CDATA[Add Category]]></string>
+    <string name="_mz_jobs_form_category_display_edit"><![CDATA[Edit Category]]></string>
+    <string name="_mz_jobs_form_category_display_delete"><![CDATA[Delete Category]]></string>
+    <string name="_mz_jobs_form_category_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_jobs_form_category_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_jobs_form_category_input_sys_do_cancel"><![CDATA[Cancel]]></string>
+    <string name="_mz_jobs_form_category_input_do_cancel"><![CDATA[Cancel]]></string>
+    <string name="_mz_jobs_form_category_input_sys_parent_id"><![CDATA[Parent]]></string>
+    <string name="_mz_jobs_form_category_input_parent_id"><![CDATA[Parent category]]></string>
+    <string name="_mz_jobs_form_category_input_parent_id_empty"><![CDATA[No parent]]></string>
+    <string name="_mz_jobs_form_category_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_jobs_form_category_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_jobs_form_category_input_title_err"><![CDATA[Title is essential. Please, fill in this field.]]></string>
+    <string name="_mz_jobs_form_category_input_sys_text"><![CDATA[Text]]></string>
+    <string name="_mz_jobs_form_category_input_text"><![CDATA[Text]]></string>
+    <string name="_mz_jobs_form_category_input_sys_type"><![CDATA[Type]]></string>
+    <string name="_mz_jobs_form_category_input_type"><![CDATA[Type]]></string>
+    <string name="_mz_jobs_form_category_input_type_err"><![CDATA[Type is essential. Please, select a value for this field.]]></string>
+    <string name="_mz_jobs_form_category_input_type_info"><![CDATA[Type determines a set of fields for entries in this category.]]></string>
+    <string name="_mz_jobs_form_category_input_sys_type_clone"><![CDATA[Clone type]]></string>
+    <string name="_mz_jobs_form_category_input_type_clone"><![CDATA[Clone type]]></string>
+    <string name="_mz_jobs_form_category_input_sys_type_title"><![CDATA[Type title]]></string>
+    <string name="_mz_jobs_form_category_input_type_title"><![CDATA[Type title]]></string>
+    <string name="_mz_jobs_form_category_input_sys_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_jobs_form_category_input_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_jobs_form_category_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_jobs_form_category_input_delete_confirm"><![CDATA[I am sure I want to delete this category]]></string>
+    <string name="_mz_jobs_form_category_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_jobs_form_category_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the category]]></string>
+
+    <string name="_mz_jobs_form_entry_input_sys_date_deadline"><![CDATA[Deadline]]></string>
+    <string name="_mz_jobs_form_entry_input_date_deadline"><![CDATA[Deadline]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_experience"><![CDATA[Experience]]></string>
+    <string name="_mz_jobs_form_entry_input_experience"><![CDATA[Experience]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_qualification"><![CDATA[Qualification]]></string>
+    <string name="_mz_jobs_form_entry_input_qualification"><![CDATA[Qualification]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_salary_type"><![CDATA[Salary Type]]></string>
+    <string name="_mz_jobs_form_entry_input_salary_type"><![CDATA[Salary Type]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_career_level"><![CDATA[Career Level]]></string>
+    <string name="_mz_jobs_form_entry_input_career_level"><![CDATA[Career Level]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_job_type"><![CDATA[Job Type]]></string>
+    <string name="_mz_jobs_form_entry_input_job_type"><![CDATA[Job Type]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_skills"><![CDATA[Skills]]></string>
+    <string name="_mz_jobs_form_entry_input_skills"><![CDATA[Skills]]></string>
+    <string name="_mz_jobs_form_entry_input_skills_err"><![CDATA[You must enter Skills]]></string>  
+    <string name="_mz_jobs_form_entry_input_sys_min_salary"><![CDATA[Min Salary]]></string>
+    <string name="_mz_jobs_form_entry_input_min_salary"><![CDATA[Min Salary]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_max_salary"><![CDATA[Max Salary]]></string>
+    <string name="_mz_jobs_form_entry_input_max_salary"><![CDATA[Max Salary]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_employment_status"><![CDATA[Employment Status]]></string>
+    <string name="_mz_jobs_form_entry_input_employment_status"><![CDATA[Employment Status]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_application_link"><![CDATA[Application Link]]></string>
+    <string name="_mz_jobs_form_entry_input_application_link"><![CDATA[Application Link]]></string> 
+    <string name="_mz_jobs_form_entry"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_form_entry_display_add"><![CDATA[Add Job]]></string>
+    <string name="_mz_jobs_form_entry_display_delete"><![CDATA[Delete Job]]></string> 
+    <string name="_mz_jobs_form_entry_seeking_display_add"><![CDATA[Job Available: Add]]></string>
+    <string name="_mz_jobs_form_entry_seeking_display_edit"><![CDATA[Job Available: Edit]]></string>
+    <string name="_mz_jobs_form_entry_seeking_display_view"><![CDATA[Job Available: View]]></string>
+
+    <string name="_mz_jobs_form_entry_wanted_display_add"><![CDATA[Job Wanted: Add]]></string>
+    <string name="_mz_jobs_form_entry_wanted_display_edit"><![CDATA[Job Wanted: Edit]]></string>
+    <string name="_mz_jobs_form_entry_wanted_display_view"><![CDATA[Job Wanted: View]]></string>
+ 
+    <string name="_mz_jobs_form_entry_input_author"><![CDATA[Author]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_jobs_form_entry_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_jobs_form_entry_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_jobs_form_entry_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_category"><![CDATA[Category]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_category_view"><![CDATA[Category]]></string>
+    <string name="_mz_jobs_form_entry_input_category_view"><![CDATA[Category]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_category_select"><![CDATA[Category]]></string>
+    <string name="_mz_jobs_form_entry_input_category_select"><![CDATA[Category]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_text"><![CDATA[Text]]></string>
+    <string name="_mz_jobs_form_entry_input_text"><![CDATA[Text]]></string>
+    <string name="_mz_jobs_form_entry_input_text_err"><![CDATA[Text field can't be empty]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_jobs_form_entry_input_delete_confirm"><![CDATA[I am sure I want to delete this job]]></string>
+    <string name="_mz_jobs_form_entry_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_jobs_form_entry_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the job]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_covers"><![CDATA[Header Image]]></string>
+    <string name="_mz_jobs_form_entry_input_covers"><![CDATA[Header Image]]></string>
+    <string name="_mz_jobs_form_entry_input_covers_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_jobs_form_entry_input_covers_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_pictures"><![CDATA[Images]]></string>
+    <string name="_mz_jobs_form_entry_input_pictures"><![CDATA[]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_videos"><![CDATA[Videos]]></string>
+    <string name="_mz_jobs_form_entry_input_videos"><![CDATA[]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_files"><![CDATA[Files]]></string>
+    <string name="_mz_jobs_form_entry_input_files"><![CDATA[]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_polls"><![CDATA[Polls]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_jobs_form_entry_input_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_jobs_form_entry_input_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_date_changed"><![CDATA[Updated]]></string>
+    <string name="_mz_jobs_form_entry_input_date_changed"><![CDATA[Updated]]></string>
+    <string name="_mz_jobs_form_entry_input_sys_attachments"><![CDATA[Attachments]]></string>
+
+    <string name="_mz_jobs_form_poll"><![CDATA[Polls]]></string>
+    <string name="_mz_jobs_form_poll_display_add"><![CDATA[Add Poll]]></string>
+    <string name="_mz_jobs_form_poll_input_sys_text"><![CDATA[Question]]></string>
+    <string name="_mz_jobs_form_poll_input_text"><![CDATA[Question]]></string>
+    <string name="_mz_jobs_form_poll_input_text_err"><![CDATA[Question is essential. Please, fill in this field]]></string>
+    <string name="_mz_jobs_form_poll_input_sys_answers"><![CDATA[Answers]]></string>
+    <string name="_mz_jobs_form_poll_input_answers"><![CDATA[Answers]]></string>
+    <string name="_mz_jobs_form_poll_input_answers_err"><![CDATA[Poll should have at least 2 non-empty answers.]]></string>
+    <string name="_mz_jobs_form_poll_input_answers_add"><![CDATA[Add More]]></string>
+    <string name="_mz_jobs_form_poll_input_sys_do_submit"><![CDATA[Add]]></string>
+    <string name="_mz_jobs_form_poll_input_do_submit"><![CDATA[Add]]></string>
+    <string name="_mz_jobs_form_poll_input_do_cancel"><![CDATA[Close]]></string>
+
+    <string name="_mz_jobs_acl_action_create_entry"><![CDATA[Create Job]]></string>
+    <string name="_mz_jobs_acl_action_delete_entry"><![CDATA[Delete Job]]></string>
+    <string name="_mz_jobs_acl_action_view_entry"><![CDATA[View Job]]></string>
+    <string name="_mz_jobs_acl_action_set_thumb"><![CDATA[Set Job Header Image]]></string>
+    <string name="_mz_jobs_acl_action_edit_any_entry"><![CDATA[Edit Any Job]]></string>
+
+    <string name="_mz_jobs_page_title_sys_create_entry"><![CDATA[New Job]]></string>
+    <string name="_mz_jobs_page_title_create_entry"><![CDATA[New Job]]></string>
+    <string name="_mz_jobs_page_block_title_create_entry"><![CDATA[New Job]]></string>
+
+    <string name="_mz_jobs_page_title_sys_entries_job_types"><![CDATA[Job Types]]></string>
+    <string name="_mz_jobs_page_title_entries_job_types"><![CDATA[Job Types]]></string>
+    <string name="_mz_jobs_page_block_title_job_types"><![CDATA[Job Types]]></string>
+    <string name="_mz_jobs_page_block_title_types_entries"><![CDATA[Job Types]]></string>
+    <string name="_mz_jobs_page_block_title_type_jobs"><![CDATA[{0} Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_type_jobs"><![CDATA[{0} Jobs]]></string>
+   
+    <string name="_mz_jobs_page_title_entries_company"><![CDATA[{0} Jobs]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_company"><![CDATA[Company Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_company_entries"><![CDATA[{0} Jobs]]></string>
+ 
+    <string name="_mz_jobs_page_title_sys_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_jobs_page_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_jobs_page_block_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_jobs_page_title_sys_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_page_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_page_block_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_page_title_sys_view_entry"><![CDATA[View Job]]></string>
+    <string name="_mz_jobs_page_title_view_entry"><![CDATA[{title}]]></string>
+    <string name="_mz_jobs_page_block_title_entry_breadcrumb"><![CDATA[Breadcrumb]]></string>
+    <string name="_mz_jobs_page_block_title_entry_text"><![CDATA[Job Text]]></string>
+    <string name="_mz_jobs_page_title_browse"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_page_title_search_results"><![CDATA[Jobs matching "{0}"]]></string>
+    <string name="_mz_jobs_page_title_browse_by_author"><![CDATA[Jobs of {display_name}]]></string>
+    <string name="_mz_jobs_page_title_browse_by_context"><![CDATA[Jobs in {display_name}]]></string>
+    <string name="_mz_jobs_page_title_browse_featured"><![CDATA[Featured Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_recent"><![CDATA[Latest Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_popular"><![CDATA[Popular Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_local"><![CDATA[Local Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_companies"><![CDATA[Company Jobs]]></string> 
+    <string name="_mz_jobs_page_title_browse_wanted"><![CDATA[Wanted Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_remote"><![CDATA[Remote Jobs]]></string> 
+    <string name="_mz_jobs_page_title_browse_updated"><![CDATA[Updated Jobs]]></string>
+    <string name="_mz_jobs_page_title_browse_category"><![CDATA[Jobs in {display_name}]]]]></string>
+    <string name="_mz_jobs_page_title_sys_home"><![CDATA[Jobs Home]]></string>
+    <string name="_mz_jobs_page_title_home"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_featured_entries_view_extended"><![CDATA[Featured Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_recent_entries"><![CDATA[Latest Jobs (Gallery View)]]></string>
+    <string name="_mz_jobs_page_block_title_recent_entries_view_extended"><![CDATA[Latest Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_recent_entries_view_full"><![CDATA[Latest Jobs (Full View)]]></string>
+    <string name="_mz_jobs_page_block_title_entry_social_sharing"><![CDATA[Share]]></string>
+    <string name="_mz_jobs_page_block_title_entry_author"><![CDATA[Author]]></string>  
+    <string name="_mz_jobs_page_block_title_entry_skills"><![CDATA[Skills]]></string>
+    <string name="_mz_jobs_page_block_title_entry_experience"><![CDATA[Experience]]></string> 
+    <string name="_mz_jobs_page_block_title_entry_actions"><![CDATA[Actions]]></string>
+    <string name="_mz_jobs_page_block_title_entry_comments"><![CDATA[Comments]]></string>
+    <string name="_mz_jobs_page_block_title_entry_comments_link"><![CDATA[Comments to <a href="{entry_link}">{title}</a>]]></string>
+    <string name="_mz_jobs_page_block_title_entry_reviews"><![CDATA[Reviews]]></string>
+    <string name="_mz_jobs_page_block_title_entry_reviews_link"><![CDATA[Reviews to <a href="{entry_link}">{title}</a>]]></string>
+    <string name="_mz_jobs_page_block_title_entry_reviews_rating"><![CDATA[Rating]]></string>
+    <string name="_mz_jobs_page_block_title_entry_location"><![CDATA[Location]]></string>
+    <string name="_mz_jobs_page_block_title_entry_attachments"><![CDATA[Attachments]]></string>
+    <string name="_mz_jobs_page_block_title_entry_polls"><![CDATA[Polls]]></string>
+    <string name="_mz_jobs_page_block_title_entry_all_actions"><![CDATA[All Actions]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_local"><![CDATA[Local Jobs]]></string>
+    <string name="_mz_jobs_page_title_entries_local"><![CDATA[Local Jobs]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_companies"><![CDATA[Company Jobs]]></string>
+    <string name="_mz_jobs_page_title_entries_companies"><![CDATA[Company Jobs]]></string> 
+    <string name="_mz_jobs_page_title_sys_entries_popular"><![CDATA[Popular Jobs]]></string>
+    <string name="_mz_jobs_page_title_entries_popular"><![CDATA[Popular Jobs]]></string>
+	<string name="_mz_jobs_page_title_sys_entries_wanted"><![CDATA[Wanted Jobs]]></string>
+    <string name="_mz_jobs_page_title_entries_wanted"><![CDATA[Wanted Jobs]]></string>
+	<string name="_mz_jobs_page_title_sys_entries_remote"><![CDATA[Remote Jobs]]></string>
+    <string name="_mz_jobs_page_title_entries_remote"><![CDATA[Remote Jobs]]></string>
+	<string name="_mz_jobs_page_title_sys_entries_updated"><![CDATA[Updated Jobs]]></string>
+    <string name="_mz_jobs_page_title_entries_updated"><![CDATA[Updated Jobs]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_jobs_page_title_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_jobs_page_block_title_search_form"><![CDATA[Search Form]]></string>
+    <string name="_mz_jobs_page_block_title_search_results"><![CDATA[Search Results]]></string>
+    <string name="_mz_jobs_page_block_title_search_form_cmts"><![CDATA[Comments Search Form]]></string>
+    <string name="_mz_jobs_page_block_title_search_results_cmts"><![CDATA[Comments Search Results]]></string>
+    <string name="_mz_jobs_page_block_title_local_entries"><![CDATA[Local Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_local_entries_view_extended"><![CDATA[Local Jobs (Extended View)]]></string>
+    <string name="_mz_jobs_page_block_title_local_entries_view_full"><![CDATA[Local Jobs (Full View)]]></string>
+    <string name="_mz_jobs_page_block_title_companies_entries"><![CDATA[Company Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_companies_entries_view_extended"><![CDATA[Company Jobs (Extended View)]]></string>
+    <string name="_mz_jobs_page_block_title_companies_entries_view_full"><![CDATA[Company Jobs (Full View)]]></string>  
+    <string name="_mz_jobs_page_block_title_popular_entries"><![CDATA[Popular Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_popular_entries_view_extended"><![CDATA[Popular Jobs (Extended View)]]></string>
+    <string name="_mz_jobs_page_block_title_popular_entries_view_full"><![CDATA[Popular Jobs (Full View)]]></string>
+	<string name="_mz_jobs_page_block_title_wanted_entries"><![CDATA[Wanted Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_wanted_entries_view_extended"><![CDATA[Wanted Jobs (Extended View)]]></string>
+    <string name="_mz_jobs_page_block_title_wanted_entries_view_full"><![CDATA[Wanted Jobs (Full View)]]></string> 
+	<string name="_mz_jobs_page_block_title_remote_entries"><![CDATA[Remote Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_remote_entries_view_extended"><![CDATA[Remote Jobs (Extended View)]]></string>
+    <string name="_mz_jobs_page_block_title_remote_entries_view_full"><![CDATA[Remote Jobs (Full View)]]></string>  
+	<string name="_mz_jobs_page_block_title_updated_entries"><![CDATA[Updated Jobs]]></string>
+    <string name="_mz_jobs_page_title_sys_view_entry_comments"><![CDATA[Job Comments]]></string>
+    <string name="_mz_jobs_page_title_view_entry_comments"><![CDATA[Comments to {title}]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_of_author"><![CDATA[Jobs of author]]></string>
+    <string name="_mz_jobs_page_title_entries_of_author"><![CDATA[Jobs by {display_name}]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_in_context"><![CDATA[Jobs in context]]></string>
+    <string name="_mz_jobs_page_title_entries_in_context"><![CDATA[Jobs in {display_name}]]></string>
+    <string name="_mz_jobs_page_block_title_favorites_of_author"><![CDATA[Favorites by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_jobs_page_block_title_sys_favorites_of_author"><![CDATA[Favorites of author]]></string>
+    <string name="_mz_jobs_page_block_title_entries_of_author"><![CDATA[Jobs by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_jobs_page_block_title_sys_entries_of_author"><![CDATA[Jobs of author]]></string>
+    <string name="_mz_jobs_page_block_title_entries_in_context"><![CDATA[Jobs in <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_jobs_page_block_title_sys_entries_in_context"><![CDATA[Jobs in context]]></string>
+    <string name="_mz_jobs_page_block_title_entries_actions"><![CDATA[Jobs actions]]></string>
+    <string name="_mz_jobs_page_block_title_browse_cmts"><![CDATA[Jobs' Comments]]></string>
+    <string name="_mz_jobs_page_title_sys_manage"><![CDATA[Manage Own]]></string>
+    <string name="_mz_jobs_page_title_sys_manage_administration"><![CDATA[Manage All]]></string>
+    <string name="_mz_jobs_page_title_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_jobs_page_block_title_system_manage"><![CDATA[Manage Own]]></string>
+    <string name="_mz_jobs_page_block_title_system_manage_administration"><![CDATA[Manage All]]></string>
+    <string name="_mz_jobs_page_block_title_manage"><![CDATA[Manage]]></string>    
+    <string name="_mz_jobs_page_block_title_popular_keywords"><![CDATA[Popular Hashtags]]></string>
+    <string name="_mz_jobs_page_block_title_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_jobs_page_block_title_entry_info"><![CDATA[Info]]></string>
+    <string name="_mz_jobs_page_block_title_my_entries"><![CDATA[{display_name} Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_sys_recent_entries_view_showcase"><![CDATA[Latest Jobs (Showcase View)]]></string>
+    <string name="_mz_jobs_page_block_title_recent_entries_view_showcase"><![CDATA[Latest Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_sys_local_entries_view_showcase"><![CDATA[Local Jobs (Showcase View)]]></string>
+    <string name="_mz_jobs_page_block_title_sys_companies_entries_view_showcase"><![CDATA[Company Jobs (Showcase View)]]></string>
+    <string name="_mz_jobs_page_block_title_sys_popular_entries_view_showcase"><![CDATA[Popular Jobs (Showcase View)]]></string>
+    <string name="_mz_jobs_page_block_title_popular_entries_view_showcase"><![CDATA[Popular Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_sys_featured_entries_view_showcase"><![CDATA[Featured Jobs (Showcase View)]]></string>
+    <string name="_mz_jobs_page_block_title_featured_entries_view_showcase"><![CDATA[Featured Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_sys_entry_context"><![CDATA[Posted in]]></string>
+    <string name="_mz_jobs_page_block_title_entry_context"><![CDATA[Posted in]]></string>
+    <string name="_mz_jobs_page_title_sys_entries_categories"><![CDATA[Jobs Categories]]></string>
+    <string name="_mz_jobs_page_title_entries_categories"><![CDATA[Jobs Categories]]></string>
+    <string name="_mz_jobs_page_block_title_entries_by_category"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_page_block_title_entries_by_category_mask"><![CDATA[Jobs in: {0}]]></string>
+
+    <string name="_mz_jobs_menu_title_entry_attachments"><![CDATA[Form Attachments]]></string>
+    <string name="_mz_jobs_menu_set_title_entry_attachments"><![CDATA[Form Attachments]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_photo_simple"><![CDATA[Add Photo (simple)]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_photo_simple"><![CDATA[Add Photo]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_photo_html5"><![CDATA[Add Photo (html5)]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_photo_html5"><![CDATA[Add Photos]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_video_simple"><![CDATA[Add Video (simple)]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_video_simple"><![CDATA[Add Video]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_video_html5"><![CDATA[Add Video (html5)]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_video_html5"><![CDATA[Add Videos]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_file_simple"><![CDATA[Add File (simple)]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_file_simple"><![CDATA[Add File]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_file_html5"><![CDATA[Add File (html5)]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_file_html5"><![CDATA[Add Files]]></string>
+    <string name="_mz_jobs_menu_item_title_system_cpa_poll"><![CDATA[Add Poll]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_poll"><![CDATA[Add Poll]]></string>
+
+    <string name="_mz_jobs_menu_set_title_view_entry"><![CDATA[Job Actions]]></string>
+    <string name="_mz_jobs_menu_title_view_entry"><![CDATA[Job Actions]]></string>
+    <string name="_mz_jobs_menu_title_submenu"><![CDATA[Jobs Submenu]]></string>
+    <string name="_mz_jobs_menu_set_title_submenu"><![CDATA[Jobs Submenu]]></string>
+    <string name="_mz_jobs_menu_item_title_system_create_entry"><![CDATA[Job]]></string>
+    <string name="_mz_jobs_menu_item_title_create_entry"><![CDATA[Job]]></string>
+    <string name="_mz_jobs_menu_item_title_system_interested_entry"><![CDATA[Interested]]></string>
+    <string name="_mz_jobs_menu_item_title_interested_entry"><![CDATA[I'm interested]]></string>
+    <string name="_mz_jobs_menu_item_title_system_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_jobs_menu_item_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_jobs_menu_item_title_system_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_menu_item_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_menu_item_title_system_view_entry"><![CDATA[View Job]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_home"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_home"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_public"><![CDATA[New Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_public"><![CDATA[New Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_popular"><![CDATA[Popular]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_popular"><![CDATA[Popular]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_local"><![CDATA[Local]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_local"><![CDATA[Local]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_companies"><![CDATA[Companies]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_companies"><![CDATA[Companies]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_wanted"><![CDATA[Wanted]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_wanted"><![CDATA[Wanted]]></string>    
+    <string name="_mz_jobs_menu_item_title_system_entries_remote"><![CDATA[Remote]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_remote"><![CDATA[Remote]]></string>     
+    <string name="_mz_jobs_menu_item_title_system_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_jobs_menu_title_view_entry_submenu"><![CDATA[View Job Submenu]]></string>
+    <string name="_mz_jobs_menu_set_title_view_entry_submenu"><![CDATA[View Job Submenu]]></string>
+    <string name="_mz_jobs_menu_item_title_view_entry_submenu_entry"><![CDATA[Job]]></string>
+    <string name="_mz_jobs_menu_item_title_view_entry_submenu_comments"><![CDATA[Comments]]></string>
+    <string name="_mz_jobs_menu_item_title_system_view_entry_comments"><![CDATA[Job Comments]]></string>
+    <string name="_mz_jobs_menu_item_title_system_view_entries_author"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_view_entries_author"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_system_view_entries_in_context"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_view_entries_in_context"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_title_entries_my"><![CDATA[My Jobs Action Menu]]></string>
+    <string name="_mz_jobs_menu_set_title_entries_my"><![CDATA[My Jobs Menu]]></string>
+    <string name="_mz_jobs_menu_item_title_system_manage_my_posts"><![CDATA[My jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_manage_my_posts"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_set_title_manage_tools"><![CDATA[Manage Tools Submenu]]></string>
+    <string name="_mz_jobs_menu_title_manage_tools"><![CDATA[Manage Tools Submenu]]></string>
+    <string name="_mz_jobs_menu_item_title_system_manage_account"><![CDATA[Manage account]]></string>
+    <string name="_mz_jobs_menu_item_title_manage_account"><![CDATA[Manage account]]></string>
+    <string name="_mz_jobs_menu_item_title_system_admt_ads"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_admt_jobs"><![CDATA[Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_manage_my"><![CDATA[My Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_manage_all"><![CDATA[All Jobs]]></string>
+    <string name="_mz_jobs_menu_item_title_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_jobs_menu_item_title_system_entries_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_jobs_menu_item_title_entries_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_jobs_menu_item_title_system_sm_price"><![CDATA[Price]]></string>
+    <string name="_mz_jobs_menu_item_title_sm_price"><![CDATA[Price]]></string>
+
+    <string name="_mz_jobs_grid_column_title_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_jobs_grid_column_title_title"><![CDATA[Title]]></string>
+    <string name="_mz_jobs_grid_column_title_subcategories"><![CDATA[Subcategories]]></string>
+    <string name="_mz_jobs_grid_column_value_subcategories"><![CDATA[{0} subcategories]]></string>
+    <string name="_mz_jobs_grid_column_info_subcategories"><![CDATA[View subcategories]]></string>
+    <string name="_mz_jobs_grid_action_title_add"><![CDATA[Add New]]></string>
+    <string name="_mz_jobs_grid_action_title_back"><![CDATA[Back]]></string>
+    <string name="_mz_jobs_grid_action_title_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_grid_popup_title_add"><![CDATA[Add New Category]]></string>
+    <string name="_mz_jobs_grid_popup_title_edit"><![CDATA[Edit '{0}' Category]]></string>
+    <string name="_mz_jobs_grid_action_err_add_category"><![CDATA[Cannot add a category.]]></string>
+    <string name="_mz_jobs_grid_action_err_edit_category"><![CDATA[Cannot edit the category.]]></string>
+
+    <string name="_mz_jobs_grid_filter_item_title_adm_select_one_filter1"><![CDATA[All Statuses]]></string>
+    <string name="_mz_jobs_grid_filter_item_title_adm_active"><![CDATA[Active]]></string>
+    <string name="_mz_jobs_grid_filter_item_title_adm_hidden"><![CDATA[Hidden]]></string>
+    <string name="_mz_jobs_grid_column_title_adm_active"><![CDATA[Active]]></string>
+    <string name="_mz_jobs_grid_column_title_adm_title"><![CDATA[Title]]></string>
+    <string name="_mz_jobs_grid_column_title_adm_added"><![CDATA[Added]]></string>
+    <string name="_mz_jobs_grid_column_title_adm_author"><![CDATA[Author]]></string>
+    <string name="_mz_jobs_grid_action_title_adm_edit"><![CDATA[Edit]]></string>
+    <string name="_mz_jobs_grid_action_title_adm_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_jobs_grid_action_title_adm_more_actions"><![CDATA[More Actions]]></string>
+    <string name="_mz_jobs_grid_action_title_adm_audit_content"><![CDATA[Audit]]></string>
+    <string name="_mz_jobs_grid_action_err_delete"><![CDATA[Cannot delete the selected jobs.]]></string>
+    <string name="_mz_jobs_grid_txt_account_manager"><![CDATA[Redirect to manage account.]]></string>
+
+    <string name="_mz_jobs_chart_growth"><![CDATA[Jobs: Growth]]></string>
+    <string name="_mz_jobs_chart_growth_speed"><![CDATA[Jobs: Growth Speed]]></string>
+
+    <string name="_mz_jobs_search_extended"><![CDATA[Jobs Search]]></string>
+    <string name="_mz_jobs_search_extended_cmts"><![CDATA[Jobs Comments Search]]></string>
+    <string name="_mz_jobs_search_extended_reviews"><![CDATA[Jobs Reviews Search]]></string>
+
+    <!-- Categories -->
+    <string name="_mz_jobs_cat_type_seeking"><![CDATA[Job Available]]></string>
+    <string name="_mz_jobs_cat_type_wanted"><![CDATA[Job Wanted]]></string>
+ 
+    <string name="_mz_jobs_cat_title_seeking"><![CDATA[Job Available]]></string> 
+    <string name="_mz_jobs_cat_title_wanted"><![CDATA[Job Wanted]]></string>
+  
+    <string name="_mz_jobs_cat_title_media"><![CDATA[Media]]></string>
+    <string name="_mz_jobs_cat_title_cleaning"><![CDATA[Cleaning and Maintenance]]></string>
+    <string name="_mz_jobs_cat_title_business"><![CDATA[Business and Financial Operations ]]></string>
+    <string name="_mz_jobs_cat_title_community"><![CDATA[Community and Social Services ]]></string>
+    <string name="_mz_jobs_cat_title_computer"><![CDATA[Computer and Networking]]></string>  
+    <string name="_mz_jobs_cat_title_construction"><![CDATA[Construction]]></string>
+    <string name="_mz_jobs_cat_title_education"><![CDATA[Education]]></string>
+    <string name="_mz_jobs_cat_title_farming"><![CDATA[Farming, Fishing, and Forestry]]></string>
+    <string name="_mz_jobs_cat_title_food"><![CDATA[Culinary]]></string>
+    <string name="_mz_jobs_cat_title_healthcare"><![CDATA[Healthcare]]></string>
+    <string name="_mz_jobs_cat_title_installation_maintenance_repair"><![CDATA[Installation, Maintenance, and Repair]]></string>
+    <string name="_mz_jobs_cat_title_legal"><![CDATA[Legal]]></string> 
+    <string name="_mz_jobs_cat_title_life_physical_social"><![CDATA[Life, Physical, and Social Science]]></string>
+    <string name="_mz_jobs_cat_title_management"><![CDATA[Management]]></string>
+    <string name="_mz_jobs_cat_title_military"><![CDATA[Military]]></string>
+    <string name="_mz_jobs_cat_title_office"><![CDATA[Office and Administrative Support]]></string> 
+    <string name="_mz_jobs_cat_title_personal_care"><![CDATA[Personal Care]]></string>
+    <string name="_mz_jobs_cat_title_production"><![CDATA[Production]]></string>
+    <string name="_mz_jobs_cat_title_protective_service"><![CDATA[Protective Service]]></string>
+    <string name="_mz_jobs_cat_title_sales"><![CDATA[Sales and Related]]></string>
+ 
+    <string name="_mz_jobs_et_txt_name_interested"><![CDATA[I'm interested.]]></string>
+    <string name="_mz_jobs_et_txt_subject_interested"><![CDATA[{viewer_name} is interested in your job.]]></string>
+    <string name="_mz_jobs_et_txt_body_interested"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p><b><a href="{viewer_url}">{viewer_name}</a></b> is interested in your job <b><a href="{item_url}">{item_name}</a></b>.</p>
+{email_footer}]]></string>
+
+    <string name="_mz_jobs_txt_all_entries_in"><![CDATA[<a href="{0}">All Jobs in {1} ({2})</a>]]></string>
+    <string name="_mz_jobs_txt_all_entries_by"><![CDATA[{0} jobs]]></string>
+    <string name="_mz_jobs_txt_sample_single"><![CDATA[job]]></string>
+    <string name="_mz_jobs_txt_sample_single_with_article"><![CDATA[an job]]></string>
+    <string name="_mz_jobs_txt_sample_comment_single"><![CDATA[comment to job]]></string>
+    <string name="_mz_jobs_txt_sample_vote_single"><![CDATA[vote to job]]></string>
+    <string name="_mz_jobs_txt_sample_reaction_single"><![CDATA['{0}' reaction to job]]></string>
+    <string name="_mz_jobs_txt_sample_score_up_single"><![CDATA[score up vote to job]]></string>
+    <string name="_mz_jobs_txt_sample_score_down_single"><![CDATA[score down vote to job]]></string>
+    <string name="_mz_jobs_txt_display_title_add"><![CDATA[{0}: Add]]></string>
+    <string name="_mz_jobs_txt_display_title_edit"><![CDATA[{0}: Edit]]></string>
+    <string name="_mz_jobs_txt_display_title_view"><![CDATA[{0}: View]]></string>
+    <string name="_mz_jobs_txt_processing_awaiting"><![CDATA[Job will be published as soon as video is converted]]></string>
+    <string name="_mz_jobs_txt_processing_failed"><![CDATA[Job isn't published because video conversion failed, edit video to fix the issue.]]></string>
+    <string name="_mz_jobs_txt_free"><![CDATA[Free]]></string>
+
+    <string name="_mz_jobs_txt_msg_author_notified"><![CDATA[Advertiser was notified, that you're interested in his job. Please wait.]]></string>
+    <string name="_mz_jobs_txt_err_your_own"><![CDATA[You cannot do the action because it's your own job.]]></string>
+    <string name="_mz_jobs_txt_err_duplicate"><![CDATA[You already performed the action.]]></string>
+    <string name="_mz_jobs_txt_err_cannot_perform_action"><![CDATA[Cannot perform action. Please report.]]></string>
+
+    <string name="_mz_jobs_txt_poll_view_answers"><![CDATA[poll]]></string>
+    <string name="_mz_jobs_txt_poll_view_results"><![CDATA[results]]></string>
+    <string name="_mz_jobs_txt_poll_answer_vote_do_by"><![CDATA[Voted for]]></string>
+    <string name="_mz_jobs_txt_poll_answer_vote_counter"><![CDATA[{0} votes]]></string>
+    <string name="_mz_jobs_txt_poll_answer_vote_percent"><![CDATA[({0}%)]]></string>
+
+    <string name="_mz_jobs_page_block_title_details"><![CDATA[Additional Details]]></string>
+    <string name="_mz_jobs_page_block_title_contact"><![CDATA[Contact Details]]></string>
+   
+    <string name="_mz_jobs_pre_lists_salary_type"><![CDATA[Salary Type]]></string>
+    <string name="_mz_jobs_salary_type_per_year"><![CDATA[Per Year]]></string>
+    <string name="_mz_jobs_salary_type_per_month"><![CDATA[Per Month]]></string>
+    <string name="_mz_jobs_salary_type_per_week"><![CDATA[Per Week]]></string>
+    <string name="_mz_jobs_salary_type_fortnightly"><![CDATA[Fortnightly]]></string>
+    <string name="_mz_jobs_salary_type_per_hour"><![CDATA[Per Hour]]></string>
+
+    <string name="_mz_jobs_pre_lists_career_level"><![CDATA[Career Level]]></string>
+    <string name="_mz_jobs_career_level_student_college"><![CDATA[Student (College)]]></string>
+    <string name="_mz_jobs_career_level_student_high_school"><![CDATA[Student (High School)]]></string>
+    <string name="_mz_jobs_career_level_entry_level"><![CDATA[Entry Level (less than 2 years experience)]]></string>
+    <string name="_mz_jobs_career_level_mid_career"><![CDATA[Mid Career (2+ years of experience)]]></string>
+    <string name="_mz_jobs_career_level_management"><![CDATA[Management (Manager/Director of Staff)]]></string>
+    <string name="_mz_jobs_career_level_executive"><![CDATA[Executive (SVP, EVP, VP)]]></string>
+    <string name="_mz_jobs_career_level_senior_executive"><![CDATA[Senior Executive (President, CEO)]]></string>
+ 
+    <string name="_mz_jobs_pre_lists_job_type"><![CDATA[Job Type]]></string> 
+	<string name="_mz_jobs_type_part_time"><![CDATA[Part Time]]></string>
+    <string name="_mz_jobs_type_full_time"><![CDATA[Full Time]]></string>
+    <string name="_mz_jobs_type_intern"><![CDATA[Intern / Work Experience]]></string>
+    <string name="_mz_jobs_type_temporary"><![CDATA[Temporary]]></string>
+    <string name="_mz_jobs_type_contract"><![CDATA[Contract]]></string>
+    <string name="_mz_jobs_type_project"><![CDATA[Project]]></string>
+   
+    <string name="_mz_jobs_pre_lists_experience"><![CDATA[Experience]]></string> 
+	<string name="_mz_jobs_experience_fresher"><![CDATA[Fresher]]></string>
+	<string name="_mz_jobs_experience_less_than_1_year"><![CDATA[Less_than 1 Year]]></string>
+	<string name="_mz_jobs_experience_1_to_2_years"><![CDATA[1 to 2 Years]]></string>
+	<string name="_mz_jobs_experience_2_to_5_years"><![CDATA[2 to 5 Years]]></string>
+	<string name="_mz_jobs_experience_5_to_7_years"><![CDATA[5 to 7 Years]]></string>
+	<string name="_mz_jobs_experience_7_to_10_years"><![CDATA[7 to 10 Years]]></string>
+	<string name="_mz_jobs_experience_10_to_15_years"><![CDATA[10 to 15 Years]]></string>
+	<string name="_mz_jobs_experience_more_than_15_years"><![CDATA[More than 15 Years]]></string>
+ 
+    <string name="_mz_jobs_pre_lists_education"><![CDATA[Education]]></string> 
+	<string name="_mz_jobs_education_high_school"><![CDATA[High School]]></string>
+	<string name="_mz_jobs_education_certification"><![CDATA[Certification (Diploma)]]></string>
+	<string name="_mz_jobs_education_vocational"><![CDATA[Vocational (Diploma)]]></string>
+	<string name="_mz_jobs_education_tertiary_education"><![CDATA[Tertiary Education]]></string>
+	<string name="_mz_jobs_education_associates_degree"><![CDATA[Associates Degree]]></string>
+	<string name="_mz_jobs_education_bachelors"><![CDATA[Bachelors]]></string>
+	<string name="_mz_jobs_education_masters"><![CDATA[Masters]]></string>
+	<string name="_mz_jobs_education_doctorate"><![CDATA[Doctorate]]></string>
+	<string name="_mz_jobs_education_professional_engineering"><![CDATA[Professional-Engineering]]></string>
+    
+    <string name="_mz_jobs_form_entry_input_salary_type"><![CDATA[Min Salary]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_salary_type"><![CDATA[Min Salary]]></string> 
+    <string name="_mz_jobs_form_entry_input_salary_type"><![CDATA[Max Salary]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_salary_type"><![CDATA[Max Salary]]></string>  
+    <string name="_mz_jobs_form_entry_input_salary_type"><![CDATA[Salary Type]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_salary_type"><![CDATA[Salary Type]]></string> 
+    <string name="_mz_jobs_form_entry_input_career_level"><![CDATA[Career Level]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_career_level"><![CDATA[Career Level]]></string> 
+    <string name="_mz_jobs_form_entry_input_job_type"><![CDATA[Job Type]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_job_type"><![CDATA[Job Type]]></string> 
+    <string name="_mz_jobs_form_entry_input_employment_status"><![CDATA[Employment Status]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_employment_status"><![CDATA[Employment Status]]></string> 
+    <string name="_mz_jobs_form_entry_input_application_link"><![CDATA[Application Link]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_application_link"><![CDATA[Application Link]]></string> 
+    <string name="_mz_jobs_form_entry_input_deadline"><![CDATA[Application Deadline]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_deadline"><![CDATA[Application Deadline]]></string>   
+    <string name="_mz_jobs_form_entry_input_allow_message"><![CDATA[Allow Onsite Application]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_allow_message"><![CDATA[Allow Onsite Application]]></string>  
+    <string name="_mz_jobs_form_entry_input_whatsapp"><![CDATA[Allow Whatsapp Contact on Mobile]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_whatsapp"><![CDATA[Allow Whatsapp Contact on Mobile]]></string>  
+    <string name="_mz_jobs_form_entry_input_remote"><![CDATA[Work Remote]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_remote"><![CDATA[Work Remote]]></string>  
+    <string name="_mz_jobs_form_entry_input_salary_negotiable"><![CDATA[Salary Negotiable]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_salary_negotiable"><![CDATA[Salary Negotiable]]></string>   
+    <string name="_mz_jobs_form_entry_input_responsibilities"><![CDATA[Responsibilities]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_responsibilities"><![CDATA[Responsibilities]]></string> 
+    <string name="_mz_jobs_form_entry_input_responsibilities_err"><![CDATA[You must enter Responsibilities]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_salary"><![CDATA[Salary]]></string> 
+    <string name="_mz_jobs_form_entry_input_salary"><![CDATA[Salary]]></string> 
+    <string name="_mz_jobs_form_entry_input_role"><![CDATA[Role]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_role"><![CDATA[Role]]></string> 
+    <string name="_mz_jobs_form_entry_input_vacancies"><![CDATA[Vacancies]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_vacancies"><![CDATA[Vacancies]]></string> 
+    <string name="_mz_jobs_form_entry_input_company"><![CDATA[Hiring Company]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_company"><![CDATA[Hiring Company]]></string> 
+    <string name="_mz_jobs_form_entry_input_email"><![CDATA[Email]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_email"><![CDATA[Email]]></string> 
+    <string name="_mz_jobs_form_entry_input_phone"><![CDATA[Phone]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_phone"><![CDATA[Phone]]></string>  
+    <string name="_mz_jobs_form_entry_input_info_phone"><![CDATA[Enter country code, area code and phone number without any formatting (eg. 18767935492)]]></string>  
+    <string name="_mz_jobs_form_entry_input_mobile"><![CDATA[Mobile]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_mobile"><![CDATA[Mobile]]></string>  
+    <string name="_mz_jobs_form_entry_input_info_mobile"><![CDATA[Enter country code, area code and phone number without any formatting (eg. 18767935492)]]></string>  
+    <string name="_mz_jobs_form_entry_input_website"><![CDATA[Website]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_website"><![CDATA[Website]]></string> 
+ 
+    <string name="_mz_jobs_form_display_view_contact"><![CDATA[Contact Details]]></string> 
+    <string name="_mz_jobs_form_display_view_details"><![CDATA[Additional Details]]></string> 
+
+    <string name="_mz_jobs_form_entry_input_header_details"><![CDATA[Additional Details]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_header_details"><![CDATA[Details Section Header]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_footer_details"><![CDATA[Details Section Footer]]></string> 
+
+    <string name="_mz_jobs_form_entry_input_header_contact"><![CDATA[Contact Details]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_header_contact"><![CDATA[Contact Section Header]]></string> 
+    <string name="_mz_jobs_form_entry_input_sys_footer_contact"><![CDATA[Contact Section Footer]]></string> 
+
+    <string name="_mz_jobs_yes"><![CDATA[Yes]]></string>  
+    <string name="_mz_jobs_no"><![CDATA[No]]></string>  
+
+    <string name="_mz_jobs_page_block_title_send_msg"><![CDATA[Submit Job Application]]></string>
+    <string name="_mz_jobs_msg_success"><![CDATA[Job Application has been sent to <b>{0}</b>]]></string>
+
+    <string name="_mz_jobs_menu_item_title_system_whatsapp"><![CDATA[Whatsapp]]></string>   
+    <string name="_mz_jobs_menu_item_title_whatsapp"><![CDATA[Whatsapp]]></string>  
+    <string name="_mz_jobs_menu_set_title_sys_contact"><![CDATA[Job Contact]]></string>  
+    <string name="_mz_jobs_menu_title_sys_contact"><![CDATA[Job Contact]]></string>  
+
+    <string name="_mz_jobs_default_whatsapp_msg"><![CDATA[I am interested in this job listing]]></string>  
+    <string name="_mz_jobs_link_title_apply_job"><![CDATA[Apply for Job]]></string>  
+    <string name="_mz_jobs_page_block_title_entry_apply"><![CDATA[Apply for Job]]></string>  
+    <string name="_mz_jobs_caption_negotiable_short"><![CDATA[(Negotiable)]]></string>  
+    <string name="_mz_jobs_caption_negotiable_long"><![CDATA[Salary is Negotiable]]></string>  
+
+	<string name="_mz_jobs_page_block_title_sys_my_entries"><![CDATA[User Jobs]]></string>
+	<string name="_mz_jobs_menu_item_title_system_cpa_video_record"><![CDATA[Record Video]]></string>
+    <string name="_mz_jobs_menu_item_title_cpa_video_record"><![CDATA[Record Video]]></string>
+ 	<string name="_mz_jobs_acl_action_delete_any_entry"><![CDATA[Delete Any Job]]></string>  
+
+	<string name="_mz_jobs_option_enable_auto_approve"><![CDATA[Auto approve a Job Listing after creation]]></string> 
+	<string name="_mz_jobs_page_block_title_entry_reports"><![CDATA[Reports]]></string> 
+	<string name="_mz_jobs_grid_filter_item_title_adm_pending"><![CDATA[Pending]]></string>
+	<string name="_mz_jobs_grid_column_title_adm_status_admin"><![CDATA[Moderation]]></string>
+	<string name="_mz_jobs_txt_msg_status_hidden"><![CDATA[This Job Listing was hidden.]]></string>
+	<string name="_mz_jobs_txt_msg_status_pending"><![CDATA[This Job Listing is pending approval.]]></string>  
+    <string name="_mz_jobs_option_lifetime"><![CDATA[Deactivate automatically after 'x' days. Set to '0' for no deactivation]]></string>
+ 
+    <string name="_mz_jobs_grid_filter_item_title_adm_pending"><![CDATA[Pending]]></string> 
+	<string name="_mz_jobs_grid_filter_item_title_adm_select_one_filter2"><![CDATA[Any Audience]]></string>
+   	<string name="_mz_jobs_grid_column_title_adm_status_admin"><![CDATA[Moderation]]></string> 
+    <string name="_mz_jobs_txt_sample_interest_single"><![CDATA[interested in job]]></string>
+    <string name="_mz_jobs_alert_action_doInterest_personal"><![CDATA[Someone interested in your job]]></string>
+    <string name="_mz_jobs_txt_ntfs_subobject_interested"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> {subentry_sample} <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
+    <string name="_mz_jobs_alert_action_approved_personal"><![CDATA[Your job was approved]]></string>
+    <string name="_mz_jobs_txt_ntfs_object_approved"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> approved your job <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
+ 
+    <string name="_mz_jobs_pre_lists_yes_no"><![CDATA[Yes / No]]></string>
+	<string name="_mz_jobs_form_entry_input_category_select_err"><![CDATA[Category field is essential. Please, fill it in.]]></string>
+    <string name="_mz_jobs_txt_scheduled_awaiting"><![CDATA[Job publishing date is {date_publish_uf}]]></string> 
+
+</resources>

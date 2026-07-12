@@ -1,0 +1,14 @@
+div.mz-listing-c-line {  
+    position: relative;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+
+.mz-listing-cl-item.price {
+    font-weight: bold;
+    color: #307424;
+}

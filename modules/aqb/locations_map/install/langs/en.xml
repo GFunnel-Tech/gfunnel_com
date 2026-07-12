@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+	<string name="_aqb_locations_map"><![CDATA[Locations Map]]></string>
+	<string name="_aqb_locations_map_view_map"><![CDATA[View Locations Map]]></string>
+	<string name="_aqb_locations_map_map_provider"><![CDATA[Map provider and style]]></string>
+	<string name="_aqb_locations_map_google_map_api_key"><![CDATA[Google Maps API Key (if you don't have one yet see the <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank">Get API Key</a> page)]]></string>
+	<string name="_aqb_locations_map_mapbox_map_api_key"><![CDATA[Mapbox Access Token (if you don't have one yet register here <a href="https://tiles.mapbox.com/signup" target="_blank">www.mapbox.com</a>)]]></string>
+	<string name="_aqb_locations_map_thunderforest_map_api_key"><![CDATA[Thunderforest Map API Key (if you don't have one yet register here <a href="https://thunderforest.com/pricing/" target="_blank">thunderforest.com</a>)]]></string>
+	<string name="_aqb_locations_map_content_types"><![CDATA[Show locations for]]></string>
+	<string name="_aqb_locations_map_max_locations"><![CDATA[Max number of locations to display]]></string>
+	<string name="_aqb_locations_map_online_profiles"><![CDATA[Online profiles]]></string>
+	<string name="_aqb_locations_map_map_def_location"><![CDATA[Map's Default View (location and zoom)]]></string>
+	<string name="_aqb_locations_map_google_api_key_missing"><![CDATA[The Google Maps API Key is missing]]></string>
+	<string name="_aqb_locations_map_mapbox_api_key_missing"><![CDATA[The Mapbox Access Token is missing]]></string>
+	<string name="_aqb_locations_map_thunderforest_api_key_missing"><![CDATA[The Thunderforest API Key is missing]]></string>
+	<string name="_aqb_locations_map_def_lat"><![CDATA[Map's default latitude (you can use the map below to set it)]]></string>
+	<string name="_aqb_locations_map_def_lng"><![CDATA[Map's default longitude (you can use the map below to set it)]]></string>
+	<string name="_aqb_locations_map_def_zoom"><![CDATA[Map's default zoom (you can use the map below to set it)]]></string>
+	<string name="_aqb_locations_map_custom_icons"><![CDATA[Use custom icons for locations on the map]]></string>
+	<string name="_aqb_locations_map_unknown_map_provider"><![CDATA[Unknown map provider/style]]></string>
+	<string name="_aqb_locations_map_content_types_selected"><![CDATA[Selected by default]]></string>
+
+	<string name="_aqb_locations_map_help"><![CDATA[
+		<p>There are several map providers/styles availble.</p>
+		<p><strong>OSM, Stamen, Esri, CartoDB, Wikimedia</strong> are free to use.</p>
+		<p>
+			<strong>Google</strong> is conditionally free.<br />
+			More regarding its business model can be found <a href="https://cloud.google.com/maps-platform/pricing/" taget="_blank">here</a>.<br />
+			In order to use Google maps you must provide the <strong>Google Maps API Key</strong> (if you don't have one yet see the <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank">Get API Key</a> page)
+		</p>
+		<p>
+			<strong>Mapbox</strong> is conditionally free.<br />
+			More regarding its business model can be found <a href="https://www.mapbox.com/pricing/" taget="_blank">here</a>.<br />
+			In order to use Mapbox maps you must provide the <strong>Mapbox Access Token</strong> (if you don't have one yet register here <a href="https://www.mapbox.com/" target="_blank">www.mapbox.com</a>)<br />
+			All maps styles provided by this service can be found <a href="https://www.mapbox.com/api-documentation/?language=JavaScript#styles" target="_blank">here</a>.
+		</p>
+		<p>
+			<strong>Thunderforest</strong> is conditionally free.<br />
+			More regarding its business model can be found <a href="https://thunderforest.com/pricing/" taget="_blank">here</a>.<br />
+			In order to use Thunderforest maps you must provide the <strong>Thunderforest Map API Key</strong> (if you don't have one yet register here <a href="https://thunderforest.com/pricing/" target="_blank">thunderforest.com</a>)<br />
+			All maps styles provided by this service can be found <a href="https://thunderforest.com/maps/" target="_blank">here</a>.
+		</p>
+		<p>
+			There are a lot more possible map providers and maps styles. Check <a href="http://leaflet-extras.github.io/leaflet-providers/preview/index.html" target="_blank">this demo</a> for a complete list of possible map providers and styles.<br />
+		 	If you're missing some particular map provider/style and would like it to be intergated into the module then contact us and will will add it to the options list with an update.
+		</p>
+	]]></string>
+</resources>

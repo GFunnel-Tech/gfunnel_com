@@ -1,0 +1,53 @@
+<script language="javascript">
+    aDolLang["_aqb_personal_bookmarks_name"] = "__js_lang_name__";
+
+    var iTop = parseInt(aqb_personal_bookmarks_get_cookie('aqb_personal_bookmarks_flap_top'));
+    if (!iTop) iTop = __vpos__;
+
+    if (window.location == window.parent.location)
+    $(document).ready(function(){
+		$("#aqb_extruder").buildMbExtruder({
+			position:"right",
+			width:__width__,
+			top:iTop,
+			extruderOpacity:.8,
+			textOrientation:"bt",
+			//autoCloseTime:500,
+			closeOnExternalClick:true,
+			closeOnClick:false,
+			onExtOpen:function(){
+				aqb_sortable_init();
+			}
+		});
+
+        $("#aqb_extruder").css('display', 'block');
+        $("#aqb_extruder_viewport").css('max-height', ($(window).height() - 10) + 'px');
+        $(window).resize(function() {
+            $("#aqb_extruder_viewport").css('max-height', ($(window).height() - 10) + 'px');
+        });
+
+        setTimeout(function(){
+            $('.flap').draggable({
+                axis: 'y',
+                opacity: '0.6',
+                stop: function( event, ui ) {
+                    var sTop = $('.flap').css('top');
+                    var iTop = parseInt(sTop.substr(0, sTop.length - 2));
+                    aqb_personal_bookmarks_set_cookie('aqb_personal_bookmarks_flap_top', iTop, 365*10);
+                }
+            }).css('cursor', 'pointer');
+        }, 500);
+    });
+</script>
+<div id="aqb_extruder" class="{title:'<bx_text:_aqb_personal_bookmarks_my />'}">
+	<div id="aqb_extruder_viewport">
+		<div class="voice" style="border: none;">
+			<a class="label" href="#" onclick="aqb_personal_bookmarks_add(); return false;">
+				<i class="sys-icon plus"></i>&nbsp;&nbsp;<bx_text:_aqb_personal_bookmarks_add />
+			</a>
+		</div>
+		<div id="aqb_extruder_links">
+			__links__
+		</div>
+	</div>
+</div>

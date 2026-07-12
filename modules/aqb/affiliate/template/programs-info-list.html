@@ -1,0 +1,52 @@
+<div class="aqb-affiliate-admin-programs">
+    <bx_repeat:items>
+        <div class="aqb-affiliate-admin-program-item __active__" title="__status__">
+            <div>
+                <div class="title">
+                    <span>__level__</span>
+                    <span>__icon__</span>
+                </div>
+                <div class="info">
+                    <bx_repeat:action_list>
+                        <span><b>__title__:</b> __content__</span>
+                    </bx_repeat:action_list>
+                    <span><b><bx_text:_aqb_affiliate_matrix_program_matrix_mode />:</b> __on__</span>
+                    <bx_if:matrix>
+                        <span><b><bx_text:_aqb_affiliate_matrix_program_width />:</b> __width__</span>
+                        <span><b><bx_text:_aqb_affiliate_matrix_program_deep />:</b> __deep__</span>
+                        <span><b><bx_text:_aqb_affiliate_matrix_program_spillover />:</b> __spillover__</span>
+                    </bx_if:matrix>
+                </div>
+            </div>
+           <bx_if:desc>
+               <div class="bx-form-section-wrapper">
+                   <div class="bx-form-section bx-form-section-header bx-form-collapsable bx-form-collapsed bx-form-section-hidden">
+                       <legend class="bx-def-padding-left bx-def-padding-sec-right bx-def-font-grayed flex items-center cursor-pointer">
+                           <u class="bx-form-section-toggler">
+                               <i class="sys-icon chevron-up"></i>
+                           </u>
+                           <bx_text:_aqb_affiliate_matrix_program_description />
+                       </legend>
+                       <div class="bx-form-section-content flex items-center px-4 py-2">
+                           __description__
+                       </div>
+                   </div>
+               </div>
+           </bx_if:desc>
+        </div>
+    </bx_repeat:items>
+</div>
+<script>
+    $(function($){
+        const oObjects = $('.aqb-affiliate-admin-programs legend');
+        oObjects.on('click', function() {
+            const oIcon = $('u>i', this);
+            $(this).next().toggle(function(){
+                if ($(this).is(':visible'))
+                    oIcon.removeClass('chevron-up').addClass('chevron-down');
+                else
+                    oIcon.removeClass('chevron-down').addClass('chevron-up');
+            });
+        });
+    }(jQuery));
+</script>

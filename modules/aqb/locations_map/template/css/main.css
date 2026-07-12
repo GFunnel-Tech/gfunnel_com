@@ -1,0 +1,26 @@
+.aqb_locations_map_filters {
+	float: right;
+	margin-left: 10px;
+}
+.aqb_locations_map_filters > div {
+	margin-bottom: 5px;
+}
+.aqb_locations_map_filters .bx-switcher-cont {
+	display: inline-block;
+	vertical-align: middle;
+}
+#aqb_map {
+	z-index: 1;
+}
+
+@media (max-width:720px) {
+	.aqb_locations_map_filters {
+		float: none;
+		margin-bottom: 10px;
+	}
+	.aqb_locations_map_filters > div {
+		margin-bottom: 5px;
+		display: inline-block;
+		width: 49%;
+	}
+}

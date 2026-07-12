@@ -1,0 +1,78 @@
+@import url(../../../../base/text/template/css/main.css);
+
+/*--- Categories ---*/
+.mz-goal-subcategories .mz-goal-category:first-child {
+    padding-top: 0;
+}
+.mz-goal-category .sys-icon {
+    display: inline-block;
+    width: 1.0rem;
+}
+
+/*--- Snippet ---*/
+div.bx-base-general-unit-meta .bx-menu-item-price span.price {
+    color: #307424;
+}
+ 
+#mz-goal-snippet-meta {
+overflow:hidden;
+}
+
+.mz_goal_block_info .infoUnit {
+    overflow:hidden;
+}
+
+.mz_goal_block_info .infoUnitFontIcon {
+    padding-left:0;
+}
+
+.mz_goal_block_info .infoUnitFontIcon > .sys-icon {
+    font-size:14px;
+    vertical-align:middle;
+}
+
+div.mz_goal_progress_outer {
+	width:100%;
+	background-color:#dddddd;
+	border:1px solid #0099cc;
+	border-radius: 15px;
+}
+
+div.mz_goal_progress_outer div.progress_bar{
+	border-radius: 15px;
+	background-color:#FFA500;
+	height:15px;
+	font-size:12px;
+	font-weight:bold;
+	color:#0099cc;
+	text-align:center;
+} 
+ 
+span.mz-goal-upcoming { 
+	font-weight:bold;
+    color: #FFBF00; /*amber*/  
+}
+
+span.mz-goal-ongoing {
+	font-weight:bold;
+    color: #0000FF; /*blue*/  
+}
+
+span.mz-goal-outstanding {
+	font-weight:bold;
+    color: #964B00; /*brown*/  
+}
+
+span.mz-goal-completed {
+	font-weight:bold;
+    color: #006400;/*green*/ 
+}
+
+span.mz-goal-failed {
+	font-weight:bold;
+    color: #FF0000; /*red*/  
+}
+
+.mz-goal-unit-meta {
+	font-size:smaller; 
+}

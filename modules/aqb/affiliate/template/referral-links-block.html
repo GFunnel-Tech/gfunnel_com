@@ -1,0 +1,31 @@
+<div class="aqb-affiliate-referral-links-block">
+    <span>
+       <span class="aqb-affiliate-referral-link bx-form-value">
+         <bx_text:_aqb_affiliate_profile_referral_link />
+            <div class="bx-form-input-wrapper bx-form-input-wrapper-input_set">
+	            <input id="aqb-referral-link"
+                       type="text"
+                       name="aqb-referral-link"
+                       class="bx-def-font-inputs bx-form-input-text"
+                       value="__link__"
+                       readonly="readonly" />
+	            <button onclick="javascript:__js_object__.copyToClipboard(this, '#aqb-referral-link');"
+                        type="button"
+                        value="<bx_text: _aqb_affiliate_button_copy />"
+                        class="bx-def-font-inputs bx-form-input-button bx-btn">
+                        <bx_text:_aqb_affiliate_button_copy />
+                </button>
+	        </div>
+       </span>
+    </span>
+    <span>
+        <span>
+            <bx_if:send_invitation>
+                <button class="bx-btn bx-btn-small" type="button" onclick="__js_object__.getPopupByAction(this, 'get_invitation_form');">
+                    <i class="sys-icon users"></i>
+                    <u><bx_text:_aqb_affiliate_profile_send_invitation /></u>
+                </button>
+            </bx_if:send_invitation>
+       </span>
+    </span>
+</div>

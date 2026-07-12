@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+	<string name="_aqb_personal_bookmarks"><![CDATA[Personal Bookmarks]]></string>
+	<string name="_aqb_personal_bookmarks_my"><![CDATA[My Bookmarks]]></string>
+	<string name="_aqb_personal_bookmarks_add"><![CDATA[Add this page]]></string>
+	<string name="_aqb_personal_bookmarks_name"><![CDATA[Name of this bookmark]]></string>
+	<string name="_aqb_personal_bookmarks_sure"><![CDATA[Are you sure you want to delete this bookmark?]]></string>
+	<string name="_aqb_personal_bookmarks_adm_setting_type"><![CDATA[Personal Bookmarks]]></string>
+	<string name="_aqb_personal_bookmarks_option_vpos"><![CDATA[Vertical position]]></string>
+	<string name="_aqb_personal_bookmarks_option_width"><![CDATA[Width]]></string>
+
+	<string name="_aqb_personal_bookmarks_use"><![CDATA[Use the Personal Bookmarks]]></string>
+</resources>
+

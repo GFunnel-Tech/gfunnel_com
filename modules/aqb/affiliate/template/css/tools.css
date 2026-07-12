@@ -1,0 +1,110 @@
+div.aqb-affiliate-banners-list {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+div.aqb-affiliate-banners-list .bx-def-hr-auto {
+    margin-bottom: 1rem;
+}
+
+div.aqb-affiliate-banners-list .info-block div{
+    margin-bottom: 0.5rem;
+}
+
+div.aqb-affiliate-banners-list-item{
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+div.aqb-affiliate-banners-list-item .info-block{
+    display: flex;
+    flex-direction: column;
+}
+
+div.aqb-affiliate-banners-list-item .commission-info{
+    flex-direction: row;
+    display: flex;
+}
+
+div.aqb-affiliate-banners-list-item .preview {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+div.aqb-affiliate-banners-list-item .preview img{
+    max-width: 11.25rem;
+}
+
+div.aqb-affiliate-banners-list-item .footer{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+div.aqb-affiliate-banners-list-item .footer a:first-child{
+    margin-right: 1rem;
+}
+
+div.aqb-affiliate-banners-list-item .header{
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+div.aqb-affiliate-banners-list-item .info-points,
+div.aqb-affiliate-banners-list-item .info-credits,
+div.aqb-affiliate-banners-list-item .info{
+    display: flex;
+    flex-direction: column;
+    font-weight: 400;
+}
+
+div.aqb-affiliate-banners-list-item .info-credits span,
+div.aqb-affiliate-banners-list-item .info-points span,
+div.aqb-affiliate-banners-list-item .info span{
+    margin-bottom: 0.3rem;
+}
+
+#aqb-popup-banner-view-form {
+    display: none;
+}
+
+#aqb-popup-banner-view-form .bx-popup-width,
+#aqb-popup-banner-form .bx-popup-width {
+    width: 100%;
+}
+
+#aqb-popup-banner-view-form .bx-popup-content {
+    text-align: center;
+    overflow: auto;
+}
+
+@media screen and (max-width: 460px) {
+    div.aqb-affiliate-banners-list-item{
+        display: grid;
+        grid-template-areas:
+                "prev header"
+                "prev comission"
+                "footer points";
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: 1fr 1fr 1fr;
+    }
+
+    div.aqb-affiliate-banners-list-item .footer a{
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+        margin: 0;
+    }
+
+    div.aqb-affiliate-banners-list-item .footer {
+        grid-area: footer;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-right: 1rem;
+        margin-top: 0.5rem;
+    }
+}

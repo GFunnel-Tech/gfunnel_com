@@ -1,0 +1,13 @@
+.mz-listing-eoa {
+    position: relative;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: flex-start;
+    align-items: flex-start;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.mz-listing-eoa .bx-btn {
+    float: none;
+}

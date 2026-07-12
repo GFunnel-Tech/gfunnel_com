@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_mz_goal"><![CDATA[Goal]]></string>
+    <string name="_mz_goal_cmts"><![CDATA[Goal Comments]]></string>
+    <string name="_mz_goal_reactions"><![CDATA[Goal Reactions]]></string>
+ 
+    <string name="_mz_goal_form_sys_header_info_begin"><![CDATA[Header Info - Begin]]></string>
+    <string name="_mz_goal_form_sys_header_info_end"><![CDATA[Header Info - End]]></string>
+    <string name="_mz_goal_form_header_info"><![CDATA[General Info]]></string>
+ 
+    <string name="_mz_goal_form_sys_header_privacy_begin"><![CDATA[Header Privacy - Begin]]></string>
+    <string name="_mz_goal_form_sys_header_privacy_end"><![CDATA[Header Privacy - End]]></string>
+    <string name="_mz_goal_form_header_privacy"><![CDATA[Privacy Control]]></string>
+
+    <string name="_mz_goal_form_sys_header_media_begin"><![CDATA[Header Media - Begin]]></string>
+    <string name="_mz_goal_form_sys_header_media_end"><![CDATA[Header Media - End]]></string>
+    <string name="_mz_goal_form_header_media"><![CDATA[Media Upload]]></string>
+
+    <string name="_mz_goal_option_summary_chars"><![CDATA[Number of characters in auto-cropped goal summary]]></string>
+    <string name="_mz_goal_option_plain_summary_chars"><![CDATA[Number of characters in plain goal description when goal hasn't thumb]]></string>
+    <string name="_mz_goal_option_per_page_browse"><![CDATA[Number of items per page]]></string>
+    <string name="_mz_goal_option_per_page_profile"><![CDATA[Number of items on profile/group page]]></string>
+    <string name="_mz_goal_option_rss_num"><![CDATA[Number of items in RSS feed]]></string>
+    <string name="_mz_goal_option_searchable_fields"><![CDATA[Searchable fields for keyword search]]></string>
+   
+    <string name="_mz_goal_form_category"><![CDATA[Category]]></string>
+    <string name="_mz_goal_form_category_display_add"><![CDATA[Add Category]]></string>
+    <string name="_mz_goal_form_category_display_edit"><![CDATA[Edit Category]]></string>
+    <string name="_mz_goal_form_category_display_delete"><![CDATA[Delete Category]]></string>
+    <string name="_mz_goal_form_category_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_category_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_category_input_sys_do_cancel"><![CDATA[Cancel]]></string> 
+    <string name="_mz_goal_form_category_input_do_cancel"><![CDATA[Cancel]]></string>
+    <string name="_mz_goal_form_category_input_sys_parent_id"><![CDATA[Parent]]></string>
+    <string name="_mz_goal_form_category_input_parent_id"><![CDATA[Parent category]]></string>
+    <string name="_mz_goal_form_category_input_parent_id_empty"><![CDATA[No parent]]></string>
+    <string name="_mz_goal_form_category_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_category_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_category_input_title_err"><![CDATA[Title is essential. Please, fill in this field.]]></string>
+    <string name="_mz_goal_form_category_input_sys_text"><![CDATA[Text]]></string>
+    <string name="_mz_goal_form_category_input_text"><![CDATA[Text]]></string>
+    <string name="_mz_goal_form_category_input_sys_type"><![CDATA[Type]]></string>
+    <string name="_mz_goal_form_category_input_type"><![CDATA[Type]]></string>
+    <string name="_mz_goal_form_category_input_type_err"><![CDATA[Type is essential. Please, select a value for this field.]]></string>
+    <string name="_mz_goal_form_category_input_type_info"><![CDATA[Type determines a set of fields for entries in this category.]]></string>
+    <string name="_mz_goal_form_category_input_sys_type_clone"><![CDATA[Clone type]]></string>
+    <string name="_mz_goal_form_category_input_type_clone"><![CDATA[Clone type]]></string>
+    <string name="_mz_goal_form_category_input_sys_type_title"><![CDATA[Type title]]></string>
+    <string name="_mz_goal_form_category_input_type_title"><![CDATA[Type title]]></string>
+    <string name="_mz_goal_form_category_input_sys_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_goal_form_category_input_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_goal_form_category_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_goal_form_category_input_delete_confirm"><![CDATA[I am sure I want to delete this category]]></string>
+    <string name="_mz_goal_form_category_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_goal_form_category_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the category]]></string>
+
+    <string name="_mz_goal_form_entry"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_form_entry_display_add"><![CDATA[Add Goal]]></string>
+    <string name="_mz_goal_form_entry_display_delete"><![CDATA[Delete Goal]]></string>
+ 
+    <string name="_mz_goal_form_entry_display_edit"><![CDATA[Edit Goal]]></string>
+    <string name="_mz_goal_form_entry_display_view"><![CDATA[View Goal]]></string>
+ 
+    <string name="_mz_goal_form_entry_input_author"><![CDATA[Poster]]></string>
+    <string name="_mz_goal_form_entry_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_entry_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_entry_input_sys_from"><![CDATA[From]]></string>
+    <string name="_mz_goal_form_entry_input_from"><![CDATA[From]]></string>
+    <string name="_mz_goal_form_entry_input_sys_to"><![CDATA[To]]></string>
+    <string name="_mz_goal_form_entry_input_to"><![CDATA[To]]></string>
+    <string name="_mz_goal_form_entry_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_entry_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_entry_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string> 
+    <string name="_mz_goal_form_entry_input_sys_category"><![CDATA[Category (Hidden)]]></string>
+    <string name="_mz_goal_form_entry_input_sys_category_view"><![CDATA[Category]]></string>
+    <string name="_mz_goal_form_entry_input_category_view"><![CDATA[Category]]></string>
+    <string name="_mz_goal_form_entry_input_sys_category_select"><![CDATA[Category]]></string>
+    <string name="_mz_goal_form_entry_input_category_select"><![CDATA[Category]]></string>
+    <string name="_mz_goal_form_entry_input_category_err"><![CDATA[Category must be selected]]></string> 
+    <string name="_mz_goal_form_entry_input_sys_text"><![CDATA[What I desire to attain]]></string>
+    <string name="_mz_goal_form_entry_input_text"><![CDATA[What I desire to attain]]></string> 
+    <string name="_mz_goal_form_entry_input_text_err"><![CDATA[Attain field can't be empty]]></string>
+
+    <string name="_mz_goal_form_entry_input_sys_attained_at_start"><![CDATA[Already attained at start]]></string>
+    <string name="_mz_goal_form_entry_input_attained_at_start"><![CDATA[Already attained at start]]></string> 
+ 
+    <string name="_mz_goal_form_entry_input_sys_complete_by"><![CDATA[Complete by]]></string>
+    <string name="_mz_goal_form_entry_input_complete_by"><![CDATA[Complete by]]></string> 
+  
+    <string name="_mz_goal_form_entry_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_goal_form_entry_input_delete_confirm"><![CDATA[I am sure I want to delete this goal]]></string>
+    <string name="_mz_goal_form_entry_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_goal_form_entry_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the goal]]></string>
+    <string name="_mz_goal_form_entry_input_sys_covers"><![CDATA[Header Image]]></string>
+    <string name="_mz_goal_form_entry_input_covers"><![CDATA[Header Image]]></string>
+    <string name="_mz_goal_form_entry_input_covers_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_entry_input_covers_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_entry_input_sys_pictures"><![CDATA[Images]]></string>
+    <string name="_mz_goal_form_entry_input_pictures"><![CDATA[]]></string>
+    <string name="_mz_goal_form_entry_input_sys_videos"><![CDATA[Videos]]></string>
+    <string name="_mz_goal_form_entry_input_videos"><![CDATA[]]></string>
+    <string name="_mz_goal_form_entry_input_sys_files"><![CDATA[Files]]></string>
+    <string name="_mz_goal_form_entry_input_files"><![CDATA[]]></string>
+    <string name="_mz_goal_form_entry_input_sys_polls"><![CDATA[Polls]]></string>
+    <string name="_mz_goal_form_entry_input_sys_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_goal_form_entry_input_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_goal_form_entry_input_sys_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_goal_form_entry_input_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_goal_form_entry_input_sys_date_changed"><![CDATA[Updated]]></string>
+    <string name="_mz_goal_form_entry_input_date_changed"><![CDATA[Updated]]></string>
+    <string name="_mz_goal_form_entry_input_sys_attachments"><![CDATA[Attachments]]></string>
+  
+    <string name="_mz_goal_form_poll"><![CDATA[Polls]]></string>
+    <string name="_mz_goal_form_poll_display_add"><![CDATA[Add Poll]]></string>
+    <string name="_mz_goal_form_poll_input_sys_text"><![CDATA[Question]]></string>
+    <string name="_mz_goal_form_poll_input_text"><![CDATA[Question]]></string>
+    <string name="_mz_goal_form_poll_input_text_err"><![CDATA[Question is essential. Please, fill in this field]]></string>
+    <string name="_mz_goal_form_poll_input_sys_answers"><![CDATA[Answers]]></string>
+    <string name="_mz_goal_form_poll_input_answers"><![CDATA[Answers]]></string>
+    <string name="_mz_goal_form_poll_input_answers_err"><![CDATA[Poll should have at least 2 non-empty answers.]]></string>
+    <string name="_mz_goal_form_poll_input_answers_add"><![CDATA[Add More]]></string>
+    <string name="_mz_goal_form_poll_input_sys_do_submit"><![CDATA[Add]]></string>
+    <string name="_mz_goal_form_poll_input_do_submit"><![CDATA[Add]]></string>
+    <string name="_mz_goal_form_poll_input_do_cancel"><![CDATA[Cancel]]></string>
+
+    <string name="_mz_goal_acl_action_create_entry"><![CDATA[Create Goal]]></string>
+    <string name="_mz_goal_acl_action_delete_entry"><![CDATA[Delete Goal]]></string>
+    <string name="_mz_goal_acl_action_view_entry"><![CDATA[View Goal]]></string>
+    <string name="_mz_goal_acl_action_set_thumb"><![CDATA[Set Goal Header Image]]></string>
+    <string name="_mz_goal_acl_action_edit_any_entry"><![CDATA[Edit Any Goal]]></string> 
+  
+    <string name="_mz_goal_page_title_sys_entries_featured"><![CDATA[Featured]]></string>  
+    <string name="_mz_goal_page_title_sys_create_entry"><![CDATA[New Goal]]></string>
+    <string name="_mz_goal_page_title_create_entry"><![CDATA[New Goal]]></string>
+    <string name="_mz_goal_page_block_title_create_entry"><![CDATA[New Goal]]></string>
+    <string name="_mz_goal_page_title_sys_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_page_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_page_block_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_page_title_sys_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_page_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_page_block_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_page_title_sys_view_entry"><![CDATA[View Goal]]></string>
+    <string name="_mz_goal_page_title_view_entry"><![CDATA[{title}]]></string>
+    <string name="_mz_goal_page_block_title_entry_breadcrumb"><![CDATA[Breadcrumb]]></string>
+    <string name="_mz_goal_page_block_title_entry_text"><![CDATA[Desired Outcome]]></string>
+    <string name="_mz_goal_page_block_title_entry_attained"><![CDATA[Already Attained at Start]]></string>
+    <string name="_mz_goal_page_title_browse"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_page_title_search_results"><![CDATA[Goals matching "{0}"]]></string>
+    <string name="_mz_goal_page_title_browse_by_author"><![CDATA[Goals posted by {display_name}]]></string>
+    <string name="_mz_goal_page_title_browse_by_context"><![CDATA[Goals in {display_name}]]></string>
+    <string name="_mz_goal_page_title_browse_featured"><![CDATA[Featured Goals]]></string>
+    <string name="_mz_goal_page_title_browse_completed"><![CDATA[Completed Goals]]></string>
+    <string name="_mz_goal_page_title_browse_achieved"><![CDATA[Achieved Goals]]></string>  
+    <string name="_mz_goal_page_title_browse_recent"><![CDATA[Latest Goals]]></string>
+    <string name="_mz_goal_page_title_browse_favorite"><![CDATA[Favorite Goals]]></string>
+    <string name="_mz_goal_page_title_browse_popular"><![CDATA[Popular Goals]]></string>
+    <string name="_mz_goal_page_title_browse_updated"><![CDATA[Updated Goals]]></string>
+    <string name="_mz_goal_page_title_browse_category"><![CDATA[Goals in {display_name}]]></string>
+    <string name="_mz_goal_page_title_sys_home"><![CDATA[Goals Home]]></string>
+    <string name="_mz_goal_page_title_home"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_page_block_title_featured_entries"><![CDATA[Featured Goals]]></string>
+    <string name="_mz_goal_page_block_title_featured_entries_view_extended"><![CDATA[Featured Goals]]></string>
+    <string name="_mz_goal_page_block_title_recent_entries"><![CDATA[Latest Goals (Gallery View)]]></string>
+    <string name="_mz_goal_page_block_title_recent_entries_view_extended"><![CDATA[Latest Goals]]></string>
+    <string name="_mz_goal_page_block_title_recent_entries_view_full"><![CDATA[Latest Goals (Full View)]]></string>
+    <string name="_mz_goal_page_block_title_entry_social_sharing"><![CDATA[Share]]></string>
+    <string name="_mz_goal_page_block_title_entry_author"><![CDATA[Poster]]></string>
+    <string name="_mz_goal_page_block_title_entry_actions"><![CDATA[Actions]]></string>
+    <string name="_mz_goal_page_block_title_entry_comments"><![CDATA[Comments]]></string>
+    <string name="_mz_goal_page_block_title_entry_comments_link"><![CDATA[Comments to <a href="{entry_link}">{title}</a>]]></string>
+    <string name="_mz_goal_page_block_title_entry_reviews"><![CDATA[Reviews]]></string>
+    <string name="_mz_goal_page_block_title_entry_reviews_link"><![CDATA[Reviews to <a href="{entry_link}">{title}</a>]]></string>
+    <string name="_mz_goal_page_block_title_entry_reviews_rating"><![CDATA[Rating]]></string>
+    <string name="_mz_goal_page_block_title_entry_location"><![CDATA[Location]]></string>
+    <string name="_mz_goal_page_block_title_entry_attachments"><![CDATA[Attachments]]></string>
+    <string name="_mz_goal_page_block_title_entry_polls"><![CDATA[Polls]]></string>
+    <string name="_mz_goal_page_block_title_entry_all_actions"><![CDATA[All Actions]]></string>
+    <string name="_mz_goal_page_title_sys_entries_popular"><![CDATA[Popular Goals]]></string>
+    <string name="_mz_goal_page_title_entries_popular"><![CDATA[Popular Goals]]></string>     
+	<string name="_mz_goal_page_title_sys_entries_favorite"><![CDATA[Favorite Goals]]></string>
+    <string name="_mz_goal_page_title_entries_favorite"><![CDATA[Favorite Goals]]></string> 
+    <string name="_mz_goal_page_title_sys_entries_updated"><![CDATA[Updated Goals]]></string>
+    <string name="_mz_goal_page_title_entries_updated"><![CDATA[Updated Goals]]></string>
+    <string name="_mz_goal_page_title_sys_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_goal_page_title_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_goal_page_block_title_search_form"><![CDATA[Search Form]]></string>
+    <string name="_mz_goal_page_block_title_search_results"><![CDATA[Search Results]]></string>
+    <string name="_mz_goal_page_block_title_search_form_cmts"><![CDATA[Comments Search Form]]></string>
+    <string name="_mz_goal_page_block_title_search_results_cmts"><![CDATA[Comments Search Results]]></string>
+    <string name="_mz_goal_page_block_title_favorite_entries"><![CDATA[Favorite Goals]]></string>
+    <string name="_mz_goal_page_block_title_popular_entries"><![CDATA[Popular Goals]]></string>
+    <string name="_mz_goal_page_block_title_popular_entries_view_extended"><![CDATA[Popular Goals (Extended View)]]></string>
+    <string name="_mz_goal_page_block_title_popular_entries_view_full"><![CDATA[Popular Goals (Full View)]]></string> 
+	<string name="_mz_goal_page_block_title_updated_entries"><![CDATA[Updated Goals]]></string>
+    <string name="_mz_goal_page_title_sys_view_entry_comments"><![CDATA[Goal Comments]]></string>
+    <string name="_mz_goal_page_title_view_entry_comments"><![CDATA[Comments to {title}]]></string>
+    <string name="_mz_goal_page_title_sys_view_entry_reviews"><![CDATA[Goal Reviews]]></string>
+    <string name="_mz_goal_page_title_view_entry_reviews"><![CDATA[Reviews to {title}]]></string> 
+    <string name="_mz_goal_page_title_sys_entries_of_author"><![CDATA[Goals submitted by poster]]></string>
+    <string name="_mz_goal_page_title_entries_of_author"><![CDATA[Goals posted by {display_name}]]></string>
+    <string name="_mz_goal_page_title_sys_entries_in_context"><![CDATA[Goals in context]]></string>
+    <string name="_mz_goal_page_title_entries_in_context"><![CDATA[Goals in {display_name}]]></string>
+    <string name="_mz_goal_page_block_title_favorites_of_author"><![CDATA[Favorites by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_goal_page_block_title_sys_favorites_of_author"><![CDATA[Favorites of poster]]></string>
+    <string name="_mz_goal_page_block_title_entries_of_author"><![CDATA[Goals posted by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_goal_page_block_title_sys_entries_of_author"><![CDATA[Goals submitted by poster]]></string>
+    <string name="_mz_goal_page_block_title_entries_in_context"><![CDATA[Goals posted by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_goal_page_block_title_sys_entries_in_context"><![CDATA[Goals in context]]></string>
+    <string name="_mz_goal_page_block_title_entries_actions"><![CDATA[Goals actions]]></string>
+    <string name="_mz_goal_page_block_title_browse_cmts"><![CDATA[Goals' Comments]]></string>
+    <string name="_mz_goal_page_title_sys_manage"><![CDATA[Manage Own]]></string>
+    <string name="_mz_goal_page_title_sys_manage_administration"><![CDATA[Manage All]]></string>
+    <string name="_mz_goal_page_title_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_goal_page_block_title_system_manage"><![CDATA[Manage Own]]></string>
+    <string name="_mz_goal_page_block_title_system_manage_administration"><![CDATA[Manage All]]></string>
+    <string name="_mz_goal_page_block_title_manage"><![CDATA[Manage]]></string>    
+    <string name="_mz_goal_page_block_title_popular_keywords"><![CDATA[Popular Hashtags]]></string>
+    <string name="_mz_goal_page_block_title_categories"><![CDATA[Goals Categories]]></string>
+    <string name="_mz_goal_page_block_title_entry_info"><![CDATA[Info]]></string>
+    <string name="_mz_goal_page_block_title_entry_statistics"><![CDATA[Statistics]]></string>  
+    <string name="_mz_goal_page_block_title_my_entries"><![CDATA[{display_name} Goals]]></string>
+    <string name="_mz_goal_page_block_title_sys_recent_entries_view_showcase"><![CDATA[Latest Goals (Showcase View)]]></string>
+    <string name="_mz_goal_page_block_title_recent_entries_view_showcase"><![CDATA[Latest Goals]]></string>
+    <string name="_mz_goal_page_block_title_sys_popular_entries_view_showcase"><![CDATA[Popular Goals (Showcase View)]]></string>
+    <string name="_mz_goal_page_block_title_popular_entries_view_showcase"><![CDATA[Popular Goals]]></string>
+	<string name="_mz_goal_page_block_title_sys_featured_entries_view_showcase"><![CDATA[Featured Goals (Showcase View)]]></string>
+    <string name="_mz_goal_page_block_title_featured_entries_view_showcase"><![CDATA[Featured Goals]]></string>
+    <string name="_mz_goal_page_block_title_sys_entry_context"><![CDATA[Posted in]]></string>
+    <string name="_mz_goal_page_block_title_entry_context"><![CDATA[Posted in]]></string>
+    <string name="_mz_goal_page_title_sys_entries_categories"><![CDATA[Goals Categories]]></string>
+    <string name="_mz_goal_page_title_entries_categories"><![CDATA[Goals Categories]]></string>
+    <string name="_mz_goal_page_block_title_entries_by_category"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_page_block_title_entries_by_category_mask"><![CDATA[Goals in: {0}]]></string>
+
+    <string name="_mz_goal_menu_title_entry_attachments"><![CDATA[Form Attachments]]></string>
+    <string name="_mz_goal_menu_set_title_entry_attachments"><![CDATA[Form Attachments]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_photo_simple"><![CDATA[Add Photo (simple)]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_photo_simple"><![CDATA[Add Photo]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_photo_html5"><![CDATA[Add Photo (html5)]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_photo_html5"><![CDATA[Add Photos]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_video_simple"><![CDATA[Add Video (simple)]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_video_simple"><![CDATA[Add Video]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_video_html5"><![CDATA[Add Video (html5)]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_video_html5"><![CDATA[Add Videos]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_file_simple"><![CDATA[Add File (simple)]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_file_simple"><![CDATA[Add File]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_file_html5"><![CDATA[Add File (html5)]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_file_html5"><![CDATA[Add Files]]></string>
+    <string name="_mz_goal_menu_item_title_system_cpa_poll"><![CDATA[Add Poll]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_poll"><![CDATA[Add Poll]]></string>
+
+    <string name="_mz_goal_menu_set_title_view_entry"><![CDATA[Goal Actions]]></string>
+    <string name="_mz_goal_menu_title_view_entry"><![CDATA[Goal Actions]]></string>
+    <string name="_mz_goal_menu_title_submenu"><![CDATA[Goals Submenu]]></string>
+    <string name="_mz_goal_menu_set_title_submenu"><![CDATA[Goals Submenu]]></string>
+    <string name="_mz_goal_menu_item_title_system_create_entry"><![CDATA[Goal]]></string>
+    <string name="_mz_goal_menu_item_title_create_entry"><![CDATA[Goal]]></string>
+    <string name="_mz_goal_menu_item_title_system_goal_entry"><![CDATA[I am Supporting]]></string>
+    <string name="_mz_goal_menu_item_title_goal_entry"><![CDATA[I am Supporting]]></string>
+    <string name="_mz_goal_menu_item_title_achieved"><![CDATA[Achieved]]></string>
+    <string name="_mz_goal_menu_item_title_not_interested_entry"><![CDATA[Remove as Supporter]]></string>
+    <string name="_mz_goal_menu_item_title_system_not_interested_entry"><![CDATA[Remove as Supporter]]></string>
+    <string name="_mz_goal_txt_msg_interested"><![CDATA[You have been flagged as spotting the item at same place too]]></string>
+    <string name="_mz_goal_txt_msg_not_interested"><![CDATA[You are no longer flagged as spotting the item]]></string>
+ 
+    <string name="_mz_goal_menu_item_title_system_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_menu_item_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_menu_item_title_system_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_menu_item_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_menu_item_title_system_view_entry"><![CDATA[View Goal]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_home"><![CDATA[Goals]]></string> 
+    <string name="_mz_goal_menu_item_title_entries_home"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_item_title_entries_featured"><![CDATA[Featured]]></string> 
+    <string name="_mz_goal_menu_item_title_system_entries_public"><![CDATA[Latest]]></string>
+    <string name="_mz_goal_menu_item_title_entries_public"><![CDATA[Latest]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_goal_menu_item_title_entries_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_favorite"><![CDATA[Favorite]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_popular"><![CDATA[Popular]]></string>
+    <string name="_mz_goal_menu_item_title_entries_today"><![CDATA[Ending Today]]></string>
+    <string name="_mz_goal_menu_item_title_entries_completed"><![CDATA[Completed]]></string>
+    <string name="_mz_goal_menu_item_title_entries_achieved"><![CDATA[Achieved]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_featured"><![CDATA[Featured]]></string> 
+    <string name="_mz_goal_menu_item_title_entries_favorite"><![CDATA[Favorite]]></string>
+    <string name="_mz_goal_menu_item_title_entries_popular"><![CDATA[Popular]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_goal_menu_item_title_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_goal_menu_title_view_entry_submenu"><![CDATA[View Goal Submenu]]></string>
+    <string name="_mz_goal_menu_set_title_view_entry_submenu"><![CDATA[View Goal Submenu]]></string>
+    <string name="_mz_goal_menu_item_title_view_entry_submenu_entry"><![CDATA[Overview]]></string>
+    <string name="_mz_goal_menu_item_title_view_entry_submenu_comments"><![CDATA[Comments]]></string>
+    <string name="_mz_goal_menu_item_title_system_view_entry_comments"><![CDATA[Goal Comments]]></string>
+    <string name="_mz_goal_menu_item_title_view_entry_submenu_reviews"><![CDATA[Reviews]]></string>
+    <string name="_mz_goal_menu_item_title_system_view_entry_reviews"><![CDATA[Goal Reviews]]></string> 
+    <string name="_mz_goal_menu_item_title_system_view_entries_author"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_item_title_view_entries_author"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_item_title_system_view_entries_in_context"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_item_title_view_entries_in_context"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_title_entries_my"><![CDATA[My Goals Action Menu]]></string>
+    <string name="_mz_goal_menu_set_title_entries_my"><![CDATA[My Goals Menu]]></string>
+    <string name="_mz_goal_menu_item_title_system_manage_my_posts"><![CDATA[My goals]]></string>
+    <string name="_mz_goal_menu_item_title_manage_my_posts"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_set_title_manage_tools"><![CDATA[Manage Tools Submenu]]></string>
+    <string name="_mz_goal_menu_title_manage_tools"><![CDATA[Manage Tools Submenu]]></string>
+    <string name="_mz_goal_menu_item_title_system_manage_account"><![CDATA[Manage account]]></string>
+    <string name="_mz_goal_menu_item_title_manage_account"><![CDATA[Manage account]]></string>
+    <string name="_mz_goal_menu_item_title_system_admt_goal"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_item_title_admt_goal"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_menu_item_title_manage_my"><![CDATA[My Goals]]></string>
+    <string name="_mz_goal_menu_item_title_manage_all"><![CDATA[All Goals]]></string>
+    <string name="_mz_goal_menu_item_title_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_goal_menu_item_title_system_entries_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_goal_menu_item_title_entries_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_goal_menu_item_title_manage_goals"><![CDATA[Manage Goals]]></string>
+
+    <string name="_mz_goal_grid_column_title_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_goal_grid_column_title_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_grid_column_title_subcategories"><![CDATA[Subcategories]]></string>
+    <string name="_mz_goal_grid_column_value_subcategories"><![CDATA[{0} subcategories]]></string>
+    <string name="_mz_goal_grid_column_info_subcategories"><![CDATA[View subcategories]]></string>
+    <string name="_mz_goal_grid_action_title_add"><![CDATA[Add New]]></string>
+    <string name="_mz_goal_grid_action_title_back"><![CDATA[Back]]></string>
+    <string name="_mz_goal_grid_action_title_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_grid_popup_title_add"><![CDATA[Add New Category]]></string>
+    <string name="_mz_goal_grid_popup_title_edit"><![CDATA[Edit '{0}' Category]]></string>
+    <string name="_mz_goal_grid_action_err_add_category"><![CDATA[Cannot add a category.]]></string>
+    <string name="_mz_goal_grid_action_err_edit_category"><![CDATA[Cannot edit the category.]]></string>
+
+    <string name="_mz_goal_grid_filter_item_title_adm_select_one_filter1"><![CDATA[All Statuses]]></string> 
+    <string name="_mz_goal_grid_filter_item_title_adm_completed"><![CDATA[Completed]]></string>
+    <string name="_mz_goal_grid_filter_item_title_adm_achieved"><![CDATA[Achieved]]></string>
+    <string name="_mz_goal_grid_filter_item_title_adm_active"><![CDATA[Active]]></string>
+    <string name="_mz_goal_grid_filter_item_title_adm_hidden"><![CDATA[Hidden]]></string>
+    <string name="_mz_goal_grid_column_title_adm_active"><![CDATA[Active]]></string>
+    <string name="_mz_goal_grid_column_title_adm_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_grid_column_title_adm_added"><![CDATA[Added]]></string>
+    <string name="_mz_goal_grid_column_title_adm_author"><![CDATA[Poster]]></string>
+    <string name="_mz_goal_grid_action_title_adm_edit"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_grid_action_title_adm_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_grid_action_title_adm_more_actions"><![CDATA[More Actions]]></string>
+    <string name="_mz_goal_grid_action_title_adm_audit_content"><![CDATA[Audit]]></string>
+    <string name="_mz_goal_grid_action_err_delete"><![CDATA[Cannot delete the selected goal(s).]]></string>
+    <string name="_mz_goal_grid_txt_account_manager"><![CDATA[Redirect to manage account.]]></string>
+ 
+
+    <string name="_mz_goal_txt_status_completed"><![CDATA[Completed]]></string>
+    <string name="_mz_goal_txt_status_achieved"><![CDATA[Achieved]]></string>
+    <string name="_mz_goal_txt_msg_achieved"><![CDATA[The status has been Achieved]]></string>
+    <string name="_mz_goal_txt_msg_completed"><![CDATA[The status has been Completed]]></string>
+    <string name="_mz_goal_err_access_denied"><![CDATA[Access Denied]]></string>
+
+    <string name="_mz_goal_chart_growth"><![CDATA[Goals: Growth]]></string>
+    <string name="_mz_goal_chart_growth_speed"><![CDATA[Goals: Growth Speed]]></string>
+
+    <string name="_mz_goal_search_extended"><![CDATA[Goals Search]]></string>
+    <string name="_mz_goal_search_extended_cmts"><![CDATA[Goals Comments Search]]></string>
+    <string name="_mz_goal_search_extended_reviews"><![CDATA[Goals Reviews Search]]></string>
+
+    <string name="_mz_goal_form_entry_input_subcategory_select"><![CDATA[Sub-Category]]></string>
+    <string name="_mz_goal_form_entry_input_sys_subcategory_select"><![CDATA[Sub-Category]]></string>
+
+    <!-- Categories -->
+                                     
+	<string name="_mz_goal_cat_title_business"><![CDATA[Business]]></string>
+	<string name="_mz_goal_cat_title_recreation"><![CDATA[Recreation]]></string>
+	<string name="_mz_goal_cat_title_shopping"><![CDATA[Shopping]]></string>
+	<string name="_mz_goal_cat_title_vacation"><![CDATA[Vacation]]></string>
+ 
+    <string name="_mz_goal_et_txt_name_interested"><![CDATA[New Supporter for Goal.]]></string>
+    <string name="_mz_goal_et_txt_subject_interested"><![CDATA[{viewer_name} is supporting your goal.]]></string>
+    <string name="_mz_goal_et_txt_body_interested"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p><b><a href="{viewer_url}">{viewer_name}</a></b> is supporting your goal <b><a href="{goal_url}">{goal_name}</a></b>.</p>
+{email_footer}]]></string>
+  
+    <string name="_mz_goal_txt_all_entries_in"><![CDATA[<a href="{0}">All Goals in {1} ({2})</a>]]></string>
+    <string name="_mz_goal_txt_all_entries_by"><![CDATA[{0} goals]]></string>
+    <string name="_mz_goal_txt_sample_single"><![CDATA[goal]]></string>
+    <string name="_mz_goal_txt_sample_single_with_article"><![CDATA[a goal]]></string>
+    <string name="_mz_goal_txt_sample_comment_single"><![CDATA[comment to goal]]></string>
+    <string name="_mz_goal_txt_sample_vote_single"><![CDATA[vote to goal]]></string>
+    <string name="_mz_goal_txt_sample_reaction_single"><![CDATA['{0}' reaction to goal]]></string>
+    <string name="_mz_goal_txt_sample_score_up_single"><![CDATA[score up vote to goal]]></string>
+    <string name="_mz_goal_txt_sample_score_down_single"><![CDATA[score down vote to goal]]></string>
+    <string name="_mz_goal_txt_display_title_add"><![CDATA[{0}: Add]]></string>
+    <string name="_mz_goal_txt_display_title_edit"><![CDATA[{0}: Edit]]></string>
+    <string name="_mz_goal_txt_display_title_view"><![CDATA[{0}: View]]></string>
+    <string name="_mz_goal_txt_processing_awaiting"><![CDATA[Goal will be published as soon as video is converted]]></string>
+    <string name="_mz_goal_txt_processing_failed"><![CDATA[Goal isn't published because video conversion failed, edit video to fix the issue.]]></string>
+    <string name="_mz_goal_txt_free"><![CDATA[Free]]></string>
+
+    <string name="_mz_goal_txt_msg_author_notified"><![CDATA[Poster was notified, that you are supporting this goal.]]></string>
+    <string name="_mz_goal_txt_err_your_own"><![CDATA[You cannot do this action because you posted this goal.]]></string>
+    <string name="_mz_goal_txt_err_duplicate"><![CDATA[You already performed the action.]]></string>
+    <string name="_mz_goal_txt_err_cannot_perform_action"><![CDATA[Cannot perform action. Please report.]]></string>
+
+    <string name="_mz_goal_txt_poll_view_answers"><![CDATA[poll]]></string>
+    <string name="_mz_goal_txt_poll_view_results"><![CDATA[results]]></string>
+    <string name="_mz_goal_txt_poll_answer_vote_do_by"><![CDATA[Voted for]]></string>
+    <string name="_mz_goal_txt_poll_answer_vote_counter"><![CDATA[{0} votes]]></string>
+    <string name="_mz_goal_txt_poll_answer_vote_percent"><![CDATA[({0}%)]]></string>
+ 
+	<string name="_mz_goal_page_block_title_sys_my_entries"><![CDATA[User Goals]]></string>
+	<string name="_mz_goal_menu_item_title_system_cpa_video_record"><![CDATA[Record Video]]></string>
+    <string name="_mz_goal_menu_item_title_cpa_video_record"><![CDATA[Record Video]]></string>
+  
+    <string name="_mz_goal_form_entry_input_date_from"><![CDATA[From]]></string> 
+    <string name="_mz_goal_form_entry_input_date_to"><![CDATA[To]]></string> 
+    <string name="_mz_goal_form_entry_input_cancel"><![CDATA[Cancel]]></string> 
+    
+	<string name="_mz_goal_txt_to"><![CDATA[to]]></string>  
+    <string name="_mz_goal_page_block_title_profile_reviews"><![CDATA[Reviews]]></string>  
+	<string name="_mz_goal_option_per_page_for_favorites_lists"><![CDATA[Number of favorite lists per page]]></string>
+	<string name="_mz_goal_form_entry_input_allow_view_favorite_list"><![CDATA[Visibility]]></string>
+	<string name="_mz_goal_page_title_sys_entries_favorites"><![CDATA[Favorite Goals]]></string>
+	<string name="_mz_goal_page_title_entries_favorites"><![CDATA[Favorite Goals]]></string>
+	<string name="_mz_goal_page_block_title_favorites_entries"><![CDATA["{title}" List]]></string>
+	<string name="_mz_goal_page_block_title_favorites_entries_info"><![CDATA[Info]]></string>
+	<string name="_mz_goal_grid_action_title_adm_clear_reports"><![CDATA[Clear reports]]></string>
+ 
+  	<string name="_mz_goal_pre_lists_goal_task_reminder"><![CDATA[Task Reminder]]></string>
+	<string name="_mz_goal_reminder_1_hour"><![CDATA[1 Hour]]></string>
+	<string name="_mz_goal_reminder_2_hours"><![CDATA[2 Hours]]></string>
+	<string name="_mz_goal_reminder_3_hours"><![CDATA[3 Hours]]></string>
+	<string name="_mz_goal_reminder_4_hours"><![CDATA[4 Hours]]></string>
+	<string name="_mz_goal_reminder_5_hours"><![CDATA[5 Hours]]></string>
+	<string name="_mz_goal_reminder_6_hours"><![CDATA[6 Hours]]></string>
+	<string name="_mz_goal_reminder_7_hours"><![CDATA[7 Hours]]></string>
+	<string name="_mz_goal_reminder_8_hours"><![CDATA[8 Hours]]></string>
+	<string name="_mz_goal_reminder_9_hours"><![CDATA[9 Hours]]></string>
+	<string name="_mz_goal_reminder_10_hours"><![CDATA[10 Hours]]></string>
+	<string name="_mz_goal_reminder_11_hours"><![CDATA[11 Hours]]></string>
+	<string name="_mz_goal_reminder_12_hours"><![CDATA[12 Hours]]></string>
+	<string name="_mz_goal_reminder_1_day"><![CDATA[1 Day]]></string>
+	<string name="_mz_goal_reminder_2_days"><![CDATA[2 Days]]></string>
+	<string name="_mz_goal_reminder_3_days"><![CDATA[3 Days]]></string>
+	<string name="_mz_goal_reminder_4_days"><![CDATA[4 Days]]></string>
+	<string name="_mz_goal_reminder_5_days"><![CDATA[5 Days]]></string>
+	<string name="_mz_goal_reminder_6_days"><![CDATA[6 Days]]></string>
+	<string name="_mz_goal_reminder_1_week"><![CDATA[1 Week]]></string>
+	<string name="_mz_goal_reminder_2_weeks"><![CDATA[2 Weeks]]></string>   
+	<string name="_mz_goal_reminder_3_weeks"><![CDATA[3 Weeks]]></string>   
+	<string name="_mz_goal_reminder_1_month"><![CDATA[1 Month]]></string>  
+ 
+	<string name="_mz_goal_label_someone"><![CDATA[Someone]]></string> 
+	<string name="_mz_goal_reviewed_on"><![CDATA[Reviewed on]]></string> 
+	<string name="_mz_goal_persons"><![CDATA[persons]]></string> 
+ 
+	<string name="_mz_goal_page_block_title_today_entries"><![CDATA[Fulfilling Today]]></string>
+	<string name="_mz_goal_page_title_entries_today"><![CDATA[Fulfilling Today]]></string>
+  	<string name="_mz_goal_page_block_title_completed_entries"><![CDATA[Completed]]></string>
+	<string name="_mz_goal_page_title_entries_completed"><![CDATA[Completed]]></string>
+  	<string name="_mz_goal_page_block_title_achieved_entries"><![CDATA[Achieved]]></string>
+	<string name="_mz_goal_page_title_entries_achieved"><![CDATA[Achieved]]></string>
+
+ 	<string name="_mz_goal_txt_close"><![CDATA[Cancel]]></string>
+
+ <!-- begin task -->
+
+    <string name="_mz_goal_form_task_input_sys_start_time"><![CDATA[From]]></string>
+    <string name="_mz_goal_form_task_input_start_time"><![CDATA[From]]></string>
+    <string name="_mz_goal_form_task_input_start_time_err"><![CDATA[From (Time)  is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_goal_form_task_input_sys_end_time"><![CDATA[To]]></string>
+    <string name="_mz_goal_form_task_input_end_time"><![CDATA[To]]></string>
+    <string name="_mz_goal_form_task_input_end_time_err"><![CDATA[To (Time) is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_goal_option_title_chars_task"><![CDATA[Number of characters in task title.]]></string>
+    <string name="_mz_goal_option_plain_summary_chars_task"><![CDATA[Number of characters in plain task description.]]></string>
+    <string name="_mz_goal_form_task"><![CDATA[Tasks]]></string>
+    <string name="_mz_goal_form_task_display_add"><![CDATA[Add Task]]></string>
+    <string name="_mz_goal_form_task_display_edit"><![CDATA[Edit Task]]></string>
+    <string name="_mz_goal_form_task_display_delete"><![CDATA[Delete Task]]></string>
+    <string name="_mz_goal_form_task_display_view"><![CDATA[View Task]]></string>
+    <string name="_mz_goal_form_task_input_sys_entry_id"><![CDATA[Goal ID]]></string>
+    <string name="_mz_goal_form_task_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_task_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_task_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_goal_form_task_input_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_goal_form_task_input_sys_title"><![CDATA[Task Title]]></string>
+    <string name="_mz_goal_form_task_input_title"><![CDATA[Task Title]]></string>
+    <string name="_mz_goal_form_task_input_title_err"><![CDATA[Task Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_goal_form_task_input_sys_text"><![CDATA[Task Details]]></string>
+    <string name="_mz_goal_form_task_input_text"><![CDATA[Task Details]]></string>
+	<string name="_mz_goal_form_task_input_text_err"><![CDATA[You must enter Task Details]]></string>  
+    <string name="_mz_goal_form_task_input_sys_period"><![CDATA[Task Period]]></string>
+    <string name="_mz_goal_form_task_input_period"><![CDATA[Task Period]]></string>
+	<string name="_mz_goal_form_task_input_period_err"><![CDATA[You must enter Task Period]]></string>  
+    <string name="_mz_goal_form_task_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_goal_form_task_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_goal_form_task_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_task_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_task_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_goal_form_task_input_delete_confirm"><![CDATA[I am sure I want to delete this task]]></string>
+    <string name="_mz_goal_form_task_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_goal_form_task_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the task]]></string> 
+    <string name="_mz_goal_page_title_sys_view_tasks"><![CDATA[Goal Tasks]]></string>
+    <string name="_mz_goal_page_title_view_tasks"><![CDATA[Goal Tasks]]></string> 
+    <string name="_mz_goal_page_block_title_entry_tasks"><![CDATA[Goal Tasks]]></string>
+    <string name="_mz_goal_page_title_sys_view_task"><![CDATA[View Task]]></string>
+    <string name="_mz_goal_page_title_view_task"><![CDATA[{title}]]></string>
+    <string name="_mz_goal_page_block_title_task_text"><![CDATA[Task Description]]></string>
+    <string name="_mz_goal_page_block_title_task_comments"><![CDATA[Task Comments]]></string>
+    <string name="_mz_goal_page_title_sys_create_task"><![CDATA[New Task]]></string>
+    <string name="_mz_goal_page_title_create_task"><![CDATA[New Task]]></string>
+    <string name="_mz_goal_page_block_title_create_task"><![CDATA[New Task]]></string>
+    <string name="_mz_goal_page_title_sys_edit_task"><![CDATA[Edit Task]]></string>
+    <string name="_mz_goal_page_title_edit_task"><![CDATA[Edit Task]]></string>
+    <string name="_mz_goal_page_block_title_edit_task"><![CDATA[Edit Task]]></string>
+    <string name="_mz_goal_page_title_sys_delete_task"><![CDATA[Delete Task]]></string>
+    <string name="_mz_goal_page_title_delete_task"><![CDATA[Delete Task]]></string>
+    <string name="_mz_goal_page_block_title_delete_task"><![CDATA[Delete Task]]></string>
+    <string name="_mz_goal_page_block_title_browse_cmts_tasks"><![CDATA[Goal Task Comments]]></string>
+    <string name="_mz_goal_menu_item_title_system_create_task"><![CDATA[Add Task]]></string>
+    <string name="_mz_goal_menu_item_title_create_task"><![CDATA[Add Task]]></string>
+    <string name="_mz_goal_menu_title_view_task_submenu"><![CDATA[View Task Submenu]]></string>
+    <string name="_mz_goal_menu_title_view_task"><![CDATA[Task Actions Task]]></string>
+    <string name="_mz_goal_menu_set_title_view_task"><![CDATA[Task Actions Task]]></string>
+    <string name="_mz_goal_menu_item_title_system_edit_task"><![CDATA[Edit Task]]></string>
+    <string name="_mz_goal_menu_item_title_edit_task"><![CDATA[Edit]]></string>
+    <string name="_mz_goal_menu_item_title_system_delete_task"><![CDATA[Delete Task]]></string>
+    <string name="_mz_goal_menu_item_title_delete_task"><![CDATA[Delete]]></string>
+    <string name="_mz_goal_menu_item_title_system_manage_task"><![CDATA[Manage Task]]></string>
+    <string name="_mz_goal_menu_item_title_manage_task"><![CDATA[Manage Task]]></string>
+    <string name="_mz_goal_popup_title_view_task"><![CDATA[View Task]]></string>
+    <string name="_mz_goal_txt_sample_comment_single_task"><![CDATA[goal task's comment]]></string>
+    <string name="_mz_goal_menu_item_title_system_view_tasks"><![CDATA[View Tasks]]></string>
+    <string name="_mz_goal_menu_item_title_view_entry_submenu_tasks"><![CDATA[Tasks]]></string>
+    <string name="_mz_goal_page_title_browse_tasks"><![CDATA[Browse Tasks]]></string>
+    <string name="_mz_goal_caption_task"><![CDATA[Menu]]></string>  
+ 
+    <string name="_mz_goal_form_pre_task_input_pre_task_reminder"><![CDATA[Task Reminder (Before Task Starts)]]></string> 
+    <string name="_mz_goal_form_pre_task_input_sys_pre_task_reminder"><![CDATA[Task Reminder (Before Task Starts)]]></string> 
+    <string name="_mz_goal_form_pre_task_input_pre_task_reminder_info"><![CDATA[You will receive reminder before the task starts]]></string> 
+    <string name="_mz_goal_form_pre_task_input_reminder_period"><![CDATA[Reminder Period (Before Task Starts)]]></string> 
+    <string name="_mz_goal_form_pre_task_input_sys_reminder_period"><![CDATA[Reminder Period (Before Task Starts)]]></string> 
+
+    <string name="_mz_goal_form_post_task_input_post_task_reminder"><![CDATA[Task Reminder (After Task Ends)]]></string> 
+    <string name="_mz_goal_form_post_task_input_sys_post_task_reminder"><![CDATA[Task Reminder (After Task Ends)]]></string> 
+    <string name="_mz_goal_form_post_task_input_post_task_reminder_info"><![CDATA[You will receive reminder if task ends but is not completed]></string> 
+    <string name="_mz_goal_form_post_task_input_reminder_period"><![CDATA[Reminder Period (After Task Ends)]]></string> 
+    <string name="_mz_goal_form_post_task_input_sys_reminder_period"><![CDATA[Reminder Period (After Task Ends)]]></string> 
+ 
+    <string name="_mz_goal_menu_item_title_system_complete_goal_task"><![CDATA[Goal Task Completes]]></string> 
+    <string name="_mz_goal_menu_item_title_complete_goal_task"><![CDATA[Mark Complete]]></string> 
+    <string name="_mz_goal_menu_item_title_system_fail_goal_task"><![CDATA[Goal Task Failed]]></string> 
+    <string name="_mz_goal_menu_item_title_fail_goal_task"><![CDATA[Mark Failed]]></string> 
+ 
+    <string name="_mz_goal_txt_err_completed_already"><![CDATA[This Goal is completed already]]></string> 
+    <string name="_mz_goal_txt_msg_complete"><![CDATA[This Goal is now marked as completed]]></string>
+    <string name="_mz_goal_txt_err_failed_already"><![CDATA[This Goal is failed already]]></string> 
+    <string name="_mz_goal_txt_msg_fail"><![CDATA[This Goal is now marked as failed]]></string>
+ 
+ 	<string name="_mz_goal_reminder_1_hour"><![CDATA[1 Hour]]></string>
+	<string name="_mz_goal_reminder_2_hours"><![CDATA[2 Hours]]></string>
+	<string name="_mz_goal_reminder_3_hours"><![CDATA[3 Hours]]></string>
+	<string name="_mz_goal_reminder_4_hours"><![CDATA[4 Hours]]></string>
+	<string name="_mz_goal_reminder_5_hours"><![CDATA[5 Hours]]></string>
+	<string name="_mz_goal_reminder_6_hours"><![CDATA[6 Hours]]></string>
+	<string name="_mz_goal_reminder_7_hours"><![CDATA[7 Hours]]></string>
+	<string name="_mz_goal_reminder_8_hours"><![CDATA[8 Hours]]></string>
+	<string name="_mz_goal_reminder_9_hours"><![CDATA[9 Hours]]></string>
+	<string name="_mz_goal_reminder_10_hours"><![CDATA[10 Hours]]></string>
+	<string name="_mz_goal_reminder_11_hours"><![CDATA[11 Hours]]></string>
+	<string name="_mz_goal_reminder_12_hours"><![CDATA[12 Hours]]></string>
+	<string name="_mz_goal_reminder_13_hours"><![CDATA[13 Hours]]></string>
+	<string name="_mz_goal_reminder_14_hours"><![CDATA[14 Hours]]></string>
+	<string name="_mz_goal_reminder_15_hours"><![CDATA[15 Hours]]></string>
+	<string name="_mz_goal_reminder_16_hours"><![CDATA[16 Hours]]></string>
+	<string name="_mz_goal_reminder_17_hours"><![CDATA[17 Hours]]></string>
+	<string name="_mz_goal_reminder_18_hours"><![CDATA[18 Hours]]></string>
+	<string name="_mz_goal_reminder_19_hours"><![CDATA[19 Hours]]></string>
+	<string name="_mz_goal_reminder_20_hours"><![CDATA[20 Hours]]></string>
+	<string name="_mz_goal_reminder_21_hours"><![CDATA[21 Hours]]></string>
+	<string name="_mz_goal_reminder_22_hours"><![CDATA[22 Hours]]></string>
+	<string name="_mz_goal_reminder_23_hours"><![CDATA[23 Hours]]></string>
+	<string name="_mz_goal_reminder_24_hours"><![CDATA[24 Hours]]></string>
+
+ <!--end task -->
+ 
+ <!-- begin sponsor -->
+    <string name="_mz_goal_option_title_chars_sponsor"><![CDATA[Number of characters in sponsor title.]]></string>
+    <string name="_mz_goal_option_plain_summary_chars_sponsor"><![CDATA[Number of characters in plain sponsor description.]]></string>
+    <string name="_mz_goal_form_sponsor"><![CDATA[Sponsors]]></string>
+    <string name="_mz_goal_form_sponsor_display_add"><![CDATA[Add Sponsor]]></string>
+    <string name="_mz_goal_form_sponsor_display_edit"><![CDATA[Edit Sponsor]]></string>
+    <string name="_mz_goal_form_sponsor_display_delete"><![CDATA[Delete Sponsor]]></string>
+    <string name="_mz_goal_form_sponsor_display_view"><![CDATA[View Sponsor]]></string>
+    <string name="_mz_goal_form_sponsor_input_sys_entry_id"><![CDATA[Goal ID]]></string>
+    <string name="_mz_goal_form_sponsor_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_sponsor_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_sponsor_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_goal_form_sponsor_input_do_publish"><![CDATA[Publish]]></string>
+ 
+    <string name="_mz_goal_form_sponsor_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_sponsor_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_sponsor_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_goal_form_sponsor_input_sys_text"><![CDATA[Sponsor Details]]></string>
+    <string name="_mz_goal_form_sponsor_input_text"><![CDATA[Sponsor Details]]></string>
+    <string name="_mz_goal_form_sponsor_input_text_err"><![CDATA[You must enter some details]]></string> 
+    <string name="_mz_goal_form_sponsor_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_goal_form_sponsor_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_goal_form_sponsor_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_sponsor_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_sponsor_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_goal_form_sponsor_input_delete_confirm"><![CDATA[I am sure I want to delete this sponsor]]></string>
+    <string name="_mz_goal_form_sponsor_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_goal_form_sponsor_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the sponsor]]></string> 
+    <string name="_mz_goal_page_title_sys_view_sponsors"><![CDATA[Goal Sponsors]]></string>
+    <string name="_mz_goal_page_title_view_sponsors"><![CDATA[Goal Sponsors]]></string> 
+    <string name="_mz_goal_page_block_title_entry_sponsors"><![CDATA[Goal Sponsors]]></string>
+    <string name="_mz_goal_page_title_sys_view_sponsor"><![CDATA[View Sponsor]]></string>
+    <string name="_mz_goal_page_title_view_sponsor"><![CDATA[{title}]]></string>
+    <string name="_mz_goal_page_block_title_sponsor_text"><![CDATA[Sponsor Description]]></string>
+    <string name="_mz_goal_page_block_title_sponsor_comments"><![CDATA[Sponsor Comments]]></string>
+    <string name="_mz_goal_page_title_sys_create_sponsor"><![CDATA[New Sponsor]]></string>
+    <string name="_mz_goal_page_title_create_sponsor"><![CDATA[New Sponsor]]></string>
+    <string name="_mz_goal_page_block_title_create_sponsor"><![CDATA[New Sponsor]]></string>
+    <string name="_mz_goal_page_title_sys_edit_sponsor"><![CDATA[Edit Sponsor]]></string>
+    <string name="_mz_goal_page_title_edit_sponsor"><![CDATA[Edit Sponsor]]></string>
+    <string name="_mz_goal_page_block_title_edit_sponsor"><![CDATA[Edit Sponsor]]></string>
+    <string name="_mz_goal_page_title_sys_delete_sponsor"><![CDATA[Delete Sponsor]]></string>
+    <string name="_mz_goal_page_title_delete_sponsor"><![CDATA[Delete Sponsor]]></string>
+    <string name="_mz_goal_page_block_title_delete_sponsor"><![CDATA[Delete Sponsor]]></string>
+    <string name="_mz_goal_page_block_title_browse_cmts_sponsors"><![CDATA[Goal Sponsor Comments]]></string>
+    <string name="_mz_goal_menu_item_title_system_create_sponsor"><![CDATA[Add Sponsor]]></string>
+    <string name="_mz_goal_menu_item_title_create_sponsor"><![CDATA[Add Sponsor]]></string>
+    <string name="_mz_goal_menu_title_view_sponsor_submenu"><![CDATA[View Sponsor Submenu]]></string>
+    <string name="_mz_goal_menu_title_view_sponsor"><![CDATA[Sponsor Actions Menu]]></string>
+    <string name="_mz_goal_menu_set_title_view_sponsor"><![CDATA[Sponsor Actions Menu]]></string>
+    <string name="_mz_goal_menu_item_title_system_edit_sponsor"><![CDATA[Edit Sponsor]]></string>
+    <string name="_mz_goal_menu_item_title_edit_sponsor"><![CDATA[Edit Sponsor]]></string>
+    <string name="_mz_goal_menu_item_title_system_delete_sponsor"><![CDATA[Delete Sponsor]]></string>
+    <string name="_mz_goal_menu_item_title_delete_sponsor"><![CDATA[Delete Sponsor]]></string>
+    <string name="_mz_goal_menu_item_title_system_manage_sponsor"><![CDATA[Manage Sponsor]]></string>
+    <string name="_mz_goal_menu_item_title_manage_sponsor"><![CDATA[Manage Sponsor]]></string>
+    <string name="_mz_goal_popup_title_view_sponsor"><![CDATA[View Sponsor]]></string>
+    <string name="_mz_goal_txt_sample_comment_single_sponsor"><![CDATA[goal sponsor's comment]]></string> 
+    <string name="_mz_goal_menu_item_title_system_view_sponsors"><![CDATA[View Sponsors]]></string>
+    <string name="_mz_goal_menu_item_title_view_entry_submenu_sponsors"><![CDATA[Sponsors]]></string>
+    <string name="_mz_goal_page_title_browse_sponsors"><![CDATA[Browse Sponsors]]></string>
+ 
+    <string name="_mz_goal_pre_lists_sponsor_cat"><![CDATA[Goal Sponsor Category]]></string>
+    <string name="_mz_goal_form_sponsor_input_sys_cat"><![CDATA[Goal Sponsor Category]]></string>
+    <string name="_mz_goal_form_sponsor_input_cat"><![CDATA[Category]]></string>
+    <string name="_mz_goal_form_sponsor_input_cat_err"><![CDATA[You must select a category]]></string>
+ 
+    <string name="_mz_goal_sponsor_cat_individual"><![CDATA[Individual]]></string>
+    <string name="_mz_goal_sponsor_cat_organization"><![CDATA[Organization]]></string>
+
+ 
+
+  <!--end sponsor -->
+
+
+  <!-- begin news -->
+    <string name="_mz_goal_option_title_chars_news"><![CDATA[Number of characters in blog title.]]></string>
+    <string name="_mz_goal_option_plain_summary_chars_news"><![CDATA[Number of characters in plain blog description.]]></string>
+    <string name="_mz_goal_form_news"><![CDATA[Blog]]></string>
+    <string name="_mz_goal_form_news_display_add"><![CDATA[Add Blog Post]]></string>
+    <string name="_mz_goal_form_news_display_edit"><![CDATA[Edit Blog Post]]></string>
+    <string name="_mz_goal_form_news_display_delete"><![CDATA[Delete Blog Post]]></string>
+    <string name="_mz_goal_form_news_display_view"><![CDATA[View Blog Post]]></string>
+    <string name="_mz_goal_form_news_input_sys_entry_id"><![CDATA[Goal ID]]></string>
+    <string name="_mz_goal_form_news_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_news_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_goal_form_news_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_goal_form_news_input_do_publish"><![CDATA[Publish]]></string>
+ 
+    <string name="_mz_goal_form_news_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_news_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_goal_form_news_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_goal_form_news_input_sys_text"><![CDATA[Blog Post Details]]></string>
+    <string name="_mz_goal_form_news_input_text"><![CDATA[Blog Post Details]]></string>
+    <string name="_mz_goal_form_news_input_text_err"><![CDATA[You must enter some details]]></string> 
+    <string name="_mz_goal_form_news_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_goal_form_news_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_goal_form_news_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_news_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_goal_form_news_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_goal_form_news_input_delete_confirm"><![CDATA[I am sure I want to delete this blog]]></string>
+    <string name="_mz_goal_form_news_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_goal_form_news_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the blog]]></string> 
+    <string name="_mz_goal_page_title_sys_view_news"><![CDATA[Goal Blog Post]]></string>
+    <string name="_mz_goal_page_title_view_news"><![CDATA[Goal Blog Post]]></string> 
+    <string name="_mz_goal_page_block_title_entry_news"><![CDATA[Goal Blog Post]]></string>
+    <string name="_mz_goal_page_title_sys_view_news"><![CDATA[View Blog Post]]></string>
+    <string name="_mz_goal_page_title_view_news"><![CDATA[{title}]]></string>
+    <string name="_mz_goal_page_block_title_news_text"><![CDATA[Blog Post Description]]></string>
+    <string name="_mz_goal_page_block_title_news_comments"><![CDATA[Blog Post Comments]]></string>
+    <string name="_mz_goal_page_title_sys_create_news"><![CDATA[Make Blog Post]]></string>
+    <string name="_mz_goal_page_title_create_news"><![CDATA[Make Blog Post]]></string>
+    <string name="_mz_goal_page_block_title_create_news"><![CDATA[Make Blog Post]]></string>
+    <string name="_mz_goal_page_title_sys_edit_news"><![CDATA[Edit Blog Post]]></string>
+    <string name="_mz_goal_page_title_edit_news"><![CDATA[Edit Blog Post]]></string>
+    <string name="_mz_goal_page_block_title_edit_news"><![CDATA[Edit Blog Post]]></string>
+    <string name="_mz_goal_page_title_sys_delete_news"><![CDATA[Delete Blog Post]]></string>
+    <string name="_mz_goal_page_title_delete_news"><![CDATA[Delete Blog Post]]></string>
+    <string name="_mz_goal_page_block_title_delete_news"><![CDATA[Delete Blog Post]]></string>
+    <string name="_mz_goal_page_block_title_browse_cmts_news"><![CDATA[Goal Blog Post Comments]]></string>
+    <string name="_mz_goal_menu_item_title_system_create_news"><![CDATA[Make Blog Post]]></string>
+    <string name="_mz_goal_menu_item_title_create_news"><![CDATA[Make Blog Post]]></string>
+    <string name="_mz_goal_menu_title_view_news_submenu"><![CDATA[View Blog Submenu]]></string>
+    <string name="_mz_goal_menu_title_view_news"><![CDATA[Blog Actions Menu]]></string>
+    <string name="_mz_goal_menu_set_title_view_news"><![CDATA[Blog Actions Menu]]></string>
+    <string name="_mz_goal_menu_item_title_system_edit_news"><![CDATA[Edit Blog Post]]></string>
+    <string name="_mz_goal_menu_item_title_edit_news"><![CDATA[Edit Blog Post]]></string>
+    <string name="_mz_goal_menu_item_title_system_delete_news"><![CDATA[Delete Blog Post]]></string>
+    <string name="_mz_goal_menu_item_title_delete_news"><![CDATA[Delete Blog Post]]></string>
+    <string name="_mz_goal_menu_item_title_system_manage_news"><![CDATA[Manage Blog Posts]]></string>
+    <string name="_mz_goal_menu_item_title_manage_news"><![CDATA[Manage Blog Posts]]></string>
+    <string name="_mz_goal_popup_title_view_news"><![CDATA[View Blog]]></string>
+    <string name="_mz_goal_txt_sample_comment_single_news"><![CDATA[goal blog request's comment]]></string>
+  
+    <string name="_mz_goal_menu_item_title_system_view_news"><![CDATA[View Blog]]></string>
+    <string name="_mz_goal_menu_item_title_view_entry_submenu_news"><![CDATA[Blog]]></string>
+    <string name="_mz_goal_page_title_browse_news"><![CDATA[Browse Blog]]></string>
+    <string name="_mz_goal_err_news_denied"><![CDATA[You cannot post blog for this Goal]]></string>
+
+	<!--end news -->
+
+	<!-- begin broadcast -->
+
+    <string name="_mz_goal_page_title_sys_create_broadcast"><![CDATA[Broadcast to Supporters]]></string>
+    <string name="_mz_goal_page_title_create_broadcast"><![CDATA[Broadcast to Supporters]]></string>
+    <string name="_mz_goal_page_block_title_create_broadcast"><![CDATA[Broadcast to Supporters]]></string> 
+	<string name="_mz_goal_menu_item_title_system_create_broadcast"><![CDATA[Broadcast]]></string>
+    <string name="_mz_goal_menu_item_title_create_broadcast"><![CDATA[Broadcast]]></string>
+ 
+	<!--end broadcast -->
+ 
+    <string name="_mz_goal_page_title_browse_local"><![CDATA[Browse Items Goal in this City]]></string> 
+    <string name="_mz_goal_page_title_browse_goal_supporter"><![CDATA[Browse Members who support this goal]]></string> 
+    <string name="_mz_goal_page_block_title_entry_supporter"><![CDATA[Other Members who support this goal]]></string>
+    <string name="_mz_goal_page_block_title_entry_supporters"><![CDATA[Supporters]]></string>
+ 
+	<string name="_mz_goal_cats_business"><![CDATA[Business & Money]]></string>
+	<string name="_mz_goal_cats_career"><![CDATA[Career]]></string>
+	<string name="_mz_goal_cats_family"><![CDATA[Family]]></string>
+	<string name="_mz_goal_cats_health"><![CDATA[Health & Wellness]]></string>
+	<string name="_mz_goal_cats_love"><![CDATA[Love & Relationships]]></string>
+	<string name="_mz_goal_cats_lifesytle"><![CDATA[Lifesytle]]></string>
+	<string name="_mz_goal_cats_recreation"><![CDATA[Recreation & Sports]]></string>
+	<string name="_mz_goal_cats_spiritual"><![CDATA[Spiritual]]></string>
+   
+	<string name="_mz_goal_why_i_want"><![CDATA[Why I want it]]></string> 
+	<string name="_mz_goal_steps_completed"><![CDATA[Steps completed]]></string> 
+	<string name="_mz_goal_last_progress"><![CDATA[Last progress]]></string> 
+	<string name="_mz_goal_task_progress_upcoming"><![CDATA[Upcoming]]></string>
+	<string name="_mz_goal_task_progress_ongoing"><![CDATA[On Track]]></string>
+	<string name="_mz_goal_task_progress_outstanding"><![CDATA[Outstanding]]></string>
+	<string name="_mz_goal_task_progress_completed"><![CDATA[Completed]]></string>
+	<string name="_mz_goal_task_progress_failed"><![CDATA[Failed]]></string>
+ 	<string name="_mz_goal_progress"><![CDATA[Progress]]></string>
+ 	<string name="_mz_goal_completed"><![CDATA[Completed]]></string>
+ 	<string name="_mz_goal_failed"><![CDATA[Failed]]></string>
+ 	<string name="_mz_goal_task_completed"><![CDATA[Completed]]></string>
+ 	<string name="_mz_goal_task_failed"><![CDATA[Failed]]></string> 
+ 	<string name="_mz_goal_action_title_change_status"><![CDATA[Change Status]]></string>
+	<string name="_mz_goal_block_achieved"><![CDATA[Recently Achieved Public Goals]]></string>
+ 	<string name="_mz_goal_supporters_count_msg"><![CDATA[This goal has {0} supporters]]></string>
+
+    <string name="_mz_goal_upcoming_tasks"><![CDATA[Upcoming Tasks]]></string>
+    <string name="_mz_goal_past_tasks"><![CDATA[Past Tasks]]></string>
+    <string name="_mz_goal_present_tasks"><![CDATA[Present Tasks]]></string>
+    <string name="_mz_goal_failed_tasks"><![CDATA[Failed Tasks]]></string>
+    <string name="_mz_goal_completed_tasks"><![CDATA[Completed Tasks]]></string>
+	<string name="_mz_goal_task"><![CDATA[task]]></string>  
+	<string name="_mz_goal_tasks"><![CDATA[tasks]]></string> 
+
+	<string name="_mz_goal_pre_lists_yes_no"><![CDATA[Yes / No]]></string> 
+	<string name="_mz_goal_yes"><![CDATA[Yes]]></string> 
+	<string name="_mz_goal_no"><![CDATA[No]]></string> 
+ 
+	<string name="_mz_goal_pre_lists_task_reminder"><![CDATA[Task Reminder]]></string> 
+
+	<string name="_mz_goal_sponsor_cat_business"><![CDATA[Business Entity]]></string> 
+	<string name="_mz_goal_sponsor_cat_government"><![CDATA[Government]]></string> 
+	<string name="_mz_goal_sponsor_cat_social"><![CDATA[Social Group]]></string> 
+	<string name="_mz_goal_sponsor_cat_religious"><![CDATA[Religious Group]]></string> 
+	<string name="_mz_goal_sponsor_cat_individual"><![CDATA[Individual]]></string> 
+	<string name="_mz_goal_by_form_entry_input_sys_date_complete_by"><![CDATA[Complete by]]></string> 
+	<string name="_mz_goal_by_form_entry_input_date_complete_by"><![CDATA[Complete by]]></string> 
+ 
+	<string name="_mz_goal_acl_action_delete_any_entry"><![CDATA[Delete Any Goal]]></string> 
+ 	<string name="_mz_goal_none"><![CDATA[none]]></string>
+
+    <string name="_mz_goal_et_txt_name_pre_reminder"><![CDATA[Reminder for upcoming Goal Task.]]></string>
+    <string name="_mz_goal_et_txt_subject_pre_reminder"><![CDATA[Your task {task_name} is upcoming.]]></string>
+    <string name="_mz_goal_et_txt_body_pre_reminder"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p>A task, <b><a href="{task_url}">{task_name}</a></b>, you created for goal <b><a href="{goal_url}">{goal_name}</a></b> should start on {start_time}.
+{email_footer}]]></string>
+
+    <string name="_mz_goal_et_txt_name_post_reminder"><![CDATA[Reminder for outstanding Goal Task.]]></string>
+    <string name="_mz_goal_et_txt_subject_post_reminder"><![CDATA[Your task {task_name} is outstanding.]]></string>
+    <string name="_mz_goal_et_txt_body_post_reminder"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p>A task, <b><a href="{task_url}">{task_name}</a></b>, you created for goal <b><a href="{goal_url}">{goal_name}</a></b> ended on {end_time} and it has not been completed.
+{email_footer}]]></string>
+
+ 	<string name="_mz_goal_acl_action_delete_any_entry"><![CDATA[Delete Any Goal]]></string>    
+ 
+	<string name="_mz_goal_page_block_title_entry_reports"><![CDATA[Reports]]></string>
+	<string name="_mz_goal_page_block_title_sys_favorites_entries"><![CDATA[Favorite List]]></string>
+	<string name="_mz_goal_page_block_title_sys_cover_block"><![CDATA[Cover]]></string>
+	<string name="_mz_goal_page_block_title_cover_block"><![CDATA[Cover]]></string>
+	<string name="_mz_goal_menu_title_view_profile_meta"><![CDATA[Goal Meta]]></string>
+	<string name="_mz_goal_menu_set_title_view_profile_meta"><![CDATA[Goal Meta]]></string>
+	<string name="_mz_goal_menu_item_title_system_followings"><![CDATA[Goals]]></string>
+	<string name="_mz_goal_menu_item_title_followings"><![CDATA[Goals]]></string>
+    <string name="_mz_goal_option_enable_auto_approve"><![CDATA[Auto approve an Goal after creation]]></string>
+    <string name="_mz_goal_txt_msg_status_hidden"><![CDATA[This goal was hidden.]]></string>
+    <string name="_mz_goal_txt_msg_status_pending"><![CDATA[This goal is pending approval.]]></string>
+
+	<string name="_mz_goal_acl_action_delete_any_profile"><![CDATA[Delete Any Goal]]></string>
+    <string name="_mz_goal_grid_filter_item_title_adm_pending"><![CDATA[Pending]]></string> 
+	<string name="_mz_goal_grid_filter_item_title_adm_select_one_filter2"><![CDATA[Any Audience]]></string>
+   	<string name="_mz_goal_grid_column_title_adm_status_admin"><![CDATA[Moderation]]></string> 
+    <string name="_mz_goal_txt_sample_interest_single"><![CDATA[interested in goal]]></string>
+    <string name="_mz_goal_alert_action_doInterest_personal"><![CDATA[Someone interested in your goal]]></string>
+    <string name="_mz_goal_txt_ntfs_subobject_interested"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> {subentry_sample} <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
+    <string name="_mz_goal_alert_action_approved_personal"><![CDATA[Your goal was approved]]></string>
+    <string name="_mz_goal_txt_ntfs_object_approved"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> approved your goal <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
+ 
+ 	<string name="_mz_goal_form_entry_input_category_select_err"><![CDATA[Category field is essential. Please, fill it in.]]></string>
+    <string name="_mz_goal_txt_scheduled_awaiting"><![CDATA[Goal publishing date is {date_publish_uf}]]></string> 
+ 
+    <string name="_mz_goal_form_task_input_pre_task_reminder"><![CDATA[Task Reminder (Before Task Starts)]]></string> 
+    <string name="_mz_goal_form_task_input_sys_pre_task_reminder"><![CDATA[Task Reminder (Before Task Starts)]]></string> 
+    <string name="_mz_goal_form_task_input_pre_task_reminder_info"><![CDATA[You will receive reminder before the task starts]]></string> 
+    <string name="_mz_goal_form_task_input_pre_reminder_period"><![CDATA[Reminder Period (Before Task Starts)]]></string> 
+    <string name="_mz_goal_form_task_input_sys_pre_reminder_period"><![CDATA[Reminder Period (Before Task Starts)]]></string> 
+
+    <string name="_mz_goal_form_task_input_post_task_reminder"><![CDATA[Task Reminder (After Task Ends)]]></string> 
+    <string name="_mz_goal_form_task_input_sys_post_task_reminder"><![CDATA[Task Reminder (After Task Ends)]]></string> 
+    <string name="_mz_goal_form_task_input_post_task_reminder_info"><![CDATA[You will receive reminder if task ends but is not completed]]></string> 
+    <string name="_mz_goal_form_task_input_post_reminder_period"><![CDATA[Reminder Period (After Task Ends)]]></string> 
+    <string name="_mz_goal_form_task_input_sys_post_reminder_period"><![CDATA[Reminder Period (After Task Ends)]]></string> 
+ 
+</resources>

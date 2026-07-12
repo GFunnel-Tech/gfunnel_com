@@ -1,0 +1,21 @@
+[25-Sep-2025 19:56:06 UTC] PHP Warning:  Undefined array key "REQUEST_URI" in /home/u831969491/domains/gfunnel.com/public_html/modules/aqb/affiliate/classes/AqbAffiliateConfig.php on line 252
+[25-Sep-2025 19:56:06 UTC] PHP Warning:  Undefined array key "REQUEST_URI" in /home/u831969491/domains/gfunnel.com/public_html/modules/aqb/affiliate/classes/AqbAffiliateConfig.php on line 252
+[25-Sep-2025 19:56:06 UTC] PHP Deprecated:  stripos(): Passing null to parameter #1 ($haystack) of type string is deprecated in /home/u831969491/domains/gfunnel.com/public_html/modules/aqb/affiliate/classes/AqbAffiliateConfig.php on line 252
+[25-Sep-2025 19:56:06 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/u831969491/domains/gfunnel.com/public_html/custom_batch_updates/aff_custom_batch_update.php:8) in /home/u831969491/domains/gfunnel.com/public_html/inc/utils.inc.php on line 2107
+[25-Sep-2025 19:56:06 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/u831969491/domains/gfunnel.com/public_html/custom_batch_updates/aff_custom_batch_update.php:8) in /home/u831969491/domains/gfunnel.com/public_html/inc/utils.inc.php on line 2108
+[25-Sep-2025 21:29:16 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[25-Sep-2025 21:32:30 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[25-Sep-2025 21:54:55 UTC] PHP Parse error:  syntax error, unexpected identifier "differs" in /home/u831969491/domains/gfunnel.com/public_html/custom_batch_updates/aff_custom_batch_update.php on line 53
+[25-Sep-2025 22:15:52 UTC] PHP Parse error:  syntax error, unexpected identifier "differs" in /home/u831969491/domains/gfunnel.com/public_html/custom_batch_updates/aff_custom_batch_update.php on line 53
+[25-Sep-2025 22:21:35 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[25-Sep-2025 22:44:55 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[25-Sep-2025 22:48:06 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[25-Sep-2025 22:50:11 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[29-Sep-2025 15:58:45 UTC] PHP Parse error:  syntax error, unexpected token "if" in /home/u831969491/public_html/custom_batch_updates/aff_custom_batch_update.php on line 58
+[29-Sep-2025 16:03:47 UTC] PHP Parse error:  syntax error, unexpected token "if" in /home/u831969491/public_html/custom_batch_updates/aff_custom_batch_update.php on line 58
+[29-Sep-2025 16:07:36 UTC] PHP Parse error:  syntax error, unexpected token "if" in /home/u831969491/public_html/custom_batch_updates/aff_custom_batch_update.php on line 58
+[29-Sep-2025 16:13:05 UTC] PHP Parse error:  syntax error, unexpected token "if" in /home/u831969491/public_html/custom_batch_updates/aff_custom_batch_update.php on line 58
+[29-Sep-2025 21:44:18 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[29-Sep-2025 21:48:42 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[29-Sep-2025 22:01:15 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702
+[29-Sep-2025 22:08:59 UTC] PHP Warning:  Undefined variable $sOutput in /home/u831969491/domains/gfunnel.com/public_html/inc/classes/BxDolDb.php on line 702

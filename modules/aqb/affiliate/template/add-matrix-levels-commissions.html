@@ -1,0 +1,114 @@
+<script>
+ var addNewBlock = (oItem) => {
+     $(oItem)
+         .parent()
+         .parent()
+         .append(
+                    $(oItem)
+                        .parent()
+                        .clone()
+                        .find('.multiply_add_button')
+                        .remove()
+                        .end()
+                        .find('.multiply_remove_button')
+                        .show()
+                        .end()
+                        .find('input')
+                        .val(0)
+                        .end()
+                        .hide()
+                )
+         .find('.aqb-affiliate-admin-matrix-levels-area').slideDown();
+     },
+    removeBlock = (oItem) => {
+         $(oItem)
+            .parent()
+            .slideUp(() => {
+                $(oItem)
+                    .parent()
+                    .remove();
+            });
+    },
+    updateLevel = (oItem) => {
+        $(oItem)
+         .closest('.aqb-affiliate-commissions-levels')
+         .find('input[type="checkbox"]').each(function(){
+             const sName = $(this).prop('name');
+             $(this).prop('name', sName.replace(/[\d+]/i, $(oItem).val()));
+         });
+    }
+</script>
+<bx_repeat:levels>
+    <div class="aqb-affiliate-admin-matrix-levels-area">
+        <i
+           title="<bx_text:_aqb_affiliate_matrix_level_add />"
+           alt="<bx_text:_aqb_affiliate_matrix_level_add />"
+           class="multiply_add_button sys-icon plus-circle"
+           onclick="javascript:addNewBlock(this);" style="__display_add__">
+        </i>
+        <i
+           title="<bx_text:_aqb_affiliate_matrix_level_remove />"
+           alt="<bx_text:_aqb_affiliate_matrix_level_remove />"
+           class="multiply_remove_button sys-icon minus-circle"
+           onclick="javascript:removeBlock(this);"
+           style="__display_remove__">
+
+        </i>
+        <div class="aqb-affiliate-commissions-levels">
+            <span>
+                <div class="bx-form-element-wrapper bx-def-margin-top">
+                    <div class="bx-form-info bx-def-font-grayed bx-def-font-small"><bx_text:_aqb_affiliate_matrix_level_title /></div>
+                    <div class="bx-form-element">
+                         <div class="bx-form-input-wrapper bx-form-input-wrapper-text">
+                            <input type="text" name="levels[]" value="__level__" class="bx-def-font-inputs bx-form-input-text" onchange="updateLevel(this)" />
+                         </div>
+                    </div>
+                </div>
+            </span>
+            <bx_repeat:fields>
+             <span>
+               <bx_if:fiat>
+                    <div class="percentage-commission">
+                        <span class="main">
+                          <div class="bx-form-info bx-def-font-grayed bx-def-font-small">
+                              __title__ __sign__
+                          </div>
+                          <input class="bx-def-font-inputs bx-form-input-text commission" type="text" name="__name__[]" value="__value__" />
+                        </span>
+                        <bx_if:percentage>
+                            <span class="percentage">
+                              <input type="checkbox" name="__name___percentage[__key__]" value="on" __checked__ class="bx-def-font-inputs bx-form-input-checkbox">
+                              <label>__percentage_title__</label>
+                            </span>
+                        </bx_if:percentage>
+                    </div>
+                </bx_if:fiat>
+                <bx_if:credits>
+                    <div class="bx-form-element-wrapper">
+                        <div class="bx-form-info bx-def-font-grayed bx-def-font-small">
+                            __title_credits__
+                        </div>
+                        <div class="bx-form-element">
+                           <div class="bx-form-input-wrapper bx-form-input-wrapper-text">
+                             <input type="text" name="__name___credits[]" value="__value__" class="bx-def-font-inputs bx-form-input-text" />
+                           </div>
+                         </div>
+                    </div>
+                </bx_if:credits>
+                <bx_if:points>
+                    <div class="bx-form-element-wrapper">
+                        <div class="bx-form-info bx-def-font-grayed bx-def-font-small">
+                            __title_points__
+                        </div>
+                        <div class="bx-form-element">
+                           <div class="bx-form-input-wrapper bx-form-input-wrapper-text">
+                             <input type="text" name="__name___points[]" value="__value__" class="bx-def-font-inputs bx-form-input-text" />
+                           </div>
+                         </div>
+                    </div>
+                </bx_if:points>
+              </span>
+            </bx_repeat:fields>
+        </div>
+  </div>
+</bx_repeat:levels>

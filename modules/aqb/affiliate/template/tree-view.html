@@ -1,0 +1,36 @@
+<div id="aqb-affiliate-tree-view"></div>
+<script>
+    const oChartConfig = {
+        container: "#aqb-affiliate-tree-view",
+        levelSeparation:    25,
+        siblingSeparation:  70,
+        subTeeSeparation:   70,
+        nodeAlign: "BOTTOM",
+        scrollbar: "fancy",
+        padding: 35,
+        node: { HTMLclass: "aqb-tree-node bx-def-color-bg-block bx-shadow-block bx-def-border-block" },
+        stackChildren: true,
+        connectors: {
+            type: "curve",
+            style: {
+                "stroke-width": 2,
+                "stroke-linecap": "round",
+                "stroke": "#ccc"
+            }
+        },
+        animation: {
+            nodeAnimation: "easeOutBounce",
+            nodeSpeed: 700,
+            connectorsAnimation: "bounce",
+            connectorsSpeed: 700
+        }
+    };
+    setTimeout( () => new Treant(
+        Object.assign({
+                'chart': oChartConfig
+            },
+            {
+                'nodeStructure': __structure__
+            })
+    ), 0);
+</script>

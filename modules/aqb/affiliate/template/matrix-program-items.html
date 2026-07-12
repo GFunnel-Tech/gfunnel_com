@@ -1,0 +1,44 @@
+<div class="aqb-affiliate-admin-programs">
+    <bx_repeat:items>
+      <div class="aqb-affiliate-admin-program-item __active__" title="__status__">
+           <div>
+                 <div class="title">
+                    <span>__level__</span>
+                    <span>
+                        __icon__
+                    </span>
+                 </div>
+                 <div class="info">
+                    <bx_repeat:action_list>
+                        <span><b>__title__:</b> __content__</span>
+                    </bx_repeat:action_list>
+                    <span><b><bx_text:_aqb_affiliate_matrix_program_matrix_mode />:</b> __on__</span>
+                        <bx_if:matrix>
+                           <span><b><bx_text:_aqb_affiliate_matrix_program_width />:</b> __width__</span>
+                           <span><b><bx_text:_aqb_affiliate_matrix_program_deep />:</b> __deep__</span>
+                           <span><b><bx_text:_aqb_affiliate_matrix_program_spillover />:</b> __spillover__</span>
+                        </bx_if:matrix>
+                 </div>
+            </div>
+           <div class="buttons">
+                <button type="button" class="bx-btn bx-btn-small" title="__action__" onclick="__js_object__.changeStatus(__id__, this);">
+                   <i class="sys-icon __active__ circle"></i>
+                </button>
+                <button type="button" class="bx-btn bx-btn-small" title="<bx_text:_aqb_affiliate_matrix_program_action_edit />" onclick="__js_object__.getProgramForm(__id__, '__type__', this);">
+                   <i class="sys-icon edit"></i>
+                </button>
+               <bx_if:paid_levels>
+                 <button type="button" class="bx-btn bx-btn-small" title="<bx_text:_aqb_affiliate_matrix_program_action_paid_levels />" onclick="__js_object__.setCommissionsRates(__id__, this);">
+                   <i class="sys-icon money-bill"></i>
+                 </button>
+               </bx_if:paid_levels>
+                <button type="button" class="bx-btn bx-btn-small" title="<bx_text:_aqb_affiliate_matrix_program_action_matrix />" onclick="__js_object__.getProgramForm(__id__, 'matrix', this);">
+                   <i class="sys-icon project-diagram"></i>
+                </button>
+                <button type="button" class="bx-btn bx-btn-small" title="<bx_text:_aqb_affiliate_matrix_program_action_delete />" onclick="__js_object__.removeProgram(__id__);">
+                   <i class="sys-icon trash-alt"></i>
+                </button>
+           </div>
+      </div>
+    </bx_repeat:items>
+</div>

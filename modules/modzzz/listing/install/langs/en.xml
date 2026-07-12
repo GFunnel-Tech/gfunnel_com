@@ -1,0 +1,1142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_mz_listing"><![CDATA[Listing]]></string>
+    <string name="_mz_listing_cmts"><![CDATA[Listing Comments]]></string>
+    <string name="_mz_listing_reactions"><![CDATA[Listing Reactions]]></string>
+ 
+    <string name="_mz_listing_form_sys_header_info_begin"><![CDATA[Header Info - Begin]]></string>
+    <string name="_mz_listing_form_sys_header_info_end"><![CDATA[Header Info - End]]></string>
+    <string name="_mz_listing_form_header_info"><![CDATA[General Info]]></string>
+  
+    <string name="_mz_listing_page_block_title_looking"><![CDATA[Looking to Branch Details]]></string>
+    <string name="_mz_listing_form_display_view_looking"><![CDATA[Looking to Branch Details]]></string> 
+ 
+    <string name="_mz_listing_form_sys_header_looking_begin"><![CDATA[Header Looking to Branch - Begin]]></string>
+    <string name="_mz_listing_form_sys_header_looking_end"><![CDATA[Header Looking to Branch - End]]></string>
+    <string name="_mz_listing_form_header_looking"><![CDATA[Looking to Branch]]></string>
+ 
+    <string name="_mz_listing_form_sys_header_location_begin"><![CDATA[Header Location - Begin]]></string>
+    <string name="_mz_listing_form_sys_header_location_end"><![CDATA[Header Location - End]]></string>
+    <string name="_mz_listing_form_header_location"><![CDATA[Location (Direction)]]></string>
+
+    <string name="_mz_listing_form_sys_header_privacy_begin"><![CDATA[Header Privacy - Begin]]></string>
+    <string name="_mz_listing_form_sys_header_privacy_end"><![CDATA[Header Privacy - End]]></string>
+    <string name="_mz_listing_form_header_privacy"><![CDATA[Privacy Control]]></string>
+
+    <string name="_mz_listing_form_sys_header_media_begin"><![CDATA[Header Media - Begin]]></string>
+    <string name="_mz_listing_form_sys_header_media_end"><![CDATA[Header Media - End]]></string>
+    <string name="_mz_listing_form_header_media"><![CDATA[Media Upload]]></string>
+
+    <string name="_mz_listing_option_summary_chars"><![CDATA[Number of characters in auto-cropped listing summary]]></string>
+    <string name="_mz_listing_option_plain_summary_chars"><![CDATA[Number of characters in plain listing description when listing hasn't thumb]]></string>
+
+    <string name="_mz_listing_option_per_page_view"><![CDATA[Number of sub-items (branches/services etc) on listing view page]]></string>
+    <string name="_mz_listing_option_per_page_review"><![CDATA[Number of reviews on listing main page]]></string>
+    <string name="_mz_listing_option_per_page_announce"><![CDATA[Number of announcements on listing view page]]></string>
+    <string name="_mz_listing_option_per_page_browse"><![CDATA[Number of listings per page]]></string>
+    <string name="_mz_listing_option_per_page_profile"><![CDATA[Number of listings on profile/group page]]></string>
+    <string name="_mz_listing_option_rss_num"><![CDATA[Number of listings in RSS feed]]></string>
+    <string name="_mz_listing_option_searchable_fields"><![CDATA[Searchable fields for keyword search]]></string>
+   
+    <string name="_mz_listing_form_category"><![CDATA[Category]]></string>
+    <string name="_mz_listing_form_category_display_add"><![CDATA[Add Category]]></string>
+    <string name="_mz_listing_form_category_display_edit"><![CDATA[Edit Category]]></string>
+    <string name="_mz_listing_form_category_display_delete"><![CDATA[Delete Category]]></string>
+    <string name="_mz_listing_form_category_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_category_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_category_input_sys_do_cancel"><![CDATA[Cancel]]></string> 
+    <string name="_mz_listing_form_category_input_do_cancel"><![CDATA[Cancel]]></string>
+    <string name="_mz_listing_form_category_input_sys_parent_id"><![CDATA[Parent]]></string>
+    <string name="_mz_listing_form_category_input_parent_id"><![CDATA[Parent category]]></string>
+    <string name="_mz_listing_form_category_input_parent_id_empty"><![CDATA[No parent]]></string>
+    <string name="_mz_listing_form_category_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_category_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_category_input_title_err"><![CDATA[Title is essential. Please, fill in this field.]]></string>
+    <string name="_mz_listing_form_category_input_sys_text"><![CDATA[Text]]></string>
+    <string name="_mz_listing_form_category_input_text"><![CDATA[Text]]></string>
+    <string name="_mz_listing_form_category_input_sys_type"><![CDATA[Type]]></string>
+    <string name="_mz_listing_form_category_input_type"><![CDATA[Type]]></string>
+    <string name="_mz_listing_form_category_input_type_err"><![CDATA[Type is essential. Please, select a value for this field.]]></string>
+    <string name="_mz_listing_form_category_input_type_info"><![CDATA[Type determines a set of fields for entries in this category.]]></string>
+    <string name="_mz_listing_form_category_input_sys_type_clone"><![CDATA[Clone type]]></string>
+    <string name="_mz_listing_form_category_input_type_clone"><![CDATA[Clone type]]></string>
+    <string name="_mz_listing_form_category_input_sys_type_title"><![CDATA[Type title]]></string>
+    <string name="_mz_listing_form_category_input_type_title"><![CDATA[Type title]]></string>
+    <string name="_mz_listing_form_category_input_sys_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_listing_form_category_input_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_listing_form_category_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_category_input_delete_confirm"><![CDATA[I am sure I want to delete this category]]></string>
+    <string name="_mz_listing_form_category_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_category_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the category]]></string>
+
+    <string name="_mz_listing_form_entry"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_form_entry_display_add"><![CDATA[Add Listing]]></string>
+    <string name="_mz_listing_form_entry_display_delete"><![CDATA[Delete Listing]]></string>
+ 
+    <string name="_mz_listing_form_entry_display_edit"><![CDATA[Edit Listing]]></string>
+    <string name="_mz_listing_form_entry_display_view"><![CDATA[View Listing]]></string>
+ 
+    <string name="_mz_listing_form_entry_input_author"><![CDATA[Poster]]></string>
+    <string name="_mz_listing_form_entry_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_entry_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_entry_input_sys_established"><![CDATA[Established]]></string>
+    <string name="_mz_listing_form_entry_input_established"><![CDATA[Established]]></string>
+    <string name="_mz_listing_form_entry_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_entry_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_entry_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_category"><![CDATA[Category (Hidden)]]></string>
+    <string name="_mz_listing_form_entry_input_sys_category_view"><![CDATA[Category]]></string>
+    <string name="_mz_listing_form_entry_input_category_view"><![CDATA[Category]]></string>
+    <string name="_mz_listing_form_entry_input_sys_category_select"><![CDATA[Category]]></string>
+    <string name="_mz_listing_form_entry_input_category_select"><![CDATA[Category]]></string>
+    <string name="_mz_listing_form_entry_input_category_err"><![CDATA[Category must be selected]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_text"><![CDATA[Text]]></string>
+    <string name="_mz_listing_form_entry_input_text"><![CDATA[Text]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_hours"><![CDATA[Business Hours]]></string> 
+    <string name="_mz_listing_form_entry_input_hours"><![CDATA[Business Hours]]></string>  
+    <string name="_mz_listing_form_entry_input_text_err"><![CDATA[Text field can't be empty]]></string>
+    <string name="_mz_listing_form_entry_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_entry_input_delete_confirm"><![CDATA[I am sure I want to delete this listing]]></string>
+    <string name="_mz_listing_form_entry_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_entry_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the listing]]></string>
+    <string name="_mz_listing_form_entry_input_sys_covers"><![CDATA[Header Image]]></string>
+    <string name="_mz_listing_form_entry_input_covers"><![CDATA[Header Image]]></string>
+    <string name="_mz_listing_form_entry_input_covers_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_entry_input_covers_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_entry_input_sys_pictures"><![CDATA[Images]]></string>
+    <string name="_mz_listing_form_entry_input_pictures"><![CDATA[]]></string>
+    <string name="_mz_listing_form_entry_input_sys_videos"><![CDATA[Videos]]></string>
+    <string name="_mz_listing_form_entry_input_videos"><![CDATA[]]></string>
+    <string name="_mz_listing_form_entry_input_sys_files"><![CDATA[Files]]></string>
+    <string name="_mz_listing_form_entry_input_files"><![CDATA[]]></string>
+    <string name="_mz_listing_form_entry_input_sys_polls"><![CDATA[Polls]]></string>
+    <string name="_mz_listing_form_entry_input_sys_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_listing_form_entry_input_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_listing_form_entry_input_sys_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_listing_form_entry_input_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_listing_form_entry_input_sys_date_changed"><![CDATA[Updated]]></string>
+    <string name="_mz_listing_form_entry_input_date_changed"><![CDATA[Updated]]></string>
+    <string name="_mz_listing_form_entry_input_sys_attachments"><![CDATA[Attachments]]></string>
+  
+    <string name="_mz_listing_form_poll"><![CDATA[Polls]]></string>
+    <string name="_mz_listing_form_poll_display_add"><![CDATA[Add Poll]]></string>
+    <string name="_mz_listing_form_poll_input_sys_text"><![CDATA[Question]]></string>
+    <string name="_mz_listing_form_poll_input_text"><![CDATA[Question]]></string>
+    <string name="_mz_listing_form_poll_input_text_err"><![CDATA[Question is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_poll_input_sys_answers"><![CDATA[Answers]]></string>
+    <string name="_mz_listing_form_poll_input_answers"><![CDATA[Answers]]></string>
+    <string name="_mz_listing_form_poll_input_answers_err"><![CDATA[Poll should have at least 2 non-empty answers.]]></string>
+    <string name="_mz_listing_form_poll_input_answers_add"><![CDATA[Add More]]></string>
+    <string name="_mz_listing_form_poll_input_sys_do_submit"><![CDATA[Add]]></string>
+    <string name="_mz_listing_form_poll_input_do_submit"><![CDATA[Add]]></string>
+    <string name="_mz_listing_form_poll_input_do_cancel"><![CDATA[Close]]></string>
+
+    <string name="_mz_listing_acl_action_create_entry"><![CDATA[Create Listing]]></string>
+    <string name="_mz_listing_acl_action_delete_entry"><![CDATA[Delete Listing]]></string>
+    <string name="_mz_listing_acl_action_view_entry"><![CDATA[View Listing]]></string>
+    <string name="_mz_listing_acl_action_set_thumb"><![CDATA[Set Listing Header Image]]></string>
+    <string name="_mz_listing_acl_action_edit_any_entry"><![CDATA[Edit Any Listing]]></string> 
+ 
+    <string name="_mz_listing_page_title_sys_create_entry"><![CDATA[New Listing]]></string>
+    <string name="_mz_listing_page_title_create_entry"><![CDATA[New Listing]]></string>
+    <string name="_mz_listing_page_block_title_create_entry"><![CDATA[New Listing]]></string>
+    <string name="_mz_listing_page_title_sys_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_listing_page_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_listing_page_block_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_listing_page_title_sys_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_page_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_page_block_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_page_title_sys_view_entry"><![CDATA[View Listing]]></string>
+    <string name="_mz_listing_page_title_view_entry"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_entry_breadcrumb"><![CDATA[Breadcrumb]]></string>
+    <string name="_mz_listing_page_block_title_entry_text"><![CDATA[About]]></string>
+    <string name="_mz_listing_page_block_title_entry_hours"><![CDATA[Business Hours]]></string> 
+    <string name="_mz_listing_page_title_browse"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_page_title_search_results"><![CDATA[Listings matching "{0}"]]></string>
+    <string name="_mz_listing_page_title_browse_by_author"><![CDATA[Listings posted by {display_name}]]></string>
+    <string name="_mz_listing_page_title_browse_by_context"><![CDATA[Listings in {display_name}]]></string>
+    <string name="_mz_listing_page_title_browse_featured"><![CDATA[Featured Listings]]></string>
+    <string name="_mz_listing_page_title_browse_recent"><![CDATA[Latest Listings]]></string>
+    <string name="_mz_listing_page_title_browse_favorite"><![CDATA[Favorite Listings]]></string>
+    <string name="_mz_listing_page_title_browse_popular"><![CDATA[Popular Listings]]></string>
+    <string name="_mz_listing_page_title_browse_updated"><![CDATA[Updated Listings]]></string>
+    <string name="_mz_listing_page_title_browse_category"><![CDATA[Listings in {display_name}]]></string>
+    <string name="_mz_listing_page_title_sys_home"><![CDATA[Listings Home]]></string>
+    <string name="_mz_listing_page_title_home"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_page_block_title_featured_entries"><![CDATA[Featured Listings]]></string>
+    <string name="_mz_listing_page_block_title_featured_entries_view_extended"><![CDATA[Featured Listings]]></string>
+    <string name="_mz_listing_page_block_title_recent_entries"><![CDATA[Latest Listings (Gallery View)]]></string> 
+	<string name="_mz_listing_page_title_browse_top_reviewed"><![CDATA[Browse Top Reviewed Listings]]></string>
+	<string name="_mz_listing_page_title_browse_last_reviewed"><![CDATA[Browse Latest Reviewed Listings]]></string>
+	<string name="_mz_listing_page_block_title_last_reviewed"><![CDATA[Latest Reviewed Listings]]></string>
+	<string name="_mz_listing_page_block_title_top_reviewed"><![CDATA[Top Reviews Listings]]></string> 
+	<string name="_mz_listing_page_block_title_recent_entries_view_extended"><![CDATA[Latest Listings]]></string>
+    <string name="_mz_listing_page_block_title_recent_entries_view_full"><![CDATA[Latest Listings (Full View)]]></string>
+    <string name="_mz_listing_page_block_title_entry_social_sharing"><![CDATA[Share]]></string>
+    <string name="_mz_listing_page_block_title_entry_author"><![CDATA[Poster]]></string>
+    <string name="_mz_listing_page_block_title_entry_actions"><![CDATA[Actions]]></string>
+    <string name="_mz_listing_page_block_title_entry_comments"><![CDATA[Comments]]></string>
+    <string name="_mz_listing_page_block_title_entry_comments_link"><![CDATA[Comments to <a href="{entry_link}">{title}</a>]]></string>
+    <string name="_mz_listing_page_block_title_entry_reviews"><![CDATA[Reviews]]></string>
+    <string name="_mz_listing_page_block_title_entry_reviews_link"><![CDATA[Reviews to <a href="{entry_link}">{title}</a>]]></string>
+    <string name="_mz_listing_page_block_title_entry_reviews_rating"><![CDATA[Rating]]></string>
+    <string name="_mz_listing_page_block_title_entry_location"><![CDATA[Location]]></string>
+    <string name="_mz_listing_page_block_title_entry_attachments"><![CDATA[Attachments]]></string>
+    <string name="_mz_listing_page_block_title_entry_polls"><![CDATA[Polls]]></string>
+    <string name="_mz_listing_page_block_title_entry_all_actions"><![CDATA[All Actions]]></string>
+    <string name="_mz_listing_page_title_sys_entries_popular"><![CDATA[Popular Listings]]></string>
+    <string name="_mz_listing_page_title_entries_popular"><![CDATA[Popular Listings]]></string>   
+    <string name="_mz_listing_page_title_sys_entries_featured"><![CDATA[Featured Listings]]></string>
+    <string name="_mz_listing_page_title_entries_featured"><![CDATA[Featured Listings]]></string>    
+	<string name="_mz_listing_page_title_sys_entries_favorite"><![CDATA[Favorite Listings]]></string>
+    <string name="_mz_listing_page_title_entries_favorite"><![CDATA[Favorite Listings]]></string> 
+    <string name="_mz_listing_page_title_sys_entries_updated"><![CDATA[Updated Listings]]></string>
+    <string name="_mz_listing_page_title_entries_updated"><![CDATA[Updated Listings]]></string>
+    <string name="_mz_listing_page_title_sys_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_listing_page_title_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_listing_page_block_title_search_form"><![CDATA[Search Form]]></string>
+    <string name="_mz_listing_page_block_title_search_results"><![CDATA[Search Results]]></string>
+    <string name="_mz_listing_page_block_title_search_form_cmts"><![CDATA[Comments Search Form]]></string>
+    <string name="_mz_listing_page_block_title_search_results_cmts"><![CDATA[Comments Search Results]]></string> 
+    <string name="_mz_listing_page_block_title_favorite_entries"><![CDATA[Favorite Listings]]></string>
+    <string name="_mz_listing_page_block_title_popular_entries"><![CDATA[Popular Listings]]></string>
+    <string name="_mz_listing_page_block_title_popular_entries_view_extended"><![CDATA[Popular Listings (Extended View)]]></string>
+    <string name="_mz_listing_page_block_title_popular_entries_view_full"><![CDATA[Popular Listings (Full View)]]></string> 
+	<string name="_mz_listing_page_block_title_updated_entries"><![CDATA[Updated Listings]]></string>
+    <string name="_mz_listing_page_title_sys_view_entry_comments"><![CDATA[Listing Comments]]></string>
+    <string name="_mz_listing_page_title_view_entry_comments"><![CDATA[Comments to {title}]]></string>
+    <string name="_mz_listing_page_title_sys_view_entry_reviews"><![CDATA[Listing Reviews]]></string>
+    <string name="_mz_listing_page_title_view_entry_reviews"><![CDATA[Reviews to {title}]]></string> 
+    <string name="_mz_listing_page_title_sys_entries_of_author"><![CDATA[Listings submitted by poster]]></string>
+    <string name="_mz_listing_page_title_entries_of_author"><![CDATA[Listings posted by {display_name}]]></string>
+    <string name="_mz_listing_page_title_sys_entries_in_context"><![CDATA[Listings in context]]></string>
+    <string name="_mz_listing_page_title_entries_in_context"><![CDATA[Listings in {display_name}]]></string>
+    <string name="_mz_listing_page_block_title_favorites_of_author"><![CDATA[Favorites by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_listing_page_block_title_sys_favorites_of_author"><![CDATA[Favorites of poster]]></string>
+    <string name="_mz_listing_page_block_title_entries_of_author"><![CDATA[Listings posted by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_listing_page_block_title_sys_entries_of_author"><![CDATA[Listings submitted by poster]]></string>
+    <string name="_mz_listing_page_block_title_entries_in_context"><![CDATA[Listings posted by <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_mz_listing_page_block_title_sys_entries_in_context"><![CDATA[Listings in context]]></string>
+    <string name="_mz_listing_page_block_title_entries_actions"><![CDATA[Listings actions]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts"><![CDATA[Listings' Comments]]></string>
+    <string name="_mz_listing_page_title_sys_manage"><![CDATA[Manage Own]]></string>
+    <string name="_mz_listing_page_title_sys_manage_administration"><![CDATA[Manage All]]></string>
+    <string name="_mz_listing_page_title_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_listing_page_block_title_system_manage"><![CDATA[Manage Own]]></string>
+    <string name="_mz_listing_page_block_title_system_manage_administration"><![CDATA[Manage All]]></string>
+    <string name="_mz_listing_page_block_title_manage"><![CDATA[Manage]]></string>    
+    <string name="_mz_listing_page_block_title_popular_keywords"><![CDATA[Popular Hashtags]]></string>
+    <string name="_mz_listing_page_block_title_categories"><![CDATA[Listings Categories]]></string>
+    <string name="_mz_listing_page_block_title_entry_info"><![CDATA[Info]]></string>
+    <string name="_mz_listing_page_block_title_my_entries"><![CDATA[{display_name} Listings]]></string>
+    <string name="_mz_listing_page_block_title_sys_recent_entries_view_showcase"><![CDATA[Latest Listings (Showcase View)]]></string>
+    <string name="_mz_listing_page_block_title_recent_entries_view_showcase"><![CDATA[Latest Listings]]></string>
+    <string name="_mz_listing_page_block_title_sys_popular_entries_view_showcase"><![CDATA[Popular Listings (Showcase View)]]></string>
+    <string name="_mz_listing_page_block_title_popular_entries_view_showcase"><![CDATA[Popular Listings]]></string>
+	<string name="_mz_listing_page_block_title_sys_featured_entries_view_showcase"><![CDATA[Featured Listings (Showcase View)]]></string>
+    <string name="_mz_listing_page_block_title_featured_entries_view_showcase"><![CDATA[Featured Listings]]></string>
+    <string name="_mz_listing_page_block_title_sys_entry_context"><![CDATA[Posted in]]></string>
+    <string name="_mz_listing_page_block_title_entry_context"><![CDATA[Posted in]]></string>
+    <string name="_mz_listing_page_title_sys_entries_categories"><![CDATA[Listings Categories]]></string>
+    <string name="_mz_listing_page_title_entries_categories"><![CDATA[Listings Categories]]></string>
+    <string name="_mz_listing_page_block_title_entries_by_category"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_page_block_title_entries_by_category_mask"><![CDATA[Listings in: {0}]]></string>
+
+    <string name="_mz_listing_menu_title_entry_attachments"><![CDATA[Form Attachments]]></string>
+    <string name="_mz_listing_menu_set_title_entry_attachments"><![CDATA[Form Attachments]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_photo_simple"><![CDATA[Add Photo (simple)]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_photo_simple"><![CDATA[Add Photo]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_photo_html5"><![CDATA[Add Photo (html5)]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_photo_html5"><![CDATA[Add Photos]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_video_simple"><![CDATA[Add Video (simple)]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_video_simple"><![CDATA[Add Video]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_video_html5"><![CDATA[Add Video (html5)]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_video_html5"><![CDATA[Add Videos]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_file_simple"><![CDATA[Add File (simple)]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_file_simple"><![CDATA[Add File]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_file_html5"><![CDATA[Add File (html5)]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_file_html5"><![CDATA[Add Files]]></string>
+    <string name="_mz_listing_menu_item_title_system_cpa_poll"><![CDATA[Add Poll]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_poll"><![CDATA[Add Poll]]></string>
+
+    <string name="_mz_listing_menu_set_title_view_entry"><![CDATA[Listing Actions]]></string>
+    <string name="_mz_listing_menu_title_view_entry"><![CDATA[Listing Actions]]></string>
+    <string name="_mz_listing_menu_title_submenu"><![CDATA[Listings Submenu]]></string>
+    <string name="_mz_listing_menu_set_title_submenu"><![CDATA[Listings Submenu]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_entry"><![CDATA[Listing]]></string>
+    <string name="_mz_listing_menu_item_title_create_entry"><![CDATA[Listing]]></string>
+    <string name="_mz_listing_menu_item_title_system_interested_entry"><![CDATA[I'm a Client]]></string>
+    <string name="_mz_listing_menu_item_title_interested_entry"><![CDATA[I'm a Client]]></string>
+
+    <string name="_mz_listing_menu_item_title_not_interested_entry"><![CDATA[Remove as Client]]></string>
+    <string name="_mz_listing_menu_item_title_system_not_interested_entry"><![CDATA[Remove as Client]]></string>
+    <string name="_mz_listing_txt_msg_interested"><![CDATA[You have been added as a client]]></string>
+    <string name="_mz_listing_txt_msg_not_interested"><![CDATA[You are no longer a client]]></string>
+ 
+    <string name="_mz_listing_menu_item_title_system_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_listing_menu_item_title_edit_entry"><![CDATA[Edit]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_menu_item_title_delete_entry"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_entry"><![CDATA[View Listing]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_home"><![CDATA[Listings]]></string> 
+    <string name="_mz_listing_menu_item_title_entries_home"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_item_title_entries_featured"><![CDATA[Featured]]></string> 
+    <string name="_mz_listing_menu_item_title_system_entries_public"><![CDATA[Latest]]></string>
+    <string name="_mz_listing_menu_item_title_entries_public"><![CDATA[Latest]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_listing_menu_item_title_entries_manage"><![CDATA[Manage]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_favorite"><![CDATA[Favorite]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_popular"><![CDATA[Popular]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_featured"><![CDATA[Featured]]></string> 
+    <string name="_mz_listing_menu_item_title_entries_favorite"><![CDATA[Favorite]]></string>
+    <string name="_mz_listing_menu_item_title_entries_popular"><![CDATA[Popular]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_listing_menu_item_title_entries_search"><![CDATA[Search]]></string>
+    <string name="_mz_listing_menu_title_view_entry_submenu"><![CDATA[View Listing Submenu]]></string>
+    <string name="_mz_listing_menu_set_title_view_entry_submenu"><![CDATA[View Listing Submenu]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_entry"><![CDATA[Overview]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_comments"><![CDATA[Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_entry_comments"><![CDATA[Listing Comments]]></string>
+ 
+    <string name="_mz_listing_menu_item_title_system_view_entry_contact"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_contact"><![CDATA[Send Message]]></string> 
+    <string name="_mz_listing_page_title_sys_view_entry_contact"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_page_title_view_entry_contact"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_page_block_title_entry_contact"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_page_block_title_entry_contact_link"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_form_entry_input_allow_message"><![CDATA[Allow Onsite Messaging]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_allow_message"><![CDATA[Allow Onsite Messaging]]></string>  
+ 
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_reviews"><![CDATA[Reviews]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_entry_reviews"><![CDATA[Listing Reviews]]></string> 
+    <string name="_mz_listing_menu_item_title_system_view_entries_author"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_item_title_view_entries_author"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_entries_in_context"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_item_title_view_entries_in_context"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_title_entries_my"><![CDATA[My Listings Action Menu]]></string>
+    <string name="_mz_listing_menu_set_title_entries_my"><![CDATA[My Listings Menu]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_my_posts"><![CDATA[My listings]]></string>
+    <string name="_mz_listing_menu_item_title_manage_my_posts"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_set_title_manage_tools"><![CDATA[Manage Tools Submenu]]></string>
+    <string name="_mz_listing_menu_title_manage_tools"><![CDATA[Manage Tools Submenu]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_account"><![CDATA[Manage account]]></string>
+    <string name="_mz_listing_menu_item_title_manage_account"><![CDATA[Manage account]]></string>
+    <string name="_mz_listing_menu_item_title_system_admt_listing"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_item_title_admt_listing"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_menu_item_title_manage_my"><![CDATA[My Listings]]></string>
+    <string name="_mz_listing_menu_item_title_manage_all"><![CDATA[All Listings]]></string>
+    <string name="_mz_listing_menu_item_title_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_listing_menu_item_title_entries_categories"><![CDATA[Categories]]></string>
+    <string name="_mz_listing_menu_item_title_system_sm_price"><![CDATA[Price]]></string>
+    <string name="_mz_listing_menu_item_title_sm_price"><![CDATA[Price]]></string>
+    <string name="_mz_listing_menu_item_title_manage_listings"><![CDATA[Manage Listings]]></string>
+
+    <string name="_mz_listing_grid_column_title_icon"><![CDATA[Icon]]></string>
+    <string name="_mz_listing_grid_column_title_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_grid_column_title_subcategories"><![CDATA[Subcategories]]></string>
+    <string name="_mz_listing_grid_column_value_subcategories"><![CDATA[{0} subcategories]]></string>
+    <string name="_mz_listing_grid_column_info_subcategories"><![CDATA[View subcategories]]></string>
+    <string name="_mz_listing_grid_action_title_add"><![CDATA[Add New]]></string>
+    <string name="_mz_listing_grid_action_title_back"><![CDATA[Back]]></string>
+    <string name="_mz_listing_grid_action_title_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_grid_popup_title_add"><![CDATA[Add New Category]]></string>
+    <string name="_mz_listing_grid_popup_title_edit"><![CDATA[Edit '{0}' Category]]></string>
+    <string name="_mz_listing_grid_action_err_add_category"><![CDATA[Cannot add a category.]]></string>
+    <string name="_mz_listing_grid_action_err_edit_category"><![CDATA[Cannot edit the category.]]></string>
+
+    <string name="_mz_listing_grid_filter_item_title_adm_select_one_filter1"><![CDATA[All Statuses]]></string>
+    <string name="_mz_listing_grid_filter_item_title_adm_active"><![CDATA[Active]]></string>
+    <string name="_mz_listing_grid_filter_item_title_adm_hidden"><![CDATA[Hidden]]></string>
+    <string name="_mz_listing_grid_column_title_adm_active"><![CDATA[Active]]></string>
+    <string name="_mz_listing_grid_column_title_adm_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_grid_column_title_adm_added"><![CDATA[Added]]></string>
+    <string name="_mz_listing_grid_column_title_adm_author"><![CDATA[Poster]]></string>
+    <string name="_mz_listing_grid_action_title_adm_edit"><![CDATA[Edit]]></string>
+    <string name="_mz_listing_grid_action_title_adm_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_listing_grid_action_title_adm_more_actions"><![CDATA[More Actions]]></string>
+    <string name="_mz_listing_grid_action_title_adm_audit_content"><![CDATA[Audit]]></string>
+    <string name="_mz_listing_grid_action_err_delete"><![CDATA[Cannot delete the selected listing(s).]]></string>
+    <string name="_mz_listing_grid_txt_account_manager"><![CDATA[Redirect to manage account.]]></string>
+    <string name="_mz_listing_grid_action_claim_delete"><![CDATA[Cannot claim the selected listing(s).]]></string>
+ 
+    <string name="_mz_listing_chart_growth"><![CDATA[Listings: Growth]]></string>
+    <string name="_mz_listing_chart_growth_speed"><![CDATA[Listings: Growth Speed]]></string>
+
+    <string name="_mz_listing_search_extended"><![CDATA[Listings Search]]></string>
+    <string name="_mz_listing_search_extended_cmts"><![CDATA[Listings Comments Search]]></string>
+    <string name="_mz_listing_search_extended_reviews"><![CDATA[Listings Reviews Search]]></string>
+
+    <string name="_mz_listing_form_entry_input_subcategory_select"><![CDATA[Sub-Category]]></string>
+    <string name="_mz_listing_form_entry_input_sys_subcategory_select"><![CDATA[Sub-Category]]></string>
+
+    <string name="_mz_listing_form_entry_input_sticky"><![CDATA[Sticky Post]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_sticky"><![CDATA[Sticky Post]]></string> 
+    <string name="_mz_listing_form_entry_input_info_sticky"><![CDATA[This post will have priority view]]></string> 
+ 
+    <!-- Categories -->
+                                     
+	<string name="_mz_listing_cat_title_entertainment"><![CDATA[Arts & Entertainment]]></string>
+	<string name="_mz_listing_cat_title_automotive"><![CDATA[Automotive]]></string>
+	<string name="_mz_listing_cat_title_business"><![CDATA[Business & Professional Services]]></string>
+	<string name="_mz_listing_cat_title_clothing"><![CDATA[Clothing & Accessories]]></string>
+	<string name="_mz_listing_cat_title_community"><![CDATA[Community & Government]]></string>
+	<string name="_mz_listing_cat_title_computers"><![CDATA[Computers & Electronics]]></string>
+	<string name="_mz_listing_cat_title_construction"><![CDATA[Construction & Contractors]]></string>
+	<string name="_mz_listing_cat_title_education"><![CDATA[Education]]></string>
+	<string name="_mz_listing_cat_title_food"><![CDATA[Food & Dining]]></string>
+	<string name="_mz_listing_cat_title_health"><![CDATA[Health & Medicine]]></string>
+	<string name="_mz_listing_cat_title_home"><![CDATA[Home & Garden]]></string>
+	<string name="_mz_listing_cat_title_industry"><![CDATA[Industry & Agriculture]]></string>
+	<string name="_mz_listing_cat_title_legal"><![CDATA[Legal & Financial]]></string>
+	<string name="_mz_listing_cat_title_media"><![CDATA[Media & Communications]]></string>
+	<string name="_mz_listing_cat_title_personal"><![CDATA[Personal Care & Services]]></string>
+	<string name="_mz_listing_cat_title_real_estate"><![CDATA[Real Estate]]></string>
+	<string name="_mz_listing_cat_title_shopping"><![CDATA[Shopping]]></string>
+	<string name="_mz_listing_cat_title_sports"><![CDATA[Sports & Recreation]]></string>
+	<string name="_mz_listing_cat_title_travel"><![CDATA[Travel & Transportation]]></string>
+    
+    <string name="_mz_listing_et_txt_name_interested"><![CDATA[I'm a Client.]]></string>
+    <string name="_mz_listing_et_txt_subject_interested"><![CDATA[{viewer_name} is a client of your business.]]></string>
+    <string name="_mz_listing_et_txt_body_interested"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p><b><a href="{viewer_url}">{viewer_name}</a></b> is a client of your business <b><a href="{listing_url}">{listing_name}</a></b>.</p>
+{email_footer}]]></string>
+
+    <string name="_mz_listing_txt_all_entries_in"><![CDATA[<a href="{0}">All Listings in {1} ({2})</a>]]></string>
+    <string name="_mz_listing_txt_all_entries_by"><![CDATA[{0} listings]]></string>
+    <string name="_mz_listing_txt_sample_single"><![CDATA[listing]]></string>
+    <string name="_mz_listing_txt_sample_single_with_article"><![CDATA[a listing]]></string>
+    <string name="_mz_listing_txt_sample_comment_single"><![CDATA[comment to listing]]></string>
+    <string name="_mz_listing_txt_sample_vote_single"><![CDATA[vote to listing]]></string>
+    <string name="_mz_listing_txt_sample_reaction_single"><![CDATA['{0}' reaction to listing]]></string>
+    <string name="_mz_listing_txt_sample_score_up_single"><![CDATA[score up vote to listing]]></string>
+    <string name="_mz_listing_txt_sample_score_down_single"><![CDATA[score down vote to listing]]></string>
+    <string name="_mz_listing_txt_display_title_add"><![CDATA[{0}: Add]]></string>
+    <string name="_mz_listing_txt_display_title_edit"><![CDATA[{0}: Edit]]></string>
+    <string name="_mz_listing_txt_display_title_view"><![CDATA[{0}: View]]></string>
+    <string name="_mz_listing_txt_processing_awaiting"><![CDATA[Listing will be published as soon as video is converted]]></string>
+    <string name="_mz_listing_txt_processing_failed"><![CDATA[Listing isn't published because video conversion failed, edit video to fix the issue.]]></string>
+    <string name="_mz_listing_txt_free"><![CDATA[Free]]></string>
+
+    <string name="_mz_listing_txt_msg_author_notified"><![CDATA[Poster was notified that you're a client.]]></string>
+    <string name="_mz_listing_txt_err_your_own"><![CDATA[You cannot do this action because you posted this listing.]]></string>
+    <string name="_mz_listing_txt_err_duplicate"><![CDATA[You already performed the action.]]></string>
+    <string name="_mz_listing_txt_err_cannot_perform_action"><![CDATA[Cannot perform action. Please report.]]></string>
+
+    <string name="_mz_listing_txt_poll_view_answers"><![CDATA[poll]]></string>
+    <string name="_mz_listing_txt_poll_view_results"><![CDATA[results]]></string>
+    <string name="_mz_listing_txt_poll_answer_vote_do_by"><![CDATA[Voted for]]></string>
+    <string name="_mz_listing_txt_poll_answer_vote_counter"><![CDATA[{0} votes]]></string>
+    <string name="_mz_listing_txt_poll_answer_vote_percent"><![CDATA[({0}%)]]></string>
+ 
+	<string name="_mz_listing_page_block_title_sys_my_entries"><![CDATA[User Listings]]></string>
+	<string name="_mz_listing_menu_item_title_system_cpa_video_record"><![CDATA[Record Video]]></string>
+    <string name="_mz_listing_menu_item_title_cpa_video_record"><![CDATA[Record Video]]></string>
+ 
+    <string name="_mz_listing_page_block_title_main_map"><![CDATA[Mapped Listings]]></string> 
+ 
+    <string name="_mz_listing_form_entry_input_sys_date_established"><![CDATA[Established]]></string> 
+    <string name="_mz_listing_form_entry_input_date_established"><![CDATA[Established]]></string>  
+    <string name="_mz_listing_form_entry_input_cancel"><![CDATA[Cancel]]></string> 
+    
+	<string name="_mz_listing_txt_to"><![CDATA[to]]></string>  
+    <string name="_mz_listing_page_block_title_profile_reviews"><![CDATA[Reviews]]></string>  
+
+	<string name="_mz_listing_option_min_review_cnt"><![CDATA[Min. numbers of reviews to qualify for top reviewed]]></string>
+	<string name="_mz_listing_option_per_page_for_favorites_lists"><![CDATA[Number of favorite lists per page]]></string>
+	<string name="_mz_listing_form_entry_input_allow_view_favorite_list"><![CDATA[Visibility]]></string>
+	<string name="_mz_listing_page_title_sys_entries_favorites"><![CDATA[Favorite Listings]]></string>
+	<string name="_mz_listing_page_title_entries_favorites"><![CDATA[Favorite Listings]]></string>
+	<string name="_mz_listing_page_block_title_favorites_entries"><![CDATA["{title}" List]]></string>
+	<string name="_mz_listing_page_block_title_favorites_entries_info"><![CDATA[Info]]></string>
+	<string name="_mz_listing_grid_action_title_adm_clear_reports"><![CDATA[Clear reports]]></string>
+  
+	<string name="_mz_listing_label_someone"><![CDATA[Someone]]></string> 
+	<string name="_mz_listing_reviewed_on"><![CDATA[Reviewed on]]></string> 
+	<string name="_mz_listing_persons"><![CDATA[persons]]></string> 
+ 
+ 	<string name="_mz_listing_err_access_denied"><![CDATA[Access Denied]]></string>
+   
+    <string name="_mz_listing_page_title_browse_local"><![CDATA[Local]]></string> 
+    <string name="_mz_listing_page_title_sys_entries_local"><![CDATA[Local]]></string>
+    <string name="_mz_listing_page_title_entries_local"><![CDATA[Local]]></string> 
+    <string name="_mz_listing_page_block_title_local_entries"><![CDATA[Local]]></string>
+    <string name="_mz_listing_menu_item_title_system_entries_local"><![CDATA[Local]]></string>
+    <string name="_mz_listing_menu_item_title_entries_local"><![CDATA[Local]]></string>
+ 
+ 	<string name="_mz_listing_txt_close"><![CDATA[Close]]></string>
+
+ <!-- begin announcement -->
+
+    <string name="_mz_listing_form_announcement_input_sys_start_time"><![CDATA[From]]></string>
+    <string name="_mz_listing_form_announcement_input_start_time"><![CDATA[From]]></string>
+    <string name="_mz_listing_form_announcement_input_start_time_err"><![CDATA[From (Time)  is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_listing_form_announcement_input_sys_end_time"><![CDATA[To]]></string>
+    <string name="_mz_listing_form_announcement_input_end_time"><![CDATA[To]]></string>
+    <string name="_mz_listing_form_announcement_input_end_time_err"><![CDATA[To (Time) is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_listing_option_title_chars_announcement"><![CDATA[Number of characters in announcement title.]]></string>
+    <string name="_mz_listing_option_plain_summary_chars_announcement"><![CDATA[Number of characters in plain announcement description.]]></string>
+    <string name="_mz_listing_form_announcement"><![CDATA[Announcements]]></string>
+    <string name="_mz_listing_form_announcement_display_add"><![CDATA[Post Announcement]]></string>
+    <string name="_mz_listing_form_announcement_display_edit"><![CDATA[Edit Announcement]]></string>
+    <string name="_mz_listing_form_announcement_display_delete"><![CDATA[Delete Announcement]]></string>
+    <string name="_mz_listing_form_announcement_display_view"><![CDATA[View Announcement]]></string>
+    <string name="_mz_listing_form_announcement_input_sys_entry_id"><![CDATA[Listing ID]]></string>
+    <string name="_mz_listing_form_announcement_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_announcement_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_announcement_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_announcement_input_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_announcement_input_sys_title"><![CDATA[Announcement Title]]></string>
+    <string name="_mz_listing_form_announcement_input_title"><![CDATA[Announcement Title]]></string>
+    <string name="_mz_listing_form_announcement_input_title_err"><![CDATA[Announcement Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_announcement_input_sys_text"><![CDATA[Announcement Details]]></string>
+    <string name="_mz_listing_form_announcement_input_text"><![CDATA[Announcement Details]]></string>
+	<string name="_mz_listing_form_announcement_input_text_err"><![CDATA[You must enter Announcement Details]]></string>  
+    <string name="_mz_listing_form_announcement_input_sys_period"><![CDATA[Announcement Period]]></string>
+    <string name="_mz_listing_form_announcement_input_period"><![CDATA[Announcement Period]]></string>
+	<string name="_mz_listing_form_announcement_input_period_err"><![CDATA[You must enter Announcement Period]]></string>  
+    <string name="_mz_listing_form_announcement_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_announcement_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_announcement_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_announcement_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_announcement_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_announcement_input_delete_confirm"><![CDATA[I am sure I want to delete this announcement]]></string>
+    <string name="_mz_listing_form_announcement_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_announcement_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the announcement]]></string> 
+    <string name="_mz_listing_page_title_sys_view_announcements"><![CDATA[Listing Announcements]]></string>
+    <string name="_mz_listing_page_title_view_announcements"><![CDATA[Listing Announcements]]></string> 
+    <string name="_mz_listing_page_block_title_entry_announcements"><![CDATA[Listing Announcements]]></string>
+    <string name="_mz_listing_page_title_sys_view_announcement"><![CDATA[View Announcement]]></string>
+    <string name="_mz_listing_page_title_view_announcement"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_announcement_text"><![CDATA[Announcement Description]]></string>
+    <string name="_mz_listing_page_block_title_announcement_comments"><![CDATA[Announcement Comments]]></string>
+    <string name="_mz_listing_page_title_sys_create_announcement"><![CDATA[New Announcement]]></string>
+    <string name="_mz_listing_page_title_create_announcement"><![CDATA[New Announcement]]></string>
+    <string name="_mz_listing_page_block_title_create_announcement"><![CDATA[New Announcement]]></string>
+    <string name="_mz_listing_page_title_sys_edit_announcement"><![CDATA[Edit Announcement]]></string>
+    <string name="_mz_listing_page_title_edit_announcement"><![CDATA[Edit Announcement]]></string>
+    <string name="_mz_listing_page_block_title_edit_announcement"><![CDATA[Edit Announcement]]></string>
+    <string name="_mz_listing_page_title_sys_delete_announcement"><![CDATA[Delete Announcement]]></string>
+    <string name="_mz_listing_page_title_delete_announcement"><![CDATA[Delete Announcement]]></string>
+    <string name="_mz_listing_page_block_title_delete_announcement"><![CDATA[Delete Announcement]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts_announcements"><![CDATA[Listing Announcement Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_announcement"><![CDATA[Add Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_create_announcement"><![CDATA[Add Announcement]]></string>
+    <string name="_mz_listing_menu_title_view_announcement_submenu"><![CDATA[View Announcement Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_announcement"><![CDATA[Announcement Actions Announcement]]></string>
+    <string name="_mz_listing_menu_set_title_view_announcement"><![CDATA[Announcement Actions Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_announcement"><![CDATA[Edit Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_edit_announcement"><![CDATA[Edit Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_announcement"><![CDATA[Delete Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_delete_announcement"><![CDATA[Delete Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_announcement"><![CDATA[Manage Announcement]]></string>
+    <string name="_mz_listing_menu_item_title_manage_announcement"><![CDATA[Manage Announcement]]></string>
+    <string name="_mz_listing_popup_title_view_announcement"><![CDATA[View Announcement]]></string>
+    <string name="_mz_listing_txt_sample_comment_single_announcement"><![CDATA[listing announcement's comment]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_announcements"><![CDATA[View Announcements]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_announcements"><![CDATA[Announcements]]></string>
+    <string name="_mz_listing_page_title_browse_announcements"><![CDATA[Browse Announcements]]></string>
+    <string name="_mz_listing_caption_announcement"><![CDATA[Menu]]></string> 
+    <string name="_mz_listing_page_title_sys_view_announcement"><![CDATA[View Listing Announcement]]></string>
+ 
+ 	<!--end announcement -->
+
+<!-- begin schedule -->
+
+    <string name="_mz_listing_form_schedule_input_sys_start_time"><![CDATA[From]]></string>
+    <string name="_mz_listing_form_schedule_input_start_time"><![CDATA[From]]></string>
+    <string name="_mz_listing_form_schedule_input_start_time_err"><![CDATA[From (Time)  is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_listing_form_schedule_input_sys_end_time"><![CDATA[To]]></string>
+    <string name="_mz_listing_form_schedule_input_end_time"><![CDATA[To]]></string>
+    <string name="_mz_listing_form_schedule_input_end_time_err"><![CDATA[To (Time) is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_listing_option_title_chars_schedule"><![CDATA[Number of characters in schedule title.]]></string>
+    <string name="_mz_listing_option_plain_summary_chars_schedule"><![CDATA[Number of characters in plain schedule description.]]></string>
+    <string name="_mz_listing_form_schedule"><![CDATA[Schedules]]></string>
+    <string name="_mz_listing_form_schedule_display_add"><![CDATA[Add Schedule]]></string>
+    <string name="_mz_listing_form_schedule_display_edit"><![CDATA[Edit Schedule]]></string>
+    <string name="_mz_listing_form_schedule_display_delete"><![CDATA[Delete Schedule]]></string>
+    <string name="_mz_listing_form_schedule_display_view"><![CDATA[View Schedule]]></string>
+    <string name="_mz_listing_form_schedule_input_sys_entry_id"><![CDATA[Listing ID]]></string>
+    <string name="_mz_listing_form_schedule_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_schedule_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_schedule_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_schedule_input_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_schedule_input_sys_title"><![CDATA[Schedule Title]]></string>
+    <string name="_mz_listing_form_schedule_input_title"><![CDATA[Schedule Title]]></string>
+    <string name="_mz_listing_form_schedule_input_title_err"><![CDATA[Schedule Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_schedule_input_sys_text"><![CDATA[Schedule Details]]></string>
+    <string name="_mz_listing_form_schedule_input_text"><![CDATA[Schedule Details]]></string>
+	<string name="_mz_listing_form_schedule_input_text_err"><![CDATA[You must enter Schedule Details]]></string>  
+    <string name="_mz_listing_form_schedule_input_sys_period"><![CDATA[Schedule Period]]></string>
+    <string name="_mz_listing_form_schedule_input_period"><![CDATA[Schedule Period]]></string>
+	<string name="_mz_listing_form_schedule_input_period_err"><![CDATA[You must enter Schedule Period]]></string>  
+    <string name="_mz_listing_form_schedule_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_schedule_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_schedule_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_schedule_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_schedule_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_schedule_input_delete_confirm"><![CDATA[I am sure I want to delete this schedule]]></string>
+    <string name="_mz_listing_form_schedule_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_schedule_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the schedule]]></string> 
+    <string name="_mz_listing_page_title_sys_view_schedules"><![CDATA[Listing Schedules]]></string>
+    <string name="_mz_listing_page_title_view_schedules"><![CDATA[Listing Schedules]]></string> 
+    <string name="_mz_listing_page_block_title_entry_schedules"><![CDATA[Listing Schedules]]></string>
+    <string name="_mz_listing_page_title_sys_view_schedule"><![CDATA[View Schedule]]></string>
+    <string name="_mz_listing_page_title_view_schedule"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_schedule_text"><![CDATA[Schedule Description]]></string>
+    <string name="_mz_listing_page_block_title_schedule_comments"><![CDATA[Schedule Comments]]></string>
+    <string name="_mz_listing_page_title_sys_create_schedule"><![CDATA[New Schedule]]></string>
+    <string name="_mz_listing_page_title_create_schedule"><![CDATA[New Schedule]]></string>
+    <string name="_mz_listing_page_block_title_create_schedule"><![CDATA[New Schedule]]></string>
+    <string name="_mz_listing_page_title_sys_edit_schedule"><![CDATA[Edit Schedule]]></string>
+    <string name="_mz_listing_page_title_edit_schedule"><![CDATA[Edit Schedule]]></string>
+    <string name="_mz_listing_page_block_title_edit_schedule"><![CDATA[Edit Schedule]]></string>
+    <string name="_mz_listing_page_title_sys_delete_schedule"><![CDATA[Delete Schedule]]></string>
+    <string name="_mz_listing_page_title_delete_schedule"><![CDATA[Delete Schedule]]></string>
+    <string name="_mz_listing_page_block_title_delete_schedule"><![CDATA[Delete Schedule]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts_schedules"><![CDATA[Listing Schedule Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_schedule"><![CDATA[Add Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_create_schedule"><![CDATA[Add Schedule]]></string>
+    <string name="_mz_listing_menu_title_view_schedule_submenu"><![CDATA[View Schedule Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_schedule"><![CDATA[Schedule Actions Schedule]]></string>
+    <string name="_mz_listing_menu_set_title_view_schedule"><![CDATA[Schedule Actions Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_schedule"><![CDATA[Edit Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_edit_schedule"><![CDATA[Edit Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_schedule"><![CDATA[Delete Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_delete_schedule"><![CDATA[Delete Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_schedule"><![CDATA[Manage Schedule]]></string>
+    <string name="_mz_listing_menu_item_title_manage_schedule"><![CDATA[Manage Schedule]]></string>
+    <string name="_mz_listing_popup_title_view_schedule"><![CDATA[View Schedule]]></string>
+    <string name="_mz_listing_txt_sample_comment_single_schedule"><![CDATA[listing schedule's comment]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_schedules"><![CDATA[View Schedules]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_schedules"><![CDATA[Schedules]]></string>
+    <string name="_mz_listing_page_title_browse_schedules"><![CDATA[Browse Schedules]]></string>
+    <string name="_mz_listing_caption_schedule"><![CDATA[Menu]]></string> 
+    <string name="_mz_listing_page_title_sys_view_schedule"><![CDATA[View Listing Schedule]]></string>
+ 
+ 	<!--end schedule -->
+
+ 
+ <!-- begin service -->
+    <string name="_mz_listing_option_title_chars_service"><![CDATA[Number of characters in service title.]]></string>
+    <string name="_mz_listing_option_plain_summary_chars_service"><![CDATA[Number of characters in plain service description.]]></string>
+    <string name="_mz_listing_form_service"><![CDATA[Services]]></string>
+    <string name="_mz_listing_form_service_display_add"><![CDATA[Add Service]]></string>
+    <string name="_mz_listing_form_service_display_edit"><![CDATA[Edit Service]]></string>
+    <string name="_mz_listing_form_service_display_delete"><![CDATA[Delete Service]]></string>
+    <string name="_mz_listing_form_service_display_view"><![CDATA[View Service]]></string>
+    <string name="_mz_listing_form_service_input_sys_entry_id"><![CDATA[Listing ID]]></string>
+    <string name="_mz_listing_form_service_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_service_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_service_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_service_input_do_publish"><![CDATA[Publish]]></string>
+  
+    <string name="_mz_listing_form_service_input_sys_cat"><![CDATA[How is Service offered]]></string>
+    <string name="_mz_listing_form_service_input_cat"><![CDATA[How is Service offered]]></string>
+    <string name="_mz_listing_form_service_input_cat_err"><![CDATA[How Service offered is essential. Please, fill in this field]]></string>
+  
+	<string name="_mz_listing_pre_lists_service_cat"><![CDATA[Listing Service Type]]></string>
+
+  	<string name="_mz_listing_service_cat_virtual"><![CDATA[Virtual]]></string>
+  	<string name="_mz_listing_service_cat_remote"><![CDATA[Remote]]></string>
+  	<string name="_mz_listing_service_cat_on_site"><![CDATA[On-Site]]></string>
+	<string name="_mz_listing_service_cat_flexible"><![CDATA[Flexible]]></string>
+	<string name="_mz_listing_service_cat_online"><![CDATA[Online]]></string>
+ 	<string name="_mz_listing_service_cat_physical"><![CDATA[Physical]]></string>
+  
+    <string name="_mz_listing_form_service_input_sys_cost"><![CDATA[Service Cost]]></string>
+    <string name="_mz_listing_form_service_input_cost"><![CDATA[Service Cost]]></string> 
+    <string name="_mz_listing_form_service_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_service_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_service_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_service_input_sys_text"><![CDATA[Service Details]]></string>
+    <string name="_mz_listing_form_service_input_text"><![CDATA[Service Details]]></string>
+    <string name="_mz_listing_form_service_input_text_err"><![CDATA[You must enter some details]]></string> 
+    <string name="_mz_listing_form_service_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_service_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_service_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_service_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_service_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_service_input_delete_confirm"><![CDATA[I am sure I want to delete this service]]></string>
+    <string name="_mz_listing_form_service_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_service_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the service]]></string> 
+    <string name="_mz_listing_page_title_sys_view_services"><![CDATA[Listing Services]]></string>
+    <string name="_mz_listing_page_title_view_services"><![CDATA[Listing Services]]></string> 
+    <string name="_mz_listing_page_block_title_entry_services"><![CDATA[Listing Services]]></string>
+    <string name="_mz_listing_page_title_sys_view_service"><![CDATA[View Service]]></string>
+    <string name="_mz_listing_page_title_view_service"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_service_text"><![CDATA[Service Description]]></string>
+    <string name="_mz_listing_page_block_title_service_comments"><![CDATA[Service Comments]]></string>
+    <string name="_mz_listing_page_title_sys_create_service"><![CDATA[New Service]]></string>
+    <string name="_mz_listing_page_title_create_service"><![CDATA[New Service]]></string>
+    <string name="_mz_listing_page_block_title_create_service"><![CDATA[New Service]]></string>
+    <string name="_mz_listing_page_title_sys_edit_service"><![CDATA[Edit Service]]></string>
+    <string name="_mz_listing_page_title_edit_service"><![CDATA[Edit Service]]></string>
+    <string name="_mz_listing_page_block_title_edit_service"><![CDATA[Edit Service]]></string>
+    <string name="_mz_listing_page_title_sys_delete_service"><![CDATA[Delete Service]]></string>
+    <string name="_mz_listing_page_title_delete_service"><![CDATA[Delete Service]]></string>
+    <string name="_mz_listing_page_block_title_delete_service"><![CDATA[Delete Service]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts_services"><![CDATA[Listing Service Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_service"><![CDATA[Add Service]]></string>
+    <string name="_mz_listing_menu_item_title_create_service"><![CDATA[Add Service]]></string>
+    <string name="_mz_listing_menu_title_view_service_submenu"><![CDATA[View Service Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_service"><![CDATA[Service Actions Menu]]></string>
+    <string name="_mz_listing_menu_set_title_view_service"><![CDATA[Service Actions Menu]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_service"><![CDATA[Edit Service]]></string>
+    <string name="_mz_listing_menu_item_title_edit_service"><![CDATA[Edit Service]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_service"><![CDATA[Delete Service]]></string>
+    <string name="_mz_listing_menu_item_title_delete_service"><![CDATA[Delete Service]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_service"><![CDATA[Manage Service]]></string>
+    <string name="_mz_listing_menu_item_title_manage_service"><![CDATA[Manage Service]]></string>
+    <string name="_mz_listing_popup_title_view_service"><![CDATA[View Service]]></string>
+    <string name="_mz_listing_txt_sample_comment_single_service"><![CDATA[listing service's comment]]></string>
+  
+    <string name="_mz_listing_menu_item_title_system_view_services"><![CDATA[View Services]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_services"><![CDATA[Services]]></string>
+    <string name="_mz_listing_page_title_browse_services"><![CDATA[Browse Services]]></string>
+    <string name="_mz_listing_page_title_sys_view_service"><![CDATA[View Listing Service]]></string>
+
+	<!--end service -->
+
+
+  <!-- begin branch -->
+    <string name="_mz_listing_option_title_chars_branch"><![CDATA[Number of characters in branch title.]]></string>
+    <string name="_mz_listing_option_plain_summary_chars_branch"><![CDATA[Number of characters in plain branch description.]]></string>
+    <string name="_mz_listing_form_branch"><![CDATA[Branches]]></string>
+    <string name="_mz_listing_form_branch_display_add"><![CDATA[Add Branch]]></string>
+    <string name="_mz_listing_form_branch_display_edit"><![CDATA[Edit Branch]]></string>
+    <string name="_mz_listing_form_branch_display_delete"><![CDATA[Delete Branch]]></string>
+    <string name="_mz_listing_form_branch_display_view"><![CDATA[View Branch]]></string>
+    <string name="_mz_listing_form_branch_input_sys_entry_id"><![CDATA[Listing ID]]></string>
+    <string name="_mz_listing_form_branch_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_branch_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_branch_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_branch_input_do_publish"><![CDATA[Publish]]></string>
+ 
+ 
+    <string name="_mz_listing_form_branch_input_sys_start_time"><![CDATA[From]]></string>
+    <string name="_mz_listing_form_branch_input_start_time"><![CDATA[From]]></string>
+    <string name="_mz_listing_form_branch_input_start_time_err"><![CDATA[From (Time)  is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_listing_form_branch_input_sys_end_time"><![CDATA[To]]></string>
+    <string name="_mz_listing_form_branch_input_end_time"><![CDATA[To]]></string>
+    <string name="_mz_listing_form_branch_input_end_time_err"><![CDATA[To (Time) is essential. Please, fill in this field]]></string>
+
+    <string name="_mz_listing_form_branch_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_branch_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_branch_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_branch_input_sys_text"><![CDATA[Branch Details]]></string>
+    <string name="_mz_listing_form_branch_input_text"><![CDATA[Branch Details]]></string>
+    <string name="_mz_listing_form_branch_input_text_err"><![CDATA[You must enter some details]]></string> 
+    <string name="_mz_listing_form_branch_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_branch_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_branch_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_branch_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_branch_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_branch_input_delete_confirm"><![CDATA[I am sure I want to delete this branch]]></string>
+    <string name="_mz_listing_form_branch_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_branch_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the branch]]></string> 
+    <string name="_mz_listing_page_title_sys_view_branches"><![CDATA[Listing Branches]]></string>
+    <string name="_mz_listing_page_title_view_branches"><![CDATA[Listing Branches]]></string> 
+    <string name="_mz_listing_page_block_title_entry_branches"><![CDATA[Listing Branches]]></string>
+    <string name="_mz_listing_page_title_sys_view_branch"><![CDATA[View Branch]]></string>
+    <string name="_mz_listing_page_title_view_branch"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_branch_text"><![CDATA[Branch Description]]></string>
+    <string name="_mz_listing_page_block_title_branch_comments"><![CDATA[Branch Comments]]></string>
+    <string name="_mz_listing_page_title_sys_create_branch"><![CDATA[New Branch]]></string>
+    <string name="_mz_listing_page_title_create_branch"><![CDATA[New Branch]]></string>
+    <string name="_mz_listing_page_block_title_create_branch"><![CDATA[New Branch]]></string>
+    <string name="_mz_listing_page_title_sys_edit_branch"><![CDATA[Edit Branch]]></string>
+    <string name="_mz_listing_page_title_edit_branch"><![CDATA[Edit Branch]]></string>
+    <string name="_mz_listing_page_block_title_edit_branch"><![CDATA[Edit Branch]]></string>
+    <string name="_mz_listing_page_title_sys_delete_branch"><![CDATA[Delete Branch]]></string>
+    <string name="_mz_listing_page_title_delete_branch"><![CDATA[Delete Branch]]></string>
+    <string name="_mz_listing_page_block_title_delete_branch"><![CDATA[Delete Branch]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts_branches"><![CDATA[Listing Branch Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_branch"><![CDATA[Add Branch]]></string>
+    <string name="_mz_listing_menu_item_title_create_branch"><![CDATA[Add Branch]]></string>
+    <string name="_mz_listing_menu_title_view_branch_submenu"><![CDATA[View Branch Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_branch"><![CDATA[Branch Actions Menu]]></string>
+    <string name="_mz_listing_menu_set_title_view_branch"><![CDATA[Branch Actions Menu]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_branch"><![CDATA[Edit Branch]]></string>
+    <string name="_mz_listing_menu_item_title_edit_branch"><![CDATA[Edit Branch]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_branch"><![CDATA[Delete Branch]]></string>
+    <string name="_mz_listing_menu_item_title_delete_branch"><![CDATA[Delete Branch]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_branch"><![CDATA[Manage Branch]]></string>
+    <string name="_mz_listing_menu_item_title_manage_branch"><![CDATA[Manage Branch]]></string>
+    <string name="_mz_listing_popup_title_view_branch"><![CDATA[View Branch]]></string>
+    <string name="_mz_listing_txt_sample_comment_single_branch"><![CDATA[listing branch comment]]></string>
+  
+    <string name="_mz_listing_menu_item_title_system_view_branches"><![CDATA[View Branches]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_branches"><![CDATA[Branches]]></string>
+    <string name="_mz_listing_page_title_browse_branches"><![CDATA[Browse Branches]]></string>
+    <string name="_mz_listing_page_title_sys_view_branch"><![CDATA[View Listing Branch]]></string>
+
+	<!--end branch -->
+
+  <!-- begin broadcast -->
+
+    <string name="_mz_listing_page_title_sys_create_broadcast"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_page_title_create_broadcast"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_page_block_title_create_broadcast"><![CDATA[Send Message]]></string> 
+	<string name="_mz_listing_menu_item_title_system_create_broadcast"><![CDATA[Send Message]]></string>
+    <string name="_mz_listing_menu_item_title_create_broadcast"><![CDATA[Broadcast]]></string>
+ 
+ <!--end broadcast -->
+
+    <string name="_mz_listing_page_title_browse_listing_city"><![CDATA[Browse Members living in this City]]></string> 
+    <string name="_mz_listing_page_title_browse_listing_client"><![CDATA[Browse Clients]]></string> 
+    <string name="_mz_listing_page_block_title_entry_client"><![CDATA[Clients]]></string>
+    <string name="_mz_listing_page_block_title_entry_local"><![CDATA[Local Members]]></string>
+ 
+    <string name="_mz_listing_form_entry_input_email"><![CDATA[Email]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_email"><![CDATA[Email]]></string>  
+    <string name="_mz_listing_form_entry_input_phone"><![CDATA[Phone]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_phone"><![CDATA[Phone]]></string>  
+    <string name="_mz_listing_form_entry_input_info_phone"><![CDATA[Enter country code, area code and phone number (eg. 1-876-793-5492)]]></string>  
+    <string name="_mz_listing_form_entry_input_fax"><![CDATA[Fax]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_fax"><![CDATA[Fax]]></string>  
+    <string name="_mz_listing_form_entry_input_info_fax"><![CDATA[Enter country code, area code and phone number (eg. 1-876-793-5493)]]></string>  
+    <string name="_mz_listing_form_entry_input_website"><![CDATA[Website]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_website"><![CDATA[Website]]></string> 
+ 
+    <string name="_mz_listing_form_display_view_contact"><![CDATA[Contact Details]]></string> 
+    <string name="_mz_listing_form_entry_input_header_contact"><![CDATA[Contact Details]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_header_contact"><![CDATA[Contact Section Header]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_footer_contact"><![CDATA[Contact Section Footer]]></string> 
+    <string name="_mz_listing_page_block_title_contact"><![CDATA[Contact Details]]></string> 
+    <string name="_mz_listing_caption_official_website"><![CDATA[Official Website]]></string> 
+    <string name="_mz_listing_caption_official_linkedin"><![CDATA[Official Linkedin]]></string>    
+    <string name="_mz_listing_form_entry_input_sys_header_social"><![CDATA[Social Connection (Header)]]></string>
+    <string name="_mz_listing_form_entry_input_header_social"><![CDATA[Social Connection]]></string>
+    <string name="_mz_listing_form_entry_input_sys_footer_social"><![CDATA[Social Connection (Footer)]]></string>
+    <string name="_mz_listing_form_entry_input_footer_social"><![CDATA[Social Connection]]></string>
+	<string name="_mz_listing_form_entry_input_facebook"><![CDATA[Facebook]]></string>        
+	<string name="_mz_listing_form_entry_input_instagram"><![CDATA[Instagram]]></string>       
+	<string name="_mz_listing_form_entry_input_twitter"><![CDATA[Twitter]]></string>         
+	<string name="_mz_listing_form_entry_input_linkedin"><![CDATA[Linkedin]]></string>         
+   	<string name="_mz_listing_form_entry_input_sys_facebook"><![CDATA[Facebook]]></string>        
+	<string name="_mz_listing_form_entry_input_sys_instagram"><![CDATA[Instagram]]></string>       
+	<string name="_mz_listing_form_entry_input_sys_twitter"><![CDATA[Twitter]]></string>         
+	<string name="_mz_listing_form_entry_input_sys_linkedin"><![CDATA[Linkedin]]></string>   
+	<string name="_mz_listing_form_entry_input_other_social"><![CDATA[Other]]></string>         
+	<string name="_mz_listing_form_entry_input_sys_other_social"><![CDATA[Other]]></string>         
+
+    <string name="_mz_listing_caption_official_facebook"><![CDATA[Official Facebook Page]]></string> 
+    <string name="_mz_listing_caption_official_instagram"><![CDATA[Official Instagram Page]]></string> 
+    <string name="_mz_listing_caption_official_twitter"><![CDATA[Official Twitter Page]]></string> 
+    <string name="_mz_listing_caption_official_other"><![CDATA[Other Social Page]]></string> 
+    <string name="_mz_listing_caption_official_email"><![CDATA[Official Email]]></string> 
+
+    <string name="_mz_listing_form_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+ 
+    <string name="_mz_listing_form_claim"><![CDATA[Claim]]></string> 
+    <string name="_mz_listing_page_title_sys_create_claim"><![CDATA[Make Claim]]></string>
+    <string name="_mz_listing_page_block_title_social"><![CDATA[Social Connection]]></string>
+	<string name="_mz_listing_page_block_title_entry_claim_details"><![CDATA[Claim Details]]></string>
+	<string name="_mz_listing_page_block_title_entry_business_details"><![CDATA[Business Details]]></string>
+	<string name="_mz_listing_menu_item_title_system_claim_entry"><![CDATA[Claim Listing]]></string>
+    <string name="_mz_listing_menu_item_title_claim_entry"><![CDATA[Claim Listing]]></string>
+    <string name="_mz_listing_page_block_title_create_claim"><![CDATA[Make Claim]]></string>
+    <string name="_mz_listing_form_claim_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_claim_input_sys_text"><![CDATA[Details]]></string>
+    <string name="_mz_listing_form_claim_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_listing_form_claim_input_text"><![CDATA[Details]]></string>
+    <string name="_mz_listing_form_claim_input_do_publish"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_grid_column_title_name"><![CDATA[Name]]></string>
+    <string name="_mz_listing_grid_column_title_details"><![CDATA[Details]]></string>
+    <string name="_mz_listing_grid_column_title_claimant"><![CDATA[Claimant]]></string>
+    <string name="_mz_listing_grid_column_title_claim_date"><![CDATA[Claim Date]]></string>
+ 
+    <string name="_mz_listing_grid_column_title_claim_accepted"><![CDATA[Accepted]]></string>
+    <string name="_mz_listing_grid_column_title_claim_rejected"><![CDATA[Rejected]]></string>
+
+    <string name="_mz_listing_grid_action_title_adm_claim_accept"><![CDATA[Accept]]></string>
+    <string name="_mz_listing_grid_action_title_adm_claim_reject"><![CDATA[Reject]]></string> 
+    <string name="_mz_listing_page_title_sys_claim_claim"><![CDATA[Claimed Listings]]></string>
+    <string name="_mz_listing_page_title_claim"><![CDATA[Claimed Listings]]></string>
+
+    <string name="_mz_listing_page_block_title_system_claim_listings_pending"><![CDATA[Pending Claimed Listings]]></string>
+    <string name="_mz_listing_page_block_title_claim_listings_pending"><![CDATA[Pending Claimed Listings]]></string>
+    <string name="_mz_listing_page_block_title_system_claim_listings_accepted"><![CDATA[Accepted Claimed Listings]]></string>
+    <string name="_mz_listing_page_block_title_claim_listings_accepted"><![CDATA[Accepted Claimed Listings]]></string>
+    <string name="_mz_listing_page_block_title_system_claim_listings_rejected"><![CDATA[Rejected Claimed Listings]]></string>
+    <string name="_mz_listing_page_block_title_claim_listings_rejected"><![CDATA[Rejected Claimed Listings]]></string>
+
+    <string name="_mz_listing_menu_title_view_claim_submenu"><![CDATA[View Claim Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_claim"><![CDATA[Claim Actions Menu]]></string>
+    <string name="_mz_listing_menu_set_title_view_claim"><![CDATA[Claim Actions Menu]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_claim"><![CDATA[Edit Claim]]></string>
+    <string name="_mz_listing_menu_item_title_edit_claim"><![CDATA[Edit Claim]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_claim"><![CDATA[Delete Claim]]></string>
+    <string name="_mz_listing_menu_item_title_delete_claim"><![CDATA[Delete Claim]]></string> 
+    <string name="_mz_listing_menu_item_title_manage_claims"><![CDATA[Manage Claims]]></string> 
+    <string name="_mz_listing_page_title_sys_view_claim"><![CDATA[View Listing Claim]]></string>
+
+    <string name="_mz_listing_page_title_sys_delete_claim"><![CDATA[Delete Claim]]></string>
+    <string name="_mz_listing_page_title_delete_claim"><![CDATA[Delete Claim]]></string>
+    <string name="_mz_listing_page_block_title_delete_claim"><![CDATA[Delete Claim]]></string>
+    <string name="_mz_listing_page_title_sys_edit_claim"><![CDATA[Edit Claim]]></string>
+    <string name="_mz_listing_page_title_edit_claim"><![CDATA[Edit Claim]]></string>
+    <string name="_mz_listing_page_block_title_edit_claim"><![CDATA[Edit Claim]]></string>
+    <string name="_mz_listing_form_claim_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_claim_input_delete_confirm"><![CDATA[I am sure I want to delete this claim]]></string>
+    <string name="_mz_listing_form_claim_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_claim_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the claim]]></string>
+
+    <string name="_mz_listing_acl_action_send_message"><![CDATA[Send Message]]></string>
+ 
+    <string name="_mz_listing_page_title_create_claim"><![CDATA[Make Claim]]></string>
+    <string name="_mz_listing_acl_action_claim_entry"><![CDATA[Make Claim]]></string>
+    <string name="_mz_listing_acl_action_manage_claim"><![CDATA[Manage Claims]]></string>
+
+    <string name="_mz_listing_et_txt_name_claim_accepted"><![CDATA[Claim acceptance.]]></string>
+    <string name="_mz_listing_et_txt_subject_claim_accepted"><![CDATA[Your Claim for {listing_name} has been accepted.]]></string>
+    <string name="_mz_listing_et_txt_body_claim_accepted"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p>Your claim for the business <b><a href="{listing_url}">{listing_name}</a></b> has been accepted by the Site Administrators. You are now able to manage the listing.</p>
+{email_footer}]]></string>
+
+    <string name="_mz_listing_et_txt_name_claim_rejected"><![CDATA[Claim rejection.]]></string>
+    <string name="_mz_listing_et_txt_subject_claim_rejected"><![CDATA[Your Claim for {listing_name} has been rejected.]]></string>
+    <string name="_mz_listing_et_txt_body_claim_rejected"><![CDATA[{email_header}
+<p>Hello, {profile_name}.</p>
+<p>Sorry, your claim for the business <b><a href="{listing_url}">{listing_name}</a></b> has been rejected by the Site Administrators.</p>
+{email_footer}]]></string>
+
+
+    <string name="_mz_listing_entry_msg_claim_pending"><![CDATA[This listing has pending Claim(s). Go to <a href="{0}">Claim Management</a> to take action]]></string> 
+    <string name="_mz_listing_page_block_title_claim"><![CDATA[Claim]]></string> 
+
+    <string name="_mz_listing_form_display_view_social"><![CDATA[View Social]]></string> 
+    <string name="_mz_listing_grid_column_title_claim"><![CDATA[Claim]]></string> 
+    <string name="_mz_listing_grid_column_title_business"><![CDATA[Business]]></string> 
+
+    <string name="_mz_listing_form_entry_input_hour"><![CDATA[Open Hours]]></string>  
+    <string name="_mz_listing_pre_lists_repeat_hour"><![CDATA[Open Hours - hour]]></string>
+    <string name="_mz_listing_form_entry_input_sys_hour"><![CDATA[Open Hours]]></string>  
+    <string name="_mz_listing_form_entry_input_add_hour"><![CDATA[Add Hour]]></string> 
+    <string name="_mz_listing_pre_lists_repeat_period"><![CDATA[Open Hours - period]]></string>
+    <string name="_mz_listing_cat_repeat_period_am"><![CDATA[AM]]></string> 
+    <string name="_mz_listing_cat_repeat_period_pm"><![CDATA[PM]]></string> 
+
+    <string name="_mz_listing_form_input_repeat_from_day_of_week"><![CDATA[Between]]></string> 
+    <string name="_mz_listing_form_input_repeat_from_hour"><![CDATA[Hour]]></string> 
+    <string name="_mz_listing_form_input_repeat_from_minute"><![CDATA[Minute]]></string> 
+    <string name="_mz_listing_form_input_repeat_from_period"><![CDATA[Period]]></string> 
+ 
+    <string name="_mz_listing_form_input_repeat_to_day_of_week"><![CDATA[And]]></string> 
+    <string name="_mz_listing_form_input_repeat_to_hour"><![CDATA[Hour]]></string> 
+    <string name="_mz_listing_pre_lists_repeat_minute"><![CDATA[Open Hours - minute]]></string>
+    <string name="_mz_listing_form_input_repeat_to_minute"><![CDATA[Minute]]></string> 
+    <string name="_mz_listing_form_input_repeat_to_period"><![CDATA[Period]]></string> 
+
+    <string name="_mz_listing_form_input_repeat_to"><![CDATA[To]]></string> 
+
+    <string name="_mz_listing_pre_lists_repeat_day_of_week"><![CDATA[Open Hours - day of the week]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_every_day"><![CDATA[Every day of the week]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_mon"><![CDATA[Monday]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_tue"><![CDATA[Tuesday]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_wed"><![CDATA[Wednesday]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_thu"><![CDATA[Thursday]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_fri"><![CDATA[Friday]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_sat"><![CDATA[Saturday]]></string>
+    <string name="_mz_listing_cat_repeat_day_of_week_sun"><![CDATA[Sunday]]></string>
+
+    <string name="_mz_listing_form_entry_input_sys_header_hour"><![CDATA[Header Opening Hours - Begin]]></string> 
+    <string name="_mz_listing_form_entry_input_header_hour"><![CDATA[Opening Hours]]></string> 
+    <string name="_mz_listing_form_entry_input_sys_footer_hour"><![CDATA[Opening Hours]]></string> 
+    <string name="_mz_listing_form_entry_input_footer_hour"><![CDATA[Header Opening Hours - End]]></string> 
+  
+    <string name="_mz_listing_txt_closed"><![CDATA[Closed]]></string>
+    <string name="_mz_listing_msg_success"><![CDATA[Message sent successfully]]></string>
+    <string name="_mz_listing_page_block_title_send_msg"><![CDATA[Message this business]]></string>
+ 
+	<!-- update -->
+  	<string name="_mz_listing_acl_action_delete_any_entry"><![CDATA[Delete Any business listing]]></string>  
+
+	<!-- add --> 
+    <string name="_mz_listing_et_txt_name_claim_pending"><![CDATA[Claim Request Pending.]]></string>
+    <string name="_mz_listing_et_txt_subject_claim_pending"><![CDATA[Claim Request Pending for {listing_name}]]></string>
+    <string name="_mz_listing_et_txt_body_claim_pending"><![CDATA[{email_header}
+<p>Hello Administrator,</p>
+<p>A Claim request has been submitted for <b><a href="{listing_url}">{listing_name}</a></b>. You may manage the request <a href="{manage_url}">here</a></b>.</p>
+{email_footer}]]></string>
+  
+ <!-- begin reward -->
+    <string name="_mz_listing_option_title_chars_reward"><![CDATA[Number of characters in reward title.]]></string>
+    <string name="_mz_listing_option_plain_summary_chars_reward"><![CDATA[Number of characters in plain reward description.]]></string>
+    <string name="_mz_listing_form_reward"><![CDATA[Rewards]]></string>
+    <string name="_mz_listing_form_reward_display_add"><![CDATA[Add Reward]]></string>
+    <string name="_mz_listing_form_reward_display_edit"><![CDATA[Edit Reward]]></string>
+    <string name="_mz_listing_form_reward_display_delete"><![CDATA[Delete Reward]]></string>
+    <string name="_mz_listing_form_reward_display_view"><![CDATA[View Reward]]></string>
+    <string name="_mz_listing_form_reward_input_sys_entry_id"><![CDATA[Listing ID]]></string>
+    <string name="_mz_listing_form_reward_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_reward_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_reward_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_reward_input_do_publish"><![CDATA[Publish]]></string> 
+    <string name="_mz_listing_form_reward_input_sys_points"><![CDATA[Points]]></string>
+    <string name="_mz_listing_form_reward_input_points"><![CDATA[Points]]></string>
+    <string name="_mz_listing_form_reward_input_points_err"><![CDATA[You must enter points]]></string> 
+    <string name="_mz_listing_form_reward_input_sys_store"><![CDATA[Reward Store]]></string>
+    <string name="_mz_listing_form_reward_input_store"><![CDATA[Store]]></string> 
+    <string name="_mz_listing_form_reward_input_sys_title"><![CDATA[Reward Name]]></string>
+    <string name="_mz_listing_form_reward_input_title"><![CDATA[Reward Name]]></string>
+    <string name="_mz_listing_form_reward_input_title_err"><![CDATA[Reward Name is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_reward_input_sys_text"><![CDATA[Reward Details]]></string>
+    <string name="_mz_listing_form_reward_input_text"><![CDATA[Reward Details]]></string>
+    <string name="_mz_listing_form_reward_input_text_err"><![CDATA[You must enter some details]]></string> 
+    <string name="_mz_listing_form_reward_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_reward_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_reward_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_reward_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_reward_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_reward_input_delete_confirm"><![CDATA[I am sure I want to delete this reward]]></string>
+    <string name="_mz_listing_form_reward_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_reward_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the reward]]></string> 
+    <string name="_mz_listing_page_title_sys_view_rewards"><![CDATA[Listing Rewards]]></string>
+    <string name="_mz_listing_page_title_view_rewards"><![CDATA[Listing Rewards]]></string> 
+    <string name="_mz_listing_page_block_title_entry_rewards"><![CDATA[Listing Rewards]]></string>
+    <string name="_mz_listing_page_title_sys_view_reward"><![CDATA[View Reward]]></string>
+    <string name="_mz_listing_page_title_view_reward"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_reward_text"><![CDATA[Reward Description]]></string>
+    <string name="_mz_listing_page_block_title_reward_comments"><![CDATA[Reward Comments]]></string>
+    <string name="_mz_listing_page_title_sys_create_reward"><![CDATA[New Reward]]></string>
+    <string name="_mz_listing_page_title_create_reward"><![CDATA[New Reward]]></string>
+    <string name="_mz_listing_page_block_title_create_reward"><![CDATA[New Reward]]></string>
+    <string name="_mz_listing_page_title_sys_edit_reward"><![CDATA[Edit Reward]]></string>
+    <string name="_mz_listing_page_title_edit_reward"><![CDATA[Edit Reward]]></string>
+    <string name="_mz_listing_page_block_title_edit_reward"><![CDATA[Edit Reward]]></string>
+    <string name="_mz_listing_page_title_sys_delete_reward"><![CDATA[Delete Reward]]></string>
+    <string name="_mz_listing_page_title_delete_reward"><![CDATA[Delete Reward]]></string>
+    <string name="_mz_listing_page_block_title_delete_reward"><![CDATA[Delete Reward]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts_rewards"><![CDATA[Listing Reward Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_reward"><![CDATA[Add Reward]]></string>
+    <string name="_mz_listing_menu_item_title_create_reward"><![CDATA[Add Reward]]></string>
+    <string name="_mz_listing_menu_title_view_reward_submenu"><![CDATA[View Reward Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_reward"><![CDATA[Reward Actions Menu]]></string>
+    <string name="_mz_listing_menu_set_title_view_reward"><![CDATA[Reward Actions Menu]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_reward"><![CDATA[Edit Reward]]></string>
+    <string name="_mz_listing_menu_item_title_edit_reward"><![CDATA[Edit Reward]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_reward"><![CDATA[Delete Reward]]></string>
+    <string name="_mz_listing_menu_item_title_delete_reward"><![CDATA[Delete Reward]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_reward"><![CDATA[Manage Reward]]></string>
+    <string name="_mz_listing_menu_item_title_manage_reward"><![CDATA[Manage Reward]]></string>
+    <string name="_mz_listing_popup_title_view_reward"><![CDATA[View Reward]]></string>
+    <string name="_mz_listing_txt_sample_comment_single_reward"><![CDATA[listing reward's comment]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_rewards"><![CDATA[View Rewards]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_rewards"><![CDATA[Rewards]]></string>
+    <string name="_mz_listing_page_title_browse_rewards"><![CDATA[Browse Rewards]]></string>
+    <string name="_mz_listing_page_title_sys_view_reward"><![CDATA[View Listing Reward]]></string>
+
+ <!--end reward -->
+
+
+ <!-- begin gift card -->
+    <string name="_mz_listing_option_title_chars_gift"><![CDATA[Number of characters in gift card title.]]></string>
+    <string name="_mz_listing_option_plain_summary_chars_gift"><![CDATA[Number of characters in plain gift card description.]]></string>
+    <string name="_mz_listing_form_gift"><![CDATA[Gift Cards]]></string>
+    <string name="_mz_listing_form_gift_display_add"><![CDATA[Add Gift Card]]></string>
+    <string name="_mz_listing_form_gift_display_edit"><![CDATA[Edit Gift Card]]></string>
+    <string name="_mz_listing_form_gift_display_delete"><![CDATA[Delete Gift Card]]></string>
+    <string name="_mz_listing_form_gift_display_view"><![CDATA[View Gift Card]]></string>
+    <string name="_mz_listing_form_gift_input_sys_entry_id"><![CDATA[Listing ID]]></string>
+    <string name="_mz_listing_form_gift_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_gift_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_listing_form_gift_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_listing_form_gift_input_do_publish"><![CDATA[Publish]]></string> 
+    <string name="_mz_listing_form_gift_input_sys_cat"><![CDATA[Gift Card Type]]></string>
+    <string name="_mz_listing_form_gift_input_cat"><![CDATA[Type]]></string> 
+	<string name="_mz_listing_pre_lists_gift_cat"><![CDATA[Listing Gift Card Type]]></string> 
+  	<string name="_mz_listing_gift_cat_paid"><![CDATA[Paid]]></string>
+  	<string name="_mz_listing_gift_cat_free"><![CDATA[Free]]></string> 
+    <string name="_mz_listing_form_gift_input_sys_store"><![CDATA[Gift Card Store]]></string>
+    <string name="_mz_listing_form_gift_input_store"><![CDATA[Store]]></string> 
+    <string name="_mz_listing_form_gift_input_sys_title"><![CDATA[Gift Card Name]]></string>
+    <string name="_mz_listing_form_gift_input_title"><![CDATA[Gift Card Name]]></string>
+    <string name="_mz_listing_form_gift_input_title_err"><![CDATA[Gift Card Name is essential. Please, fill in this field]]></string>
+    <string name="_mz_listing_form_gift_input_sys_text"><![CDATA[Gift Card Details]]></string>
+    <string name="_mz_listing_form_gift_input_text"><![CDATA[Gift Card Details]]></string>
+    <string name="_mz_listing_form_gift_input_text_err"><![CDATA[You must enter some details]]></string> 
+    <string name="_mz_listing_form_gift_input_sys_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_gift_input_pictures"><![CDATA[Picture]]></string>
+    <string name="_mz_listing_form_gift_input_pictures_uploader_simple_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_gift_input_pictures_uploader_html5_title"><![CDATA[Upload]]></string>
+    <string name="_mz_listing_form_gift_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_mz_listing_form_gift_input_delete_confirm"><![CDATA[I am sure I want to delete this gift card]]></string>
+    <string name="_mz_listing_form_gift_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_mz_listing_form_gift_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the gift card]]></string> 
+    <string name="_mz_listing_page_title_sys_view_gifts"><![CDATA[Listing Gift Cards]]></string>
+    <string name="_mz_listing_page_title_view_gifts"><![CDATA[Listing Gift Cards]]></string> 
+    <string name="_mz_listing_page_block_title_entry_gifts"><![CDATA[Listing Gift Cards]]></string>
+    <string name="_mz_listing_page_title_sys_view_gift"><![CDATA[View Gift Card]]></string>
+    <string name="_mz_listing_page_title_view_gift"><![CDATA[{title}]]></string>
+    <string name="_mz_listing_page_block_title_gift_text"><![CDATA[Gift Description]]></string>
+    <string name="_mz_listing_page_block_title_gift_comments"><![CDATA[Gift Comments]]></string>
+    <string name="_mz_listing_page_title_sys_create_gift"><![CDATA[New Gift Card]]></string>
+    <string name="_mz_listing_page_title_create_gift"><![CDATA[New Gift Card]]></string>
+    <string name="_mz_listing_page_block_title_create_gift"><![CDATA[New Gift Card]]></string>
+    <string name="_mz_listing_page_title_sys_edit_gift"><![CDATA[Edit Gift Card]]></string>
+    <string name="_mz_listing_page_title_edit_gift"><![CDATA[Edit Gift Card]]></string>
+    <string name="_mz_listing_page_block_title_edit_gift"><![CDATA[Edit Gift Card]]></string>
+    <string name="_mz_listing_page_title_sys_delete_gift"><![CDATA[Delete Gift Card]]></string>
+    <string name="_mz_listing_page_title_delete_gift"><![CDATA[Delete Gift Card]]></string>
+    <string name="_mz_listing_page_block_title_delete_gift"><![CDATA[Delete Gift Card]]></string>
+    <string name="_mz_listing_page_block_title_browse_cmts_gifts"><![CDATA[Listing Gift Comments]]></string>
+    <string name="_mz_listing_menu_item_title_system_create_gift"><![CDATA[Add Gift Card]]></string>
+    <string name="_mz_listing_menu_item_title_create_gift"><![CDATA[Add Gift Card]]></string>
+    <string name="_mz_listing_menu_title_view_gift_submenu"><![CDATA[View Gift Card Submenu]]></string>
+    <string name="_mz_listing_menu_title_view_gift"><![CDATA[Gift Card Actions Menu]]></string>
+    <string name="_mz_listing_menu_set_title_view_gift"><![CDATA[Gift Card Actions Menu]]></string>
+    <string name="_mz_listing_menu_item_title_system_edit_gift"><![CDATA[Edit Gift Card]]></string>
+    <string name="_mz_listing_menu_item_title_edit_gift"><![CDATA[Edit Gift Card]]></string>
+    <string name="_mz_listing_menu_item_title_system_delete_gift"><![CDATA[Delete Gift Card]]></string>
+    <string name="_mz_listing_menu_item_title_delete_gift"><![CDATA[Delete Gift Card]]></string>
+    <string name="_mz_listing_menu_item_title_system_manage_gift"><![CDATA[Manage Gift Card]]></string>
+    <string name="_mz_listing_menu_item_title_manage_gift"><![CDATA[Manage Gift Card]]></string>
+    <string name="_mz_listing_popup_title_view_gift"><![CDATA[View Gift Card]]></string>
+    <string name="_mz_listing_txt_sample_comment_single_gift"><![CDATA[listing gift card's comment]]></string>
+    <string name="_mz_listing_menu_item_title_system_view_gifts"><![CDATA[View Gift Cards]]></string>
+    <string name="_mz_listing_menu_item_title_view_entry_submenu_gifts"><![CDATA[Gift Cards]]></string>
+    <string name="_mz_listing_page_title_browse_gifts"><![CDATA[Browse Gift Cards]]></string>
+    <string name="_mz_listing_page_title_sys_view_gift"><![CDATA[View Listing Gift Card]]></string>
+
+	<!--end gift card -->
+ 
+	<string name="_mz_listing_acl_action_delete_any_profile"><![CDATA[Delete Any Listing]]></string>
+	<string name="_mz_listing_page_block_title_entry_reports"><![CDATA[Reports]]></string>
+	<string name="_mz_listing_page_block_title_sys_favorites_entries"><![CDATA[Favorite List]]></string>
+	<string name="_mz_listing_page_block_title_sys_cover_block"><![CDATA[Cover]]></string>
+	<string name="_mz_listing_page_block_title_cover_block"><![CDATA[Cover]]></string>
+	<string name="_mz_listing_menu_title_view_profile_meta"><![CDATA[Listing Meta]]></string>
+	<string name="_mz_listing_menu_set_title_view_profile_meta"><![CDATA[Listing Meta]]></string>
+	<string name="_mz_listing_menu_item_title_system_followings"><![CDATA[Listings]]></string>
+	<string name="_mz_listing_menu_item_title_followings"><![CDATA[Listings]]></string>
+    <string name="_mz_listing_option_enable_auto_approve"><![CDATA[Auto approve an Listing after creation]]></string>
+    <string name="_mz_listing_txt_msg_status_hidden"><![CDATA[This listing was hidden.]]></string>
+    <string name="_mz_listing_txt_msg_status_pending"><![CDATA[This listing is pending approval.]]></string>
+    <string name="_mz_listing_grid_filter_item_title_adm_pending"><![CDATA[Pending]]></string>
+	<string name="_mz_listing_pre_lists_repeat_day_minute"><![CDATA[Repeat minute]]></string>
+	<string name="_mz_listing_pre_lists_repeat_day_hour"><![CDATA[Repeat hour]]></string>
+    <string name="_mz_listing_txt_scheduled_awaiting"><![CDATA[Listing publishing date is {date_publish_uf}]]></string> 
+
+	<string name="_mz_listing_grid_filter_item_title_adm_select_one_filter2"><![CDATA[Any Audience]]></string>
+   	<string name="_mz_listing_grid_column_title_adm_status_admin"><![CDATA[Moderation]]></string> 
+    <string name="_mz_listing_txt_sample_interest_single"><![CDATA[interested in listing]]></string>
+    <string name="_mz_listing_alert_action_doInterest_listing"><![CDATA[Someone interested in your listing]]></string>
+    <string name="_mz_listing_txt_ntfs_subobject_interested"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> {subentry_sample} <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
+    <string name="_mz_listing_alert_action_approved_listing"><![CDATA[Your listing was approved]]></string>
+    <string name="_mz_listing_txt_ntfs_object_approved"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> approved your listing <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
+  
+	<string name="_mz_listing_form_gift_input_cat_err"><![CDATA[You must select Card Type]]></string>
+ 
+</resources>

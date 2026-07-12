@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+	<string name="_sys_module_seo"><![CDATA[Friendly URL]]></string>
+	<string name="_aqb_seof"><![CDATA[Friendly URL]]></string>
+	<string name="_aqb_seof_adm_cpt_settings"><![CDATA[Settings]]></string>
+    <string name="_aqb_seof_adm_stg_cpt_type"><![CDATA[Friendly URL]]></string>
+    <string name="_aqb_seof_installation_problem"><![CDATA[Module has not been installed]]></string>
+    <string name="_aqb_seof_adm_cpt_urls"><![CDATA[Manage Urls]]></string>
+
+	<string name="_aqb_seof_admin_urls_title_name"><![CDATA[Module]]></string>
+	<string name="_aqb_seof_admin_urls_title_uri"><![CDATA[Uri]]></string>
+	<string name="_aqb_seof_admin_urls_title_count"><![CDATA[Total]]></string>
+	<string name="_aqb_seof_admin_urls_title_actions"><![CDATA[Actions]]></string>
+
+	<string name="_aqb_seof_update_action_title"><![CDATA[Update uri for these pages]]></string>
+	<string name="_aqb_seof_view_action_title"><![CDATA[View all pages]]></string>
+	<string name="_aqb_seof_convert_action_title"><![CDATA[Convert Selected URIs into ASCII]]></string>
+
+	<string name="_aqb_seof_admin_links_title_url"><![CDATA[Url]]></string>
+	<string name="_aqb_seof_admin_links_title_actions"><![CDATA[Actions]]></string>
+	<string name="_aqb_seof_admin_links_title_param"><![CDATA[Value]]></string>
+
+	<string name="_aqb_seof_save_item_action_title"><![CDATA[Save]]></string>
+	<string name="_aqb_seof_convert_item_action_title"><![CDATA[Make Url ASCII]]></string>
+
+	<string name="_aqb_seof_uri_links"><![CDATA[Pages with {0} uri in {1} module]]></string>
+	<string name="_aqb_seof_no_results"><![CDATA[Nothing found!]]></string>
+
+	<string name="_aqb_seof_all_uri_title"><![CDATA[Update all URIs in module {1}]]></string>
+	<string name="_aqb_seof_submit_title"><![CDATA[Update]]></string>
+
+	<string name="_aqb_seof_view_all_title"><![CDATA[View All]]></string>
+	<string name="_aqb_seof_view_not_latin_title"><![CDATA[Display URLs with non-ASCII characters]]></string>
+
+	<string name="_aqb_seof_please_select"><![CDATA[Module name ...]]></string>
+	<string name="_aqb_seof_page_uri_exists"><![CDATA[Page with the same Uri already exists!]]></string>
+	<string name="_aqb_seof_update_urls_latin"><![CDATA[Make the all selected URIs ASCII]]></string>
+	<string name="_aqb_seof_update_urls_latin_done"><![CDATA[{0} URIs have been successfully updated.]]></string>
+	<string name="_aqb_seof_update_urls_latin_skipped"><![CDATA[{0} URIs values were not updated because their ASCII transliterations already exist. You can find and update them manually.]]></string>
+	<string name="_aqb_seof_enable_autoconversation"><![CDATA[Enable auto ASCII URIs conversion]]></string>
+	<string name="_aqb_seof_select_languages"><![CDATA[Choose the languages to translate symbols into ASCII]]></string>
+
+	<string name="_aqb_seof_select_language_item_el"><![CDATA[Greek]]></string>
+	<string name="_aqb_seof_select_language_item_la"><![CDATA[Latin]]></string>
+	<string name="_aqb_seof_select_language_item_tr"><![CDATA[Turkish]]></string>
+	<string name="_aqb_seof_select_language_item_cs"><![CDATA[Czech]]></string>
+	<string name="_aqb_seof_select_language_item_pl"><![CDATA[Polish]]></string>
+	<string name="_aqb_seof_select_language_item_ru"><![CDATA[Russian]]></string>
+	<string name="_aqb_seof_select_language_item_uk"><![CDATA[Ukrainian]]></string>
+	<string name="_aqb_seof_select_language_item_lv"><![CDATA[Latvian]]></string>
+
+	<string name=""><![CDATA[]]></string>
+</resources>

@@ -1,0 +1,225 @@
+div.aqb-affiliate-banner-icon-title{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.aqb-affiliate-banner-preview{
+    max-width:3rem;
+    border-radius:4px;
+}
+
+div.bx-grid-cell-single-actions-wrapper
+{
+    overflow: hidden;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+td div.profile-info-link-icon
+{
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+td div.profile-info-link-icon img
+{
+    margin-right: 0.3rem;
+    border-radius: 1.25rem;
+    max-width: 2.5rem;
+    max-height: 2.5rem;
+}
+
+table#bx-grid-table-aqb_affiliate_common th,
+table#bx-grid-table-aqb_affiliate_common td,
+table#bx-grid-table-aqb_affiliate_banners th,
+table#bx-grid-table-aqb_affiliate_banners td,
+table#bx-grid-table-aqb_affiliate_members th,
+table#bx-grid-table-aqb_affiliate_members td,
+table#bx-grid-table-aqb_affiliate_requests th,
+table#bx-grid-table-aqb_affiliate_requests td,
+table#bx-grid-table-aqb_affiliate_history th,
+table#bx-grid-table-aqb_affiliate_history td
+{
+    text-align: center;
+}
+
+#grid-popup-aqb_affiliate_banners-commission .bx-def-padding-bottom{
+    padding-bottom: 0rem;
+}
+
+.bx-popup .bx-form-input-wrapper-input_set input,
+.bx-popup .bx-form-input-wrapper-input_set button
+{
+    max-width: 45%;
+    display:inline-block;
+}
+
+.bx-popup .bx-form-input-wrapper-input_set input:first-child
+{
+    float:left;
+}
+
+.bx-popup .bx-form-input-wrapper-input_set input:nth-child(2)
+{
+    float:right;
+}
+
+.bx-popup .bx-form-input-wrapper-input_set .bx-btn{
+    margin-right: 2rem !important;
+}
+
+.aqb-affiliate-admin-referral-content{
+    display:flex;
+    align-items: center;
+}
+
+.aqb-affiliate-admin-referral-title{
+    margin:0.3rem;
+    white-space: nowrap;
+}
+
+.aqb-affiliate-admin-referral-item {
+    margin:1rem;
+    float:left;
+    max-width:150px;
+}
+
+.aqb-affiliate-admin-referral-content button{
+    margin-left:1rem;
+}
+
+div#admin-search-result{
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  align-items: center;
+  justify-content: center;
+}
+
+
+#bx-grid-table-aqb_affiliate_members .bx-grid-cell-single-actions-wrapper{
+    overflow: hidden;
+    display: flex;
+    justify-content: space-around;
+}
+
+#bx-grid-table-aqb_affiliate_members .bx-grid-cell-single-actions-wrapper{
+    overflow: hidden;
+    display: flex;
+    justify-content: space-around;
+}
+
+td.disabled {
+    font-size: 1rem;
+    font-weight: 700;
+    color:red;
+}
+
+td.active {
+    font-size: 1rem;
+    font-weight: 700;
+    color:forestgreen;
+}
+
+#banners_commission .bx-form-section-wrapper.bx-def-margin-top{
+    margin:0.5rem;
+    padding:0;
+}
+
+#banners_commission .bx-form-section-wrapper.bx-def-margin-top:last-child{
+    margin-top:1rem;
+}
+
+#bx-grid-table-aqb_affiliate_banners,
+#bx-grid-table-aqb_affiliate_requests{
+    width:100%;
+}
+
+.aqb-row-red{
+    color: #e0400f;
+    text-decoration: underline;
+    font-weight: 700;
+}
+
+.aqb-affiliate-admin-matrix-levels-area i{
+    cursor: pointer;
+}
+
+#grid-popup-aqb_affiliate_members-referred,
+#grid-popup-aqb_affiliate_members-history{
+    width: auto;
+    overflow: hidden;
+    min-width: 60%;
+}
+
+#bx-grid-wrap-aqb_affiliate_members-referred,
+#bx-grid-wrap-aqb_affiliate_common,
+#bx-grid-wrap-aqb_affiliate_history,
+#grid-popup-aqb_affiliate_members div:first-child {
+    max-height: calc(100vh - 13rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#bx-grid-wrap-aqb_affiliate_history td.action {
+    white-space: break-spaces;
+}
+
+#grid-popup-aqb_affiliate_members-referred .bx-popup-width,
+#grid-popup-aqb_affiliate_members-history .bx-popup-width {
+    width: auto;
+}
+
+
+#grid-popup-aqb_affiliate_members-history .aqb-affiliate-profile-info {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#grid-popup-aqb_affiliate_members-history .aqb-affiliate-profile-info {
+    margin-right: 1rem;
+}
+
+#grid-popup-aqb_affiliate_members-history .aqb-affiliate-profile-info > span {
+  border-top: none;
+  margin: 0;
+  padding: 0;
+}
+
+#grid-popup-aqb_affiliate_members-history .aqb-affiliate-profile-info .bx-def-font-middle{
+    font-size: 1rem;
+}
+
+#grid-popup-aqb_affiliate_members-history .aqb-affiliate-profile-info .area > span {
+    margin: 0;
+    padding: 0;
+}
+
+.bx-grid-header-controls-filter{
+    width: 100%;
+}
+
+#bx-grid-wrap-aqb_affiliate_history .aqb-affiliate-quick-info{
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#bx-grid-wrap-aqb_affiliate_history div.aqb-affiliate-quick-info > span{
+    border: 0;
+    margin: 0;
+    line-height: 1rem;
+}
+
+[id^="aqb_aff_"] .bx-form-element {
+    align-items: center !important;
+}
+
+#bx-form-element-desc {
+    display: none;
+}

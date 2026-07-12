@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+	<string name="_mz_message"><![CDATA[Profile Message]]></string>
+	<string name="_mz_message_adm_stg_cpt_type"><![CDATA[Profile Message]]></string>
+	<string name="_mz_message_adm_stg_cpt_category_general"><![CDATA[General]]></string> 
+	<string name="_mz_message_sent_failure"><![CDATA[Failed to send your Profile Message]]></string>
+	<string name="_mz_message_sent_success"><![CDATA[Your Profile Message was successfully sent]]></string>
+	<string name="_mz_message_menu_item_title_system_manage_message"><![CDATA[Manage Profile Message]]></string> 
+	<string name="_mz_message_menu_item_title_manage_message"><![CDATA[Manage Profile Message]]></string>  
+	<string name="_mz_message_page_title_sys_edit_profile"><![CDATA[Manage Profile Message]]></string> 
+	<string name="_mz_message_page_title_edit_profile"><![CDATA[Manage Profile Message]]></string> 
+	<string name="_mz_message_page_block_title_edit_profile"><![CDATA[Manage Profile Message]]></string>  
+	<string name="_mz_message_pre_lists_person_cats"><![CDATA[Person - Profile Message Reasons]]></string> 
+	<string name="_mz_message_person_reason_busy"><![CDATA[Busy]]></string> 
+	<string name="_mz_message_person_reason_sick"><![CDATA[Sick]]></string> 
+	<string name="_mz_message_person_reason_traveling"><![CDATA[Traveling]]></string> 
+	<string name="_mz_message_person_reason_vacation"><![CDATA[Vacation]]></string>  
+	
+	<string name="_mz_message_pre_lists_org_cats"><![CDATA[Organization - Profile Message Reasons]]></string> 
+	<string name="_mz_message_org_reason_promotion"><![CDATA[Promotion]]></string>  
+	<string name="_mz_message_org_reason_announcement"><![CDATA[Announcement]]></string>  
+	<string name="_mz_message_org_reason_sale"><![CDATA[Sale]]></string>  
+	<string name="_mz_message_org_reason_closure"><![CDATA[Closure]]></string>  
+
+
+    <string name="_mz_message_form_entry"><![CDATA[Posts]]></string>
+    <string name="_mz_message_form_entry_display_add"><![CDATA[Add Profile Message]]></string>
+    <string name="_mz_message_form_entry_display_edit"><![CDATA[Edit Profile Message]]></string>  
+    <string name="_mz_message_form_entry_display_delete"><![CDATA[Delete Profile Message]]></string>  
+    <string name="_mz_message_form_entry_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_message_form_entry_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_mz_message_form_entry_input_sys_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_message_form_entry_input_do_publish"><![CDATA[Publish]]></string>
+    <string name="_mz_message_form_entry_input_sys_title"><![CDATA[Title]]></string>
+    <string name="_mz_message_form_entry_input_title"><![CDATA[Title]]></string>
+    <string name="_mz_message_form_entry_input_title_err"><![CDATA[Title is essential. Please, fill in this field]]></string>
+    <string name="_mz_message_form_entry_input_sys_cat"><![CDATA[Category]]></string>
+    <string name="_mz_message_form_entry_input_cat"><![CDATA[Category]]></string>
+    <string name="_mz_message_form_entry_input_cat_err"><![CDATA[Please select category]]></string>
+    <string name="_mz_message_form_entry_input_sys_multicat"><![CDATA[Categories]]></string>
+    <string name="_mz_message_form_entry_input_multicat"><![CDATA[Categories]]></string>
+    <string name="_mz_message_form_entry_input_multicat_err"><![CDATA[Please select category]]></string>
+    <string name="_mz_message_form_entry_input_sys_text"><![CDATA[Text]]></string>
+    <string name="_mz_message_form_entry_input_text"><![CDATA[Text]]></string>
+    <string name="_mz_message_form_entry_input_text_err"><![CDATA[Text field can't be empty]]></string>  
+    <string name="_mz_message_form_entry_input_sys_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_message_form_entry_input_date_added"><![CDATA[Created]]></string>
+    <string name="_mz_message_form_entry_input_sys_date_expire"><![CDATA[Expiration Date]]></string>
+    <string name="_mz_message_form_entry_input_date_expire"><![CDATA[Expiration Date]]></string>
+    <string name="_mz_message_form_entry_input_sys_date_published"><![CDATA[Start Date]]></string>
+    <string name="_mz_message_form_entry_input_date_published"><![CDATA[Start Date]]></string>
+    <string name="_mz_message_form_entry_input_date_published_info"><![CDATA[Leave empty to publish immediately.]]></string>
+	<string name="_mz_message_form_entry_input_sys_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_message_form_entry_input_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_message_acl_action_create_entry"><![CDATA[Manage Profile Message]]></string> 
+    <string name="_mz_message_acl_action_view_entry"><![CDATA[View Profile Message]]></string> 
+    <string name="_mz_message_acl_action_delete_entry"><![CDATA[Delete Profile Message]]></string> 
+    <string name="_mz_message_page_block_title_message"><![CDATA[Profile Message Block]]></string>
+    <string name="_mz_message_page_block_system_message"><![CDATA[Profile Message Block]]></string>
+    <string name="_mz_message_profile_block_title"><![CDATA[I am away]]></string> 
+
+ 	<string name="_mz_message_acl_action_delete_any_entry"><![CDATA[Delete Any Profile Message]]></string>   
+    <string name="_mz_message_form_entry_input_sys_allow_view_to"><![CDATA[Visibility]]></string>
+    <string name="_mz_message_form_entry_input_allow_view_to"><![CDATA[Visibility]]></string>
+
+    <string name="_mz_message_grid_column_title_adm_title"><![CDATA[Title]]></string>
+    <string name="_mz_message_grid_column_title_adm_text"><![CDATA[Message]]></string>
+    <string name="_mz_message_grid_column_title_adm_reason"><![CDATA[Reason]]></string>
+    <string name="_mz_message_grid_column_title_adm_added"><![CDATA[Posted]]></string>
+    <string name="_mz_message_grid_action_title_adm_delete"><![CDATA[Delete]]></string>
+    <string name="_mz_message_grid_action_title_adm_view"><![CDATA[View]]></string>
+ 
+    <string name="_mz_message_grid_column_title_adm_published"><![CDATA[Start]]></string>
+    <string name="_mz_message_grid_column_title_adm_expire"><![CDATA[Expiration]]></string>  
+    <string name="_mz_message_page_block_title_system_messages"><![CDATA[Profile Messages]]></string>
+    <string name="_mz_message_page_block_title_messages"><![CDATA[Profile Messages]]></string>
+
+</resources>
+ 

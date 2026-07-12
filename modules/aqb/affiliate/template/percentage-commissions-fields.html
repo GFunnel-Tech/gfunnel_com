@@ -1,0 +1,42 @@
+<div class="aqb-affiliate-commissions-upgrade-fields space-x-1">
+  <bx_if:fiat>
+      <span>
+        <div class="bx-form-info bx-def-font-grayed bx-def-font-small">&nbsp;</div>
+        <div class="percentage-commission">
+          <input class="bx-def-font-inputs bx-form-input-text commission" type="text" name="__name__" value="__value__" />
+          <span>
+            <input type="checkbox" name="__name___percentage" value="on" id="aqb_aff_programs_input___name__" __checked__ class="bx-def-font-inputs bx-form-input-checkbox">
+            <label for="aqb_aff_programs_input___name__"><bx_text:_aqb_affiliate_program_form_percentage /></label>
+          </span>
+        </div>
+      </span>
+  </bx_if:fiat>
+  <bx_if:points>
+    <span>
+        <div class="bx-form-element-wrapper bx-def-margin-top">
+            <div class="bx-form-info bx-def-font-grayed bx-def-font-small">__title_points__</div>
+            <div class="bx-form-element">
+                  <div class="bx-form-value bx-clearfix">
+                     <div class="bx-form-input-wrapper bx-form-input-wrapper-text">
+                         <input type="text" name="__name___points" value="__points__" class="bx-def-font-inputs bx-form-input-text" />
+                     </div>
+                  </div>
+            </div>
+        </div>
+    </span>
+  </bx_if:points>
+  <bx_if:credits>
+    <span>
+        <div class="bx-form-element-wrapper bx-def-margin-top">
+            <div class="bx-form-info bx-def-font-grayed bx-def-font-small">__title_credits__</div>
+            <div class="bx-form-element">
+                  <div class="bx-form-value bx-clearfix">
+                     <div class="bx-form-input-wrapper bx-form-input-wrapper-text">
+                         <input type="text" name="__name___credits" value="__credits__" class="bx-def-font-inputs bx-form-input-text" />
+                     </div>
+                  </div>
+            </div>
+        </div>
+    </span>
+  </bx_if:credits>
+</div>

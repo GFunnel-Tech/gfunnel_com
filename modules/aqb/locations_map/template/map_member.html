@@ -1,0 +1,42 @@
+<script type="text/javascript">
+	var oAqbMap = null;
+
+	$(document).ready(function(){
+		var map_height = 0;
+		if ($('#aqb_map').width() > 500) map_height = Math.round($('#aqb_map').width()/2);
+		else map_height = Math.round($('#aqb_map').width());
+
+		$('#aqb_map').css('height', map_height + 'px');
+		oAqbMap = new AqbMap('aqb_map', __options__);
+	});
+
+	function aqb_locations_map_on_filter_change() {
+		var aFilter = aqb_locations_map_get_filter_state();
+		oAqbMap.applyMarkersFilter(aFilter);
+	}
+
+	function aqb_locations_map_get_filter_state() {
+		var aFilter = new Array();
+
+		$('.aqb_locations_map_filters input[type=checkbox]:checked').each(function(i, el){
+			aFilter.push($(el).attr('name'));
+		});
+
+		return aFilter;
+	}
+</script>
+
+<div id="aqb_map_container">
+	<bx_if:filters>
+		<div class="aqb_locations_map_filters">
+			<bx_repeat:items>
+				<div>
+					__switcher__ __name__
+				</div>
+			</bx_repeat:items>
+		</div>
+	</bx_if:filters>
+
+	<div id="aqb_map"></div>
+	<div class="clear_both"></div>
+</div>

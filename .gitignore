@@ -1,0 +1,48 @@
+# Secrets — NEVER commit
+inc/header.inc.php
+inc/header.inc.php.bak
+inc/*.bak
+.user.ini
+
+# User uploads / generated data
+storage/
+cache/
+cache_public/
+tmp/
+logs/
+
+# Backups & dumps
+*.sql
+*.sql.gz
+*.zip
+.htaccess.bak
+.htaccess.revert-me
+*.bak
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Catch header.inc.php ANYWHERE, not just root
+**/header.inc.php
+header.inc.php
+
+# Build/dev junk — should not be in repo
+.builds/
+dev/
+Content/
+.builds/
+
+# ==== HARD EXCLUSIONS — junk, duplicates, binaries ====
+.builds/
+dev/
+Content/
+MISC/
+**/header.inc.php
+**/ffmpeg.exe
+*.exe
+*.pdf
+plugins/ffmpeg/
+**/install/patterns/
+*.jar
+*.map

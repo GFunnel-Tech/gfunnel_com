@@ -1,0 +1,104 @@
+#bx-page-affiliate-activities div.bx-grid-header-controls-filter{
+    overflow:hidden;
+    display: grid;
+    grid-row-gap: 0.5rem;
+}
+
+#bx-page-affiliate-activities .bx-grid-header-controls-filter{
+    width: 100%;
+}
+
+#bx-page-affiliate-activities .bx-grid-header-controls-filter > div:last-child{
+    margin-top: 1rem;
+}
+
+#bx-page-affiliate-activities .bx-grid-header-controls-filter > div:last-child .bx-form-input-wrapper-input_set input{
+    float: left;
+    margin-right: 1rem;
+}
+
+#bx-page-affiliate-activities .bx-grid-header-controls-filter > div:last-child .bx-form-input-wrapper-input_set button{
+    float: left;
+    margin-right: 1.5rem;
+}
+
+#bx-page-affiliate-activities table th{
+    text-align: center;
+    white-space: nowrap;
+}
+
+#bx-page-affiliate-activities table td{
+    text-align: center;
+}
+
+#bx-page-affiliate-activities table tr th.bx-grid-header-action,
+#bx-page-affiliate-activities table tr th.bx-grid-header-performer{
+    text-align: left;
+}
+
+#bx-page-affiliate-activities table tr td.action,
+#bx-page-affiliate-activities table tr td.performer{
+    text-align: left;
+}
+
+#bx-page-affiliate-activities .aqb-affiliate-banner-icon-title{
+    justify-content: flex-start;
+}
+
+#bx-page-affiliate-activities .aqb-affiliate-banner-icon-title img{
+    margin-right: 0.2rem;
+}
+
+#bx-page-affiliate-activities .aqb-affiliate-banner-icon-title .aqb-affiliate-banner-preview{
+    max-height: 2.5rem;
+    width: auto;
+}
+
+.aqb-affiliate-profile-info .aqb-affiliate-cash-out-button{
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0.5rem 0.5rem;
+}
+
+.aqb-affiliate-profile-info .aqb-affiliate-cash-out-button > span {
+    margin-bottom: 0.5rem;
+}
+
+div.aqb-affiliate-quick-info .area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+div.aqb-affiliate-quick-info .area .commission-title{
+    margin: 0;
+}
+
+iv.aqb-affiliate-quick-info .area > span:last-child{
+    text-align: left;
+}
+
+div.aqb-affiliate-quick-info > span {
+    display: flex;
+    line-height: 1.5rem;
+}
+
+div.aqb-affiliate-quick-info .area  .aqb-affiliate-cash-out-button {
+    margin-left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+div.aqb-affiliate-quick-info .area .aqb-affiliate-cash-out-button span{
+    text-align: left;
+    white-space: normal;
+}
+
+div.aqb-affiliate-quick-info .area .aqb-affiliate-cash-out-button .bx-btn{
+    max-width: 12rem;
+}

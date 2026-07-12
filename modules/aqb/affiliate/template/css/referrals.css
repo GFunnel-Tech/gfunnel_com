@@ -1,0 +1,50 @@
+#bx-page-affiliate-referrals div.bx-grid-header-controls-filter{
+    overflow:hidden;
+    display: grid;
+    grid-row-gap: 0.5rem;
+}
+
+#bx-page-affiliate-referrals .bx-grid-header-controls-filter{
+    width: 100%;
+}
+
+#bx-page-affiliate-referrals .bx-grid-header-controls-filter > div:last-child{
+    margin-top: 1rem;
+}
+
+#bx-page-affiliate-referrals .bx-grid-header-controls-filter > div:last-child .bx-form-input-wrapper-input_set input{
+    float: left;
+    margin-right: 1rem;
+}
+
+#bx-page-affiliate-referrals .bx-grid-header-controls-filter > div:last-child .bx-form-input-wrapper-input_set button{
+    float: left;
+    margin-right: 1.5rem;
+}
+
+div.aqb-affiliate-referral-info{
+    display:flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+div.aqb-affiliate-referral-info span button{
+    float: right;
+}
+
+div.aqb-affiliate-referral-matrix-block > div{
+    cursor: pointer;
+    overflow: hidden;
+}
+
+[id*="aqb_affiliate_history"] .bx-form-input-wrapper-input_set,
+[id*="aqb_affiliate_common"] .bx-form-input-wrapper-input_set {
+    display: flex;
+    align-items: center;
+}
+
+[id*="aqb_affiliate_history"] .bx-grid-header-controls-filter  .bx-form-element-wrapper,
+[id*="aqb_affiliate_common"] .bx-grid-header-controls-filter  .bx-form-element-wrapper {
+    width: 100%;
+}
+

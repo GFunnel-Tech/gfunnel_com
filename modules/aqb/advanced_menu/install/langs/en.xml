@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+	<string name="_aqb_advanced_menu"><![CDATA[Advanced Menu]]></string>
+	<string name="_aqb_advanced_menu_custom_items"><![CDATA[Supported custom menu items]]></string>
+	<string name="_aqb_advanced_menu_warning"><![CDATA[Warning]]></string>
+	<string name="_aqb_advanced_menu_warning_text"><![CDATA[<div style="font-size: 1.5rem; text-align: center;">
+		This module is created mostly for experienced users. Use it with extreme caution.<br />
+		Wrong code provided here can potentially make your site unusable. You should always check the sections in which you're creating a custom menu item.<br />
+		We provide this software “as is”, without warranty of any kind in case of a badly designed/wrong code is used.<br />
+		We also recommend to always take with caution codes/solutions provided by 3rd parties for this module.<br />
+	</div>]]></string>
+	<string name="_aqb_advanced_menu_grid_column_name"><![CDATA[Name]]></string>
+	<string name="_aqb_advanced_menu_grid_column_menu_item_name"><![CDATA[Menu Custom Item's Title]]></string>
+	<string name="_aqb_advanced_menu_grid_action_edit"><![CDATA[Edit]]></string>
+	<string name="_aqb_advanced_menu_grid_action_delete"><![CDATA[Delete]]></string>
+	<string name="_aqb_advanced_menu_grid_action_create"><![CDATA[Create]]></string>
+	<string name="_aqb_advanced_menu_form_field_name"><![CDATA[Name]]></string>
+	<string name="_aqb_advanced_menu_form_field_name_info"><![CDATA[For descriptive purposes]]></string>
+	<string name="_aqb_advanced_menu_form_field_menu_item_name"><![CDATA[Menu Item Name]]></string>
+	<string name="_aqb_advanced_menu_form_field_menu_item_name_info"><![CDATA[Cutom Menu Item Title to be processed]]></string>
+	<string name="_aqb_advanced_menu_form_field_menu_item_eval"><![CDATA[Handler's PHP code]]></string>
+	<string name="_aqb_advanced_menu_form_field_menu_item_eval_info"><![CDATA[Warning. This must contain a valid and working PHP code. Use with extreme caution.]]></string>
+	<string name="_aqb_advanced_menu_required_field"><![CDATA[This is a mandatory field.]]></string>
+	<string name="_aqb_advanced_menu_next_steps"><![CDATA[What to do next?]]></string>
+	<string name="_aqb_advanced_menu_next_steps_cont"><![CDATA[
+		<ul>
+			<li>The items above are custom menu handlers. Now you can use any items of the above as a system title string in a <strong>Snippet Meta Info</strong> type of menu sets.</li>
+			<li>Go to <a href="{0}studio/builder_menu.php">[Studio -> Navigation]</a>, choose the desired module, find in the list the set called "<strong>Snippet Meta Info</strong>", click it and from there you will be able to add custom items.</li>
+			<li>While adding a custom item give it the same name and title which you have in the Advanced Menu module's backend (for example "aqb_nl" for a new line). You can leave default the rest of the settings for a custom item.</li>
+			<li>When a name or title matches any of the value given at the "<strong>Menu Custom Item's Name and Title</strong>" it calls the relevant handler and replaces that item with the data, returned by the hanlder.</li>
+			<li>In case a handler is deactivated (greyed out in the table above) - a linked custom menu item is being replaced by an empty string.</li>
+			<li>Feel free to <a href="mailto:support@aqbsoft.com">contact us</a> in case you need help in creating, modifying or verifying some code/handler for a custom menu item. Or in case you have created a good usecase which can be useful for others and you'd like to contribute it to the public, so we could include it in the public version.</li>
+		</ul>
+	]]></string>
+	<string name="_aqb_advanced_menu_form_field_help"><![CDATA[]]></string>
+	<string name="_aqb_advanced_menu_form_field_help_cont"><![CDATA[
+		Available variables:<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">$aMenuItem</strong> - an array of a custom menu item's properties<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">$sMenuName</strong> - a string - name of a current menu set<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">$sModule</strong> - a string - name of a module to which the menu and the custom menu item belongs to<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">$iContentId</strong> - an integer value - ID of a content entry for which the menu is being rendered<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">$oMenuObject</strong> - an object - menu object used to render the menu<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">$aContentData</strong> - an array of a content entry's properties for which the menu is being rendered<br />
+
+		<br />
+		<br />
+		Examples of using the common system items for showing a menu item:<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return $oMenuObject-&gt;getUnitMetaItemText('Text');</strong> - will display a simple text with a bullet icon on the left<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return $oMenuObject-&gt;getUnitMetaItemLink('Text', ['href' => BX_DOL_URL_ROOT.'page/something']);</strong> - will display a link<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return $oMenuObject-&gt;getUnitMetaItemButton('Text', ['onclick' => 'alert(\'Button clicked\')']);</strong> - will display a button<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return $oMenuObject-&gt;getUnitMetaItemButtonSmall('Text', ['onclick' => 'alert(\'Button clicked\')']);</strong> - will display a small button<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return $this-&gt;getUnitMetaItemNamedValue(&#39;TextName&#39;, &#39;Text&#39;);</strong> - will display a named text value without a bullet icon on the left<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return $this-&gt;getUnitMetaItemNamedValue(&#39;TextName&#39;, &#39;Text&#39;, &#39;Link&#39;);</strong> - will display a named link without a bullet icon on the left<br />
+		<strong style="padding-left: 20px; font-family: monospace, monospace;">return 'Text';</strong> - will display a raw text without a bullet on the left or any extra formatting<br />
+]]></string>
+
+	<string name="_aqb_advanced_menu_txt_points"><![CDATA[{0} points]]></string>
+	<string name="_aqb_advanced_menu_txt_category"><![CDATA[Category]]></string>
+	<string name="_aqb_advanced_menu_txt_space_parent"><![CDATA[Parent Space]]></string>
+	<string name="_aqb_advanced_menu_txt_event_starts"><![CDATA[Starts {0}]]></string>
+</resources>

@@ -1,0 +1,27 @@
+<div class="aqb-affiliate-referral-info aqb-affiliate-quick-info">
+    <span>
+        <bx_text:_aqb_affiliate_referrals_page_directly_invited />: <span class="bx-def-font-semibold">__directly__</span>
+    </span>
+    <span>
+        <bx_text:_aqb_affiliate_referrals_page_spillover_members />: <span class="bx-def-font-semibold">__spillover__</span>
+    </span>
+    <span>
+        <bx_text:_aqb_affiliate_referrals_page_by_referral_link />: <span class="bx-def-font-semibold">__referral__</span>
+    </span>
+    <span>
+        <bx_text:_aqb_affiliate_referrals_page_by_banner />: <span class="bx-def-font-semibold">__banner__</span>
+    </span>
+    <bx_if:send_invitation>
+        <span class="aqb-three-items">
+            <bx_text:_aqb_affiliate_referrals_page_total_inivtatinos />: <span class="bx-def-font-semibold">__invitations__</span>
+               <button
+                       class="bx-btn bx-btn-small bx-btn-primary" type="button"
+                       onclick="__js_object__.getPopupByAction(this, 'get_invitation_form');"
+                       alt="<bx_text:_aqb_affiliate_profile_send_invitation />"
+                       title="<bx_text:_aqb_affiliate_profile_send_invitation />"
+               >
+               <i class="sys-icon users"></i>
+               </button>
+        </span>
+    </bx_if:send_invitation>
+</div>

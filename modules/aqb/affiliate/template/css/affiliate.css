@@ -1,0 +1,13 @@
+#ads-code-form textarea {
+    width: 100%;
+    height: 360px;
+}
+
+#ads-code-form button {
+    margin-right: 1rem;
+}
+
+[id*="aqb_affiliate_history"] .bx-form-input-wrapper-input_set{
+    display: flex;
+    align-items: center;
+}

@@ -1,0 +1,35 @@
+<div class="aqb-affiliate-referral-links-page-block">
+    <span>
+       <span class="aqb-affiliate-referral-link bx-form-value">
+            <div class="bx-form-input-wrapper bx-form-input-wrapper-input_set">
+	            <input id="aqb-referral-link"
+                       type="text"
+                       name="aqb-referral-link"
+                       class="bx-def-font-inputs bx-form-input-text"
+                       value="__link__"
+                       readonly="readonly" />
+	        </div>
+           <button onclick="javascript:__js_object__.copyToClipboard(this, '#aqb-referral-link');"
+                   type="button"
+                   title="<bx_text:_aqb_affiliate_button_copy />"
+                   class="bx-def-font-inputs bx-form-input-button bx-btn">
+                    <i class="sys-icon copy"></i>
+           </button>
+       </span>
+    </span>
+    <div class="aqb-affiliate-referral-links-page-block-buttons">
+        <span>
+            <bx_if:send_invitation>
+                <button class="bx-btn bx-btn-small" type="button" onclick="__js_object__.getPopupByAction(this, 'get_invitation_form', { page_url: '__page_link__' });" title="<bx_text:_aqb_affiliate_profile_send_invitation />">
+                    <i class="sys-icon users"></i>
+                </button>
+            </bx_if:send_invitation>
+       </span>
+        <span>
+            <button class="bx-btn bx-btn-small" type="button" onclick="bx_menu_popup_inline('#affiliate-social-sharing-menu', this);" title="<bx_text:_aqb_affiliate_profile_send_invitation />">
+                 <bx_text:_aqb_affiliate_page_block_title_social_sharing /> <i class="sys-icon share"></i>
+            </button>
+            __social_sharing_menu__
+        </span>
+    </div>
+</div>

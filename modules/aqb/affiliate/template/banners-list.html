@@ -1,0 +1,50 @@
+<div class="aqb-affiliate-banners-list">
+    <bx_repeat:items>
+        <div class="aqb-affiliate-banners-list-item space-x-4" title="__title__">
+            <div class="preview">
+                <span class="bx-def-font-small bx-def-font-semibold mb-1"><bx_text:_aqb_affiliate_banner_size /> __size__</span>
+               <img src="__img__" class="bx-def-border-radius-block-int"/>
+            </div>
+           <div class="info-block flex flex-col justify-end">
+               <div class="commission-info bx-def-font-small space-x-4">
+                   <bx_if:fiat>
+                        <div class="info">
+                            <span><b><bx_text:_aqb_affiliate_banner_commission_imp />:</b> __imp__ __sign__</span>
+                            <span><b><bx_text:_aqb_affiliate_banner_commission_click />:</b> __click__ __sign__</span>
+                            <span><b><bx_text:_aqb_affiliate_banner_commission_join />:</b> __join__ __sign__</span>
+                        </div>
+                   </bx_if:fiat>
+                   <bx_if:points>
+                        <div class="info-points">
+                            <span><b><bx_text:_aqb_affiliate_banner_commission_imp />:</b> __imp__ <bx_text:_aqb_affiliate_points_title_short /></span>
+                            <span><b><bx_text:_aqb_affiliate_banner_commission_click />:</b> __click__ <bx_text:_aqb_affiliate_points_title_short /></span>
+                            <span><b><bx_text:_aqb_affiliate_banner_commission_join />:</b> __join__ <bx_text:_aqb_affiliate_points_title_short /></span>
+                          </div>
+                    </bx_if:points>
+                    <bx_if:credits>
+                       <div class="info-credits">
+                           <span><b><bx_text:_aqb_affiliate_banner_commission_imp />:</b> __imp__ <bx_text:_aqb_affiliate_credits_title_short /></span>
+                           <span><b><bx_text:_aqb_affiliate_banner_commission_click />:</b> __click__ <bx_text:_aqb_affiliate_credits_title_short /></span>
+                           <span><b><bx_text:_aqb_affiliate_banner_commission_join />:</b> __join__ <bx_text:_aqb_affiliate_credits_title_short /></span>
+                       </div>
+                    </bx_if:credits>
+               </div>
+               <div class="footer">
+                    <a class="bx-btn bx-btn-small flex items-center" href="javascript:void(0);" onclick="__js_object__.getPopupByAction(this, 'ads_view', { id:__id__ });">
+                        <i class="sys-icon eye"></i>
+                        <span class="mb-0 pl-2">
+                            <bx_text:_aqb_affiliate_banner_view_banner />
+                        </span>
+                    </a>
+                    <a class="bx-btn bx-btn-small flex items-center" href="javascript:void(0);" onclick="__js_object__.getPopupByAction(this, 'ads_code', { id:__id__ });">
+                        <i class="sys-icon code"></i>
+                        <span class="mb-0 pl-2">
+                            <bx_text:_aqb_affiliate_banner_get_code />
+                        </span>
+                    </a>
+                </div>
+           </div>
+        </div>
+        <div class="bx-def-hr-auto"></div>
+    </bx_repeat:items>
+</div>

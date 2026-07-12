@@ -1,0 +1,239 @@
+
+@import url(../../../../base/text/template/css/main.css);
+
+/*--- Snippet ---*/
+div.ms-onlyfans-unit-gallery-cnt {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+}
+div.ms-onlyfans-unit-info {
+	position: relative;
+}
+
+/*+++ Item Author +++*/
+div.ms-onlyfans-unit-author {
+    position: relative;
+	text-align: left;
+}
+div.ms-onlyfans-unit-author-avatar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+div.ms-onlyfans-unit-author-info {
+	display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+
+	margin-right: 32px;
+	margin-right: 2rem;
+}
+div.ms-onlyfans-unit-author-name a.sys-author {
+	padding-right: 10px;
+	padding-right: 0.625rem;
+
+    font-weight: 700;
+}
+
+/*+++ Item Actions +++*/
+div.ms-onlyfans-unit-actions {
+	position: absolute;
+	top: 0px;
+	right: 0px;	
+}
+
+/*+++ Item Info +++*/
+div.ms-onlyfans-unit-cnt {
+	text-align: left;
+}
+div.ms-onlyfans-unit-icon {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+div.ms-onlyfans-unit-icon-empty {
+    background-color: #ffffff;
+    text-align: center;
+    line-height: 3rem;
+    font-size: 32px;
+    font-size: 2rem;
+}
+div.ms-onlyfans-unit-icon-empty .sys-icon {
+    vertical-align: top;	
+}
+div.ms-onlyfans-unit-cover {
+	background-color: #ffffff;
+}
+div.ms-onlyfans-unit-cover div.bx-base-text-unit-no-thumb {
+	border-color: #f2f2f2;
+}
+div.ms-onlyfans-unit-cnt div.ms-onlyfans-unit-info {
+	white-space: nowrap;
+}
+div.ms-onlyfans-unit-title {
+    /*
+	padding-top: 0.125rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    */
+}
+div.ms-onlyfans-unit-title .bx-def-font-h3{
+    font-size: medium;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.4rem;
+}
+.ms-onlyfans-unit-title.bx-def-thumb-size-left-indent{
+    margin-left: 0;
+}
+.notopspace{
+    padding-top: 0;
+}
+.ms-onlyfans-unit-icon{
+    display:none;
+}
+
+div.ms-onlyfans-unit-title-badges {
+    display: flex;
+}
+.ms-onlyfans-ui-price {
+	float: none;
+	max-width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+.ms-onlyfans-fcell {
+	position: relative;
+	display: block;
+}
+.ms-onlyfans-fcell.fc-left {
+	float: left;
+}
+.ms-onlyfans-fcell.fc-right {
+    float: right;
+}
+.ms-onlyfans-fcell .bx-vote {
+	margin: 0px;
+}
+	
+/*--- Defaults ---*/
+.ms-onlyfans-thumb-size {
+    width: 148px;
+    width: 9.25rem;
+    height: 148px;
+    height: 9.25rem;
+    line-height: 148px;
+    line-height: 9.25rem;
+}
+.ms-onlyfans-thumb-size-min-height {
+    min-height: 148px;
+    min-height: 9.25rem;
+}
+.ms-onlyfans-thumb-size-left-indent {
+	margin-left: 164px;
+	margin-left: 10.25rem;
+}
+.ms-onlyfans-screenshot-size {
+    width: 200px;
+    width: 12.5rem;
+    height: 120px;
+    height: 7.5rem;
+    line-height: 120px;
+    line-height: 7.5rem;
+}
+	
+/*--- Attachments ---*/
+div.ms-onlyfans-attachment {
+	position: relative;
+	/*display: none;*/
+    width: calc(25% - 1.2rem);
+    min-width: 200pt;
+}
+div.ms-onlyfans-attachment.ms-onlyfans-attachment-main {
+    display: block;
+}
+div.ms-onlyfans-a-main {
+	position: absolute;
+	top: 0.25rem;
+	right: 0.5rem;
+}
+div.ms-onlyfans-a-text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+div.ms-onlyfans-a-text i.sys-icon{
+    font-size: 2.5rem;
+    float: left;
+    margin-right: 1rem;
+}
+div.ms-onlyfans-attachment-separator{
+    clear:both;
+    width:100%;
+}
+div.ms-onlyfans-attachment-text{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 2.7rem;
+	width:calc(100% - 3rem);
+}
+div.ms-onlyfans-attachment-info{
+/*	white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    */
+    word-break: break-word;
+}
+
+
+#ms_onlyfans_project #bx-form-element-files .bx-form-input-files-result {
+    max-height: fit-content;
+}
+
+div.ms-fansonly-timeline-event {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    background-size: cover;
+    background-position: center;
+}
+
+#bx-grid-table-ms_fansonly_prices_view{
+    min-width:320px;
+    overflow: hidden;
+}
+
+#bx-grid-table-ms_fansonly_prices_view .bx-grid-cell-single-actions-wrapper .buttonFullWidth{
+    width:90%;
+}
+#bx-grid-table-ms_fansonly_prices_view .bx-grid-cell-single-actions-wrapper{
+    width:100%;
+    justify-content: center;
+    display: flex;
+}
+#bx-grid-table-ms_fansonly_prices_view thead{
+    display:none;
+}
+
+#bx-grid-table-ms_fansonly_prices_view .bx-def-color-bg-hl{
+    background-color: unset;
+}
+
+
+#bx-grid-wrap-ms_fansonly_requests_view .bx-grid-table-wrapper2{
+    display: none;
+}
+#bx-grid-wrap-ms_fansonly_requests_view .bx-grid-header-controls-independent{
+    margin: 0 auto;
+}
+    
+#bx-grid-wrap-ms_fansonly_requests_manage .bx-grid-table {
+    min-width: 320px;
+}
+

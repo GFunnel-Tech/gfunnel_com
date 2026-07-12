@@ -1,0 +1,48 @@
+div#aqb_extruder {
+	position: relative;
+	display: none;
+	z-index: 1100!important;
+}
+.aqb_sortable_placeholder {
+	min-height: 40px;
+	opacity: 0.5;
+	background: #000;
+}
+div#aqb_extruder_viewport {
+	overflow-y: auto;
+	position: relative;
+}
+i.aqb_personal_bookmarks_trash {
+	display: block;
+	position: absolute;
+	right: 10px;
+	top: 8px;
+	cursor: pointer;
+}
+.voice:hover i.aqb_personal_bookmarks_trash {
+	display: block;
+}
+.extruder .voice a.label {
+	height: auto!important;
+	min-height: 30px!important;
+}
+.extruder .voice {
+	height: auto!important;
+}
+
+
+
+.extruder.right .flap {width:auto!important;}
+.extruder-content > div {width:auto!important;}
+.extruder-content {padding-top:72px!important;}
+
+.flapLabel {
+	font-size: 14px!important;
+}
+.extruder.right .flap {
+	left: -30px!important;
+}
+.extruder .voice a.label {
+	font-size: 14px!important;
+	min-height: unset!important;
+}

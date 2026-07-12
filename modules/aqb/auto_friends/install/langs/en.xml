@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_aqb_auto_friends"><![CDATA[Auto Friends]]></string>
+
+    <string name="_aqb_auto_friends_option_general"><![CDATA[Enable friendship between everyone]]></string>
+    <string name="_aqb_auto_friends_option_request"><![CDATA[Use friend request instead of auto friendship]]></string>
+    <string name="_aqb_auto_friends_option_follow"><![CDATA[Use following instead of friendship]]></string>
+    <string name="_aqb_auto_friends_option_snippet_lenth"><![CDATA[Number of characters in friend description snippet]]></string>
+    <string name="_aqb_auto_friends_option_per_page"><![CDATA[Number of profiles per page]]></string>
+    <string name="_aqb_auto_friends_option_per_page_list"><![CDATA[Number of profiles per page on a View All page]]></string>
+    <string name="_aqb_auto_friends_option_disabled_for"><![CDATA[Befriend with profiles from]]></string>
+
+    <string name="_aqb_auto_friends_form_entry"><![CDATA[Friends]]></string>
+    <string name="_aqb_auto_friends_form_entry_display_add"><![CDATA[Add Friend]]></string>
+    <string name="_aqb_auto_friends_form_entry_display_edit"><![CDATA[Edit Friend]]></string>
+    <string name="_aqb_auto_friends_form_entry_display_delete"><![CDATA[Delete Friend]]></string>
+    <string name="_aqb_auto_friends_form_entry_display_view"><![CDATA[View Friend]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_do_submit"><![CDATA[Submit]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_do_submit"><![CDATA[Submit]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_do_cancel"><![CDATA[Cancel]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_do_cancel"><![CDATA[Cancel]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_profile_id"><![CDATA[Profile ID]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_profile"><![CDATA[Profile]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_profile"><![CDATA[Profile]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_profile_err"><![CDATA[Profile is essential. Please, fill in this field.]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_description"><![CDATA[Description]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_description"><![CDATA[Description]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_description_err"><![CDATA[Description is essential. Please, fill in this field.]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_delete_confirm"><![CDATA[Delete confirmation]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_delete_confirm"><![CDATA[I am sure I want to delete this friend]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_delete_confirm_info"><![CDATA[This action can not be undone]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_delete_confirm_error"><![CDATA[Please check this checkbox if you really want to delete the friend.]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_date_added"><![CDATA[Created]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_date_added"><![CDATA[Created]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_sys_date_changed"><![CDATA[Updated]]></string>
+    <string name="_aqb_auto_friends_form_entry_input_date_changed"><![CDATA[Updated]]></string>
+
+	<string name="_aqb_auto_friends_page_title_sys_view"><![CDATA[Auto Friends]]></string>
+	<string name="_aqb_auto_friends_page_title_view"><![CDATA[Auto Friends]]></string>
+	<string name="_aqb_auto_friends_page_block_title_view"><![CDATA[Auto Friends]]></string>
+	<string name="_aqb_auto_friends_page_block_title_view_home"><![CDATA[Auto Friends]]></string>
+	<string name="_aqb_auto_friends_page_block_title_view_dashboard"><![CDATA[Auto Friends]]></string>
+
+	<string name="_aqb_auto_friends_menu_item_title_view_all"><![CDATA[View All]]></string>
+	<string name="_aqb_auto_friends_menu_item_title_add"><![CDATA[Add]]></string>
+	<string name="_aqb_auto_friends_menu_item_title_friends"><![CDATA[Friends]]></string>
+
+	<string name="_aqb_auto_friends_grid_column_title_profile_id"><![CDATA[Profile]]></string>
+	<string name="_aqb_auto_friends_grid_column_title_description"><![CDATA[Description]]></string>
+	<string name="_aqb_auto_friends_grid_column_title_added"><![CDATA[Date]]></string>
+	<string name="_aqb_auto_friends_grid_action_title_add"><![CDATA[Add]]></string>
+	<string name="_aqb_auto_friends_grid_action_title_delete"><![CDATA[Delete]]></string>
+	<string name="_aqb_auto_friends_grid_action_info_delete"><![CDATA[Delete from auto-friends]]></string>
+	<string name="_aqb_auto_friends_grid_action_title_delete_and_unfriend"><![CDATA[Delete and Unfriend]]></string>
+	<string name="_aqb_auto_friends_grid_action_info_delete_and_unfriend"><![CDATA[Delete from auto-friends and unfriend with current members]]></string>
+	<string name="_aqb_auto_friends_grid_popup_add"><![CDATA[Add Auto-Friend]]></string>
+
+	<string name="_aqb_auto_friends_err_not_found"><![CDATA[The profile wasn't found.]]></string>
+        <string name="_aqb_auto_friends_err_already_exists"><![CDATA[The profile is already in the list.]]></string>
+</resources>

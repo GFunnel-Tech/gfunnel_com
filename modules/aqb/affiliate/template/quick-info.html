@@ -1,0 +1,27 @@
+<div class="aqb-affiliate-quick-info">
+    <bx_repeat:info>
+        <span class="area space-y-2">
+           <span class="commission-title bx-def-font-semibold">__title_item__:</span>
+           <bx_if:info>
+                <div class="info">
+                    <a href="javascript:void(0);" onclick="__js_object__._performAction('view_profile_commission', { type: '__type__'})">
+                        <i class="sys-icon info-circle"></i>
+                    </a>
+                </div>
+           </bx_if:info>
+           <bx_repeat:items>
+             <span class="bx-def-font-middle">
+                <span class="title">__title__</span> - <span class="value">__item__</span>
+             </span>
+           </bx_repeat:items>
+            <bx_if:button>
+                <span class="aqb-affiliate-cash-out-button bx-def-margin-top bx-def-border-top-auto">
+                    <span class="bx-def-font-small">__info__</span>
+                    <button class="bx-btn bx-btn-large-border mt-4" onclick="__js_object__._performAction('cash_out');">
+                        <bx_text:_aqb_affiliate_profile_commission_cash_out />
+                    </button>
+                </span>
+            </bx_if:button>
+       </span>
+    </bx_repeat:info>
+</div>

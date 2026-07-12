@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_aqb_affiliate_wgt_cpt"><![CDATA[Affiliate System]]></string>
+    <string name="_aqb_affiliate_cpt_settings"><![CDATA[Settings]]></string>
+
+    <string name="_aqb_affiliate_use_points"><![CDATA[Allow to use points as commissions]]></string>
+    <string name="_aqb_affiliate_allow_send_invitation"><![CDATA[Permit affiliate members to send email invitations to their friends directly from the Affiliate System panel]]></string>
+    <string name="_aqb_affiliate_allow_to_add_message"><![CDATA[Permit members to include a personal message with their invitation emails]]></string>
+    <string name="_aqb_affiliate_auto_friend"><![CDATA[Automatically add invited members to the inviter's friends list]]></string>
+    <string name="_aqb_affiliate_use_queue"><![CDATA[Send invitation emails through a cron job queue (<b>Recommended</b>), otherwise, invitations will be sent immediately]]></string>
+    <string name="_aqb_affiliate_referral_link"><![CDATA[Include the default referral link in the invitation message. The invited persons will be redirected to this link when they click on it]]></string>
+    <string name="_aqb_affiliate_referral_prefix"><![CDATA[Use this prefix in referral links for profile IDs (e.g., <b>?refer=1</b> where <b>'refer'</b> represents the profile)]]></string>
+    <string name="_aqb_affiliate_keep_cookie"><![CDATA[If an invitee visits the site but doesn't join, retain the invitee's referral information in the browser for a defined period <b>(in days)</b>. This information will still be used for attribution if the user revisits the site without the referral link.]]></string>
+    <string name="_aqb_affiliate_per_page_browse"><![CDATA[Default records number on referred members page]]></string>
+    <string name="_aqb_affiliate_per_page_history"><![CDATA[Default records number on history page]]></string>
+    <string name="_aqb_affiliate_invitations_limit"><![CDATA[Allowed maximum invitations emails number per member during <b>24 hours</b>]]></string>
+    <string name="_aqb_affiliate_message_length"><![CDATA[Max symbols number for invitation's message]]></string>
+    <string name="_aqb_affiliate_per_page_top_referrals"><![CDATA[Default number of members in Top Referrals Block on home page]]></string>
+    <string name="_aqb_affiliate_pre_page_my_referrals"><![CDATA[Default number of members in My Invited Members block on profile page]]></string>
+    <string name="_aqb_affiliate_commissions_limit"><![CDATA[Set the minimum commission amount (in currency) that a member must earn before they can send a payment request]]></string>
+
+    <string name="_aqb_affiliate_invitation_subject"><![CDATA[Invitation from {RealName}]]></string>
+    <string name="_aqb_affiliate_email_template_not_found"><![CDATA[Email template not found]]></string>
+    <string name="_aqb_affiliate_site_invitation_message"><![CDATA[<p>Hello,</p><p>We are pleased to invite you to join to our site!</p>]]></string>
+    <string name="_aqb_affiliate_invitation_body"><![CDATA[{email_header}
+<p>{message} <a href="{RefLink}">{RefTitle}<a/></p>
+{email_footer}]]></string>
+
+    <string name="_aqb_affiliate_commission_paid_subject"><![CDATA[Commissions has been paid]]></string>
+    <string name="_aqb_affiliate_commission_paid_body"><![CDATA[{email_header}
+<p>Hello, {RealName}!</p>
+<p>Commission {sum} {cur} has been paid.</p>
+<p>Simply follow to the link {statistic_page} to view more details.</p>
+{email_footer}]]></string>
+    <string name="_aqb_affiliate_cpt_members"><![CDATA[Members]]></string>
+    <string name="_aqb_affiliate_cpt_banners"><![CDATA[Banners]]></string>
+    <string name="_aqb_affiliate_cpt_requests"><![CDATA[Commissions]]></string>
+    <string name="_aqb_affiliate_cpt_matrix"><![CDATA[Programs]]></string>
+    <string name="_aqb_affiliate_cpt_membership_settings"><![CDATA[Membership]]></string>
+    <string name="_aqb_affiliate_cpt_settings"><![CDATA[Settings]]></string>
+    <string name="_aqb_affiliate_installation_problem"><![CDATA[Seems like there are is missed. Please try to reinstall the it or ask vendor of the module about this problem.]]></string>
+
+    <string name="_aqb_affiliate_admin_members_title_added"><![CDATA[Joined]]></string>
+    <string name="_aqb_affiliate_admin_members_title_logged"><![CDATA[Last login]]></string>
+    <string name="_aqb_affiliate_admin_members_title_name"><![CDATA[Name]]></string>
+    <string name="_aqb_affiliate_admin_members_title_referral"><![CDATA[Referral]]></string>
+    <string name="_aqb_affiliate_admin_members_title_referred"><![CDATA[Referred]]></string>
+    <string name="_aqb_affiliate_admin_members_title_upgraded"><![CDATA[Upgs.]]></string>
+    <string name="_aqb_affiliate_admin_members_title_clicks"><![CDATA[Clks.]]></string>
+    <string name="_aqb_affiliate_admin_members_title_impressions"><![CDATA[Imps.]]></string>
+    <string name="_aqb_affiliate_admin_members_title_purchases"><![CDATA[Purchs.]]></string>
+    <string name="_aqb_affiliate_admin_members_title_markets"><![CDATA[Marks.]]></string>
+    <string name="_aqb_affiliate_admin_points_title"><![CDATA[points]]></string>
+    <string name="_aqb_affiliate_admin_members_title_earned"><![CDATA[Commission ({0})]]></string>
+    <string name="_aqb_affiliate_admin_title_actions"><![CDATA[Actions]]></string>
+    <string name="_aqb_affiliate_view_commissions_history"><![CDATA[View commissions history]]></string>
+    <string name="_aqb_affiliate_view_referred_list"><![CDATA[View referred members list]]></string>
+    <string name="_aqb_affiliate_clean_history"><![CDATA[Remove notes about referred members and earned commission]]></string>
+    <string name="_aqb_affiliate_admin_request_title_status"><![CDATA[Status]]></string>
+    <string name="_aqb_affiliate_admin_request_title_added"><![CDATA[Sent]]></string>
+    <string name="_aqb_affiliate_admin_request_title_money"><![CDATA[Amount]]></string>
+    <string name="_aqb_affiliate_admin_request_title_points"><![CDATA[Points]]></string>
+    <string name="_aqb_affiliate_admin_request_action_card"><![CDATA[Pay through the site's card]]></string>
+    <string name="_aqb_affiliate_admin_request_action_manually"><![CDATA[Process manually]]></string>
+    <string name="_aqb_affiliate_admin_request_action_remove"><![CDATA[Remove request]]></string>
+    <string name="_aqb_affiliate_add_referral"><![CDATA[Add referral for the member]]></string>
+    <string name="_aqb_affiliate_admin_change_referral"><![CDATA[{0}'s referral]]></string>
+    <string name="_aqb_affiliate_admin_reward_commission"><![CDATA[Reward {0} with commission]]></string>
+    <string name="_aqb_affiliate_admin_button_save"><![CDATA[Save]]></string>
+    <string name="_aqb_affiliate_close"><![CDATA[Close]]></string>
+    <string name="_aqb_affiliate_admin_referral_caption"><![CDATA[Select referral]]></string>
+    <string name="_aqb_affiliate_admin_type_name"><![CDATA[Type the name...]]></string>
+
+    <string name="_aqb_affiliate_clean_confirmation"><![CDATA[Are you sure, you want to clean history of this member?]]></string>
+    <string name="_aqb_affiliate_remove_content_confirmation"><![CDATA[You're sure you want to remove this profile history?]]></string>
+    <string name="_aqb_affiliate_add_referral_button"><![CDATA[Add]]></string>
+    <string name="_aqb_affiliate_wrong_data"><![CDATA[Profile or Referral ID are not specified!]]></string>
+    <string name="_aqb_affiliate_nothing_has_been_updated"><![CDATA[Nothing has been updated!]]></string>
+    <string name="_aqb_affiliate_nothing_has_been_saved"><![CDATA[Nothing has been saved!]]></string>
+    <string name="_aqb_affiliate_successfully_saved"><![CDATA[Successfully saved!]]></string>
+
+    <string name="_aqb_affiliate_grid_column_type"><![CDATA[Type]]></string>
+    <string name="_aqb_affiliate_grid_column_date"><![CDATA[Joined]]></string>
+    <string name="_aqb_affiliate_grid_column_name"><![CDATA[Full name]]></string>
+    <string name="_aqb_affiliate_grid_action_delete"><![CDATA[Delete]]></string>
+    <string name="_aqb_affiliate_no_data_to_process"><![CDATA[No data to process]]></string>
+    <string name="_aqb_affiliate_you_can_not_remove_referral"><![CDATA[Sorry, you can not remove this referred member!]]></string>
+
+    <string name="_aqb_affiliate_view_ref_user_history"><![CDATA[{0}'s referred profiles]]></string>
+    <string name="_aqb_affiliate_grid_type_link"><![CDATA[ref. link]]></string>
+    <string name="_aqb_affiliate_grid_type_banner"><![CDATA[banner]]></string>
+    <string name="_aqb_affiliate_remove_item_confirmation"><![CDATA[You are sure, you want to remove ?]]></string>
+
+    <string name="_aqb_affiliate_admin_banner_active"><![CDATA[Status]]></string>
+    <string name="_aqb_affiliate_admin_banner_not_found"><![CDATA[Banner is not found!]]></string>
+    <string name="_aqb_affiliate_admin_banner_size"><![CDATA[Size]]></string>
+    <string name="_aqb_affiliate_admin_banner_title"><![CDATA[Title]]></string>
+    <string name="_aqb_affiliate_admin_banner_link"><![CDATA[Redirect page]]></string>
+    <string name="_aqb_affiliate_admin_banner_date"><![CDATA[Created]]></string>
+    <string name="_aqb_affiliate_admin_banner_actions"><![CDATA[Actions]]></string>
+    <string name="_aqb_affiliate_admin_banner_edit"><![CDATA[Edit]]></string>
+    <string name="_aqb_affiliate_admin_banner_remove"><![CDATA[Remove]]></string>
+    <string name="_aqb_affiliate_admin_banner_commission"><![CDATA[Commissions]]></string>
+    <string name="_aqb_affiliate_banner_status_active"><![CDATA[Active]]></string>
+    <string name="_aqb_affiliate_banner_status_hidden"><![CDATA[Hidden]]></string>
+    <string name="_aqb_affiliate_admin_banner_add"><![CDATA[Add]]></string>
+    <string name="_aqb_affiliate_admin_action_banner_add"><![CDATA[Add new banner]]></string>
+    <string name="_aqb_affiliate_admin_banner_image"><![CDATA[Banner's Image]]></string>
+    <string name="_aqb_affiliate_admin_banner_image"><![CDATA[Banner's Image]]></string>
+    <string name="_aqb_affiliate_admin_banner_link_info"><![CDATA[Redirect user to this page on banner click]]></string>
+    <string name="_aqb_affiliate_admin_save"><![CDATA[Save]]></string>
+    <string name="_aqb_affiliate_remove_banner_confirmation"><![CDATA[Are you sure, want to remove this banner?]]></string>
+
+    <string name="_aqb_affiliate_admin_banner_image_prev"><![CDATA[Banner preview]]></string>
+    <string name="_aqb_affiliate_admin_banner_enable"><![CDATA[Enable/Disable]]></string>
+
+    <string name="_aqb_affiliate_set_commission_title"><![CDATA[Commissions]]></string>
+    <string name="_aqb_affiliate_price_per_banner_action"><![CDATA[Reward members for banners' activity with commission defined below]]></string>
+    <string name="_aqb_affiliate_admin_impression"><![CDATA[Impression]]></string>
+    <string name="_aqb_affiliate_admin_click"><![CDATA[Click]]></string>
+    <string name="_aqb_affiliate_admin_join"><![CDATA[New member joins]]></string>
+    <string name="_aqb_affiliate_admin_join_desc"><![CDATA[This action occurs when user joined to the site using banner, in this case banner's code owner can get defined here commission]]></string>
+    <string name="_aqb_affiliate_admin_upgrade"><![CDATA[Percentage of membership price when joined member upgrades]]></string>
+    <string name="_aqb_affiliate_admin_upgrade_desc"><![CDATA[This action occurs when referred member purchases membership level]]></string>
+    <string name="_aqb_affiliate_commission_title"><![CDATA[Commission in default currency]]></string>
+    <string name="_aqb_affiliate_commission_points_title"><![CDATA[Commission in points]]></string>
+
+    <string name="_aqb_affiliate_save"><![CDATA[Save]]></string>
+    <string name="_aqb_affiliate_close"><![CDATA[Close]]></string>
+    <string name="_aqb_affiliate_select_one"><![CDATA[Select ...]]></string>
+
+    <string name="_aqb_affiliate_add_matrix_button"><![CDATA[Add Program]]></string>
+    <string name="_aqb_affiliate_matrices_list"><![CDATA[Matrix Programs]]></string>
+    <string name="_aqb_affiliate_matrices_list_empty"><![CDATA[There are no programs. Use Add button to create at least one.]]></string>
+
+    <string name="_aqb_affiliate_add_program_title"><![CDATA[Add program]]></string>
+    <string name="_aqb_affiliate_edit_program_title"><![CDATA[Edit {0} program]]></string>
+    <string name="_aqb_affiliate_program_form_active"><![CDATA[Active]]></string>
+    <string name="_aqb_affiliate_program_form_width"><![CDATA[Matrix width]]></string>
+    <string name="_aqb_affiliate_program_form_width_info"><![CDATA[0 - unlimited width]]></string>
+    <string name="_aqb_affiliate_program_form_deep"><![CDATA[Levels deep]]></string>
+    <string name="_aqb_affiliate_program_form_joins"><![CDATA[Referred profile join]]></string>
+    <string name="_aqb_affiliate_program_form_joins_info"><![CDATA[Each time a new member joins, a predetermined commission will automatically assigned to the sponsor.]]></string>
+    <string name="_aqb_affiliate_program_form_upgrades"><![CDATA[Invitee's membership upgrade]]></string>
+    <string name="_aqb_affiliate_program_form_percentage"><![CDATA[as percentage]]></string>
+    <string name="_aqb_affiliate_program_form_memlevel"><![CDATA[Select membership level]]></string>
+    <string name="_aqb_affiliate_program_form_deep_info"><![CDATA[0 - unlimited deep]]></string>
+    <string name="_aqb_affiliate_program_form_level_error"><![CDATA[Please select membership level]]></string>
+    <string name="_aqb_affiliate_program_form_matrix_settings"><![CDATA[Matrix settings]]></string>
+    <string name="_aqb_affiliate_program_form_matrix"><![CDATA[Enable]]></string>
+    <string name="_aqb_affiliate_program_status_enabled"><![CDATA[Active]]></string>
+    <string name="_aqb_affiliate_program_status_disabled"><![CDATA[Inactive]]></string>
+    <string name="_aqb_affiliate_program_form_matrix_info"><![CDATA[Allow members to build their own matrix]]></string>
+    <string name="_aqb_affiliate_program_form_spillover"><![CDATA[Spillover]]></string>
+    <string name="_aqb_affiliate_program_form_spillover_info"><![CDATA[Allows to help members to build their own matrices using invited members from up-line and down-line members]]></string>
+    <string name="_aqb_affiliate_program_form_desc"><![CDATA[Description]]></string>
+    <string name="_aqb_affiliate_program_form_desc_info"><![CDATA[This description will be available for members on view programs page]]></string>
+
+    <string name="_aqb_affiliate_matrix_program_deep"><![CDATA[Deep]]></string>
+    <string name="_aqb_affiliate_matrix_program_width"><![CDATA[Width]]></string>
+    <string name="_aqb_affiliate_matrix_program_width_0"><![CDATA[Unlimited]]></string>
+    <string name="_aqb_affiliate_matrix_program_joins"><![CDATA[Per join]]></string>
+    <string name="_aqb_affiliate_matrix_program_upgrades"><![CDATA[Per upgrade]]></string>
+    <string name="_aqb_affiliate_matrix_program_action_enable"><![CDATA[Enable]]></string>
+    <string name="_aqb_affiliate_matrix_program_action_disable"><![CDATA[Disable]]></string>
+    <string name="_aqb_affiliate_matrix_program_action_edit"><![CDATA[Edit]]></string>
+    <string name="_aqb_affiliate_matrix_program_action_commission"><![CDATA[Set commission]]></string>
+    <string name="_aqb_affiliate_matrix_program_matrix_mode"><![CDATA[Matrix]]></string>
+    <string name="_aqb_affiliate_matrix_program_matrix_mode_on"><![CDATA[On]]></string>
+    <string name="_aqb_affiliate_matrix_program_matrix_mode_off"><![CDATA[Off]]></string>
+    <string name="_aqb_affiliate_matrix_program_spillover"><![CDATA[Spillover]]></string>
+
+    <string name="_aqb_affiliate_matrix_level_title"><![CDATA[Level]]></string>
+    <string name="_aqb_affiliate_matrix_level_upgrades"><![CDATA[Upgrade]]></string>
+    <string name="_aqb_affiliate_matrix_level_upgrades_percentage"><![CDATA[%]]></string>
+    <string name="_aqb_affiliate_matrix_level_upgrades_points"><![CDATA[ps.]]></string>
+    <string name="_aqb_affiliate_matrix_level_markets"><![CDATA[Market]]></string>
+    <string name="_aqb_affiliate_matrix_level_markets_percentage"><![CDATA[%]]></string>
+    <string name="_aqb_affiliate_matrix_level_markets_points"><![CDATA[ps.]]></string>
+    <string name="_aqb_affiliate_matrix_level_purchases"><![CDATA[Purchase]]></string>
+    <string name="_aqb_affiliate_matrix_level_purchases_percentage"><![CDATA[%]]></string>
+    <string name="_aqb_affiliate_matrix_level_purchases_points"><![CDATA[ps.]]></string>
+    <string name="_aqb_affiliate_matrix_level_joins"><![CDATA[Join]]></string>
+    <string name="_aqb_affiliate_matrix_level_joins_points"><![CDATA[ps.]]></string>
+    <string name="_aqb_affiliate_program_form_percentage_short"><![CDATA[as %]]></string>
+
+    <string name="_aqb_affiliate_program_not_active_programs"><![CDATA[No active programs yet!]]></string>
+    <string name="_aqb_affiliate_program_form_joins_cur"><![CDATA[in {0}]]></string>
+    <string name="_aqb_affiliate_program_form_joins_info_cur"><![CDATA[any integer or float value]]></string>
+
+    <string name="_aqb_affiliate_program_form_joins_points"><![CDATA[in points]]></string>
+    <string name="_aqb_affiliate_program_form_joins_info_points"><![CDATA[in points]]></string>
+
+    <string name="_aqb_affiliate_program_form_upgrades_points"><![CDATA[fixed points amount]]></string>
+    <string name="_aqb_affiliate_program_form_upgrades_info_points"><![CDATA[in points]]></string>
+
+    <string name="_aqb_affiliate_program_view_points"><![CDATA[{0} ps.]]></string>
+    <string name="_aqb_affiliate_program_add_matrix_commission"><![CDATA[Set commission]]></string>
+
+    <string name="_aqb_affiliate_admin_program_not_found"><![CDATA[Affiliate program not found!]]></string>
+    <string name="_aqb_affiliate_program_set_commission_to_program"><![CDATA[Set matrix commission per level - {0}]]></string>
+
+    <string name="_aqb_affiliate_unknown"><![CDATA[Unknown]]></string>
+    <string name="_aqb_affiliate_no_commission"><![CDATA[no commission]]></string>
+
+    <string name="_aqb_affiliate_matrix_level_add"><![CDATA[add]]></string>
+    <string name="_aqb_affiliate_matrix_level_remove"><![CDATA[remove]]></string>
+
+    <string name="_aqb_affiliate_matrix_program_action_delete"><![CDATA[Delete]]></string>
+    <string name="_aqb_affiliate_matrix_program_action_matrix"><![CDATA[Set Matrix]]></string>
+    <string name="_aqb_affiliate_add_all_accounts_profiles"><![CDATA[Automatically add all profiles created under a referred account to the sponsor's referrals list]]></string>
+    <string name="_aqb_affiliate_submenu_item_title_home"><![CDATA[Dashboard]]></string>
+    <string name="_aqb_affiliate_submenu_item_title_activities"><![CDATA[Statistics]]></string>
+    <string name="_aqb_affiliate_submenu_item_title_referrals"><![CDATA[Referrals]]></string>
+    <string name="_aqb_affiliate_submenu_item_title_tools"><![CDATA[Banners]]></string>
+    <string name="_aqb_affiliate_menu_title_submenu"><![CDATA[Affiliate System]]></string>
+    <string name="_aqb_affiliate_menu_set_title_submenu"><![CDATA[Affiliate System]]></string>
+    <string name="_aqb_affiliate_menu_item_title_home"><![CDATA[Affiliates System]]></string>
+
+    <string name="_aqb_affiliate_page_title_sys_home"><![CDATA[Affiliates System]]></string>
+    <string name="_aqb_affiliate_page_title_home"><![CDATA[Affiliates System]]></string>
+    <string name="_aqb_affiliate_page_block_title_info"><![CDATA[Information]]></string>
+    <string name="_aqb_affiliate_page_block_title_stat"><![CDATA[Statistics]]></string>
+    <string name="_aqb_affiliate_page_block_title_referrals"><![CDATA[Referred members]]></string>
+    <string name="_aqb_affiliate_page_block_title_referrals_links"><![CDATA[Referral link]]></string>
+    <string name="_aqb_affiliate_profile_info_program"><![CDATA[Affiliate program]]></string>
+    <string name="_aqb_affiliate_profile_info_total_referrals"><![CDATA[Total referred profiles]]></string>
+
+    <string name="_aqb_affiliate_profile_program_info_block"><![CDATA[Available programs]]></string>
+    <string name="_aqb_affiliate_profile_program_description"><![CDATA[Description]]></string>
+
+    <string name="_aqb_affiliate_profile_referral_link"><![CDATA[General referral link]]></string>
+    <string name="_aqb_affiliate_profile_send_invitation"><![CDATA[Send email invitation]]></string>
+    <string name="_aqb_affiliate_profile_plugin_invitation_text"><![CDATA[I've found a great site]]></string>
+    <string name="_aqb_affiliate_profile_plugin_tweet"><![CDATA[Tweet]]></string>
+    <string name="_aqb_affiliate_profile_plugin_facebook"><![CDATA[Share]]></string>
+
+    <string name="_aqb_affiliate_send_invitation"><![CDATA[Send invitations]]></string>
+    <string name="_aqb_affiliate_invitation_emails"><![CDATA[Emails list]]></string>
+    <string name="_aqb_affiliate_invitation_emails_info"><![CDATA[Put emails separated by comma(,) or spaces (maximum {0} emails per 24 hours)]]></string>
+    <string name="_aqb_affiliate_invitation_emails_list_empty"><![CDATA[Please put valid emails to Email list area]]></string>
+    <string name="_aqb_affiliate_invitation_message"><![CDATA[Message]]></string>
+    <string name="_aqb_affiliate_invitation_messages_info"><![CDATA[Message for your friends, maximum {0} symbols]]></string>
+    <string name="_aqb_affiliate_invitation_send_button"><![CDATA[Send]]></string>
+    <string name="_aqb_affiliate_max_email_error"><![CDATA[You've already sent {0} emails. Maximum allowed {1} messages within 24 hours.]]></string>
+    <string name="_aqb_affiliate_invitation_not_sent"><![CDATA[Nothing has been sent!]]></string>
+    <string name="_aqb_affiliate_invitation_successfully_sent_single"><![CDATA[Email has been successfully sent!]]></string>
+    <string name="_aqb_affiliate_invitation_successfully_sent"><![CDATA[{0} emails have been successfully sent!]]></string>
+    <string name="_aqb_affiliate_grid_type_referral"><![CDATA[By referral link]]></string>
+
+    <string name="_aqb_affiliate_page_title_sys_referrals"><![CDATA[Referrals]]></string>
+    <string name="_aqb_affiliate_page_title_referrals"><![CDATA[Referrals]]></string>
+    <string name="_aqb_affiliate_page_block_title_referrals_info"><![CDATA[Information]]></string>
+    <string name="_aqb_affiliate_page_block_title_referrals_table"><![CDATA[Directly invited members]]></string>
+
+    <string name="_aqb_affiliate_page_common_date_search_activities"><![CDATA[Search by full name/email]]></string>
+    <string name="_aqb_affiliate_page_common_date_filter_title"><![CDATA[Filter by registration date]]></string>
+    <string name="_aqb_affiliate_page_common_date_filter_start"><![CDATA[Start date]]></string>
+    <string name="_aqb_affiliate_page_common_date_filter_end"><![CDATA[Start end]]></string>
+    <string name="_aqb_affiliate_page_common_date_reset"><![CDATA[View all]]></string>
+    <string name="_aqb_affiliate_page_common_date_filter"><![CDATA[Select]]></string>
+    <string name="_aqb_affiliate_grid_action_delete"><![CDATA[Delete]]></string>
+
+    <string name="_aqb_affiliate_referrals_page_directly_invited"><![CDATA[Directly invited]]></string>
+    <string name="_aqb_affiliate_referrals_page_spillover_members"><![CDATA[Spillover profiles]]></string>
+    <string name="_aqb_affiliate_referrals_page_by_referral_link"><![CDATA[By referral link]]></string>
+    <string name="_aqb_affiliate_referrals_page_by_banner"><![CDATA[By banner]]></string>
+    <string name="_aqb_affiliate_referrals_page_total_inivtatinos"><![CDATA[Invitations sent]]></string>
+    <string name="_aqb_affiliate_referrals_page_not_matrix_yet"><![CDATA[No active matrix yet]]></string>
+    <string name="_aqb_affiliate_referrals_matrix_total"><![CDATA[Total profiles]]></string>
+    <string name="_aqb_affiliate_referrals_matrix_directly"><![CDATA[Direct invited]]></string>
+    <string name="_aqb_affiliate_referrals_matrix_spillover"><![CDATA[Spillover profiles]]></string>
+    <string name="_aqb_affiliate_you_can_not_view_tree"><![CDATA[Tree view is not allowed for your profile!]]></string>
+
+    <string name="_aqb_affiliate_page_block_title_referrals_matrix"><![CDATA[Active Matrices]]></string>
+    <string name="_aqb_affiliate_profile_tree"><![CDATA[{0}'s tree]]></string>
+
+    <string name="_aqb_affiliate_matrix_width"><![CDATA[<b>Matrix width</b> to use for <b>Programs</b> (0 - unlimited). If you set here 3 and then define in <b>Programs</b> settings <b>deep - 3</b>, then members will be able to create matrix with 39 members.]]></string>
+    <string name="_aqb_affiliate_matrix_width_info"><![CDATA[Current matrix width is <b>{0}</b>. You may change matrix width in module settings (it can not be individual for each program)]]></string>
+    <string name="_aqb_affiliate_unlimited"><![CDATA[unlimited]]></string>
+    <string name="_aqb_affiliate_only_admin"><![CDATA[Only Administration can do this!]]></string>
+    <string name="_aqb_affiliate_admin_request_title_name"><![CDATA[Fullname]]></string>
+    <string name="_aqb_affiliate_admin_request_title_status"><![CDATA[Status]]></string>
+    <string name="_aqb_affiliate_admin_request_title_added"><![CDATA[Received]]></string>
+    <string name="_aqb_affiliate_admin_request_title_paid"><![CDATA[Paid]]></string>
+    <string name="_aqb_affiliate_admin_request_title_amount"><![CDATA[Amount {0}]]></string>
+    <string name="_aqb_affiliate_admin_request_title_points"><![CDATA[Points]]></string>
+    <string name="_aqb_affiliate_admin_request_title_join"><![CDATA[Join]]></string>
+    <string name="_aqb_affiliate_admin_request_title_click"><![CDATA[Clicks]]></string>
+    <string name="_aqb_affiliate_admin_request_title_imp"><![CDATA[Impressions]]></string>
+    <string name="_aqb_affiliate_admin_request_title_upg"><![CDATA[Upgrades]]></string>
+    <string name="_aqb_affiliate_admin_request_title_prchs"><![CDATA[Purchases]]></string>
+    <string name="_aqb_affiliate_admin_title_actions"><![CDATA[Actions]]></string>
+
+    <string name="_aqb_affiliate_admin_request_title_unknown"><![CDATA[Unknown currency]]></string>
+    <string name="_aqb_affiliate_admin_status_0"><![CDATA[Pending]]></string>
+    <string name="_aqb_affiliate_admin_status_1"><![CDATA[Paid]]></string>
+
+    <string name="_aqb_affiliate_admin_tnx_manually"><![CDATA[Process transaction manually]]></string>
+    <string name="_aqb_affiliate_admin_tnx_id_caption"><![CDATA[Transaction ID]]></string>
+    <string name="_aqb_affiliate_admin_status_caption"><![CDATA[Status]]></string>
+    <string name="_aqb_affiliate_remove_txn_history_confirmation"><![CDATA[You are sure, you want to delete this request?]]></string>
+
+    <string name="_aqb_affiliate_page_title_activities"><![CDATA[Referrals activities]]></string>
+    <string name="_aqb_affiliate_page_title_sys_activities"><![CDATA[Referrals activities]]></string>
+    <string name="_aqb_affiliate_page_block_title_activities_table"><![CDATA[Referred profiles' activity]]></string>
+    <string name="_aqb_affiliate_page_block_title_activities_info"><![CDATA[Quick info]]></string>
+
+    <string name="_aqb_affiliate_page_title_tools"><![CDATA[System tools]]></string>
+    <string name="_aqb_affiliate_page_title_sys_tools"><![CDATA[System tools]]></string>
+    <string name="_aqb_affiliate_page_block_title_tools_table"><![CDATA[Banners]]></string>
+    <string name="_aqb_affiliate_page_block_title_tools_info"><![CDATA[Quick info]]></string>
+    <string name="_aqb_affiliate_admin_banner_link_error"><![CDATA[Please define url to the page. Users will be redirected on this page when click on <banner></banner>]]></string>
+    <string name="_aqb_affiliate_admin_banner_image_error"><![CDATA[Please select banner image]]></string>
+    <string name="_aqb_affiliate_admin_banner_title_error"><![CDATA[Please define the title of the banner]]></string>
+    <string name="_aqb_affiliate_profile_is_not_found"><![CDATA[Profile is not found!]]></string>
+    <string name="_aqb_affiliate_profile_is_not_active"><![CDATA[Your profile is not active! Operation is not allowed!]]></string>
+
+    <string name="_aqb_affiliate_banner_commission_imp"><![CDATA[Impression]]></string>
+    <string name="_aqb_affiliate_banner_commission_click"><![CDATA[Click]]></string>
+    <string name="_aqb_affiliate_banner_commission_join"><![CDATA[Join]]></string>
+    <string name="_aqb_affiliate_points_title_short"><![CDATA[ps.]]></string>
+
+    <string name="_aqb_affiliate_banner_commission_title"><![CDATA[Commission you may earn:]]></string>
+    <string name="_aqb_affiliate_banner_view_banner"><![CDATA[View]]></string>
+    <string name="_aqb_affiliate_banner_get_code"><![CDATA[Code]]></string>
+    <string name="_aqb_affiliate_button_copy"><![CDATA[Copy to clipboard]]></string>
+    <string name="_aqb_affiliate_hash_not_found"><![CDATA[Ads code is not provider]]></string>
+    <string name="_aqb_affiliate_hash_invalid"><![CDATA[Ads code is invalid]]></string>
+
+    <string name="_aqb_affiliate_program_not_found"><![CDATA[Program not found!]]></string>
+
+    <string name="_aqb_affiliate_program_form_markets"><![CDATA[Invitee's market purchases]]></string>
+    <string name="_aqb_affiliate_program_form_markets_info"><![CDATA[The <b>"as percentage"</b> option allows you to set the commission as a percentage of the purchase price. For example, if the price is $50 and the percentage is set to 10%, the commission will be $5. If this option is not selected, a fixed commission amount will be used instead and commission will be 10$. The values defined here will also be the default for all matrix levels, unless specified otherwise.]]></string>
+    <string name="_aqb_affiliate_program_form_markets_points"><![CDATA[fixed points amount]]></string>
+    <string name="_aqb_affiliate_program_form_markets_info_points"><![CDATA[in points]]></string>
+    <string name="_aqb_affiliate_matrix_program_markets"><![CDATA[per market purchase]]></string>
+    <string name="_aqb_affiliate_matrix_program_purchases"><![CDATA[per any other purchase]]></string>
+    <string name="_aqb_affiliate_profile_program_plugin_invitation_text"><![CDATA[Check it out - {0}]]></string>
+    <string name="_aqb_affiliate_admin_close"><![CDATA[Close]]></string>
+    <string name="_aqb_affiliate_grid_column_history_fullname"><![CDATA[Fullname]]></string>
+    <string name="_aqb_affiliate_grid_column_history_action"><![CDATA[Action]]></string>
+    <string name="_aqb_affiliate_grid_column_history_commissions"><![CDATA[Commission {0}]]></string>
+    <string name="_aqb_affiliate_grid_column_history_count"><![CDATA[Executions]]></string>
+    <string name="_aqb_affiliate_grid_column_history_performer"><![CDATA[Performer]]></string>
+    <string name="_aqb_affiliate_grid_column_history_type"><![CDATA[Tool]]></string>
+    <string name="_aqb_affiliate_grid_column_history_date"><![CDATA[Date]]></string>
+    <string name="_aqb_affiliate_page_activities_date_filter_title"><![CDATA[Select date range]]></string>
+    <string name="_aqb_affiliate_grid_action_markets"><![CDATA[purchase in market]]></string>
+    <string name="_aqb_affiliate_grid_action_joins"><![CDATA[new member joins]]></string>
+    <string name="_aqb_affiliate_grid_action_impressions"><![CDATA[banner's impression]]></string>
+    <string name="_aqb_affiliate_grid_action_clicks"><![CDATA[banner's click]]></string>
+    <string name="_aqb_affiliate_grid_action_upgrades"><![CDATA[membership upgrade]]></string>
+    <string name="_aqb_affiliate_grid_action_purchases"><![CDATA[purchases on the site]]></string>
+    <string name="_aqb_affiliate_grid_column_history_points"><![CDATA[Points]]></string>
+
+    <string name="_aqb_affiliate_quick_info_total_commission"><![CDATA[Total commissions earned]]></string>
+    <string name="_aqb_affiliate_quick_info_avail_commission"><![CDATA[Available for withdrawal]]></string>
+    <string name="_aqb_affiliate_quick_info_currency"><![CDATA[Currently earned commission]]></string>
+    <string name="_aqb_affiliate_quick_info_currency_title"><![CDATA[Currency]]></string>
+    <string name="_aqb_affiliate_quick_info_points_title"><![CDATA[Points]]></string>
+    <string name="_aqb_affiliate_quick_info_paid_commission"><![CDATA[Amount received]]></string>
+    <string name="_aqb_affiliate_quick_info_pending_commission"><![CDATA[Waiting for payment]]></string>
+    <string name="_aqb_affiliate_profile_commission_info_title_current"><![CDATA[Current earned commission]]></string>
+    <string name="_aqb_affiliate_profile_commission_info_title_pending"><![CDATA[Sent commissions requests]]></string>
+    <string name="_aqb_affiliate_profile_commission_info_title_paid"><![CDATA[Got payments from the site]]></string>
+    <string name="_aqb_affiliate_profile_commission_cash_out"><![CDATA[Withdrawal]]></string>
+    <string name="_aqb_affiliate_profile_commission_limit_info"><![CDATA[You should earn minimum <b><u>{0} {1}</u></b> before to send withdrawal request.]]></string>
+
+    <string name="_aqb_affiliate_not_login"><![CDATA[Please login first!]]></string>
+    <string name="_aqb_affiliate_profile_commission_not_enough"><![CDATA[You have not enough commissions yet for withdrawal]]></string>
+    <string name="_aqb_affiliate_cash_out_form_points"><![CDATA[Points]]></string>
+    <string name="_aqb_affiliate_cash_out_form_points_info"><![CDATA[Maximum available <b>{0}</b> points for withdrawal]]></string>
+    <string name="_aqb_affiliate_cash_out_form_money"><![CDATA[Money]]></string>
+    <string name="_aqb_affiliate_button_cash_out"><![CDATA[Withdrawal]]></string>
+    <string name="_aqb_affiliate_cash_out_form_money_info"><![CDATA[Maximum available <b>{0}</b> {1} for withdrawal]]></string>
+    <string name="_aqb_affiliate_cash_out_form_title"><![CDATA[Withdraw earned commissions]]></string>
+    <string name="_aqb_affiliate_cash_out_confirm"><![CDATA[Sure you want to withdraw?]]></string>
+    <string name="_aqb_affiliate_cash_out_commission_error"><![CDATA[There is nothing to send!]]></string>
+    <string name="_aqb_affiliate_profile_cash_out_not_enough_points"><![CDATA[You have not enough points on balance to withdraw selected amount!]]></string>
+    <string name="_aqb_affiliate_cash_out_request_sent"><![CDATA[Withdrawal request has been successfully sent! We will contact with you shortly.]]></string>
+    <string name="_aqb_affiliate_cash_out_points_sent"><![CDATA[Points commission has been successfully sent!]]></string>
+
+    <string name="_aqb_affiliate_cash_out_currency"><![CDATA[Currency: {0} {1}]]></string>
+    <string name="_aqb_affiliate_cash_out_points"><![CDATA[Points: {0}]]></string>
+    <string name="_aqb_affiliate_cash_out_request_subject"><![CDATA[Commission Request]]></string>
+    <string name="_aqb_affiliate_cash_out_request_body"><![CDATA[{email_header}
+<p>Profile {RealName} has requested commission:</p>
+<p>{Sum}</p>
+<p>View details <a href="{studio_requests}">here</a></p>
+{email_footer}]]></string>
+    <string name="_aqb_affiliate_profile_commission_not_valid"><![CDATA[Please put valid commission values]]></string>
+    <string name="_aqb_affiliate_pay_points_immediately"><![CDATA[Assign points without administration confirmation (when a member sends withdrawal request)]]></string>
+    <string name="_aqb_affiliate_profile_commission_cash_out_points"><![CDATA[affiliate commission earned]]></string>
+    <string name="_aqb_affiliate_profile_commission_cash_out_cancelled_points"><![CDATA[cancelled earned commission request]]></string>
+
+    <string name="_aqb_affiliate_studio_history_commission_title"><![CDATA[{0}'s earned commission history]]></string>
+    <string name="_aqb_affiliate_remove_referral_button"><![CDATA[Remove]]></string>
+    <string name="_aqb_affiliate_current_sponsor"><![CDATA[Current sponsor]]></string>
+    <string name="_aqb_affiliate_studio_members_referral_no_updates"><![CDATA[Referral was not updated!]]></string>
+    <string name="_aqb_affiliate_profile_program_view"><![CDATA[Click to view details]]></string>
+
+    <string name="_aqb_affiliate_commission_for_action_percent"><![CDATA[commission as per cent from the price]]></string>
+    <string name="_aqb_affiliate_commission_for_action_currency"><![CDATA[money commission for the action]]></string>
+    <string name="_aqb_affiliate_commission_for_action_points"><![CDATA[Commission for the action in points]]></string>
+
+    <string name="_aqb_affiliate_program_form_purchases"><![CDATA[Invitee's <b>any</b> purchases on the site, except market]]></string>
+    <string name="_aqb_affiliate_program_form_purchases_info"><![CDATA[option <b>as percentage</b> - percentage of purchase value, otherwise static price value. This rule also will be used as default for all matrix levels, except defined separately.]]></string>
+    <string name="_aqb_affiliate_program_form_purchases_points"><![CDATA[fixed points amount]]></string>
+    <string name="_aqb_affiliate_program_form_purchases_info_points"><![CDATA[in points]]></string>
+    <string name="_aqb_affiliate_program_not_active"><![CDATA[No]]></string>
+    <string name="_aqb_affiliate_admin_tnx_empty_fields_error"><![CDATA[Please define transaction's number]]></string>
+    <string name="_aqb_affiliate_exchange_cart_item"><![CDATA[Withdrawal request]]></string>
+    <string name="_aqb_affiliate_exchange_cart_item_title"><![CDATA[Affiliate System]]></string>
+    <string name="_aqb_affiliate_exchange_cart_item_desc"><![CDATA[Withdrawal request from {0}]]></string>
+    <string name="_aqb_affiliate_profile_info_total_earned_commission"><![CDATA[Earned commission]]></string>
+    <string name="_aqb_affiliate_points_short_title"><![CDATA[ps.]]></string>
+    <string name="_aqb_affiliate_referrals_grid_banner_info"><![CDATA[Using banner {0}]]></string>
+    <string name="_aqb_affiliate_tools_page_banners_invited"><![CDATA[Invited by banners]]></string>
+    <string name="_aqb_affiliate_tools_page_banners_commission"><![CDATA[Earned commission]]></string>
+    <string name="_aqb_affiliate_tools_page_banners_impressions"><![CDATA[Impressions]]></string>
+    <string name="_aqb_affiliate_tools_page_banners_clicks"><![CDATA[Clicks]]></string>
+    <string name="_aqb_affiliate_matrix_rebuild_info"><![CDATA[<b>Rebuild Matrix</b> allows to create new matrix based on the all referred members and their referrals. In this case existed matrix will be lost and you will have new one according to the current profiles' membership levels and their matrix settings.<br/><br/><b>Rebuild can be useful</b>:<br/>1. when you have changed(added,removed) profiles' referrals manually<br/>2. members upgraded their membership levels<br/>3. since first build some part of the members have been removed and it can break connections in their matrices of down-line members.
+    <br/><br/><b>Note:</b> if you have a lot of members matrix rebuild may take a few minutes, please don't close the window and don't reload the page before finish.]]></string>
+    <string name="_aqb_affiliate_matrix_rebuild"><![CDATA[Rebuild Matrix]]></string>
+    <string name="_aqb_affiliate_rebuild_confirm"><![CDATA[Are you sure, you want to rebuild profiles Matrix?]]></string>
+    <string name="_aqb_affiliate_matrix_update_failed"><![CDATA[Matrix was not updated!]]></string>
+    <string name="_aqb_affiliate_matrix_update_success"><![CDATA[New matrix has been successfully created!]]></string>
+    <string name="_aqb_affiliate_no_earned_commission"><![CDATA[No earned commission yet]]></string>
+    <string name="_aqb_affiliate_program_exists"><![CDATA[Program with selected membership level already exists]]></string>
+    <string name="_aqb_affiliate_banner_size"><![CDATA[Size :]]></string>
+    <string name="_aqb_affiliate_page_referrals_link_block_title"><![CDATA[Referral link]]></string>
+    <string name="_aqb_affiliate_matrix_program_description"><![CDATA[Description]]></string>
+    <string name="_aqb_affiliate_matrix_levels_settings_are_empty"><![CDATA[Commissions for matrix's levels have not been defined, thus default program's commission settings will be used]]></string>
+    <string name="_aqb_affiliate_page_block_title_social_sharing"><![CDATA[Share]]></string>
+    <string name="_aqb_affiliate_import_referrals"><![CDATA[Import referrals]]></string>
+    <string name="_aqb_affiliate_studio_import_form_title"><![CDATA[Import referrals]]></string>
+
+    <string name="_aqb_affiliate_import_file_not_found"><![CDATA[File is not found!]]></string>
+    <string name="_aqb_affiliate_import_wrong_extension"><![CDATA[Wrong file's format!]]></string>
+    <string name="_aqb_affiliate_no_profiles_for_import"><![CDATA[No profiles found!]]></string>
+    <string name="_aqb_affiliate_profiles_to_import"><![CDATA[{0} profiles found for import. Continue!]]></string>
+    <string name="_aqb_affiliate_profiles_created"><![CDATA[{0} profiles have been added!]]></string>
+
+    <string name="_aqb_affiliate_cash_out_request"><![CDATA[Cash Out request]]></string>
+    <string name="_aqb_affiliate_commission_paid"><![CDATA[Commission has been paid]]></string>
+    <string name="_aqb_affiliate_invitation"><![CDATA[Invitation Letter]]></string>
+    <string name="_aqb_affiliate_program_form_mem_to_add"><![CDATA[Membership level to add users to matrix]]></string>
+    <string name="_aqb_affiliate_program_form_mem_to_add_info"><![CDATA[Referred members will only be placed in your matrix after reaching a selected membership level. If you want to add users regardless of their level, leave this field empty]]></string>
+    <string name="_aqb_affiliate_show_users_details"><![CDATA[Display membership level and email details for matrix's owner in matrix view]]></string>
+    <string name="_aqb_affiliate_send_points_on_balance_immediately"><![CDATA[Immediately send commission points to members' balance upon earning]]></string>
+
+    <string name="_aqb_affiliate_history_title_clicks"><![CDATA[commission for banner clicks]]></string>
+    <string name="_aqb_affiliate_history_title_impressions"><![CDATA[commission for banner impressions]]></string>
+    <string name="_aqb_affiliate_history_title_joins"><![CDATA[commission for referred member joins]]></string>
+    <string name="_aqb_affiliate_history_title_upgrades"><![CDATA[commission for referred member upgrades]]></string>
+    <string name="_aqb_affiliate_history_title_markets"><![CDATA[commission for referred member market purchases]]></string>
+    <string name="_aqb_affiliate_history_title_purchases"><![CDATA[commission for referred member purchases]]></string>
+    <string name="_aqb_affiliate_history_title_referred"><![CDATA[commission for referring a member]]></string>
+    <string name="_aqb_affiliate_history_title_custom"><![CDATA[custom commission with your description]]></string>
+
+    <string name="_aqb_affiliate_use_credits"><![CDATA[Allow to use credits as commissions]]></string>
+    <string name="_aqb_affiliate_use_fiat"><![CDATA[Allow to use default currency as commissions]]></string>
+    <string name="_aqb_affiliate_matrix_level_joins_credits"><![CDATA[cs.]]></string>
+    <string name="_aqb_affiliate_matrix_level_upgrades_credits"><![CDATA[cs.]]></string>
+    <string name="_aqb_affiliate_matrix_level_markets_credits"><![CDATA[cs.]]></string>
+    <string name="_aqb_affiliate_matrix_level_purchases_credits"><![CDATA[cs.]]></string>
+    <string name="_aqb_affiliate_credits_title_short"><![CDATA[cs.]]></string>
+    <string name="_aqb_affiliate_commission_credits_title"><![CDATA[Commission in credits]]></string>
+    <string name="_aqb_affiliate_commission_for_action_credits"><![CDATA[Commission in credits]]></string>
+    <string name="_aqb_affiliate_program_view_credits"><![CDATA[{0} cs.]]></string>
+    <string name="_aqb_affiliate_program_form_joins_info_credits"><![CDATA[credits]]></string>
+    <string name="_aqb_affiliate_program_form_markets_credits"><![CDATA[credits]]></string>
+    <string name="_aqb_affiliate_program_form_purchases_credits"><![CDATA[credits]]></string>
+    <string name="_aqb_affiliate_admin_credits_title"><![CDATA[credits]]></string>
+    <string name="_aqb_affiliate_grid_column_history_credits"><![CDATA[Credits]]></string>
+    <string name="_aqb_affiliate_admin_request_title_credits"><![CDATA[Credits]]></string>
+
+    <string name="_aqb_affiliate_cash_out_form_credits"><![CDATA[Credits]]></string>
+    <string name="_aqb_affiliate_cash_out_form_credits_info"><![CDATA[Maximum available <b>{0}</b> credits for withdrawal]]></string>
+    <string name="_aqb_affiliate_profile_cash_out_not_enough_credits"><![CDATA[You have not enough credits on balance to withdraw selected amount!]]></string>
+    <string name="_aqb_affiliate_cash_out_credits_sent"><![CDATA[Credits have been successfully sent!]]></string>
+    <string name="_aqb_affiliate_cash_out_credits"><![CDATA[Credits: {0}]]></string>
+    <string name="_aqb_affiliate_quick_info_credits_title"><![CDATA[Credits]]></string>
+    <string name="_aqb_affiliate_pay_credits_immediately"><![CDATA[Automatically transfers credits upon receipt of a withdrawal request, without requiring administration confirmation]]></string>
+    <string name="_aqb_affiliate_send_credits_on_balance_immediately"><![CDATA[Immediately send commission credits to members' balance upon earning]]></string>
+    <string name="_aqb_affiliate_profile_commission_cash_out_credits"><![CDATA[affiliate commission earned]]></string>
+    <string name="_aqb_affiliate_profile_commission_cash_out_cancelled_credits"><![CDATA[cancelled affiliate earned commission]]></string>
+    <string name="_aqb_affiliate_cpt_invitations"><![CDATA[Invitations]]></string>
+    <string name="_aqb_affiliate_cpt_commissions"><![CDATA[Commissions]]></string>
+    <string name="_aqb_affiliate_program_form_upgrades_credits"><![CDATA[credits]]></string>
+    <string name="_aqb_affiliate_view_add_commission"><![CDATA[Add Commission]]></string>
+
+    <string name="_aqb_affiliate_admin_select_empty"><![CDATA[--- Select commissions type ---]]></string>
+    <string name="_aqb_affiliate_admin_reward_commission_desc"><![CDATA[Explanation of custom commission rewards]]></string>
+    <string name="_aqb_affiliate_admin_reward_commission_desc_info"><![CDATA[Leave blank to use default explanation]]></string>
+    <string name="_aqb_affiliate_reward_default_custom_explanation"><![CDATA[Commission granted by site administration]]></string>
+    <string name="_aqb_affiliate_admin_reward_commission_amount"><![CDATA[Amount]]></string>
+    <string name="_aqb_affiliate_admin_select_commission_type_caption"><![CDATA[Select currency type]]></string>
+    <string name="_aqb_affiliate_admin_button_reward"><![CDATA[Reward]]></string>
+    <string name="_aqb_affiliate_admin_reward_form_error"><![CDATA[Please define all mandatory fields]]></string>
+    <string name="_aqb_affiliate_grid_action_custom"><![CDATA[rewards from administration]]></string>
+    <string name="_aqb_affiliate_grid_action_referred"><![CDATA[referred new profile]]></string>
+    <string name="_aqb_affiliate_program_as_percentage_info"><![CDATA[The <b>"as percentage"</b> option allows you to set the commission as a percentage of the purchase price. For example, if the price is $50 and the percentage is set to 10%, the commission will be $5. If this option is not selected, a fixed commission amount will be used instead and commission will be 10$. The values defined here will also be the default for all matrix levels, unless specified otherwise.]]></string>
+    <string name="_aqb_affiliate_matrix_program_action_paid_levels"><![CDATA[Customize commission rates based on membership levels prices]]></string>
+    <string name="_aqb_affiliate_acl_program_level"><![CDATA[Select membership level's price]]></string>
+    <string name="_aqb_affiliate_acl_program_form_level_error"><![CDATA[Please select membership level's price]]></string>
+    <string name="_aqb_affiliate_acl_program_info"><![CDATA[This form allows you to set commissions for referrals or sponsors based on the total amount their referred members spend on membership levels, considering both the special price and the duration of the membership. For example, if a referred member buys a yearly Premium membership for $50, the referral might earn a different commission compared to if the Premium member had purchased a monthly subscription for $10.]]></string>
+    <string name="_aqb_affiliate_not_data_error"><![CDATA[No values found. There is nothing to save!]]></string>
+    <string name="_aqb_affiliate_admin_commission_remove_data_button_caption"><![CDATA[Remove data]]></string>
+    <string name="_aqb_affiliate_admin_commission_remove_data_confirm"><![CDATA[Are you sure, you want to remove commissions data?]]></string>
+</resources>

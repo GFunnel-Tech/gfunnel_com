@@ -1,0 +1,54 @@
+/*--- Auto-Friends Manage ---*/
+.ui-autocomplete.ui-front {
+    z-index: 10001;
+}
+
+/*--- Profiles ---*/
+div.aqb-auto-friends-block {
+	position: relative;
+}
+div.aqb-auto-friends-block div.MsgBox {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+div.aqb-auto-friends-block table.MsgBox {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+/*--- Profile ---*/
+div.aqb-auto-friends-profile {
+    position: relative;
+    display: block;
+}
+div.aqb-auto-friends-block-short div.aqb-auto-friends-profile {
+	display: inline-block;
+	vertical-align: top;
+}
+.bx-layout-column-fullwidth div.aqb-auto-friends-block-short div.aqb-auto-friends-profile {
+    width: 24%;
+}
+.bx-layout-column-wide div.aqb-auto-friends-block-short div.aqb-auto-friends-profile {
+    width: 32%;
+}
+.bx-layout-column-half div.aqb-auto-friends-block-short div.aqb-auto-friends-profile {
+	width: 49%;
+}
+.bx-layout-column-thin div.aqb-auto-friends-block-short div.aqb-auto-friends-profile {
+    width: 100%;
+}
+div.aqb-auto-friends-profile-avatar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+div.aqb-auto-friends-profile-info {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+}
+div.aqb-auto-friends-profile-name {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
