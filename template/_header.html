@@ -1,6 +1,35 @@
 <!DOCTYPE html>
 <html lang="__lang__">
 <head>
+    <style>
+        /* LeadConnector chat widget is blocked site-wide, keep it hidden until the blocker script removes it */
+        chat-widget, #chat-widget-container, .lc_text-widget {
+            display: none !important;
+        }
+    </style>
+    <script>
+        (function() {
+            var reBlockedSrc = /leadconnectorhq\.com|msgsndr\.(com|net)/i;
+            var isWidgetNode = function(oNode) {
+                return 'CHAT-WIDGET' == oNode.tagName || 'chat-widget-container' == oNode.id || (oNode.classList && oNode.classList.contains('lc_text-widget'));
+            };
+            new MutationObserver(function(aMutations) {
+                aMutations.forEach(function(oMutation) {
+                    Array.prototype.forEach.call(oMutation.addedNodes, function(oNode) {
+                        if (1 != oNode.nodeType)
+                            return;
+                        if ('SCRIPT' == oNode.tagName && reBlockedSrc.test(oNode.src || '')) {
+                            oNode.type = 'javascript/blocked';
+                            oNode.remove();
+                        }
+                        else if (isWidgetNode(oNode))
+                            oNode.remove();
+                    });
+                });
+            }).observe(document.documentElement, {childList: true, subtree: true});
+        })();
+    </script>
+
     <bx_injection:injection_head_begin />
 
     <meta http-equiv="Content-Type" content="text/html; charset=__page_charset__" />
