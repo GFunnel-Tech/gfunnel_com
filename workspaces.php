@@ -118,9 +118,15 @@ function getGfWorkspacesPageCode()
     if(!empty($sInviteUrl) && !preg_match('/^https?:\/\//i', $sInviteUrl))
         $sInviteUrl = BX_DOL_URL_ROOT . ltrim($sInviteUrl, '/');
 
+    //--- Referral link: the Affiliate System module provides the member's real link;
+    //--- gf_workspaces_ref_url overrides it, 'off' hides the Earn card entirely.
     $sRefUrl = trim((string)getParam('gf_workspaces_ref_url'));
-    if(!empty($sRefUrl))
+    if($sRefUrl == 'off')
+        $sRefUrl = '';
+    else if(!empty($sRefUrl))
         $sRefUrl = str_replace(['{id}', '{display_name}'], [$oProfile->id(), rawurlencode($sDisplayName)], $sRefUrl);
+    else if(BxDolRequest::serviceExists('aqb_affiliate', 'get_referral_code'))
+        $sRefUrl = (string)BxDolService::call('aqb_affiliate', 'get_referral_code', [$oProfile->id()]);
 
     $sSupportUrl = trim((string)getParam('gf_workspaces_support_url'));
     if(!empty($sSupportUrl) && !preg_match('/^https?:\/\//i', $sSupportUrl))
