@@ -26,6 +26,21 @@
 #bx-content-wrapper {
     margin-left: 0 !important;
     padding-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    /* the injected wrapper's overflow clips the full-bleed hero at its right edge */
+    overflow: visible !important;
+}
+
+/* The injected wrapper adds its own top padding on top of the 88px chrome
+   clearance - drop it so the hero sits flush under the tab bar. */
+.bx-main-content,
+.bx-main > main,
+#main-content {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
 }
 
 /* Kill the extra vertical padding above the hero: the 88px chrome clearance
@@ -222,13 +237,18 @@
 .gf-ws-item:hover {
     background-color: #f8f9fb;
 }
-.gf-ws-item-chevron {
+.gf-ws-item-launch {
     flex: none;
-    font-size: 16px;
-    color: #9aa0b2;
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #11132a;
+    border-radius: 8px;
 }
-.gf-ws-item:hover .gf-ws-item-chevron {
-    color: #f97316;
+.gf-ws-item:hover .gf-ws-item-launch {
+    background-color: #f97316;
 }
 .gf-ws-item-thumb img {
     display: block;
