@@ -79,10 +79,7 @@ function getGfWorkspacesPageCode()
         $aUnit = [
             'url' => $oWsProfile->getUrl(),
             'title' => bx_process_output($oWsProfile->getDisplayName()),
-            'thumb' => $oWsProfile->getThumb(),
-            'type_label' => bx_process_output($aModuleTitles[$sType]),
-            'role' => 'owner', // account-owned profiles; joined-workspace roles come with the membership phase
-            'status_active' => $aProfileInfo['status'] == 'active'
+            'thumb' => $oWsProfile->getThumb()
         ];
 
         if($sType == 'bx_persons') {
@@ -91,13 +88,17 @@ function getGfWorkspacesPageCode()
             continue;
         }
 
-        $aTmplVarsWorkspaces[] = array_merge($aUnit, [
-            'bx_if:pending' => [
-                'condition' => $aProfileInfo['status'] != 'active',
-                'content' => ['pending' => 1]
-            ]
-        ]);
+        // joined-workspace roles come with the membership phase; owned profiles are 'owner'
+        $sMeta = bx_process_output($aModuleTitles[$sType]) . ' &#183; owner';
+        if($aProfileInfo['status'] != 'active')
+            $sMeta .= ' &#183; pending';
+
+        $aTmplVarsWorkspaces[] = array_merge($aUnit, ['meta' => $sMeta]);
     }
+
+    //--- The personal workspace leads the list, like in the app design
+    if(!empty($aTmplVarsPersonal))
+        array_unshift($aTmplVarsWorkspaces, array_merge($aTmplVarsPersonal, ['meta' => 'Personal workspace']));
 
     // Pre-render the rows: nested bx_repeat inside bx_if isn't supported by the
     // compiled-template engine, so each row is parsed separately and passed as HTML.
@@ -131,6 +132,12 @@ function getGfWorkspacesPageCode()
     $sSupportUrl = trim((string)getParam('gf_workspaces_support_url'));
     if(!empty($sSupportUrl) && !preg_match('/^https?:\/\//i', $sSupportUrl))
         $sSupportUrl = BX_DOL_URL_ROOT . $oPermalink->permalink($sSupportUrl);
+
+    $sPartnerUrl = trim((string)getParam('gf_workspaces_partner_url'));
+    if(empty($sPartnerUrl))
+        $sPartnerUrl = 'page.php?i=affiliate';
+    if(!preg_match('/^https?:\/\//i', $sPartnerUrl))
+        $sPartnerUrl = BX_DOL_URL_ROOT . $oPermalink->permalink($sPartnerUrl);
 
     $sCssFile = 'template/css/gf_workspaces.css';
 
@@ -166,7 +173,10 @@ function getGfWorkspacesPageCode()
         ],
         'bx_if:earn' => [
             'condition' => !empty($sRefUrl),
-            'content' => ['ref_url' => bx_html_attribute($sRefUrl)]
+            'content' => [
+                'ref_url' => bx_html_attribute($sRefUrl),
+                'partner_url' => $sPartnerUrl
+            ]
         ],
         'bx_if:support' => [
             'condition' => !empty($sSupportUrl),

@@ -7,6 +7,12 @@
     color: #11132a;
 }
 
+/* This stylesheet loads only on the workspaces page: remove the injected
+   site panel (left navigation) here so the picker gets the full width. */
+#sidebar {
+    display: none !important;
+}
+
 /*--- Hero (full-bleed inside the boxed content area) ---*/
 .gf-ws-hero {
     position: relative;
@@ -169,26 +175,35 @@
     color: #6b7280;
 }
 .gf-ws-list {
-    margin-top: 12px;
+    margin-top: 4px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    max-height: 420px;
+    max-height: 460px;
     overflow-y: auto;
 }
 .gf-ws-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border: 1px solid #e6e8ec;
-    border-radius: 10px;
+    gap: 14px;
+    padding: 14px 8px;
+    border-bottom: 1px solid #f0f1f5;
+    border-radius: 8px;
     text-decoration: none;
     color: #11132a;
 }
+.gf-ws-item:last-child {
+    border-bottom: 0;
+}
 .gf-ws-item:hover {
-    border-color: #f97316;
-    background-color: #fff8f3;
+    background-color: #f8f9fb;
+}
+.gf-ws-item-chevron {
+    flex: none;
+    font-size: 16px;
+    color: #9aa0b2;
+}
+.gf-ws-item:hover .gf-ws-item-chevron {
+    color: #f97316;
 }
 .gf-ws-item-thumb img {
     display: block;
@@ -213,21 +228,6 @@
 .gf-ws-item-type {
     font-size: 12px;
     color: #6b7280;
-}
-.gf-ws-item-launch {
-    flex: none;
-    display: inline-block;
-    padding: 8px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #ffffff;
-    background-color: #11132a;
-    border-radius: 8px;
-    text-decoration: none;
-}
-.gf-ws-item-launch:hover {
-    background-color: #f97316;
-    color: #ffffff;
 }
 .gf-ws-create-row {
     display: flex;
@@ -474,4 +474,13 @@
     border: 0;
     border-radius: 8px;
     cursor: pointer;
+}
+.gf-ws-partner-btn {
+    margin-top: 12px;
+}
+
+/*--- Hero wave ---*/
+.gf-ws-wave {
+    display: inline-block;
+    -webkit-text-fill-color: initial;
 }
