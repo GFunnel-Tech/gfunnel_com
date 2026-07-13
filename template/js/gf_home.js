@@ -110,46 +110,59 @@
             });
         }
 
-        /* --- App directory mockup: live filter + toggles --- */
+        /* --- App directory mockup: search + category pills + add toggles --- */
         var appSearch = document.getElementById('gfh-app-search');
         var appGrid = document.getElementById('gfh-app-grid');
-        if (appSearch && appGrid) {
+        var appPills = document.getElementById('gfh-app-pills');
+        var appCat = '';
+        function applyAppFilter() {
+            if (!appGrid) return;
+            var q = appSearch ? appSearch.value.trim().toLowerCase() : '';
             var appEmpty = document.getElementById('gfh-app-empty');
-            appSearch.addEventListener('input', function() {
-                var q = appSearch.value.trim().toLowerCase();
-                var visible = 0;
-                appGrid.querySelectorAll('.gfh-app-card').forEach(function(card) {
-                    var hit = (card.getAttribute('data-app') || '').toLowerCase().indexOf(q) !== -1;
-                    card.style.display = hit ? '' : 'none';
-                    if (hit) visible++;
+            var visible = 0;
+            appGrid.querySelectorAll('.gfh-app-card').forEach(function(card) {
+                var hitQ = (card.getAttribute('data-app') || '').toLowerCase().indexOf(q) !== -1;
+                var hitCat = !appCat || card.getAttribute('data-cat') === appCat;
+                var hit = hitQ && hitCat;
+                card.style.display = hit ? '' : 'none';
+                if (hit) visible++;
+            });
+            if (appEmpty) appEmpty.style.display = visible ? 'none' : 'block';
+        }
+        if (appSearch) appSearch.addEventListener('input', applyAppFilter);
+        if (appPills) {
+            appPills.addEventListener('click', function(e) {
+                var pill = e.target.closest('.gfh-appdir-pill');
+                if (!pill) return;
+                appCat = pill.getAttribute('data-cat') || '';
+                appPills.querySelectorAll('.gfh-appdir-pill').forEach(function(p) {
+                    p.classList.toggle('gfh-active', p === pill);
                 });
-                if (appEmpty) appEmpty.style.display = visible ? 'none' : 'block';
+                applyAppFilter();
             });
         }
         root.querySelectorAll('.gfh-app-toggle').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var on = btn.classList.toggle('gfh-on');
-                btn.textContent = on ? 'Enabled' : 'Enable';
+                btn.textContent = on ? '✓' : '+';
                 btn.setAttribute('aria-pressed', on ? 'true' : 'false');
             });
         });
 
-        /* --- Workspace chips drive the "Welcome back" mockup --- */
+        /* --- Workspace chips drive the "Welcome back" picker mockup --- */
         var wsTitle = document.getElementById('gfh-ws-title');
-        var wsBar = document.getElementById('gfh-ws-bar');
-        var wsPct = document.getElementById('gfh-ws-pct');
-        var wsItems = root.querySelectorAll('.gfh-welcome-item');
+        var wsAvatar = document.getElementById('gfh-ws-avatar');
         var chips = root.querySelectorAll('.gfh-chip');
 
         function setWorkspace(chip) {
             chips.forEach(function(c) { c.classList.toggle('gfh-chip-active', c === chip); });
-            if (wsTitle) wsTitle.textContent = 'Welcome back to ' + chip.getAttribute('data-ws') + '.';
-            var done = parseInt(chip.getAttribute('data-done'), 10);
-            if (isNaN(done)) done = 2;
-            wsItems.forEach(function(item, i) { item.classList.toggle('gfh-done', i < done); });
-            var pct = wsItems.length ? Math.round(done / wsItems.length * 100) : 0;
-            if (wsBar) wsBar.style.width = pct + '%';
-            if (wsPct) wsPct.textContent = pct + '%';
+            var name = chip.getAttribute('data-ws') || '';
+            if (wsTitle) wsTitle.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+            if (wsAvatar) {
+                var words = name.split(' ');
+                var noun = words[words.length - 1] || name;
+                wsAvatar.textContent = noun.charAt(0).toUpperCase();
+            }
         }
         chips.forEach(function(chip) {
             chip.addEventListener('click', function() { setWorkspace(chip); });
@@ -159,6 +172,7 @@
         /* --- Module list drives the Sales Hub mockup banner --- */
         var hubTag = document.getElementById('gfh-hub-tag');
         var hubTitle = document.getElementById('gfh-hub-title');
+        var hubSub = document.getElementById('gfh-hub-sub');
         root.querySelectorAll('.gfh-module-item[data-hub-title]').forEach(function(item) {
             function apply() {
                 root.querySelectorAll('.gfh-module-item').forEach(function(m) {
@@ -166,6 +180,7 @@
                 });
                 if (hubTag) hubTag.textContent = item.getAttribute('data-hub-tag') || 'Module';
                 if (hubTitle) hubTitle.textContent = item.getAttribute('data-hub-title');
+                if (hubSub && item.getAttribute('data-hub-sub')) hubSub.textContent = item.getAttribute('data-hub-sub');
             }
             item.addEventListener('mouseenter', apply);
             item.addEventListener('focus', apply);
