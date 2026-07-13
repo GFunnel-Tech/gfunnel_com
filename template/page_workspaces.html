@@ -1,0 +1,133 @@
+<link rel="stylesheet" href="__css_url__" />
+
+<div class="gf-ws-page">
+    <!-- Hero -->
+    <section class="gf-ws-hero">
+        <div class="gf-ws-hero-inner">
+            <h1 class="gf-ws-title">__greeting__, __first_name__</h1>
+            <p class="gf-ws-tagline">__tagline__</p>
+            <p class="gf-ws-subtitle">Choose a workspace to get started.</p>
+        </div>
+        <div class="gf-ws-hero-curve" aria-hidden="true">
+            <svg viewBox="0 0 1440 84" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,84 L0,60 Q720,-36 1440,60 L1440,84 Z" fill="#ffffff"/></svg>
+        </div>
+    </section>
+
+    <!-- Content -->
+    <section class="gf-ws-content">
+        <div class="gf-ws-main">
+            <div class="gf-ws-head">
+                <span class="gf-ws-head-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                    My workspaces
+                </span>
+            </div>
+
+            <div class="gf-ws-card">
+                <div class="gf-ws-tabs">
+                    <span class="gf-ws-tab gf-ws-tab-active">Workspaces</span>
+                </div>
+
+                <bx_if:has_workspaces>
+                <div class="gf-ws-search">
+                    <input type="text" id="gf-ws-filter" placeholder="Search workspaces..." autocomplete="off" />
+                </div>
+
+                <div class="gf-ws-list" id="gf-ws-list">
+                    <bx_repeat:workspaces>
+                        <a class="gf-ws-item" href="__url__" data-title="__title__">
+                            <span class="gf-ws-item-thumb"><img src="__thumb__" alt="" loading="lazy" /></span>
+                            <span class="gf-ws-item-info">
+                                <span class="gf-ws-item-title">__title__</span>
+                                <span class="gf-ws-item-type">__type_label__<bx_if:pending> &#183; pending</bx_if:pending></span>
+                            </span>
+                            <span class="gf-ws-item-launch">Launch &#8594;</span>
+                        </a>
+                    </bx_repeat:workspaces>
+                </div>
+
+                <div class="gf-ws-create-row">
+                    <a class="gf-ws-create-link" href="__create_url__">+ Create a workspace</a>
+                </div>
+                </bx_if:has_workspaces>
+
+                <bx_if:no_workspaces>
+                <a class="gf-ws-empty" href="__create_url__">
+                    <span class="gf-ws-empty-plus">+</span>
+                    <span class="gf-ws-empty-title">Create your first workspace</span>
+                    <span class="gf-ws-empty-text">Organize a team, project, or operation. You can invite members anytime.</span>
+                </a>
+                </bx_if:no_workspaces>
+
+                <bx_if:invite>
+                <div class="gf-ws-invite">
+                    <div class="gf-ws-invite-label">Join with an invite code</div>
+                    <form class="gf-ws-invite-form" method="get" action="__invite_url__">
+                        <input type="text" name="code" placeholder="ENTER INVITE CODE..." autocomplete="off" />
+                        <button type="submit">Join</button>
+                    </form>
+                </div>
+                </bx_if:invite>
+            </div>
+
+            <bx_if:support>
+            <div class="gf-ws-support">
+                <div class="gf-ws-support-title">Need support?</div>
+                <div class="gf-ws-support-text">Find the help you need in our <a href="__support_url__">Help Center</a>.</div>
+            </div>
+            </bx_if:support>
+        </div>
+
+        <aside class="gf-ws-side">
+            <bx_if:personal>
+            <div class="gf-ws-card gf-ws-personal">
+                <span class="gf-ws-personal-thumb"><img src="__thumb__" alt="" /></span>
+                <div class="gf-ws-personal-title">Your Personal Workspace</div>
+                <div class="gf-ws-personal-text">This is your dedicated personal workspace.</div>
+                <a class="gf-ws-btn" href="__url__">Launch &#8594;</a>
+            </div>
+            </bx_if:personal>
+
+            <bx_if:earn>
+            <div class="gf-ws-card gf-ws-earn">
+                <div class="gf-ws-earn-title">Earn with GFunnel</div>
+                <div class="gf-ws-earn-text">Share your referral link and earn recurring commission when your referrals upgrade.</div>
+                <div class="gf-ws-earn-link">
+                    <input type="text" id="gf-ws-ref" value="__ref_url__" readonly />
+                    <button type="button" onclick="gfWsCopyRef(this)">Copy</button>
+                </div>
+            </div>
+            </bx_if:earn>
+        </aside>
+    </section>
+</div>
+
+<script language="javascript">
+    function gfWsCopyRef(oButton) {
+        var oInput = document.getElementById('gf-ws-ref');
+        if(!oInput)
+            return;
+
+        oInput.select();
+        oInput.setSelectionRange(0, 99999);
+
+        var fDone = function() {
+            oButton.textContent = 'Copied!';
+            setTimeout(function() { oButton.textContent = 'Copy'; }, 2000);
+        };
+
+        if(navigator.clipboard && navigator.clipboard.writeText)
+            navigator.clipboard.writeText(oInput.value).then(fDone);
+        else if(document.execCommand('copy'))
+            fDone();
+    }
+
+    $(document).ready(function() {
+        $('#gf-ws-filter').on('input', function() {
+            var sQuery = $(this).val().toLowerCase();
+            $('#gf-ws-list .gf-ws-item').each(function() {
+                $(this).toggle(($(this).attr('data-title') || '').toLowerCase().indexOf(sQuery) !== -1);
+            });
+        });
+    });
+</script>

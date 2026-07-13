@@ -31,6 +31,11 @@ if (!isLogged() && getParam('sys_site_splash_enabled') && false === strpos($_SER
     exit;
 }
 
+if (isLogged() && getParam('gf_root_workspaces') != 'off' && false === strpos($_SERVER['HTTP_USER_AGENT'], 'UNAMobileApp')) {
+    require_once("./workspaces.php");
+    exit;
+}
+
 $_GET['i'] = 'home';
 require_once("./page.php");
 
