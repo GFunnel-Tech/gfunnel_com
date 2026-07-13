@@ -75,9 +75,76 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                     'sys_site_search' => $oSearch->getForm(BX_DB_PADDING_DEF, false, true) . $oSearch->getResultsContainer()
                 ]);
                 break;
+
+            case 'gf_toolbar':
+                $mixedResult = $this->getGfToolbar();
+                break;
         }
 
         return $mixedResult;
+    }
+
+    /**
+     * GFunnel toolbar: logged-in members get the two-bar (header + subheader) chrome,
+     * visitors keep the classic toolbar.
+     */
+    public function getGfToolbar()
+    {
+        if(!isLogged())
+            return $this->_oTemplate->parseHtmlByName('_page_toolbar_classic.html', []);
+
+        //--- Subheader hub tabs are taken from a regular UNA menu object.
+        $sTabsMenu = getParam('gf_header_tabs_menu');
+        if(empty($sTabsMenu))
+            $sTabsMenu = 'sys_site';
+
+        $aTabs = [];
+        $oTabsMenu = BxDolMenu::getObjectInstance($sTabsMenu);
+        if($oTabsMenu && is_array($aItems = $oTabsMenu->getMenuItems()))
+            foreach($aItems as $aItem) {
+                if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
+                    continue;
+
+                $aTabs[] = $aItem;
+            }
+
+        $sWhatsNewUrl = $this->_getGfHeaderUrl(getParam('gf_header_whats_new_url'));
+        $sAiUrl = $this->_getGfHeaderUrl(getParam('gf_header_ai_url'));
+
+        $sSearchPlaceholder = getParam('gf_header_search_placeholder');
+        if(empty($sSearchPlaceholder))
+            $sSearchPlaceholder = 'Ask anything';
+
+        $sCssFile = 'template/css/gf_header.css';
+
+        return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth.html', [
+            'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
+            'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
+            'bx_repeat:tabs' => $aTabs,
+            'bx_if:whats_new' => [
+                'condition' => !empty($sWhatsNewUrl),
+                'content' => [
+                    'whats_new_url' => $sWhatsNewUrl,
+                    'whats_new_title' => "What's New"
+                ]
+            ],
+            'bx_if:ai' => [
+                'condition' => !empty($sAiUrl),
+                'content' => [
+                    'ai_url' => $sAiUrl,
+                    'ai_title' => 'Ask AI'
+                ]
+            ]
+        ]);
+    }
+
+    protected function _getGfHeaderUrl($sUrl)
+    {
+        $sUrl = trim((string)$sUrl);
+        if(empty($sUrl))
+            return '';
+
+        return preg_match('/^https?:\/\//i', $sUrl) ? $sUrl : BX_DOL_URL_ROOT . ltrim($sUrl, '/');
     }
 
     function msgBox($sText, $iTimer = 0, $sOnClose = "")

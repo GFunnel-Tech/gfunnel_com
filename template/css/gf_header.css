@@ -1,0 +1,499 @@
+/**
+ * GFunnel — Authorized Header & Subheader chrome.
+ *
+ * Two stacked, full-width, sticky bars shown to every logged-in user.
+ * Loaded by template/_page_toolbar_auth.html (see BxBaseFunctions::getGfToolbar).
+ * The chrome is always light theme, regardless of the site/app theme.
+ */
+
+/*--- Chrome container (header 48px + subheader 40px = 88px) ---*/
+#bx-toolbar.gf-chrome {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 5000; /* matches .bx-def-z-index-nav */
+    background-color: #ffffff;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #11132a;
+    box-shadow: none;
+    /* keep the chrome pinned even if Headroom (hide-on-scroll) is active */
+    transform: none !important;
+}
+
+/*--- Content below must clear 88px instead of the old 64px toolbar ---*/
+.bx-main:not(.bx-pt-application) .bx-menu-toolbar-padding.pt-16 {
+    padding-top: 5.5rem;
+}
+
+/*=== 1. Header (top bar, 48px) ==============================================*/
+.gf-chrome .gf-header {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 24px;
+    gap: 16px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e6e8ec;
+    box-sizing: border-box;
+}
+
+/*--- Hamburger (mobile site menu) ---*/
+.gf-chrome .gf-hamburger {
+    flex: none;
+}
+.gf-chrome .gf-hamburger .bx-menu-toolbar {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+@media (min-width: 1024px) {
+    .gf-chrome .gf-hamburger {
+        display: none;
+    }
+}
+
+/*--- Brand ---*/
+.gf-chrome .gf-brand {
+    flex: none;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+.gf-chrome .gf-brand a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+.gf-chrome .gf-brand img {
+    display: block;
+    max-height: 28px;
+    border-radius: 8px;
+    object-fit: contain;
+}
+.gf-chrome .gf-brand span {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-image: linear-gradient(90deg, #f97316, #fb923c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #f97316;
+}
+
+/*--- Global search pill ---*/
+.gf-chrome .gf-search {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 640px;
+    margin: 0 auto;
+}
+.gf-chrome .gf-search-pill-wrp {
+    width: 100%;
+}
+.gf-chrome .gf-search-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 16px;
+    background-color: #f1f3f8;
+    border: 1px solid #e6e8ec;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-family: inherit;
+    text-align: left;
+}
+.gf-chrome .gf-search-pill:hover {
+    border-color: #dcdee8;
+}
+.gf-chrome .gf-search-icon {
+    flex: none;
+    color: #6b7280;
+}
+.gf-chrome .gf-search-placeholder {
+    flex: 1 1 auto;
+    font-size: 14px;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.gf-chrome .gf-search-kbd {
+    flex: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #9aa0b2;
+    background-color: #ffffff;
+    border: 1px solid #e6e8ec;
+    border-radius: 4px;
+    padding: 2px 6px;
+    line-height: 1;
+}
+
+/* Hide the pill while the live-search box is shown */
+.gf-chrome .gf-search .gf-search-pill-wrp.bx-tis-button-hidden {
+    visibility: hidden;
+}
+/* Hide the stock round search icon button that ships with __sys_toolbar_search__ */
+.gf-chrome .gf-search > .bx-ti-search-button:not(.gf-search-pill-wrp) {
+    display: none !important;
+}
+/* Live-search box overlays the pill area when opened */
+.gf-chrome .gf-search .bx-ti-search-box {
+    display: none;
+}
+.gf-chrome .gf-search .bx-ti-search-box.bx-tis-box-shown {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2px;
+    z-index: 20;
+    background-color: #ffffff;
+    border: 1px solid #e6e8ec;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(17, 19, 42, .12);
+}
+
+/*--- Right-side action cluster ---*/
+.gf-chrome .gf-actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Shared icon-button recipe */
+.gf-chrome .gf-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    color: #6b7280;
+    text-decoration: none;
+    cursor: pointer;
+}
+.gf-chrome .gf-icon-btn:hover {
+    background-color: #f3f4f7;
+    color: #11132a;
+}
+
+/*--- Work timer pill ---*/
+.gf-chrome .gf-timer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px 2px 4px;
+    border: 1px solid #e6e8ec;
+    border-radius: 9999px;
+    background-color: rgba(243, 244, 247, .4);
+}
+.gf-chrome .gf-timer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 9999px;
+    background-color: transparent;
+    color: #6b7280;
+    cursor: pointer;
+}
+.gf-chrome .gf-timer-toggle:hover {
+    background-color: #f3f4f7;
+    color: #11132a;
+}
+.gf-chrome .gf-timer .gf-timer-ico-pause {
+    display: none;
+}
+.gf-chrome .gf-timer.gf-timer-running .gf-timer-ico-pause {
+    display: block;
+}
+.gf-chrome .gf-timer.gf-timer-running .gf-timer-ico-play {
+    display: none;
+}
+.gf-chrome .gf-timer-dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background-color: rgba(107, 114, 128, .4);
+}
+.gf-chrome .gf-timer.gf-timer-running .gf-timer-dot {
+    background-color: #16a06a;
+    animation: gf-timer-pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
+}
+.gf-chrome .gf-timer.gf-timer-paused .gf-timer-dot {
+    background-color: #e3a81d;
+}
+@keyframes gf-timer-pulse {
+    50% { opacity: .4; }
+}
+.gf-chrome .gf-timer-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.gf-chrome .gf-timer-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: #11132a;
+    cursor: default;
+}
+
+/*--- "What's New" button ---*/
+.gf-chrome .gf-whatsnew {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #f97316;
+    background-color: rgba(249, 115, 22, .10);
+    text-decoration: none;
+    white-space: nowrap;
+}
+.gf-chrome .gf-whatsnew:hover {
+    background-color: rgba(249, 115, 22, .20);
+    color: #f97316;
+}
+
+/*--- Members toolbar (UNA sys_toolbar_member re-skinned) ---*/
+.gf-chrome .gf-member .bx-menu-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.gf-chrome .gf-member .bx-menu-toolbar-item,
+.gf-chrome .gf-hamburger .bx-menu-toolbar-item {
+    position: relative;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+}
+.gf-chrome .gf-member .bx-menu-toolbar-item > a,
+.gf-chrome .gf-hamburger .bx-menu-toolbar-item > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    color: #6b7280;
+    text-decoration: none;
+}
+.gf-chrome .gf-member .bx-menu-toolbar-item > a:hover,
+.gf-chrome .gf-hamburger .bx-menu-toolbar-item > a:hover {
+    background-color: #f3f4f7;
+    color: #11132a;
+}
+.gf-chrome .bx-menu-toolbar-item .sys-icon {
+    font-size: 18px;
+    line-height: 1;
+    margin: 0;
+}
+/* Marka (animated) icons are hardcoded white in the shared menu template —
+   repaint them for the light chrome */
+.gf-chrome .bx-menu-toolbar-item .sys-icon-a.marka i {
+    background-color: #6b7280 !important;
+}
+.gf-chrome .bx-menu-toolbar-item-title {
+    display: none;
+}
+
+/* Unread/count badges */
+.gf-chrome .bx-menu-toolbar-item .bx-menu-item-addon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    border-radius: 9999px;
+    background-color: #f97316;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 0 0 2px #ffffff;
+}
+
+/* Account avatar */
+.gf-chrome .gf-member .bx-menu-item-account > a {
+    padding: 4px;
+    margin-left: 4px;
+}
+.gf-chrome .gf-member .bx-menu-item-account img,
+.gf-chrome .gf-member .bx-menu-toolbar-item-unit img,
+.gf-chrome .gf-member .bx-account-unit-thumb {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 2px #e6e8ec;
+    margin: 0;
+}
+.gf-chrome .gf-member .bx-menu-toolbar-item-unit {
+    margin: 0;
+}
+.gf-chrome .gf-member .bx-account-unit-wo-info,
+.gf-chrome .gf-member .bx-def-unit-img {
+    width: 28px;
+    height: 28px;
+}
+.gf-chrome .gf-member .bx-account-unit-thumb {
+    font-size: 12px;
+    line-height: 28px;
+}
+
+/*=== 2. Subheader (tab nav, 40px) ===========================================*/
+.gf-chrome .gf-subheader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    padding: 0 24px;
+    gap: 16px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e6e8ec;
+    box-sizing: border-box;
+}
+.gf-chrome .gf-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.gf-chrome .gf-tabs::-webkit-scrollbar {
+    display: none;
+}
+.gf-chrome .gf-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: #6b7280;
+    text-decoration: none;
+}
+.gf-chrome .gf-tab:hover {
+    color: #11132a;
+    background-color: #f3f4f7;
+}
+.gf-chrome .gf-tab.bx-menu-tab-active {
+    background-color: #fff1e6;
+    color: #c2520b;
+}
+.gf-chrome .gf-tab .sys-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+.gf-chrome .gf-tab img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+}
+
+/*--- Live clock ---*/
+.gf-chrome .gf-clock {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b7280;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.gf-chrome .gf-clock-time {
+    font-weight: 500;
+    color: #11132a;
+}
+.gf-chrome .gf-clock-sep {
+    opacity: .6;
+}
+
+/*=== 3. Mobile (<640px) =====================================================*/
+@media (max-width: 639px) {
+    .gf-chrome .gf-header {
+        padding: 0 12px;
+        gap: 8px;
+    }
+    .gf-chrome .gf-subheader {
+        padding: 0 8px;
+    }
+    .gf-chrome .gf-actions {
+        gap: 2px;
+    }
+    .gf-chrome .gf-brand span {
+        display: none;
+    }
+    /* Search pill collapses to an icon button */
+    .gf-chrome .gf-search {
+        flex: none;
+        margin: 0 0 0 auto;
+    }
+    .gf-chrome .gf-search-pill {
+        width: auto;
+        padding: 8px;
+        border: 0;
+        background-color: transparent;
+        border-radius: 8px;
+    }
+    .gf-chrome .gf-search-pill:hover {
+        background-color: #f3f4f7;
+    }
+    .gf-chrome .gf-search-placeholder,
+    .gf-chrome .gf-search-kbd {
+        display: none;
+    }
+    .gf-chrome .gf-search .bx-ti-search-box.bx-tis-box-shown {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        top: 6px;
+    }
+    .gf-chrome .gf-timer-label {
+        display: none;
+    }
+    .gf-chrome .gf-whatsnew {
+        display: none;
+    }
+    .gf-chrome .gf-clock {
+        display: none;
+    }
+}

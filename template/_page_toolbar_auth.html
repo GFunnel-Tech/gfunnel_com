@@ -1,0 +1,84 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="__css_url__" />
+
+<div id="bx-toolbar" class="gf-chrome">
+    <!-- Header: 48px -->
+    <header class="gf-header">
+        <!-- Mobile: hamburger (site menu) -->
+        <div class="gf-hamburger lg:hidden">
+            <bx_menu:sys_toolbar_site />
+        </div>
+
+        <!-- Brand -->
+        <div id="bx-logo-container" class="gf-brand">
+            <bx_injection:injection_logo_before />
+            __main_logo__
+            <bx_injection:injection_logo_after />
+        </div>
+
+        <!-- Global search pill -->
+        <div class="gf-search bx-toolbar-item bx-ti-search">
+            <div class="gf-search-pill-wrp bx-ti-search-button">
+            <button type="button" class="gf-search-pill" onclick="bx_site_search_show(this); gfHeaderFocusSearch();" aria-label="__search_placeholder__">
+                <svg class="gf-search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <span class="gf-search-placeholder">__search_placeholder__</span>
+                <kbd class="gf-search-kbd">&#8984;K</kbd>
+            </button>
+            </div>
+            __sys_toolbar_search__
+        </div>
+
+        <!-- Right-side action cluster -->
+        <div class="gf-actions">
+            <!-- Work timer pill (client-side, persisted in localStorage) -->
+            <div id="gf-timer" class="gf-timer" title="Double-click the time to reset">
+                <button type="button" class="gf-timer-toggle" aria-label="Start or pause work timer">
+                    <svg class="gf-timer-ico-play" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <svg class="gf-timer-ico-pause" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+                </button>
+                <span class="gf-timer-dot"></span>
+                <span class="gf-timer-label">No active timer</span>
+                <span class="gf-timer-time">00:00:00</span>
+            </div>
+
+            <bx_if:whats_new>
+                <a class="gf-whatsnew" href="__whats_new_url__">__whats_new_title__</a>
+            </bx_if:whats_new>
+
+            <bx_if:ai>
+                <a class="gf-icon-btn gf-ai" href="__ai_url__" title="__ai_title__" aria-label="__ai_title__">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg>
+                </a>
+            </bx_if:ai>
+
+            <!-- Members toolbar (messages, notifications, account, etc.) -->
+            <div id="bx-menu-toolbar-2-container" class="gf-member">
+                <bx_menu:sys_toolbar_member />
+            </div>
+        </div>
+    </header>
+
+    <!-- Subheader: 40px tab nav -->
+    <nav class="gf-subheader">
+        <div class="gf-tabs">
+            <bx_repeat:tabs>
+                <a href="__link__" class="gf-tab __class_add__" title="__title_attr__" __attrs__ <bx_if:onclick>onclick="__onclick__"</bx_if:onclick>>
+                    <bx_if:icon><i class="sys-icon __icon__"></i></bx_if:icon>
+                    <bx_if:image><img src="__icon_url__" alt="" /></bx_if:image>
+                    <bx_if:icon-html>__icon__</bx_if:icon-html>
+                    <bx_if:title><span class="gf-tab-title">__title__</span></bx_if:title>
+                </a>
+            </bx_repeat:tabs>
+        </div>
+        <div id="gf-clock" class="gf-clock">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="gf-clock-time"></span>
+            <span class="gf-clock-sep">&#183;</span>
+            <span class="gf-clock-date"></span>
+        </div>
+    </nav>
+</div>
+
+<bx_include_auto:_page_toolbar_auth_js.html />
