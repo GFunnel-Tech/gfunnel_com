@@ -138,7 +138,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             'chrome_class' => $sChromeClass,
             'bx_if:app_togglers' => [
                 'condition' => $bApp,
-                'content' => []
+                'content' => ['app' => 1] // non-empty content required by the template compiler
             ],
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),

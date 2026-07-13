@@ -89,10 +89,16 @@ function getGfWorkspacesPageCode()
         $aTmplVarsWorkspaces[] = array_merge($aUnit, [
             'bx_if:pending' => [
                 'condition' => $aProfileInfo['status'] != 'active',
-                'content' => []
+                'content' => ['pending' => 1]
             ]
         ]);
     }
+
+    // Pre-render the rows: nested bx_repeat inside bx_if isn't supported by the
+    // compiled-template engine, so each row is parsed separately and passed as HTML.
+    $sWorkspacesList = '';
+    foreach($aTmplVarsWorkspaces as $aTmplVarsWorkspace)
+        $sWorkspacesList .= $oTemplate->parseHtmlByName('page_workspaces_item.html', $aTmplVarsWorkspace);
 
     //--- Optional pieces
     $oPermalink = BxDolPermalinks::getInstance();
@@ -123,10 +129,12 @@ function getGfWorkspacesPageCode()
         'first_name' => bx_process_output($sFirstName),
         'tagline' => $sTagline,
         'create_url' => $sCreateUrl,
-        'bx_repeat:workspaces' => $aTmplVarsWorkspaces,
         'bx_if:has_workspaces' => [
             'condition' => !empty($aTmplVarsWorkspaces),
-            'content' => []
+            'content' => [
+                'workspaces_list' => $sWorkspacesList,
+                'create_url' => $sCreateUrl
+            ]
         ],
         'bx_if:no_workspaces' => [
             'condition' => empty($aTmplVarsWorkspaces),
@@ -138,7 +146,9 @@ function getGfWorkspacesPageCode()
         ],
         'bx_if:personal' => [
             'condition' => !empty($aTmplVarsPersonal),
-            'content' => $aTmplVarsPersonal
+            // content must stay non-empty even when hidden - the compiled-template
+            // engine refuses to compile bx_if blocks with an empty content array
+            'content' => !empty($aTmplVarsPersonal) ? $aTmplVarsPersonal : ['url' => '', 'thumb' => '', 'title' => '']
         ],
         'bx_if:earn' => [
             'condition' => !empty($sRefUrl),
