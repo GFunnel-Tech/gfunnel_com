@@ -13,6 +13,31 @@
     display: none !important;
 }
 
+/* The injected panel also shifts the content area right (pt_application-style
+   margin on the main column) - neutralize every likely offset carrier so the
+   page, and the full-bleed hero computed from it, center on the viewport.
+   Centered page-width wrappers (mx-auto) are intentionally not touched. */
+#main-content,
+.bx-main-content,
+.bx-main > main,
+#bx-content-with-toolbar-wrapper,
+#bx-content-with-cover-wrapper,
+#bx-content-with-submenu-wrapper,
+#bx-content-wrapper {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* Kill the extra vertical padding above the hero: the 88px chrome clearance
+   stays (bx-menu-toolbar-padding), everything else goes. */
+#bx-content-main {
+    margin-top: 0 !important;
+}
+#bx-content-container,
+.bx-page-wrapper {
+    padding-top: 0 !important;
+}
+
 /*--- Hero (full-bleed inside the boxed content area) ---*/
 .gf-ws-hero {
     position: relative;
@@ -178,7 +203,7 @@
     margin-top: 4px;
     display: flex;
     flex-direction: column;
-    max-height: 460px;
+    max-height: 560px;
     overflow-y: auto;
 }
 .gf-ws-item {
