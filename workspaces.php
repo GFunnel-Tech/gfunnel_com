@@ -32,33 +32,68 @@ function getGfWorkspacesPageCode()
     if(!$oAccount || !$oProfile)
         return '';
 
-    //--- Greeting, tagline and hero palette by time of day
+    /*
+     * Greeting, affirmation and hero theme per the Workspaces dynamic-phrases
+     * spec. Server time renders the initial state; the page JS re-evaluates
+     * with the viewer's local clock (and every 60s) for full fidelity.
+     */
     $iHour = (int)date('G');
-    if($iHour >= 5 && $iHour < 12) {
-        $sGreeting = 'Good morning';
-        $sTagline = 'A fresh canvas for whatever you build today.';
-        $sDaypart = 'morning';
-    }
-    else if($iHour >= 12 && $iHour < 17) {
-        $sGreeting = 'Good afternoon';
-        $sTagline = 'Three solid hours can change a quarter.';
-        $sDaypart = 'afternoon';
-    }
-    else if($iHour >= 17 && $iHour < 22) {
-        $sGreeting = 'Good evening';
-        $sTagline = 'Wind down or wind up — your call.';
-        $sDaypart = 'evening';
-    }
-    else {
-        $sGreeting = 'Late night';
-        $sTagline = 'The midnight blueprint is yours alone.';
-        $sDaypart = 'night';
+
+    // phrase buckets: boundaries 3/6/12/17/21 (21:00-02:59 wraps to late-night)
+    if($iHour < 3) $sBucket = 'late-night';
+    else if($iHour < 6) $sBucket = 'early-morning';
+    else if($iHour < 12) $sBucket = 'morning';
+    else if($iHour < 17) $sBucket = 'afternoon';
+    else if($iHour < 21) $sBucket = 'evening';
+    else $sBucket = 'late-night';
+
+    $aGreetings = [
+        'late-night' => 'Late night',
+        'early-morning' => 'Early morning',
+        'morning' => 'Good morning',
+        'afternoon' => 'Good afternoon',
+        'evening' => 'Good evening'
+    ];
+
+    // deterministic affirmation: bank[(1-based day of year) % 7]
+    $aAffirmations = [
+        'late-night' => ['Builders work when the world rests.', 'Late, but never alone.', 'Tomorrow rewards what you do tonight.', 'Quiet hours, sharper thoughts.', 'The midnight blueprint is yours alone.', 'Patience is built one late hour at a time.', 'Correctness compounds — even at this hour.'],
+        'early-morning' => ['The world is yours before it wakes.', 'Pre-dawn is a competitive advantage.', 'Whatever you build now, no one can take from you.', 'First light, first move.', 'The early hour is the honest hour.', 'Discipline before sunrise is a head start on the day.', 'Quiet hours, sharp thinking.'],
+        'morning' => ["Make today's first move count.", 'What you do before noon shapes your week.', 'One thoughtful decision compounds.', 'Start with the hardest thing.', 'Mornings are for the work only you can do.', 'Build with patience. Ship with intent.', 'Equilibrium isn’t found. It’s built.'],
+        'afternoon' => ['Pace beats panic.', 'Three solid hours can change a quarter.', 'Stay sharp.', 'Momentum is built one block at a time.', 'The afternoon belongs to depth, not speed.', 'Resilience is showing up at hour seven.', 'Quiet focus is loud over time.'],
+        'evening' => ['Wrap with intent.', "Today's work is tomorrow's leverage.", 'Close the loops that matter.', 'Finish what you started.', 'End the day proud of one thing you shipped.', 'Reflect, then rest. Both are work.', 'Whatever you carried today, you can put down now.']
+    ];
+
+    $sGreeting = $aGreetings[$sBucket];
+    $sTagline = $aAffirmations[$sBucket][((int)date('z') + 1) % 7];
+
+    // banner theme uses its own boundaries: 5/12/17/22
+    if($iHour < 5 || $iHour >= 22) $sDaypart = 'night';
+    else if($iHour < 12) $sDaypart = 'morning';
+    else if($iHour < 17) $sDaypart = 'afternoon';
+    else $sDaypart = 'evening';
+
+    // first-name resolution: never surface a slug or the email prefix as a name
+    $sDisplayName = $oProfile->getDisplayName();
+    $sEmail = (string)$oAccount->getEmail();
+    $sFirstName = '';
+    $sRaw = trim((string)$sDisplayName);
+    if($sRaw !== '') {
+        $aTokens = preg_split('/\s+/', $sRaw);
+        $sFirst = isset($aTokens[0]) ? $aTokens[0] : '';
+        $sEmailPrefix = $sEmail !== '' ? strtolower(explode('@', $sEmail)[0]) : '';
+
+        $bReject = $sFirst === '';
+        if(!$bReject && $sEmailPrefix !== '' && strtolower($sFirst) === $sEmailPrefix && !preg_match('/\s/', $sRaw))
+            $bReject = true;
+        if(!$bReject && preg_match('/^[a-z][a-z0-9_-]*$/', $sFirst) && $sFirst === $sRaw)
+            $bReject = true;
+
+        if(!$bReject)
+            $sFirstName = $sFirst;
     }
 
-    $sDisplayName = $oProfile->getDisplayName();
-    $sFirstName = trim(strtok($sDisplayName, ' '));
-    if(empty($sFirstName))
-        $sFirstName = $sDisplayName;
+    $sGreetingFull = $sFirstName !== '' ? $sGreeting . ', ' . $sFirstName : $sGreeting;
 
     //--- Account profiles: one personal profile + workspaces
     $oModuleQuery = BxDolModuleQuery::getInstance();
@@ -148,9 +183,9 @@ function getGfWorkspacesPageCode()
 
     return $oTemplate->parseHtmlByName('page_workspaces.html', [
         'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
-        'greeting' => $sGreeting,
-        'first_name' => bx_process_output($sFirstName),
-        'tagline' => $sTagline,
+        'greeting_full' => bx_process_output($sGreetingFull),
+        'first_name' => bx_html_attribute($sFirstName),
+        'tagline' => bx_process_output($sTagline),
         'daypart' => $sDaypart,
         'user_name' => bx_process_output($sDisplayName),
         'user_thumb' => $oProfile->getThumb(),
