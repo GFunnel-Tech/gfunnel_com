@@ -81,7 +81,10 @@ function getGfWorkspacesPageCode()
         }
 
         $aUnit = [
-            'url' => $oWsProfile->getUrl(),
+            // gf_ws pins the launched workspace in the session, so the member's
+            // per-workspace menu (gf_user_menu) follows them (see
+            // BxBaseFunctions::getGfActiveWorkspaceId)
+            'url' => bx_append_url_params($oWsProfile->getUrl(), ['gf_ws' => $iProfileId]),
             'title' => bx_process_output($oWsProfile->getDisplayName()),
             'thumb' => $oWsProfile->getThumb()
         ];

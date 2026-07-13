@@ -1,5 +1,7 @@
-<!-- Subheader: 40px tab nav (see BxBaseFunctions::getGfToolbar; pages can opt
-     out via BxTemplFunctions::$bGfToolbarSubheader = false) -->
+<!-- Subheader: 40px tab nav (see BxBaseFunctions::getGfSubheader; pages can opt
+     out via BxTemplFunctions::$bGfToolbarSubheader = false). The tabs are
+     personalized per member and per workspace; the pencil opens the customize
+     panel and gf_menu.php re-renders this whole nav in place after every edit. -->
 <nav class="gf-subheader">
     <div class="gf-tabs">
         <bx_repeat:tabs>
@@ -11,10 +13,39 @@
             </a>
         </bx_repeat:tabs>
     </div>
+    <bx_if:editor>
+    <button type="button" class="gf-tabs-edit" title="Customize menu" aria-label="Customize menu" onclick="gfMenuPanelToggle()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+    </button>
+    </bx_if:editor>
     <div id="gf-clock" class="gf-clock">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span class="gf-clock-time"></span>
         <span class="gf-clock-sep">&#183;</span>
         <span class="gf-clock-date"></span>
+    </div>
+    <div id="gf-menu-panel" class="gf-menu-panel" style="display: none;">
+        <div class="gf-menu-panel-head">Customize your menu <span>&#183; this workspace only</span></div>
+        <div class="gf-menu-panel-rows">
+            <bx_repeat:edit_items>
+            <div class="gf-mrow __class_off__" data-key="__key__">
+                <span class="gf-mrow-title">__title__</span>
+                <span class="gf-mrow-actions">
+                    <button type="button" class="gf-mrow-btn" title="Move up" onclick="gfMenuMove(this, -1)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+                    <button type="button" class="gf-mrow-btn" title="Move down" onclick="gfMenuMove(this, 1)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+                    <button type="button" class="gf-mrow-btn gf-mrow-eye" title="Show or hide" onclick="gfMenuToggle(this)"><svg class="gf-eye-on" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><svg class="gf-eye-off" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></button>
+                    <bx_if:custom><button type="button" class="gf-mrow-btn gf-mrow-del" title="Remove" onclick="gfMenuDelete(this)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></bx_if:custom>
+                </span>
+            </div>
+            </bx_repeat:edit_items>
+        </div>
+        <div class="gf-menu-panel-add">
+            <input type="text" class="gf-menu-add-title" placeholder="Title" maxlength="64" />
+            <input type="text" class="gf-menu-add-url" placeholder="https://&hellip; or /page" maxlength="2048" />
+            <button type="button" class="gf-menu-add-btn" onclick="gfMenuAdd(this)">Add</button>
+        </div>
+        <div class="gf-menu-panel-foot">
+            <a href="javascript:void(0);" onclick="gfMenuReset()">Reset to default</a>
+        </div>
     </div>
 </nav>

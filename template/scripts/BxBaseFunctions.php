@@ -117,30 +117,15 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         if(!isLogged())
             return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
 
+        // remember the workspace the member is in (picker links carry ?gf_ws=N)
+        $this->getGfActiveWorkspaceId();
+
         // The subheader lives in its own sub-template: the compiled-template
         // engine can't nest bx_repeat inside bx_if, so it's parsed separately
         // and passed as ready HTML (empty when the page opted out).
         $sSubheader = '';
-        if(self::$bGfToolbarSubheader) {
-            //--- Subheader hub tabs are taken from a regular UNA menu object.
-            $sTabsMenu = getParam('gf_header_tabs_menu');
-            if(empty($sTabsMenu))
-                $sTabsMenu = 'sys_site';
-
-            $aTabs = [];
-            $oTabsMenu = BxDolMenu::getObjectInstance($sTabsMenu);
-            if($oTabsMenu && is_array($aItems = $oTabsMenu->getMenuItems()))
-                foreach($aItems as $aItem) {
-                    if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
-                        continue;
-
-                    $aTabs[] = $aItem;
-                }
-
-            $sSubheader = $this->_oTemplate->parseHtmlByName('_page_toolbar_auth_subheader.html', [
-                'bx_repeat:tabs' => $aTabs
-            ]);
-        }
+        if(self::$bGfToolbarSubheader)
+            $sSubheader = $this->getGfSubheader();
         else
             $sChromeClass .= ' gf-no-subheader';
 
@@ -186,6 +171,158 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             return '';
 
         return preg_match('/^https?:\/\//i', $sUrl) ? $sUrl : BX_DOL_URL_ROOT . ltrim($sUrl, '/');
+    }
+
+    /**
+     * GFunnel active workspace (a workspace is a profile: organization, space,
+     * group or the member's own person profile). The workspace picker appends
+     * ?gf_ws=<profile_id> to its Launch links; the first request carrying it
+     * pins the workspace in the session, so every later page - and the
+     * gf_menu.php endpoint - knows which workspace's menu preferences apply.
+     *
+     * @return int workspace profile id, 0 before any workspace was launched.
+     */
+    public function getGfActiveWorkspaceId()
+    {
+        $oSession = BxDolSession::getInstance();
+
+        $iWorkspace = (int)bx_get('gf_ws');
+        if($iWorkspace > 0)
+            $oSession->setValue('gf_active_workspace', $iWorkspace);
+        else
+            $iWorkspace = (int)$oSession->getValue('gf_active_workspace');
+
+        return $iWorkspace;
+    }
+
+    /**
+     * GFunnel subheader: the hub tabs from the shared menu object, personalized
+     * per member and per workspace from the gf_user_menu table (hidden tabs,
+     * custom order, member's own links), plus the customize panel. Reused by
+     * gf_menu.php to re-render the bar in place after every edit.
+     */
+    public function getGfSubheader()
+    {
+        //--- Stock tabs are taken from a regular UNA menu object.
+        $sTabsMenu = getParam('gf_header_tabs_menu');
+        if(empty($sTabsMenu))
+            $sTabsMenu = 'sys_site';
+
+        $aStock = [];
+        $oTabsMenu = BxDolMenu::getObjectInstance($sTabsMenu);
+        if($oTabsMenu && is_array($aItems = $oTabsMenu->getMenuItems()))
+            foreach($aItems as $aItem) {
+                if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
+                    continue;
+
+                $aStock[] = $aItem;
+            }
+
+        //--- The member's saved choices for the active workspace. The feature
+        //--- degrades to the stock tabs until the gf_user_menu table exists.
+        $oDb = BxDolDb::getInstance();
+        $bPrefs = $oDb->isTableExists('gf_user_menu');
+
+        $aPrefs = [];
+        $aCustom = [];
+        if($bPrefs) {
+            $aRows = $oDb->getAll(
+                "SELECT * FROM `gf_user_menu` WHERE `account_id` = :account AND `workspace_id` = :workspace",
+                ['account' => getLoggedId(), 'workspace' => $this->getGfActiveWorkspaceId()]
+            );
+            if(is_array($aRows))
+                foreach($aRows as $aRow)
+                    if((int)$aRow['custom'])
+                        $aCustom[] = $aRow;
+                    else
+                        $aPrefs[$aRow['item']] = $aRow;
+        }
+
+        //--- Merge: stock tabs with per-member overrides, then the member's own links.
+        //--- Unsaved items keep their natural position after every explicitly ordered one.
+        $aAll = [];
+        foreach($aStock as $iIndex => $aTab) {
+            $sName = !empty($aTab['name']) ? $aTab['name'] : 'tab' . $iIndex;
+            $aPref = isset($aPrefs[$sName]) ? $aPrefs[$sName] : false;
+
+            $aAll[] = [
+                'key' => $sName,
+                'tab' => $aTab,
+                'title' => isset($aTab['title']) ? $aTab['title'] : $sName,
+                'hidden' => $aPref ? (int)$aPref['hidden'] : 0,
+                'order' => $aPref && (int)$aPref['order'] > 0 ? (int)$aPref['order'] : 10000 + $iIndex,
+                'custom' => 0
+            ];
+        }
+
+        foreach($aCustom as $iIndex => $aRow)
+            $aAll[] = [
+                'key' => 'c' . $aRow['id'],
+                'tab' => $this->_getGfMenuCustomTab($aRow),
+                'title' => bx_process_output($aRow['title']),
+                'hidden' => (int)$aRow['hidden'],
+                'order' => (int)$aRow['order'] > 0 ? (int)$aRow['order'] : 20000 + $iIndex,
+                'custom' => 1
+            ];
+
+        usort($aAll, function($a, $b) {
+            return $a['order'] - $b['order'];
+        });
+
+        $aTabs = [];
+        $aEditItems = [];
+        foreach($aAll as $aItem) {
+            if(!$aItem['hidden'])
+                $aTabs[] = $aItem['tab'];
+
+            $aEditItems[] = [
+                'key' => bx_html_attribute($aItem['key']),
+                'title' => $aItem['title'],
+                'class_off' => $aItem['hidden'] ? 'gf-mrow-off' : '',
+                'bx_if:custom' => [
+                    'condition' => (bool)$aItem['custom'],
+                    'content' => ['key' => bx_html_attribute($aItem['key'])]
+                ]
+            ];
+        }
+
+        return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth_subheader.html', [
+            'bx_repeat:tabs' => $aTabs,
+            'bx_repeat:edit_items' => $aEditItems,
+            'bx_if:editor' => [
+                'condition' => $bPrefs,
+                'content' => ['editor' => 1] // non-empty content required by the template compiler
+            ]
+        ]);
+    }
+
+    /**
+     * Build a member's own link (gf_user_menu row) as a tab item compatible
+     * with the stock items produced by BxBaseMenu::_getMenuItem.
+     */
+    protected function _getGfMenuCustomTab($aRow)
+    {
+        $sTitle = bx_process_output($aRow['title']);
+        $sTitleAttr = bx_html_attribute($aRow['title']);
+
+        $sUrl = trim((string)$aRow['url']);
+        $bExternal = preg_match('/^https?:\/\//i', $sUrl) && strncasecmp($sUrl, BX_DOL_URL_ROOT, strlen(BX_DOL_URL_ROOT)) != 0;
+        if(!preg_match('/^https?:\/\//i', $sUrl))
+            $sUrl = BX_DOL_URL_ROOT . ltrim($sUrl, '/');
+
+        return [
+            'name' => 'c' . $aRow['id'],
+            'link' => bx_html_attribute($sUrl),
+            'title' => $sTitle,
+            'title_attr' => $sTitleAttr,
+            'class_add' => 'gf-tab-custom',
+            'attrs' => $bExternal ? 'target="_blank" rel="noopener"' : '',
+            'bx_if:icon' => ['condition' => true, 'content' => ['icon' => $bExternal ? 'external-link-alt' : 'link']],
+            'bx_if:image' => ['condition' => false, 'content' => ['icon_url' => '']],
+            'bx_if:icon-html' => ['condition' => false, 'content' => ['icon' => '']],
+            'bx_if:title' => ['condition' => true, 'content' => ['title' => $sTitle, 'title_attr' => $sTitleAttr]],
+            'bx_if:onclick' => ['condition' => false, 'content' => ['onclick' => '']]
+        ];
     }
 
     function msgBox($sText, $iTimer = 0, $sOnClose = "")
