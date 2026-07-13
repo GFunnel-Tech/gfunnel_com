@@ -8,10 +8,7 @@
 
 /*--- Chrome container (header 48px + subheader 40px = 88px) ---*/
 #bx-toolbar.gf-chrome {
-    position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
     width: 100%;
     z-index: 5000; /* matches .bx-def-z-index-nav */
     background-color: #ffffff;
@@ -22,8 +19,22 @@
     transform: none !important;
 }
 
-/*--- Content below must clear 88px instead of the old 64px toolbar ---*/
-.bx-main:not(.bx-pt-application) .bx-menu-toolbar-padding.pt-16 {
+/* Fixed variant: base/artificer templates, whose content compensates with padding */
+#bx-toolbar.gf-chrome.gf-fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+}
+
+/* In-flow variant: templates whose toolbar scrolls with the page (protean, lucid) */
+#bx-toolbar.gf-chrome.gf-flow {
+    position: sticky;
+    position: -webkit-sticky;
+}
+
+/*--- Fixed variant only: content below must clear 88px instead of the old 64px ---*/
+#bx-toolbar.gf-chrome.gf-fixed ~ div .bx-menu-toolbar-padding.pt-16,
+#bx-toolbar.gf-chrome.gf-fixed ~ .bx-menu-toolbar-padding.pt-16 {
     padding-top: 5.5rem;
 }
 

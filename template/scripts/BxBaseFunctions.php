@@ -79,6 +79,14 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             case 'gf_toolbar':
                 $mixedResult = $this->getGfToolbar();
                 break;
+
+            case 'gf_toolbar_protean':
+                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_protean.html', 'gf-flow');
+                break;
+
+            case 'gf_toolbar_lucid':
+                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_lucid.html', 'gf-flow');
+                break;
         }
 
         return $mixedResult;
@@ -87,11 +95,15 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
     /**
      * GFunnel toolbar: logged-in members get the two-bar (header + subheader) chrome,
      * visitors keep the classic toolbar.
+     *
+     * @param string $sClassicTemplate per-template fallback markup shown to visitors
+     * @param string $sChromeClass 'gf-fixed' for templates whose toolbar is fixed and
+     *               compensated with content padding, 'gf-flow' for in-flow (sticky) toolbars
      */
-    public function getGfToolbar()
+    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed')
     {
         if(!isLogged())
-            return $this->_oTemplate->parseHtmlByName('_page_toolbar_classic.html', []);
+            return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
 
         //--- Subheader hub tabs are taken from a regular UNA menu object.
         $sTabsMenu = getParam('gf_header_tabs_menu');
@@ -118,6 +130,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $sCssFile = 'template/css/gf_header.css';
 
         return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth.html', [
+            'chrome_class' => $sChromeClass,
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
             'bx_repeat:tabs' => $aTabs,
