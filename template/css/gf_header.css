@@ -382,6 +382,15 @@
     display: none;
 }
 
+/* Items hidden in the spec header: add-content (+), the apps grid and the
+   redundant search item. Re-enable by removing these rules, or manage the
+   items themselves in Studio -> Navigation -> Toolbar Member Menu. */
+.gf-chrome .gf-member .bx-menu-item-add-content,
+.gf-chrome .gf-member .bx-menu-item-apps,
+.gf-chrome .gf-member .bx-menu-item-search {
+    display: none;
+}
+
 /* Unread/count badges */
 .gf-chrome .bx-menu-toolbar-item .bx-menu-item-addon {
     position: absolute;
