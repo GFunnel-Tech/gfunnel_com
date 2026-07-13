@@ -87,6 +87,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             case 'gf_toolbar_lucid':
                 $mixedResult = $this->getGfToolbar('_page_toolbar_classic_lucid.html', 'gf-flow');
                 break;
+
+            case 'gf_toolbar_app':
+                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed', true);
+                break;
         }
 
         return $mixedResult;
@@ -99,8 +103,9 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
      * @param string $sClassicTemplate per-template fallback markup shown to visitors
      * @param string $sChromeClass 'gf-fixed' for templates whose toolbar is fixed and
      *               compensated with content padding, 'gf-flow' for in-flow (sticky) toolbars
+     * @param boolean $bApp application (pt_application) layout: render the sidebar togglers
      */
-    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed')
+    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed', $bApp = false)
     {
         if(!isLogged())
             return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
@@ -131,6 +136,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
         return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth.html', [
             'chrome_class' => $sChromeClass,
+            'bx_if:app_togglers' => [
+                'condition' => $bApp,
+                'content' => []
+            ],
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
             'bx_repeat:tabs' => $aTabs,
