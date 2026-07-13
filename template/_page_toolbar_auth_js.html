@@ -7,7 +7,74 @@
         }, 50);
     }
 
+    /* Subheader menu personalization: every action posts to gf_menu.php and
+       swaps the returned, re-rendered subheader in place. */
+    function gfMenuPost(sAction, oData, bReopen) {
+        oData = oData || {};
+        oData.a = sAction;
+
+        $.post(sUrlRoot + 'gf_menu.php', oData, function(oResp) {
+            if(!oResp || typeof oResp.html == 'undefined')
+                return;
+
+            $('.gf-subheader').replaceWith(oResp.html);
+            if(bReopen !== false)
+                gfMenuPanelToggle(true);
+        }, 'json');
+    }
+
+    function gfMenuPanelToggle(bForceOpen) {
+        var ePanel = $('#gf-menu-panel');
+        if(bForceOpen === true)
+            ePanel.show();
+        else
+            ePanel.toggle();
+    }
+
+    function gfMenuMove(eButton, iDir) {
+        var eRow = $(eButton).closest('.gf-mrow');
+        if(iDir < 0)
+            eRow.prev('.gf-mrow').before(eRow);
+        else
+            eRow.next('.gf-mrow').after(eRow);
+
+        var aKeys = $('#gf-menu-panel .gf-mrow').map(function() {
+            return $(this).attr('data-key');
+        }).get();
+
+        gfMenuPost('reorder', {v: JSON.stringify(aKeys)});
+    }
+
+    function gfMenuToggle(eButton) {
+        gfMenuPost('toggle', {i: $(eButton).closest('.gf-mrow').attr('data-key')});
+    }
+
+    function gfMenuDelete(eButton) {
+        gfMenuPost('del', {i: $(eButton).closest('.gf-mrow').attr('data-key')});
+    }
+
+    function gfMenuAdd(eButton) {
+        var ePanel = $(eButton).closest('.gf-menu-panel'),
+            sTitle = $.trim(ePanel.find('.gf-menu-add-title').val()),
+            sUrl = $.trim(ePanel.find('.gf-menu-add-url').val());
+
+        if(!sTitle || !sUrl)
+            return;
+
+        gfMenuPost('add', {title: sTitle, url: sUrl});
+    }
+
+    function gfMenuReset() {
+        gfMenuPost('reset');
+    }
+
     $(document).ready(function() {
+        //--- Customize-menu panel closes on any click outside the subheader
+        $(document).on('click.gf-menu', function(e) {
+            if(!$(e.target).closest('.gf-subheader').length)
+                $('#gf-menu-panel').hide();
+        });
+
         //--- Cmd+K / Ctrl+K opens the global search
         $(document).on('keydown.gf-header', function(e) {
             if((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() == 'k' && !e.altKey && !e.shiftKey) {

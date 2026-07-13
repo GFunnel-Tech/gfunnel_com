@@ -19,6 +19,10 @@ require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
 
 bx_import('BxDolLanguages');
 
+// The picker keeps the plain 48px header (logo, search, timer, What's New and
+// the member icons) - no hub-tabs subheader on this page.
+BxTemplFunctions::$bGfToolbarSubheader = false;
+
 function getGfWorkspacesPageCode()
 {
     $oTemplate = BxDolTemplate::getInstance();
@@ -77,7 +81,10 @@ function getGfWorkspacesPageCode()
         }
 
         $aUnit = [
-            'url' => $oWsProfile->getUrl(),
+            // gf_ws pins the launched workspace in the session, so the member's
+            // per-workspace menu (gf_user_menu) follows them (see
+            // BxBaseFunctions::getGfActiveWorkspaceId)
+            'url' => bx_append_url_params($oWsProfile->getUrl(), ['gf_ws' => $iProfileId]),
             'title' => bx_process_output($oWsProfile->getDisplayName()),
             'thumb' => $oWsProfile->getThumb()
         ];
