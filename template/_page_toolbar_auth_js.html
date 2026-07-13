@@ -75,6 +75,10 @@
                 $('#gf-menu-panel').hide();
         });
 
+        //--- Sidebar togglers only make sense on pages that have a sidebar
+        if(!document.getElementById('sidebar'))
+            $('.gf-chrome .gf-sidebar-toggler').hide();
+
         //--- Cmd+K / Ctrl+K opens the global search
         $(document).on('keydown.gf-header', function(e) {
             if((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() == 'k' && !e.altKey && !e.shiftKey) {

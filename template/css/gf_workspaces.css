@@ -12,6 +12,10 @@
 #sidebar {
     display: none !important;
 }
+/* ...and with the panel gone, its togglers have nothing to toggle here */
+.gf-chrome .gf-sidebar-toggler {
+    display: none !important;
+}
 
 /* The injected panel also shifts the content area right (pt_application-style
    margin on the main column) - neutralize every likely offset carrier so the
@@ -119,10 +123,10 @@
 .gf-ws-content {
     display: flex;
     align-items: flex-start;
-    gap: 28px;
-    max-width: 1080px;
+    gap: 40px;
+    max-width: 1160px;
     margin: 40px auto 48px;
-    padding: 0 8px;
+    padding: 0 16px;
 }
 .gf-ws-main {
     flex: 1 1 auto;
@@ -130,10 +134,10 @@
 }
 .gf-ws-side {
     flex: none;
-    width: 340px;
+    width: 380px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 @media (max-width: 900px) {
     .gf-ws-content {
@@ -152,7 +156,7 @@
     background-color: #ffffff;
     border: 1px solid #e6e8ec;
     border-radius: 12px;
-    padding: 20px;
+    padding: 24px;
     box-shadow: 0 1px 2px rgba(17, 19, 42, .04);
 }
 
@@ -441,27 +445,29 @@
 }
 .gf-ws-personal-thumb {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 24px;
+    right: 24px;
 }
 .gf-ws-personal-thumb img {
     display: block;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
     object-fit: cover;
 }
 .gf-ws-personal-title {
     font-family: 'Sora', sans-serif;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    margin-bottom: 6px;
-    padding-right: 52px;
+    margin-bottom: 8px;
+    padding-right: 64px;
 }
 .gf-ws-personal-text {
     font-size: 13px;
+    line-height: 1.5;
     color: #6b7280;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
+    padding-right: 64px;
 }
 .gf-ws-btn {
     display: inline-block;
@@ -481,14 +487,15 @@
 /*--- Earn card ---*/
 .gf-ws-earn-title {
     font-family: 'Sora', sans-serif;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 .gf-ws-earn-text {
     font-size: 13px;
+    line-height: 1.6;
     color: #6b7280;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 .gf-ws-earn-text strong {
     color: #f97316;

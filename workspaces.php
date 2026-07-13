@@ -103,9 +103,7 @@ function getGfWorkspacesPageCode()
         $aTmplVarsWorkspaces[] = array_merge($aUnit, ['meta' => $sMeta]);
     }
 
-    //--- The personal workspace leads the list, like in the app design
-    if(!empty($aTmplVarsPersonal))
-        array_unshift($aTmplVarsWorkspaces, array_merge($aTmplVarsPersonal, ['meta' => 'Personal workspace']));
+    // The personal workspace is NOT listed here - it lives in its own side card.
 
     // Pre-render the rows: nested bx_repeat inside bx_if isn't supported by the
     // compiled-template engine, so each row is parsed separately and passed as HTML.
