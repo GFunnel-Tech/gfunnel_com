@@ -3458,7 +3458,9 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $sResult = bx_site_hash($sAbsolutePath);
         switch($sType) {
             case 'html':
-                $sResult = $this->_sCacheFilePrefix . bx_lang_name() . '_' . $this->_sCode .  '_' . $sResult;
+                // include the file's mtime in the key so deploys invalidate compiled
+                // templates automatically (no manual cache clear after template changes)
+                $sResult = $this->_sCacheFilePrefix . bx_lang_name() . '_' . $this->_sCode .  '_' . bx_site_hash($sAbsolutePath . '_' . (int)@filemtime($sAbsolutePath));
                 break;
             case 'css':
                 $sResult = $this->_sCssCachePrefix . (!empty($this->_iMix) ? $this->_iMix . '_' : '') .  $sResult;

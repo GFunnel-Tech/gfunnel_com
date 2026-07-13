@@ -46,10 +46,8 @@
         }
 
         //--- Work timer pill (state persisted in localStorage)
-        var eTimer = $('#gf-timer');
-        if(eTimer.length) {
-            var sTimerKey = 'gf_work_timer',
-                iTimerInterval = null;
+        if($('#gf-timer').length) {
+            var sTimerKey = 'gf_work_timer';
 
             var fTimerLoad = function() {
                 try {
@@ -81,6 +79,10 @@
             };
 
             var fTimerRender = function() {
+                var eTimer = $('#gf-timer');
+                if(!eTimer.length)
+                    return;
+
                 var o = fTimerLoad(),
                     bPaused = !o.running && o.accumulated > 0;
 
@@ -89,17 +91,11 @@
                 eTimer.find('.gf-timer-label').text(o.running ? 'Tracking' : (bPaused ? 'Paused' : 'No active timer'));
             };
 
-            var fTimerArm = function() {
-                var o = fTimerLoad();
-                if(o.running && !iTimerInterval)
-                    iTimerInterval = setInterval(fTimerRender, 1000);
-                else if(!o.running && iTimerInterval) {
-                    clearInterval(iTimerInterval);
-                    iTimerInterval = null;
-                }
-            };
+            // delegated handlers survive any re-render of the header markup
+            $(document).on('click.gf-timer', '#gf-timer .gf-timer-toggle', function(oEvent) {
+                oEvent.preventDefault();
+                oEvent.stopPropagation();
 
-            eTimer.find('.gf-timer-toggle').on('click', function() {
                 var o = fTimerLoad();
                 if(o.running)
                     o = {running: false, accumulated: fTimerElapsed(o), started: 0};
@@ -107,18 +103,23 @@
                     o = {running: true, accumulated: o.accumulated, started: Date.now()};
 
                 fTimerSave(o);
-                fTimerArm();
                 fTimerRender();
             });
 
-            eTimer.find('.gf-timer-time').on('dblclick', function() {
+            $(document).on('dblclick.gf-timer', '#gf-timer .gf-timer-time', function() {
                 fTimerSave({running: false, accumulated: 0, started: 0});
-                fTimerArm();
                 fTimerRender();
             });
 
+            // sync across tabs: another tab starting/stopping the timer updates this one
+            $(window).on('storage.gf-timer', function(oEvent) {
+                if(oEvent.originalEvent && oEvent.originalEvent.key == sTimerKey)
+                    fTimerRender();
+            });
+
+            // one persistent ticker keeps the display correct in every state
+            setInterval(fTimerRender, 1000);
             fTimerRender();
-            fTimerArm();
         }
     });
 </script>
