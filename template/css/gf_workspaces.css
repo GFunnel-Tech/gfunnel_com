@@ -7,6 +7,13 @@
     color: #11132a;
 }
 
+/* Blend the area below the hero arch: the page body goes white on this page,
+   matching the curve fill, so no band shows between the hero and the content. */
+body.bx-def-color-bg-page {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
 /* This stylesheet loads only on the workspaces page: remove the injected
    site panel (left navigation) here so the picker gets the full width. */
 #sidebar {
@@ -65,21 +72,54 @@
     margin-left: calc(50% - 50vw);
     padding: 72px 24px 96px;
     text-align: center;
-    background: linear-gradient(135deg, #1e1b6b 0%, #312e94 45%, #3730a3 100%);
+    background: linear-gradient(to right, #0f172a, #312e81, #1e3a8a);
     overflow: hidden;
 }
-/* Hero palette follows the time of day */
+/* Hero palette follows the time of day (theme boundaries 5/12/17/22 per spec) */
 .gf-ws-hero--morning {
-    background: linear-gradient(120deg, #38bdf8 0%, #7dd3fc 35%, #fcd34d 75%, #fbbf24 100%);
+    background: linear-gradient(to right, #fef3c7, #fed7aa, #93c5fd);
 }
 .gf-ws-hero--afternoon {
-    background: linear-gradient(120deg, #60a5fa 0%, #93c5fd 30%, #fbbf24 70%, #f97316 100%);
+    background: linear-gradient(to right, #60a5fa, #fcd34d, #fb923c);
 }
 .gf-ws-hero--evening {
-    background: linear-gradient(120deg, #4c1d95 0%, #7c3aed 45%, #f97316 100%);
+    background: linear-gradient(to right, #f97316, #f472b6, #9333ea);
 }
 .gf-ws-hero--night {
-    background: linear-gradient(135deg, #1e1b6b 0%, #312e94 45%, #3730a3 100%);
+    background: linear-gradient(to right, #0f172a, #312e81, #1e3a8a);
+}
+/* Morning is the light theme: dark text with a light shadow */
+.gf-ws-hero--morning .gf-ws-title {
+    color: #0f172a;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, .4);
+}
+.gf-ws-hero--morning .gf-ws-tagline {
+    color: #334155;
+}
+.gf-ws-hero--morning .gf-ws-subtitle {
+    color: rgba(51, 65, 85, .8);
+}
+.gf-ws-hero--night .gf-ws-tagline,
+.gf-ws-hero--night .gf-ws-subtitle {
+    color: #dbeafe;
+}
+.gf-ws-hero--afternoon .gf-ws-title,
+.gf-ws-hero--evening .gf-ws-title {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+}
+.gf-ws-hero--night .gf-ws-title {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+}
+/* Star overlay: night theme only */
+.gf-ws-stars {
+    position: absolute;
+    inset: 0;
+    display: none;
+    opacity: .5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='20' cy='30' r='1.2'/%3E%3Ccircle cx='80' cy='70' r='1'/%3E%3Ccircle cx='140' cy='40' r='1.4'/%3E%3Ccircle cx='60' cy='140' r='1'/%3E%3Ccircle cx='170' cy='120' r='1.2'/%3E%3Ccircle cx='110' cy='180' r='1'/%3E%3C/g%3E%3C/svg%3E");
+}
+.gf-ws-hero--night .gf-ws-stars {
+    display: block;
 }
 .gf-ws-hero-inner {
     position: relative;

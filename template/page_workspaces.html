@@ -1,11 +1,12 @@
 <link rel="stylesheet" href="__css_url__" />
 
 <div class="gf-ws-page">
-    <!-- Hero -->
-    <section class="gf-ws-hero gf-ws-hero--__daypart__">
+    <!-- Hero (greeting/affirmation/theme re-evaluated client-side from the viewer's clock) -->
+    <section id="gf-ws-hero" class="gf-ws-hero gf-ws-hero--__daypart__" data-name="__first_name__">
+        <div class="gf-ws-stars" aria-hidden="true"></div>
         <div class="gf-ws-hero-inner">
-            <h1 class="gf-ws-title">__greeting__, __first_name__ <span class="gf-ws-wave">&#128075;</span></h1>
-            <p class="gf-ws-tagline">__tagline__</p>
+            <h1 class="gf-ws-title"><span id="gf-ws-greeting">__greeting_full__</span> <span class="gf-ws-wave">&#128075;</span></h1>
+            <p class="gf-ws-tagline" id="gf-ws-tagline">__tagline__</p>
             <p class="gf-ws-subtitle">Choose a workspace to get started.</p>
         </div>
         <div class="gf-ws-hero-curve" aria-hidden="true">
@@ -103,6 +104,55 @@
 </div>
 
 <script language="javascript">
+    /* Dynamic phrases & banner theme - evaluated from the VIEWER's local clock
+       per the Workspaces dynamic-phrases spec, re-checked every 60 seconds. */
+    (function() {
+        var aAffirmations = {
+            'late-night': ['Builders work when the world rests.', 'Late, but never alone.', 'Tomorrow rewards what you do tonight.', 'Quiet hours, sharper thoughts.', 'The midnight blueprint is yours alone.', 'Patience is built one late hour at a time.', 'Correctness compounds — even at this hour.'],
+            'early-morning': ['The world is yours before it wakes.', 'Pre-dawn is a competitive advantage.', 'Whatever you build now, no one can take from you.', 'First light, first move.', 'The early hour is the honest hour.', 'Discipline before sunrise is a head start on the day.', 'Quiet hours, sharp thinking.'],
+            'morning': ["Make today's first move count.", 'What you do before noon shapes your week.', 'One thoughtful decision compounds.', 'Start with the hardest thing.', 'Mornings are for the work only you can do.', 'Build with patience. Ship with intent.', 'Equilibrium isn’t found. It’s built.'],
+            'afternoon': ['Pace beats panic.', 'Three solid hours can change a quarter.', 'Stay sharp.', 'Momentum is built one block at a time.', 'The afternoon belongs to depth, not speed.', 'Resilience is showing up at hour seven.', 'Quiet focus is loud over time.'],
+            'evening': ['Wrap with intent.', "Today's work is tomorrow's leverage.", 'Close the loops that matter.', 'Finish what you started.', 'End the day proud of one thing you shipped.', 'Reflect, then rest. Both are work.', 'Whatever you carried today, you can put down now.']
+        };
+        var aGreetings = {'late-night': 'Late night', 'early-morning': 'Early morning', 'morning': 'Good morning', 'afternoon': 'Good afternoon', 'evening': 'Good evening'};
+
+        var fBucket = function(iHour) {
+            if(iHour < 3) return 'late-night';
+            if(iHour < 6) return 'early-morning';
+            if(iHour < 12) return 'morning';
+            if(iHour < 17) return 'afternoon';
+            if(iHour < 21) return 'evening';
+            return 'late-night';
+        };
+        var fTheme = function(iHour) {
+            if(iHour < 5 || iHour >= 22) return 'night';
+            if(iHour < 12) return 'morning';
+            if(iHour < 17) return 'afternoon';
+            return 'evening';
+        };
+        var fDayOfYear = function(oDate) {
+            return Math.floor((oDate - new Date(oDate.getFullYear(), 0, 0)) / 86400000);
+        };
+
+        var fUpdate = function() {
+            var eHero = document.getElementById('gf-ws-hero');
+            if(!eHero)
+                return;
+
+            var oNow = new Date(),
+                iHour = oNow.getHours(),
+                sBucket = fBucket(iHour),
+                sName = eHero.getAttribute('data-name');
+
+            eHero.className = 'gf-ws-hero gf-ws-hero--' + fTheme(iHour);
+            document.getElementById('gf-ws-greeting').textContent = aGreetings[sBucket] + (sName ? ', ' + sName : '');
+            document.getElementById('gf-ws-tagline').textContent = aAffirmations[sBucket][fDayOfYear(oNow) % 7];
+        };
+
+        fUpdate();
+        setInterval(fUpdate, 60000);
+    })();
+
     function gfWsCopyRef(oButton) {
         var oInput = document.getElementById('gf-ws-ref');
         if(!oInput)
