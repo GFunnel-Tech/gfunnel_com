@@ -38,6 +38,39 @@
     padding-top: 5.5rem;
 }
 
+/*--- Application layout (pt_application): content and fixed sidebar clear 88px ---*/
+.bx-main.bx-pt-application #bx-toolbar.gf-chrome.gf-fixed ~ .bx-main-content {
+    padding-top: 5.5rem;
+}
+.bx-main.bx-pt-application #bx-toolbar.gf-chrome.gf-fixed ~ .bx-main-content #sidebar {
+    padding-top: 5.5rem;
+}
+
+/*--- Application layout: sidebar togglers ---*/
+.gf-chrome .gf-sidebar-toggler {
+    display: none;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+}
+/* desktop toggler at >=1280px, mobile toggler below (mirrors xl: breakpoint) */
+@media (min-width: 1280px) {
+    .gf-chrome #toggleSidebar.gf-sidebar-toggler {
+        display: flex;
+    }
+}
+@media (max-width: 1279px) {
+    .gf-chrome #toggleSidebarMobile.gf-sidebar-toggler {
+        display: flex;
+    }
+}
+.gf-chrome .gf-sidebar-toggler .gf-toggler-ico {
+    display: block;
+}
+.gf-chrome .gf-sidebar-toggler .gf-toggler-ico.hidden {
+    display: none;
+}
+
 /*=== 1. Header (top bar, 48px) ==============================================*/
 .gf-chrome .gf-header {
     display: flex;
