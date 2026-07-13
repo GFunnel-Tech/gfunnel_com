@@ -19,6 +19,10 @@ require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
 
 bx_import('BxDolLanguages');
 
+// The picker keeps the plain 48px header (logo, search, timer, What's New and
+// the member icons) - no hub-tabs subheader on this page.
+BxTemplFunctions::$bGfToolbarSubheader = false;
+
 function getGfWorkspacesPageCode()
 {
     $oTemplate = BxDolTemplate::getInstance();

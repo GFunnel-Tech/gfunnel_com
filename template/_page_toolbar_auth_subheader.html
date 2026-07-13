@@ -1,0 +1,20 @@
+<!-- Subheader: 40px tab nav (see BxBaseFunctions::getGfToolbar; pages can opt
+     out via BxTemplFunctions::$bGfToolbarSubheader = false) -->
+<nav class="gf-subheader">
+    <div class="gf-tabs">
+        <bx_repeat:tabs>
+            <a href="__link__" class="gf-tab __class_add__" title="__title_attr__" __attrs__ <bx_if:onclick>onclick="__onclick__"</bx_if:onclick>>
+                <bx_if:icon><i class="sys-icon __icon__"></i></bx_if:icon>
+                <bx_if:image><img src="__icon_url__" alt="" /></bx_if:image>
+                <bx_if:icon-html>__icon__</bx_if:icon-html>
+                <bx_if:title><span class="gf-tab-title">__title__</span></bx_if:title>
+            </a>
+        </bx_repeat:tabs>
+    </div>
+    <div id="gf-clock" class="gf-clock">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="gf-clock-time"></span>
+        <span class="gf-clock-sep">&#183;</span>
+        <span class="gf-clock-date"></span>
+    </div>
+</nav>

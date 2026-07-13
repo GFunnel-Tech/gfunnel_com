@@ -46,6 +46,17 @@
     padding-top: 5.5rem;
 }
 
+/*--- Header-only chrome (page opted out of the subheader via
+     BxTemplFunctions::$bGfToolbarSubheader): clearance drops to 48px ---*/
+#bx-toolbar.gf-chrome.gf-no-subheader.gf-fixed ~ div .bx-menu-toolbar-padding.pt-16,
+#bx-toolbar.gf-chrome.gf-no-subheader.gf-fixed ~ .bx-menu-toolbar-padding.pt-16 {
+    padding-top: 3rem;
+}
+.bx-main.bx-pt-application #bx-toolbar.gf-chrome.gf-no-subheader.gf-fixed ~ .bx-main-content,
+.bx-main.bx-pt-application #bx-toolbar.gf-chrome.gf-no-subheader.gf-fixed ~ .bx-main-content #sidebar {
+    padding-top: 3rem;
+}
+
 /*--- Application layout: sidebar togglers ---*/
 .gf-chrome .gf-sidebar-toggler {
     display: none;

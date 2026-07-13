@@ -13,6 +13,13 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
     protected $_sDesignBoxMenuTmplDefault;
 
+    /**
+     * Pages may switch the subheader (hub tabs + clock) off before the page is
+     * rendered, e.g. the workspace picker shows the 48px header bar only:
+     * BxTemplFunctions::$bGfToolbarSubheader = false;
+     */
+    public static $bGfToolbarSubheader = true;
+
     protected $_sDesignBoxMenuIcon;
     protected $_sDesignBoxMenuIconType;
     protected $_sDesignBoxMenuClick;
@@ -110,20 +117,32 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         if(!isLogged())
             return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
 
-        //--- Subheader hub tabs are taken from a regular UNA menu object.
-        $sTabsMenu = getParam('gf_header_tabs_menu');
-        if(empty($sTabsMenu))
-            $sTabsMenu = 'sys_site';
+        // The subheader lives in its own sub-template: the compiled-template
+        // engine can't nest bx_repeat inside bx_if, so it's parsed separately
+        // and passed as ready HTML (empty when the page opted out).
+        $sSubheader = '';
+        if(self::$bGfToolbarSubheader) {
+            //--- Subheader hub tabs are taken from a regular UNA menu object.
+            $sTabsMenu = getParam('gf_header_tabs_menu');
+            if(empty($sTabsMenu))
+                $sTabsMenu = 'sys_site';
 
-        $aTabs = [];
-        $oTabsMenu = BxDolMenu::getObjectInstance($sTabsMenu);
-        if($oTabsMenu && is_array($aItems = $oTabsMenu->getMenuItems()))
-            foreach($aItems as $aItem) {
-                if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
-                    continue;
+            $aTabs = [];
+            $oTabsMenu = BxDolMenu::getObjectInstance($sTabsMenu);
+            if($oTabsMenu && is_array($aItems = $oTabsMenu->getMenuItems()))
+                foreach($aItems as $aItem) {
+                    if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
+                        continue;
 
-                $aTabs[] = $aItem;
-            }
+                    $aTabs[] = $aItem;
+                }
+
+            $sSubheader = $this->_oTemplate->parseHtmlByName('_page_toolbar_auth_subheader.html', [
+                'bx_repeat:tabs' => $aTabs
+            ]);
+        }
+        else
+            $sChromeClass .= ' gf-no-subheader';
 
         $sWhatsNewUrl = $this->_getGfHeaderUrl(getParam('gf_header_whats_new_url'));
         $sAiUrl = $this->_getGfHeaderUrl(getParam('gf_header_ai_url'));
@@ -142,7 +161,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             ],
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
-            'bx_repeat:tabs' => $aTabs,
+            'subheader' => $sSubheader,
             'bx_if:whats_new' => [
                 'condition' => !empty($sWhatsNewUrl),
                 'content' => [

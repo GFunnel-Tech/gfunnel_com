@@ -34,8 +34,9 @@
     overflow: visible !important;
 }
 
-/* The injected wrapper adds its own top padding on top of the 88px chrome
-   clearance - drop it so the hero sits flush under the tab bar. */
+/* The injected wrapper adds its own top padding on top of the chrome
+   clearance (48px here - this page opts out of the subheader) - drop it so
+   the hero sits flush under the header. */
 .bx-main-content,
 .bx-main > main,
 #main-content {
@@ -43,7 +44,7 @@
     margin-top: 0 !important;
 }
 
-/* Kill the extra vertical padding above the hero: the 88px chrome clearance
+/* Kill the extra vertical padding above the hero: the header clearance
    stays (bx-menu-toolbar-padding), everything else goes. */
 #bx-content-main {
     margin-top: 0 !important;
