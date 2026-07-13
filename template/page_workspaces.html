@@ -4,7 +4,7 @@
     <!-- Hero -->
     <section class="gf-ws-hero gf-ws-hero--__daypart__">
         <div class="gf-ws-hero-inner">
-            <h1 class="gf-ws-title">__greeting__, __first_name__</h1>
+            <h1 class="gf-ws-title">__greeting__, __first_name__ <span class="gf-ws-wave">&#128075;</span></h1>
             <p class="gf-ws-tagline">__tagline__</p>
             <p class="gf-ws-subtitle">Choose a workspace to get started.</p>
         </div>
@@ -40,7 +40,7 @@
                     <span class="gf-ws-create-plus">+</span>
                     <span class="gf-ws-create-info">
                         <span class="gf-ws-create-title">+ Create a Workspace</span>
-                        <span class="gf-ws-create-text">Create, Organize, or Expand Anything</span>
+                        <span class="gf-ws-create-text">Organize any team, project, or operation</span>
                     </span>
                 </a>
                 </bx_if:has_workspaces>
@@ -95,6 +95,7 @@
                     <input type="text" id="gf-ws-ref" value="__ref_url__" readonly />
                     <button type="button" onclick="gfWsCopyRef(this)">Copy</button>
                 </div>
+                <a class="gf-ws-btn gf-ws-partner-btn" href="__partner_url__">Partner Hub &#8594;</a>
             </div>
             </bx_if:earn>
         </aside>
