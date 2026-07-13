@@ -28,23 +28,27 @@ function getGfWorkspacesPageCode()
     if(!$oAccount || !$oProfile)
         return '';
 
-    //--- Greeting by time of day
+    //--- Greeting, tagline and hero palette by time of day
     $iHour = (int)date('G');
     if($iHour >= 5 && $iHour < 12) {
         $sGreeting = 'Good morning';
         $sTagline = 'A fresh canvas for whatever you build today.';
+        $sDaypart = 'morning';
     }
     else if($iHour >= 12 && $iHour < 17) {
         $sGreeting = 'Good afternoon';
-        $sTagline = 'Momentum looks good on you.';
+        $sTagline = 'Three solid hours can change a quarter.';
+        $sDaypart = 'afternoon';
     }
     else if($iHour >= 17 && $iHour < 22) {
         $sGreeting = 'Good evening';
         $sTagline = 'Wind down or wind up — your call.';
+        $sDaypart = 'evening';
     }
     else {
         $sGreeting = 'Late night';
         $sTagline = 'The midnight blueprint is yours alone.';
+        $sDaypart = 'night';
     }
 
     $sDisplayName = $oProfile->getDisplayName();
@@ -77,6 +81,7 @@ function getGfWorkspacesPageCode()
             'title' => bx_process_output($oWsProfile->getDisplayName()),
             'thumb' => $oWsProfile->getThumb(),
             'type_label' => bx_process_output($aModuleTitles[$sType]),
+            'role' => 'owner', // account-owned profiles; joined-workspace roles come with the membership phase
             'status_active' => $aProfileInfo['status'] == 'active'
         ];
 
@@ -128,6 +133,9 @@ function getGfWorkspacesPageCode()
         'greeting' => $sGreeting,
         'first_name' => bx_process_output($sFirstName),
         'tagline' => $sTagline,
+        'daypart' => $sDaypart,
+        'user_name' => bx_process_output($sDisplayName),
+        'user_thumb' => $oProfile->getThumb(),
         'create_url' => $sCreateUrl,
         'bx_if:has_workspaces' => [
             'condition' => !empty($aTmplVarsWorkspaces),

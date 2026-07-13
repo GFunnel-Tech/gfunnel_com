@@ -17,6 +17,19 @@
     background: linear-gradient(135deg, #1e1b6b 0%, #312e94 45%, #3730a3 100%);
     overflow: hidden;
 }
+/* Hero palette follows the time of day */
+.gf-ws-hero--morning {
+    background: linear-gradient(120deg, #38bdf8 0%, #7dd3fc 35%, #fcd34d 75%, #fbbf24 100%);
+}
+.gf-ws-hero--afternoon {
+    background: linear-gradient(120deg, #60a5fa 0%, #93c5fd 30%, #fbbf24 70%, #f97316 100%);
+}
+.gf-ws-hero--evening {
+    background: linear-gradient(120deg, #4c1d95 0%, #7c3aed 45%, #f97316 100%);
+}
+.gf-ws-hero--night {
+    background: linear-gradient(135deg, #1e1b6b 0%, #312e94 45%, #3730a3 100%);
+}
 .gf-ws-hero-inner {
     position: relative;
     z-index: 1;
@@ -147,6 +160,14 @@
 }
 
 /*--- Workspace list ---*/
+.gf-ws-section-label {
+    margin: 16px 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
 .gf-ws-list {
     margin-top: 12px;
     display: flex;
@@ -195,26 +216,56 @@
 }
 .gf-ws-item-launch {
     flex: none;
-    font-size: 12px;
-    font-weight: 600;
-    color: #f97316;
-    opacity: 0;
-}
-.gf-ws-item:hover .gf-ws-item-launch {
-    opacity: 1;
-}
-.gf-ws-create-row {
-    margin-top: 14px;
-    text-align: center;
-}
-.gf-ws-create-link {
+    display: inline-block;
+    padding: 8px 20px;
     font-size: 13px;
     font-weight: 600;
-    color: #f97316;
+    color: #ffffff;
+    background-color: #11132a;
+    border-radius: 8px;
     text-decoration: none;
 }
-.gf-ws-create-link:hover {
-    text-decoration: underline;
+.gf-ws-item-launch:hover {
+    background-color: #f97316;
+    color: #ffffff;
+}
+.gf-ws-create-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #11132a;
+}
+.gf-ws-create-row:hover {
+    border-color: #e6e8ec;
+    background-color: #f8f9fb;
+}
+.gf-ws-create-plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px dashed #c9ccd6;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: 20px;
+}
+.gf-ws-create-info {
+    display: flex;
+    flex-direction: column;
+}
+.gf-ws-create-title {
+    font-size: 14px;
+    font-weight: 700;
+}
+.gf-ws-create-text {
+    font-size: 12px;
+    color: #6b7280;
 }
 
 /*--- Empty state ---*/
@@ -319,6 +370,25 @@
     text-decoration: none;
 }
 
+/*--- Owner chip ---*/
+.gf-ws-owner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.gf-ws-owner-thumb img {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+.gf-ws-owner-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+}
+
 /*--- Personal workspace card ---*/
 .gf-ws-personal {
     position: relative;
@@ -373,6 +443,9 @@
     font-size: 13px;
     color: #6b7280;
     margin-bottom: 14px;
+}
+.gf-ws-earn-text strong {
+    color: #f97316;
 }
 .gf-ws-earn-link {
     display: flex;

@@ -2,7 +2,7 @@
 
 <div class="gf-ws-page">
     <!-- Hero -->
-    <section class="gf-ws-hero">
+    <section class="gf-ws-hero gf-ws-hero--__daypart__">
         <div class="gf-ws-hero-inner">
             <h1 class="gf-ws-title">__greeting__, __first_name__</h1>
             <p class="gf-ws-tagline">__tagline__</p>
@@ -33,11 +33,16 @@
                     <input type="text" id="gf-ws-filter" placeholder="Search workspaces..." autocomplete="off" />
                 </div>
 
+                <div class="gf-ws-section-label">Ready to launch</div>
                 <div class="gf-ws-list" id="gf-ws-list">__workspaces_list__</div>
 
-                <div class="gf-ws-create-row">
-                    <a class="gf-ws-create-link" href="__create_url__">+ Create a workspace</a>
-                </div>
+                <a class="gf-ws-create-row" href="__create_url__">
+                    <span class="gf-ws-create-plus">+</span>
+                    <span class="gf-ws-create-info">
+                        <span class="gf-ws-create-title">+ Create a Workspace</span>
+                        <span class="gf-ws-create-text">Create, Organize, or Expand Anything</span>
+                    </span>
+                </a>
                 </bx_if:has_workspaces>
 
                 <bx_if:no_workspaces>
@@ -68,6 +73,11 @@
         </div>
 
         <aside class="gf-ws-side">
+            <div class="gf-ws-owner">
+                <span class="gf-ws-owner-thumb"><img src="__user_thumb__" alt="" /></span>
+                <span class="gf-ws-owner-name">__user_name__</span>
+            </div>
+
             <bx_if:personal>
             <div class="gf-ws-card gf-ws-personal">
                 <span class="gf-ws-personal-thumb"><img src="__thumb__" alt="" /></span>
@@ -80,7 +90,7 @@
             <bx_if:earn>
             <div class="gf-ws-card gf-ws-earn">
                 <div class="gf-ws-earn-title">Earn with GFunnel</div>
-                <div class="gf-ws-earn-text">Share your referral link and earn recurring commission when your referrals upgrade.</div>
+                <div class="gf-ws-earn-text">Earn <strong>$50</strong> the moment your first referral creates a free account. After they upgrade, earn <strong>30&#8211;70% recurring commission for the lifetime of their account.</strong></div>
                 <div class="gf-ws-earn-link">
                     <input type="text" id="gf-ws-ref" value="__ref_url__" readonly />
                     <button type="button" onclick="gfWsCopyRef(this)">Copy</button>
