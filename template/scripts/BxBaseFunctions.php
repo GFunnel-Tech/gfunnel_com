@@ -136,6 +136,14 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $sAiUrl = $this->_getGfHeaderUrl(getParam('gf_header_ai_url'), 'agents.php');
         $sMessagesUrl = $this->_getGfHeaderUrl(getParam('gf_header_messages_url'), 'page.php?i=messenger');
 
+        // unread badge: conversations with unread messages from the messenger module
+        $iUnreadMessages = 0;
+        if(!empty($sMessagesUrl) && BxDolRequest::serviceExists('bx_messenger', 'get_unread_lots')) {
+            $aUnreadLots = BxDolService::call('bx_messenger', 'get_unread_lots', [bx_get_logged_profile_id()]);
+            if(is_array($aUnreadLots))
+                $iUnreadMessages = count($aUnreadLots);
+        }
+
         $sSearchPlaceholder = getParam('gf_header_search_placeholder');
         if(empty($sSearchPlaceholder))
             $sSearchPlaceholder = 'Ask anything';
@@ -171,7 +179,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             ],
             'bx_if:messages' => [
                 'condition' => !empty($sMessagesUrl),
-                'content' => ['messages_url' => $sMessagesUrl]
+                'content' => [
+                    'messages_url' => $sMessagesUrl,
+                    'messages_badge' => $iUnreadMessages > 0 ? '<span class="gf-hdr-badge">' . ($iUnreadMessages > 99 ? '99+' : $iUnreadMessages) . '</span>' : ''
+                ]
             ]
         ]);
     }

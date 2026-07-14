@@ -232,6 +232,30 @@
     gap: 4px;
 }
 
+/* Icon-button unread badge (messages) */
+.gf-chrome .gf-icon-btn {
+    position: relative;
+}
+.gf-chrome .gf-hdr-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    border-radius: 9999px;
+    background-color: #f97316;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 0 0 2px #ffffff;
+}
+
 /* Shared icon-button recipe */
 .gf-chrome .gf-icon-btn {
     display: flex;
