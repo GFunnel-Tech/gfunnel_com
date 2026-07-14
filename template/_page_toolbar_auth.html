@@ -2,6 +2,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" />
 <link rel="stylesheet" href="__css_url__" />
+<link rel="stylesheet" href="__timer_css_url__" />
 
 <div id="bx-toolbar" class="gf-chrome __chrome_class__">
     <!-- Header: 48px -->
@@ -42,9 +43,10 @@
 
         <!-- Right-side action cluster -->
         <div class="gf-actions">
-            <!-- Work timer pill (client-side, persisted in localStorage) -->
-            <div id="gf-timer" class="gf-timer" title="Double-click the time to reset">
-                <button type="button" class="gf-timer-toggle" aria-label="Start or pause work timer">
+            <!-- Time tracking pill: click opens the Time Tracking popup, the
+                 toggle starts/stops the server-backed timer (gf_timer.js) -->
+            <div id="gf-timer" class="gf-timer" title="Time tracking">
+                <button type="button" class="gf-timer-toggle" aria-label="Start or stop work timer">
                     <svg class="gf-timer-ico-play" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
                     <svg class="gf-timer-ico-pause" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
                 </button>
@@ -74,3 +76,8 @@
 </div>
 
 <bx_include_auto:_page_toolbar_auth_js.html />
+
+<script>
+    window.gfTimerBoot = __timer_boot__;
+</script>
+<script src="__timer_js_url__"></script>
