@@ -8,7 +8,8 @@
  * pattern as splash.php / workspaces.php.
  *
  * Optional settings (sys_options):
- *  - gf_root_home  'off' disables the page (root falls back to splash/home)
+ *  - gf_root_home              'off' disables the page (root falls back to splash/home)
+ *  - gf_home_meta_description  overrides the meta/og description
  */
 
 require_once('./inc/header.inc.php');
@@ -62,10 +63,16 @@ function getGfHomePageCode()
 
 check_logged();
 
+$sMetaDescription = trim((string)getParam('gf_home_meta_description'));
+if ('' === $sMetaDescription)
+    $sMetaDescription = 'GFunnel is the operating hub entrepreneurs run their businesses on — community, CRM, funnels, courses, events and marketplace, from the first idea to launch to scale. Every tool. Every action. One platform.';
+
 $oTemplate = BxDolTemplate::getInstance();
 $oTemplate->setPageNameIndex(BX_PAGE_DEFAULT);
 $oTemplate->setPageType(BX_PAGE_TYPE_DEFAULT_WO_HF);
 $oTemplate->setPageHeader(bx_replace_markers(_t('_sys_page_title_home'), array('site_title' => getParam('site_title'))));
+$oTemplate->setPageDescription($sMetaDescription);
+$oTemplate->setPageUrl(BX_DOL_URL_ROOT); // canonical: the site root
 $oTemplate->setPageContent('page_main_code', getGfHomePageCode());
 $oTemplate->getPageCode();
 
