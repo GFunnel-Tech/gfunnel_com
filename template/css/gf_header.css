@@ -216,8 +216,54 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 2px;
+    top: -5px;
     z-index: 20;
+    padding: 6px;
+    background-color: #ffffff;
+    border: 1px solid #e6e8ec;
+    border-radius: 9999px;
+    box-shadow: 0 8px 24px rgba(17, 19, 42, .12);
+    min-width: 0;
+    margin: 0;
+}
+/* Strip UNA's bulky form chrome so the live-search input reads as one clean
+   pill matching the closed state instead of a tall padded form. */
+.gf-chrome .gf-search .bx-ti-search-box .relative,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-advanced-wrapper,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-section-wrapper,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-section,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-section-content,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-element-wrapper,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-element,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-value,
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-input-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-input-text {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 16px;
+    font-size: 14px;
+    color: #11132a;
+    background-color: transparent;
+    border: 0;
+    outline: none;
+    border-radius: 9999px;
+}
+.gf-chrome .gf-search .bx-ti-search-box .bx-form-input-text::placeholder {
+    color: #9aa0b2;
+}
+/* Live results dropdown sits just below the pill, full width */
+.gf-chrome .gf-search .bx-ti-search-box .sys-search-results-quick {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    margin: 0;
     background-color: #ffffff;
     border: 1px solid #e6e8ec;
     border-radius: 12px;
