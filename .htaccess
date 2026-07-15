@@ -9,6 +9,10 @@ Options -MultiViews -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine on
     RewriteRule ^\.well-known/ - [L]
+    # GFunnel SEO: sitemap + robots are generated dynamically (modules/gfunnel/sitemap)
+    RewriteRule ^sitemap\.xml$  sitemap.php [QSA,L]
+    RewriteRule ^sitemap-([0-9]+)\.xml$  sitemap.php?chunk=$1 [QSA,L]
+    RewriteRule ^robots\.txt$  robots.php [L]
     RewriteRule ^m/(.*)$  modules/index.php?r=$1 [QSA,L]
     RewriteRule ^page/(.*)$  page.php?i=$1 [QSA,L]
     RewriteRule ^s/([a-zA-Z0-9_]+)/([a-zA-Z0-9\.]+)  storage.php?o=$1&f=$2   [QSA,L]
