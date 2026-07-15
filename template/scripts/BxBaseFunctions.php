@@ -138,6 +138,16 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
         $sCssFile = 'template/css/gf_header.css';
 
+        // Bug report widget: on by default, gf_bug_reports = 'off' disables it;
+        // gf_bug_komodo_url overrides the external-recording referral target.
+        $bBug = getParam('gf_bug_reports') != 'off';
+        $sBugKomodoUrl = trim((string)getParam('gf_bug_komodo_url'));
+        if(empty($sBugKomodoUrl))
+            $sBugKomodoUrl = 'https://kommodo.gfunnel.com';
+
+        $sBugCssFile = 'template/css/gf_bug.css';
+        $sBugJsFile = 'template/js/gf_bug.js';
+
         return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth.html', [
             'chrome_class' => $sChromeClass,
             'bx_if:app_togglers' => [
@@ -152,6 +162,16 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 'content' => [
                     'whats_new_url' => $sWhatsNewUrl,
                     'whats_new_title' => "What's New"
+                ]
+            ],
+            'bx_if:bug' => [
+                'condition' => $bBug,
+                'content' => [
+                    'bug_css_url' => BX_DOL_URL_ROOT . $sBugCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sBugCssFile),
+                    'bug_js_url' => BX_DOL_URL_ROOT . $sBugJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sBugJsFile),
+                    'bug_endpoint' => BX_DOL_URL_ROOT . 'gf_bug.php',
+                    'bug_h2c_url' => BX_DOL_URL_ROOT . 'plugins_public/html2canvas/html2canvas.min.js',
+                    'bug_komodo_url' => bx_html_attribute($sBugKomodoUrl)
                 ]
             ],
             'bx_if:ai' => [
