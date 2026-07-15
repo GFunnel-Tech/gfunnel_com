@@ -56,8 +56,11 @@ $iExists = (int)$oDb->getOne("SELECT `id` FROM `sys_cron_jobs` WHERE `name` = :n
 if ($iExists) {
     gfSiteMapInstallOut('gf_sitemap: cron job already registered (id ' . $iExists . ').');
 } else {
+    // `ts` (last-run) and `timing` are NOT NULL without a default in the
+    // sys_cron_jobs schema — seed them so the INSERT doesn't fail (#1364).
+    // The cron runner overwrites `ts` on the first tick.
     $oDb->query(
-        "INSERT INTO `sys_cron_jobs` SET `name` = :name, `time` = :time, `class` = :class, `file` = :file",
+        "INSERT INTO `sys_cron_jobs` SET `name` = :name, `time` = :time, `class` = :class, `file` = :file, `ts` = 0, `timing` = 0",
         ['name' => $sJobName, 'time' => $sJobTime, 'class' => $sJobClass, 'file' => $sJobFile]
     );
     $oDb->cleanCache('sys_cron_jobs');
