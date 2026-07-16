@@ -1,0 +1,116 @@
+/**
+ * GFunnel — onboarding (profile setup) step. Loads on top of gf_auth.css for
+ * the shared dark theme; adds the stepper, a wider card, and native-form tweaks.
+ */
+
+.gf-onb-page {
+    align-items: flex-start;
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+.gf-onb-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 8px 8px 24px;
+    text-align: center;
+}
+
+/*--- Stepper ---*/
+.gf-onb-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+}
+.gf-onb-step {
+    position: relative;
+    padding-left: 20px;
+}
+.gf-onb-step::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    border: 2px solid #3a3a45;
+    background-color: transparent;
+}
+.gf-onb-step + .gf-onb-step {
+    margin-left: 12px;
+}
+.gf-onb-step + .gf-onb-step::after {
+    content: "";
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    width: 14px;
+    height: 1px;
+    background-color: #3a3a45;
+}
+.gf-onb-step-done {
+    color: #cbd0da;
+}
+.gf-onb-step-done::before {
+    border-color: #f97316;
+    background-color: #f97316;
+}
+.gf-onb-step-current {
+    color: #ffffff;
+}
+.gf-onb-step-current::before {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, .2);
+}
+
+.gf-onb-sub {
+    font-size: 14px;
+    color: #9aa0b2;
+    margin: -12px 0 24px;
+}
+
+/*--- The native persons edit form, slimmed for onboarding ---*/
+.gf-onb-form {
+    text-align: left;
+}
+/* Keep it to the essentials on this step: name, bio and avatar. Sections
+   beyond the basics (cover, location, socials, privacy, custom fields) are
+   hidden here so the step stays a quick 3-field setup. They remain available
+   later on the full Edit Profile page. */
+.gf-onb-form .bx-form-section-wrapper ~ .bx-form-section-wrapper {
+    display: none;
+}
+.gf-onb-form .bx-form-input-submit,
+.gf-onb-form button[type="submit"] {
+    margin-top: 8px;
+}
+
+/*--- Actions ---*/
+.gf-onb-actions {
+    margin-top: 18px;
+    text-align: center;
+}
+.gf-onb-skip {
+    font-size: 14px;
+    font-weight: 600;
+    color: #9aa0b2 !important;
+    text-decoration: none;
+}
+.gf-onb-skip:hover {
+    color: #cbd0da !important;
+}
+
+@media (max-width: 600px) {
+    .gf-onb-card {
+        max-width: 100%;
+    }
+}

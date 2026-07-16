@@ -1,0 +1,40 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" />
+<link rel="stylesheet" href="__auth_css_url__" />
+<link rel="stylesheet" href="__css_url__" />
+
+<div class="gf-auth-page gf-onb-page">
+    <div class="gf-auth-bg" aria-hidden="true"></div>
+    <div class="gf-onb-card">
+        <div class="gf-auth-brand">__logo__</div>
+
+        <!-- Step indicator: 1 Account · 2 Profile · 3 Plan -->
+        <div class="gf-onb-steps">
+            <span class="gf-onb-step gf-onb-step-done">Account</span>
+            <span class="gf-onb-step gf-onb-step-current">Profile</span>
+            <span class="gf-onb-step">Plan</span>
+        </div>
+
+        <div class="gf-auth-heading">Set up your profile</div>
+        <div class="gf-onb-sub">Add your name, a short bio and a photo. You can change these anytime.</div>
+
+        <div class="gf-auth-form gf-onb-form">__form__</div>
+
+        <div class="gf-onb-actions">
+            <a class="gf-onb-skip" href="__done_url__">Skip for now</a>
+        </div>
+    </div>
+</div>
+
+<script language="javascript">
+    /* After the native profile form saves, come back and finish onboarding
+       instead of landing on the profile page. */
+    $(document).ready(function() {
+        $('.gf-onb-form').on('click', 'input[type="submit"], button[type="submit"]', function() {
+            var eForm = $(this).closest('form');
+            if(eForm.length && eForm.find('input[name="gf_onb_relocate"]').length === 0)
+                eForm.append('<input type="hidden" name="relocate" value="__done_url__" />');
+        });
+    });
+</script>

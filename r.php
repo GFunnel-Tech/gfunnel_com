@@ -22,11 +22,17 @@ if ($sPath && '/' != $sPath)
 // GFunnel: dark-themed auth pages. Routes /login and /create-account here
 // (not just via .htaccess, which some deploys don't sync). gf_auth_pages='off'
 // or a logged-in visitor falls through to the stock pages / redirect.
-if(!isLogged() && getParam('gf_auth_pages') != 'off') {
+if(getParam('gf_auth_pages') != 'off') {
     $sGfReq = strtolower(trim($sRequest, '/'));
-    if($sGfReq === 'login' || $sGfReq === 'create-account') {
+    if(!isLogged() && ($sGfReq === 'login' || $sGfReq === 'create-account')) {
         $sGfAuthMode = $sGfReq === 'create-account' ? 'join' : 'login';
         require_once(BX_DIRECTORY_PATH_ROOT . 'gf_auth.php');
+        exit;
+    }
+    // Post-signup profile onboarding (gfunnel_onb redirects new members to
+    // page/onboarding; /welcome is the friendly alias).
+    if(isLogged() && ($sGfReq === 'welcome' || $sGfReq === 'onboarding')) {
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_onboarding.php');
         exit;
     }
 }
