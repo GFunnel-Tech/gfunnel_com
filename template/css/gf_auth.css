@@ -1,0 +1,287 @@
+/**
+ * GFunnel — dark login & account-creation pages (gf_auth.php / gf_auth.html).
+ * Wraps UNA's real forms + social buttons; everything below is scoped to
+ * .gf-auth-page so the stock form markup is restyled, not rebuilt.
+ */
+
+.gf-auth-page {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #e5e7eb;
+    background-color: #0a0a0f;
+}
+/* Subtle grid backdrop with a warm glow, like the mockup */
+.gf-auth-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-color: #0a0a0f;
+    background-image:
+        radial-gradient(1200px 600px at 50% -10%, rgba(249, 115, 22, .12), transparent 60%),
+        linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px);
+    background-size: 100% 100%, 44px 44px, 44px 44px;
+}
+
+/*--- Card ---*/
+.gf-auth-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    padding: 8px 8px 24px;
+    text-align: center;
+}
+.gf-auth-brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.gf-auth-brand a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+.gf-auth-brand img {
+    max-height: 36px;
+    width: auto;
+}
+.gf-auth-brand span {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+}
+.gf-auth-heading {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 24px;
+}
+
+/*--- Social auth buttons (UNA auth.html → .sys-auth-block / .sys-auth) ---*/
+.gf-auth-page .sys-auth-block {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 !important;
+    padding: 0;
+}
+.gf-auth-page .sys-auth {
+    flex: 1 1 0;
+    min-width: 96px;
+    margin: 0 !important;
+}
+.gf-auth-page .sys-auth > a {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 12px 10px !important;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e5e7eb !important;
+    background-color: rgba(255, 255, 255, .03) !important;
+    border: 1px solid rgba(255, 255, 255, .12) !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    text-decoration: none;
+}
+.gf-auth-page .sys-auth > a:hover {
+    background-color: rgba(255, 255, 255, .07) !important;
+    border-color: rgba(255, 255, 255, .22) !important;
+    color: #ffffff !important;
+}
+.gf-auth-page .sys-auth-icon {
+    flex: none;
+}
+.gf-auth-page .sys-auth-text {
+    margin: 0 !important;
+}
+
+/*--- Divider ---*/
+.gf-auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: #6b7280;
+    font-size: 12px;
+    white-space: nowrap;
+}
+.gf-auth-divider span {
+    flex: 1 1 auto;
+    height: 1px;
+    background-color: rgba(255, 255, 255, .1);
+}
+
+/*--- UNA form internals, restyled dark ---*/
+.gf-auth-page .bx-form-advanced,
+.gf-auth-page .bx-form-section,
+.gf-auth-page .bx-form-section-content,
+.gf-auth-page .bx-form-section-wrapper,
+.gf-auth-page .bx-form-element-wrapper,
+.gf-auth-page .bx-form-element,
+.gf-auth-page .bx-form-value {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: none !important;
+}
+.gf-auth-page .bx-form-element-wrapper {
+    margin-bottom: 14px !important;
+    text-align: left;
+}
+/* Labels */
+.gf-auth-page .bx-form-caption,
+.gf-auth-page label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #cbd0da;
+}
+.gf-auth-page .bx-form-input-info,
+.gf-auth-page .bx-form-caption-req {
+    color: #f97316;
+}
+/* Text / email / password inputs */
+.gf-auth-page input[type="text"],
+.gf-auth-page input[type="email"],
+.gf-auth-page input[type="password"],
+.gf-auth-page .bx-form-input-text,
+.gf-auth-page .bx-form-input-password {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, .04);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 10px;
+    outline: none;
+}
+.gf-auth-page input::placeholder {
+    color: #6b7280;
+}
+.gf-auth-page input[type="text"]:focus,
+.gf-auth-page input[type="email"]:focus,
+.gf-auth-page input[type="password"]:focus {
+    border-color: #f97316;
+    background-color: rgba(249, 115, 22, .06);
+}
+/* Password show/hide toggle sits inside the field */
+.gf-auth-page .bx-form-input-wrapper-password {
+    position: relative;
+}
+.gf-auth-page .bx-form-input-addon,
+.gf-auth-page .bx-form-password-show {
+    color: #9aa0b2;
+}
+/* Submit button → orange */
+.gf-auth-page .bx-form-input-submit,
+.gf-auth-page .bx-btn-primary,
+.gf-auth-page button[type="submit"] {
+    width: 100%;
+    padding: 13px 16px;
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff !important;
+    background-color: #f97316 !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.gf-auth-page .bx-form-input-submit:hover,
+.gf-auth-page .bx-btn-primary:hover,
+.gf-auth-page button[type="submit"]:hover {
+    background-color: #ea580c !important;
+}
+/* Switcher rows (Remember me / Receive newsletters) */
+.gf-auth-page .bx-form-element-wrapper-oneline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px !important;
+}
+.gf-auth-page .bx-switcher-cont button[role="switch"] {
+    background-color: rgba(255, 255, 255, .15);
+}
+.gf-auth-page .bx-switcher-cont.on button[role="switch"] {
+    background-color: #f97316;
+}
+.gf-auth-page .bx-form-caption-oneline {
+    margin: 0;
+    color: #cbd0da;
+}
+/* Warnings */
+.gf-auth-page .bx-form-warn {
+    color: #f87171;
+    font-size: 12px;
+    margin-top: 4px;
+    text-align: left;
+}
+
+/* Hide UNA's built-in cross-link + dividers we replace with our own */
+.gf-auth-page .sys-lf-join,
+.gf-auth-page .sys-jf-login {
+    display: none !important;
+}
+/* Agreement text muted at the bottom */
+.gf-auth-page .sys-lf-agreement,
+.gf-auth-page .sys-jf-agreement {
+    margin: 16px 0 0 !important;
+}
+.gf-auth-page .sys-lf-agreement hr,
+.gf-auth-page .sys-jf-agreement hr,
+.gf-auth-page .bx-def-hr {
+    border-color: rgba(255, 255, 255, .1) !important;
+}
+.gf-auth-page .sys-jf-agreement-cnt,
+.gf-auth-page .sys-lf-agreement-cnt {
+    color: #6b7280 !important;
+    font-size: 12px;
+    text-align: center;
+}
+.gf-auth-page a {
+    color: #f97316;
+}
+
+/*--- Our cross-link ---*/
+.gf-auth-alt {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #9aa0b2;
+}
+.gf-auth-alt a {
+    color: #f97316;
+    font-weight: 600;
+    text-decoration: none;
+}
+.gf-auth-alt a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .gf-auth-page .bx-menu-btns-icon-hor > li,
+    .gf-auth-page .sys-login-form-auth > li {
+        flex: 1 1 100%;
+    }
+}

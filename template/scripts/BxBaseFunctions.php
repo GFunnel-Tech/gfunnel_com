@@ -129,8 +129,19 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         else
             $sChromeClass .= ' gf-no-subheader';
 
-        $sWhatsNewUrl = $this->_getGfHeaderUrl(getParam('gf_header_whats_new_url'));
-        $sAiUrl = $this->_getGfHeaderUrl(getParam('gf_header_ai_url'));
+        // Header action buttons: enabled with working defaults; each setting
+        // overrides the destination, and the value 'off' hides the button.
+        $sWhatsNewUrl = $this->_getGfHeaderUrl(getParam('gf_header_whats_new_url'), 'page.php?i=news-home');
+        $sAiUrl = $this->_getGfHeaderUrl(getParam('gf_header_ai_url'), 'agents.php');
+        $sMessagesUrl = $this->_getGfHeaderUrl(getParam('gf_header_messages_url'), 'page.php?i=messenger');
+
+        // unread badge: conversations with unread messages from the messenger module
+        $iUnreadMessages = 0;
+        if(!empty($sMessagesUrl) && BxDolRequest::serviceExists('bx_messenger', 'get_unread_lots')) {
+            $aUnreadLots = BxDolService::call('bx_messenger', 'get_unread_lots', [bx_get_logged_profile_id()]);
+            if(is_array($aUnreadLots))
+                $iUnreadMessages = count($aUnreadLots);
+        }
 
         $sSearchPlaceholder = getParam('gf_header_search_placeholder');
         if(empty($sSearchPlaceholder))
@@ -185,17 +196,34 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                     'ai_url' => $sAiUrl,
                     'ai_title' => 'Ask AI'
                 ]
+            ],
+            'bx_if:messages' => [
+                'condition' => !empty($sMessagesUrl),
+                'content' => [
+                    'messages_url' => $sMessagesUrl,
+                    'messages_badge' => $iUnreadMessages > 0 ? '<span class="gf-hdr-badge">' . ($iUnreadMessages > 99 ? '99+' : $iUnreadMessages) . '</span>' : ''
+                ]
             ]
         ]);
     }
 
-    protected function _getGfHeaderUrl($sUrl)
+    protected function _getGfHeaderUrl($sUrl, $sDefault = '')
     {
         $sUrl = trim((string)$sUrl);
+        if($sUrl == 'off')
+            return '';
+        if(empty($sUrl))
+            $sUrl = $sDefault;
         if(empty($sUrl))
             return '';
 
-        return preg_match('/^https?:\/\//i', $sUrl) ? $sUrl : BX_DOL_URL_ROOT . ltrim($sUrl, '/');
+        if(preg_match('/^https?:\/\//i', $sUrl))
+            return $sUrl;
+
+        if(strncmp($sUrl, 'page.php', 8) === 0)
+            $sUrl = BxDolPermalinks::getInstance()->permalink($sUrl);
+
+        return BX_DOL_URL_ROOT . ltrim($sUrl, '/');
     }
 
     /**

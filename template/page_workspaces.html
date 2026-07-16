@@ -17,6 +17,26 @@
     <!-- Content -->
     <section class="gf-ws-content">
         <div class="gf-ws-main">
+            <bx_if:notice>
+            <div class="gf-ws-notice">__notice__</div>
+            </bx_if:notice>
+
+            <bx_if:invite_card>
+            <div class="gf-ws-card gf-ws-invite-card">
+                <div class="gf-ws-invite-card-title">Invite people to __ws_title__</div>
+                <div class="gf-ws-invite-card-text">Anyone with this code can join as a member. Share the code or the link below.</div>
+                <div class="gf-ws-invite-card-code">__code__</div>
+                <div class="gf-ws-earn-link">
+                    <input type="text" id="gf-ws-join-url" value="__join_url__" readonly />
+                    <button type="button" onclick="gfWsCopyInput('gf-ws-join-url', this)">Copy</button>
+                </div>
+                <div class="gf-ws-invite-card-actions">
+                    <a href="__reset_url__" onclick="return confirm('Reset the code? The old code stops working immediately.');">Reset code</a>
+                    <a href="__close_url__">Done</a>
+                </div>
+            </div>
+            </bx_if:invite_card>
+
             <div class="gf-ws-head">
                 <span class="gf-ws-head-label">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
@@ -26,9 +46,13 @@
 
             <div class="gf-ws-card">
                 <div class="gf-ws-tabs">
-                    <span class="gf-ws-tab gf-ws-tab-active">Workspaces</span>
+                    <span class="gf-ws-tab gf-ws-tab-active" data-gf-tab="workspaces" onclick="gfWsSwitchTab(this)">Workspaces</span>
+                    <bx_if:invites_tab>
+                    <span class="gf-ws-tab" data-gf-tab="invites" onclick="gfWsSwitchTab(this)">Open invites __invites_count_badge__</span>
+                    </bx_if:invites_tab>
                 </div>
 
+                <div id="gf-ws-pane-workspaces">
                 <bx_if:has_workspaces>
                 <div class="gf-ws-search">
                     <input type="text" id="gf-ws-filter" placeholder="Search workspaces..." autocomplete="off" />
@@ -58,11 +82,18 @@
                 <div class="gf-ws-invite">
                     <div class="gf-ws-invite-label">Join with an invite code</div>
                     <form class="gf-ws-invite-form" method="get" action="__invite_url__">
-                        <input type="text" name="code" placeholder="ENTER INVITE CODE..." autocomplete="off" />
+                        <input type="text" name="code" placeholder="ENTER INVITE CODE..." autocomplete="off" maxlength="8" />
                         <button type="submit">Join</button>
                     </form>
                 </div>
                 </bx_if:invite>
+                </div><!-- /gf-ws-pane-workspaces -->
+
+                <bx_if:invites_tab>
+                <div id="gf-ws-pane-invites" style="display:none;">
+                    <div class="gf-ws-list">__invites_list__</div>
+                </div>
+                </bx_if:invites_tab>
             </div>
 
             <bx_if:support>
@@ -94,7 +125,7 @@
                 <div class="gf-ws-earn-text">Earn <strong>$50</strong> the moment your first referral creates a free account. After they upgrade, earn <strong>30&#8211;70% recurring commission for the lifetime of their account.</strong></div>
                 <div class="gf-ws-earn-link">
                     <input type="text" id="gf-ws-ref" value="__ref_url__" readonly />
-                    <button type="button" onclick="gfWsCopyRef(this)">Copy</button>
+                    <button type="button" onclick="gfWsCopyInput('gf-ws-ref', this)">Copy</button>
                 </div>
                 <a class="gf-ws-btn gf-ws-partner-btn" href="__partner_url__">Partner Hub &#8594;</a>
             </div>
@@ -153,8 +184,23 @@
         setInterval(fUpdate, 60000);
     })();
 
-    function gfWsCopyRef(oButton) {
-        var oInput = document.getElementById('gf-ws-ref');
+    function gfWsSwitchTab(oTab) {
+        var sTab = oTab.getAttribute('data-gf-tab');
+
+        var aTabs = document.querySelectorAll('.gf-ws-tab');
+        for(var i = 0; i < aTabs.length; i++)
+            aTabs[i].classList.toggle('gf-ws-tab-active', aTabs[i] === oTab);
+
+        var aPanes = {'workspaces': 'gf-ws-pane-workspaces', 'invites': 'gf-ws-pane-invites'};
+        for(var sKey in aPanes) {
+            var ePane = document.getElementById(aPanes[sKey]);
+            if(ePane)
+                ePane.style.display = sKey == sTab ? '' : 'none';
+        }
+    }
+
+    function gfWsCopyInput(sId, oButton) {
+        var oInput = document.getElementById(sId);
         if(!oInput)
             return;
 

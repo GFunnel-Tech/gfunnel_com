@@ -1,0 +1,31 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" />
+<link rel="stylesheet" href="__css_url__" />
+
+<div class="gf-auth-page gf-auth-page--__mode__">
+    <div class="gf-auth-bg" aria-hidden="true"></div>
+    <div class="gf-auth-card">
+        <div class="gf-auth-brand">__logo__</div>
+        <div class="gf-auth-heading">__heading__</div>
+
+        <bx_if:social_top>
+        <div class="gf-auth-social">__social__</div>
+        <div class="gf-auth-divider"><span></span>__divider__<span></span></div>
+        </bx_if:social_top>
+
+        <div class="gf-auth-form">__form__</div>
+
+        <bx_if:social_bottom>
+        <div class="gf-auth-divider"><span></span>__divider__<span></span></div>
+        <div class="gf-auth-social">__social__</div>
+        </bx_if:social_bottom>
+
+        <bx_if:join>
+        <div class="gf-auth-alt">Already have an account? <a href="__login_url__">Sign in</a></div>
+        </bx_if:join>
+        <bx_if:login>
+        <div class="gf-auth-alt">Don't have an account? <a href="__join_url__">Start free</a></div>
+        </bx_if:login>
+    </div>
+</div>

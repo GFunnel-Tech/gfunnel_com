@@ -73,7 +73,14 @@
                 </a>
             </bx_if:ai>
 
-            <!-- Members toolbar (messages, notifications, account, etc.) -->
+            <bx_if:messages>
+                <a class="gf-icon-btn gf-messages" href="__messages_url__" title="Messages" aria-label="Messages">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    __messages_badge__
+                </a>
+            </bx_if:messages>
+
+            <!-- Members toolbar (notifications, account, etc.) -->
             <div id="bx-menu-toolbar-2-container" class="gf-member">
                 <bx_menu:sys_toolbar_member />
             </div>

@@ -9,8 +9,13 @@
  * Optional settings (sys_options):
  *  - gf_root_workspaces        'off' disables the whole page (root falls back to 'home')
  *  - gf_workspaces_create_url  create-workspace target, default page.php?i=create-organization
- *  - gf_workspaces_invite_url  join-with-invite-code form target; input hidden when empty
+ *  - gf_workspace_modules      comma-separated group modules whose memberships are
+ *                              listed as joined workspaces (default: organizations,
+ *                              spaces, groups)
  *  - gf_workspaces_ref_url     referral link template ({id}/{display_name}); Earn card hidden when empty
+ *
+ * Invite codes require the gf_workspace_invites table
+ * (docs/sql/gf_workspace_invites.sql); all invite UI hides without it.
  *  - gf_workspaces_support_url support link; support line hidden when empty
  */
 
@@ -22,6 +27,199 @@ bx_import('BxDolLanguages');
 // The picker keeps the plain 48px header (logo, search, timer, What's New and
 // the member icons) - no hub-tabs subheader on this page.
 BxTemplFunctions::$bGfToolbarSubheader = false;
+
+/*
+ * ---------------------------------------------------------------------------
+ * Workspace invite codes (phase 2). Requires the gf_workspace_invites table
+ * (docs/sql/gf_workspace_invites.sql); every feature stays hidden without it.
+ * Ported from the GFunnel workspaces audit: 8-char ambiguity-free codes,
+ * pending/expiry/max-uses validation, permanent codes never flip to accepted.
+ * ---------------------------------------------------------------------------
+ */
+
+function gfWsInvitesEnabled()
+{
+    static $bEnabled = null;
+    if($bEnabled === null)
+        $bEnabled = (bool)BxDolDb::getInstance()->getOne("SHOW TABLES LIKE 'gf_workspace_invites'");
+
+    return $bEnabled;
+}
+
+function gfWsGenerateInviteCode()
+{
+    $sAlphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+    $sCode = '';
+    for($i = 0; $i < 8; $i++)
+        $sCode .= $sAlphabet[random_int(0, strlen($sAlphabet) - 1)];
+
+    return $sCode;
+}
+
+function gfWsOwnedWorkspaceIds($oAccount)
+{
+    $aIds = [];
+    foreach($oAccount->getProfiles() as $iProfileId => $aProfileInfo)
+        if(!empty($aProfileInfo['type']) && !in_array($aProfileInfo['type'], ['system', 'bx_persons']))
+            $aIds[] = (int)$iProfileId;
+
+    return $aIds;
+}
+
+/**
+ * The 'fans' connection object of a group-profile module (organizations,
+ * spaces, groups, ...) - membership lives in these connections.
+ */
+function gfWsFansObject($sModule)
+{
+    $oModule = BxDolModule::getInstance($sModule);
+    if($oModule && isset($oModule->_oConfig->CNF['OBJECT_CONNECTIONS']))
+        return $oModule->_oConfig->CNF['OBJECT_CONNECTIONS'];
+
+    return '';
+}
+
+function gfWsIsMember($oWsProfile, $iProfileId)
+{
+    $sConnObj = gfWsFansObject($oWsProfile->getModule());
+    if(!$sConnObj || !($oConnection = BxDolConnection::getObjectInstance($sConnObj)))
+        return false;
+
+    return $oConnection->isConnected($iProfileId, $oWsProfile->id(), true) || $oConnection->isConnected($oWsProfile->id(), $iProfileId, true);
+}
+
+function gfWsJoinWorkspace($oWsProfile, $iProfileId, $sRole = 'member')
+{
+    $sModule = $oWsProfile->getModule();
+    $sConnObj = gfWsFansObject($sModule);
+    if(!$sConnObj || !($oConnection = BxDolConnection::getObjectInstance($sConnObj)))
+        return false;
+
+    // an invite is a pre-approval: establish both directions of the mutual
+    // 'fans' connection, then let the module fire its fan-added side effects
+    $oConnection->addConnection($iProfileId, $oWsProfile->id());
+    $oConnection->addConnection($oWsProfile->id(), $iProfileId);
+
+    if(BxDolRequest::serviceExists($sModule, 'add_mutual_connection'))
+        BxDolService::call($sModule, 'add_mutual_connection', [$oWsProfile->id(), $iProfileId]);
+
+    // admin invites: best effort via the module's admins connection
+    if($sRole == 'admin' && ($oAdmins = BxDolConnection::getObjectInstance(str_replace('_fans', '_admins', $sConnObj))))
+        $oAdmins->addConnection($oWsProfile->id(), $iProfileId);
+
+    return true;
+}
+
+/**
+ * Redeem an invite row for the logged-in member.
+ * @return string redirect URL on success, '' on failure ($sNotice explains)
+ */
+function gfWsExecuteInvite($aInvite, $oAccount, $oProfile, &$sNotice)
+{
+    if((int)$aInvite['expires_at'] > 0 && time() > (int)$aInvite['expires_at']) {
+        $sNotice = 'This invite has expired.';
+        return '';
+    }
+
+    if((int)$aInvite['max_uses'] > 0 && (int)$aInvite['uses'] >= (int)$aInvite['max_uses']) {
+        $sNotice = 'This invite has reached its usage limit.';
+        return '';
+    }
+
+    $oWsProfile = BxDolProfile::getInstance((int)$aInvite['workspace_id']);
+    if(!$oWsProfile) {
+        $sNotice = 'This workspace no longer exists.';
+        return '';
+    }
+
+    if(in_array($oWsProfile->id(), gfWsOwnedWorkspaceIds($oAccount))) {
+        $sNotice = 'You own ' . $oWsProfile->getDisplayName() . ' already.';
+        return '';
+    }
+
+    if(gfWsIsMember($oWsProfile, $oProfile->id())) {
+        $sNotice = 'You are already a member of ' . $oWsProfile->getDisplayName() . '.';
+        return '';
+    }
+
+    if(!gfWsJoinWorkspace($oWsProfile, $oProfile->id(), $aInvite['role'])) {
+        $sNotice = 'Joining failed — this workspace type does not support invites.';
+        return '';
+    }
+
+    // bookkeeping: permanent codes stay pending forever, everything else flips
+    // to accepted once its uses are spent (email invites default to single-use)
+    $oDb = BxDolDb::getInstance();
+    $iUses = (int)$aInvite['uses'] + 1;
+
+    $sExtra = '';
+    if($aInvite['type'] != 'permanent' && $iUses >= max(1, (int)$aInvite['max_uses']))
+        $sExtra = ", `status` = 'accepted', `accepted_by` = " . (int)$oProfile->id() . ", `accepted_at` = " . time();
+
+    $oDb->query("UPDATE `gf_workspace_invites` SET `uses` = " . $iUses . $sExtra . " WHERE `id` = :id", ['id' => (int)$aInvite['id']]);
+
+    return bx_append_url_params($oWsProfile->getUrl(), ['gf_ws' => $oWsProfile->id()]);
+}
+
+function gfWsHandleJoinByCode($sCode, $oAccount, $oProfile, &$sNotice)
+{
+    $sCode = strtoupper(trim((string)$sCode));
+    if(!preg_match('/^[A-Z0-9]{8}$/', $sCode)) {
+        $sNotice = "That invite code doesn't look right — codes are 8 letters and numbers.";
+        return '';
+    }
+
+    $aInvite = BxDolDb::getInstance()->getRow("SELECT * FROM `gf_workspace_invites` WHERE `code` = :code AND `status` = 'pending' LIMIT 1", ['code' => $sCode]);
+    if(!$aInvite) {
+        $sNotice = 'This invite code is not valid.';
+        return '';
+    }
+
+    return gfWsExecuteInvite($aInvite, $oAccount, $oProfile, $sNotice);
+}
+
+/**
+ * Get-or-create the permanent invite code of an owned workspace.
+ */
+function gfWsPermanentInvite($iWorkspaceId, $iProfileId, $bReset = false)
+{
+    $oDb = BxDolDb::getInstance();
+
+    if($bReset)
+        $oDb->query("UPDATE `gf_workspace_invites` SET `status` = 'revoked' WHERE `workspace_id` = :ws AND `type` = 'permanent' AND `status` = 'pending'", ['ws' => $iWorkspaceId]);
+
+    $aRow = $oDb->getRow("SELECT * FROM `gf_workspace_invites` WHERE `workspace_id` = :ws AND `type` = 'permanent' AND `status` = 'pending' LIMIT 1", ['ws' => $iWorkspaceId]);
+    if($aRow)
+        return $aRow;
+
+    for($i = 0; $i < 5; $i++) {
+        $sCode = gfWsGenerateInviteCode();
+        if($oDb->getOne("SELECT `id` FROM `gf_workspace_invites` WHERE `code` = :code", ['code' => $sCode]))
+            continue;
+
+        $oDb->query(
+            "INSERT INTO `gf_workspace_invites` SET `workspace_id` = :ws, `code` = :code, `role` = 'member', `type` = 'permanent', `status` = 'pending', `created_by` = :by, `created_at` = :now",
+            ['ws' => $iWorkspaceId, 'code' => $sCode, 'by' => $iProfileId, 'now' => time()]
+        );
+        break;
+    }
+
+    return $oDb->getRow("SELECT * FROM `gf_workspace_invites` WHERE `workspace_id` = :ws AND `type` = 'permanent' AND `status` = 'pending' LIMIT 1", ['ws' => $iWorkspaceId]);
+}
+
+function gfWsOpenInvites($sEmail)
+{
+    if(empty($sEmail))
+        return [];
+
+    $aRows = BxDolDb::getInstance()->getAll(
+        "SELECT * FROM `gf_workspace_invites` WHERE `email` = :email AND `status` = 'pending' AND (`expires_at` = 0 OR `expires_at` > :now) ORDER BY `created_at` DESC",
+        ['email' => strtolower(trim($sEmail)), 'now' => time()]
+    );
+
+    return is_array($aRows) ? $aRows : [];
+}
 
 function getGfWorkspacesPageCode()
 {
@@ -130,21 +328,100 @@ function getGfWorkspacesPageCode()
             continue;
         }
 
-        // joined-workspace roles come with the membership phase; owned profiles are 'owner'
         $sMeta = bx_process_output($aModuleTitles[$sType]) . ' &#183; owner';
         if($aProfileInfo['status'] != 'active')
             $sMeta .= ' &#183; pending';
 
-        $aTmplVarsWorkspaces[] = array_merge($aUnit, ['meta' => $sMeta]);
+        $aTmplVarsWorkspaces[] = array_merge($aUnit, [
+            'meta' => $sMeta,
+            'manage_id' => $iProfileId // owners can manage this workspace's invite code
+        ]);
     }
 
     // The personal workspace is NOT listed here - it lives in its own side card.
 
+    //--- Joined workspaces: membership lives in each group module's 'fans' connections
+    $aOwnedIds = [];
+    foreach($aTmplVarsWorkspaces as $aWs)
+        $aOwnedIds[] = (int)$aWs['manage_id'];
+
+    $sWorkspaceModules = trim((string)getParam('gf_workspace_modules'));
+    if(empty($sWorkspaceModules))
+        $sWorkspaceModules = 'bx_organizations,bx_spaces,bx_groups';
+
+    foreach(explode(',', $sWorkspaceModules) as $sWsModule) {
+        $sWsModule = trim($sWsModule);
+        $sConnObj = $sWsModule !== '' ? gfWsFansObject($sWsModule) : '';
+        if(!$sConnObj || !($oConnection = BxDolConnection::getObjectInstance($sConnObj)))
+            continue;
+
+        $oAdmins = BxDolConnection::getObjectInstance(str_replace('_fans', '_admins', $sConnObj));
+
+        $aJoinedIds = $oConnection->getConnectedContent($oProfile->id());
+        if(!is_array($aJoinedIds))
+            continue;
+
+        foreach($aJoinedIds as $iJoinedId) {
+            $iJoinedId = (int)$iJoinedId;
+            if(in_array($iJoinedId, $aOwnedIds) || $iJoinedId == $oProfile->id())
+                continue;
+
+            $oJoined = BxDolProfile::getInstance($iJoinedId);
+            if(!$oJoined || $oJoined->getModule() != $sWsModule)
+                continue;
+
+            if(!isset($aModuleTitles[$sWsModule])) {
+                $aModule = $oModuleQuery->getModuleByName($sWsModule);
+                $aModuleTitles[$sWsModule] = !empty($aModule['title']) ? $aModule['title'] : ucfirst(str_replace(['bx_', '_'], ['', ' '], $sWsModule));
+            }
+
+            $bAdmin = $oAdmins && ($oAdmins->isConnected($iJoinedId, $oProfile->id()) || $oAdmins->isConnected($oProfile->id(), $iJoinedId));
+
+            $aTmplVarsWorkspaces[] = [
+                'url' => bx_append_url_params($oJoined->getUrl(), ['gf_ws' => $iJoinedId]),
+                'title' => bx_process_output($oJoined->getDisplayName()),
+                'thumb' => $oJoined->getThumb(),
+                'meta' => bx_process_output($aModuleTitles[$sWsModule]) . ' &#183; ' . ($bAdmin ? 'admin' : 'member'),
+                'manage_id' => 0
+            ];
+        }
+    }
+
+    $bInvites = gfWsInvitesEnabled();
+
     // Pre-render the rows: nested bx_repeat inside bx_if isn't supported by the
     // compiled-template engine, so each row is parsed separately and passed as HTML.
     $sWorkspacesList = '';
-    foreach($aTmplVarsWorkspaces as $aTmplVarsWorkspace)
-        $sWorkspacesList .= $oTemplate->parseHtmlByName('page_workspaces_item.html', $aTmplVarsWorkspace);
+    foreach($aTmplVarsWorkspaces as $aTmplVarsWorkspace) {
+        $iManageId = (int)$aTmplVarsWorkspace['manage_id'];
+        unset($aTmplVarsWorkspace['manage_id']);
+
+        $sWorkspacesList .= $oTemplate->parseHtmlByName('page_workspaces_item.html', array_merge($aTmplVarsWorkspace, [
+            'bx_if:manage' => [
+                'condition' => $bInvites && $iManageId > 0,
+                'content' => ['manage_url' => BX_DOL_URL_ROOT . 'workspaces.php?invite_ws=' . $iManageId]
+            ]
+        ]));
+    }
+
+    //--- Open invites addressed to the account's email
+    $aOpenInvites = $bInvites ? gfWsOpenInvites((string)$oAccount->getEmail()) : [];
+    $sInvitesList = '';
+    $iOpenInvites = 0;
+    foreach($aOpenInvites as $aOpenInvite) {
+        $oInviteWs = BxDolProfile::getInstance((int)$aOpenInvite['workspace_id']);
+        if(!$oInviteWs)
+            continue;
+
+        $iOpenInvites++;
+        $sInvitesList .= $oTemplate->parseHtmlByName('page_workspaces_invite_item.html', [
+            'title' => bx_process_output($oInviteWs->getDisplayName()),
+            'thumb' => $oInviteWs->getThumb(),
+            'meta' => 'Invited as ' . bx_process_output($aOpenInvite['role']),
+            'accept_url' => BX_DOL_URL_ROOT . 'workspaces.php?accept_invite=' . (int)$aOpenInvite['id'],
+            'decline_url' => BX_DOL_URL_ROOT . 'workspaces.php?decline_invite=' . (int)$aOpenInvite['id']
+        ]);
+    }
 
     //--- Optional pieces
     $oPermalink = BxDolPermalinks::getInstance();
@@ -154,10 +431,6 @@ function getGfWorkspacesPageCode()
         $sCreateUrl = 'page.php?i=create-organization';
     if(!preg_match('/^https?:\/\//i', $sCreateUrl))
         $sCreateUrl = BX_DOL_URL_ROOT . $oPermalink->permalink($sCreateUrl);
-
-    $sInviteUrl = trim((string)getParam('gf_workspaces_invite_url'));
-    if(!empty($sInviteUrl) && !preg_match('/^https?:\/\//i', $sInviteUrl))
-        $sInviteUrl = BX_DOL_URL_ROOT . ltrim($sInviteUrl, '/');
 
     //--- Referral link: the Affiliate System module provides the member's real link;
     //--- gf_workspaces_ref_url overrides it, 'off' hides the Earn card entirely.
@@ -202,8 +475,23 @@ function getGfWorkspacesPageCode()
             'content' => ['create_url' => $sCreateUrl]
         ],
         'bx_if:invite' => [
-            'condition' => !empty($sInviteUrl),
-            'content' => ['invite_url' => $sInviteUrl]
+            'condition' => $bInvites,
+            'content' => ['invite_url' => BX_DOL_URL_ROOT]
+        ],
+        'bx_if:notice' => [
+            'condition' => !empty($GLOBALS['gfWsNotice']),
+            'content' => ['notice' => bx_process_output($GLOBALS['gfWsNotice'])]
+        ],
+        'bx_if:invite_card' => [
+            'condition' => !empty($GLOBALS['gfWsInviteCard']),
+            'content' => !empty($GLOBALS['gfWsInviteCard']) ? $GLOBALS['gfWsInviteCard'] : ['ws_title' => '', 'code' => '', 'join_url' => '', 'reset_url' => '', 'close_url' => '']
+        ],
+        'bx_if:invites_tab' => [
+            'condition' => $bInvites,
+            'content' => [
+                'invites_list' => $sInvitesList !== '' ? $sInvitesList : '<div class="gf-ws-invites-empty">No open invites right now.</div>',
+                'invites_count_badge' => $iOpenInvites > 0 ? '<span class="gf-ws-tab-badge">' . $iOpenInvites . '</span>' : ''
+            ]
         ],
         'bx_if:personal' => [
             'condition' => !empty($aTmplVarsPersonal),
@@ -230,6 +518,57 @@ check_logged();
 if(!isLogged()) {
     header('Location: ' . BX_DOL_URL_ROOT . BxDolPermalinks::getInstance()->permalink('page.php?i=login'));
     exit;
+}
+
+//--- Invite actions (join by code, accept/decline, manage a workspace's code)
+$GLOBALS['gfWsNotice'] = '';
+$GLOBALS['gfWsInviteCard'] = [];
+
+$oGfAccount = BxDolAccount::getInstance();
+$oGfProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
+
+if(gfWsInvitesEnabled() && $oGfAccount && $oGfProfile) {
+    $sGfEmail = strtolower(trim((string)$oGfAccount->getEmail()));
+
+    if(($sCode = bx_get('code')) !== false && trim($sCode) !== '') {
+        $sRedirect = gfWsHandleJoinByCode($sCode, $oGfAccount, $oGfProfile, $GLOBALS['gfWsNotice']);
+        if($sRedirect !== '') {
+            header('Location: ' . $sRedirect);
+            exit;
+        }
+    }
+
+    if(($iAccept = (int)bx_get('accept_invite')) > 0) {
+        $aInvite = BxDolDb::getInstance()->getRow("SELECT * FROM `gf_workspace_invites` WHERE `id` = :id AND `email` = :email AND `status` = 'pending' LIMIT 1", ['id' => $iAccept, 'email' => $sGfEmail]);
+        if($aInvite) {
+            $sRedirect = gfWsExecuteInvite($aInvite, $oGfAccount, $oGfProfile, $GLOBALS['gfWsNotice']);
+            if($sRedirect !== '') {
+                header('Location: ' . $sRedirect);
+                exit;
+            }
+        }
+        else
+            $GLOBALS['gfWsNotice'] = 'This invite is no longer available.';
+    }
+
+    if(($iDecline = (int)bx_get('decline_invite')) > 0) {
+        BxDolDb::getInstance()->query("UPDATE `gf_workspace_invites` SET `status` = 'declined' WHERE `id` = :id AND `email` = :email AND `status` = 'pending'", ['id' => $iDecline, 'email' => $sGfEmail]);
+        $GLOBALS['gfWsNotice'] = 'Invite declined.';
+    }
+
+    if(($iInviteWs = (int)bx_get('invite_ws')) > 0 && in_array($iInviteWs, gfWsOwnedWorkspaceIds($oGfAccount))) {
+        $aInviteRow = gfWsPermanentInvite($iInviteWs, $oGfProfile->id(), bx_get('invite_reset') == '1');
+        $oInviteWsProfile = BxDolProfile::getInstance($iInviteWs);
+
+        if($aInviteRow && $oInviteWsProfile)
+            $GLOBALS['gfWsInviteCard'] = [
+                'ws_title' => bx_process_output($oInviteWsProfile->getDisplayName()),
+                'code' => $aInviteRow['code'],
+                'join_url' => BX_DOL_URL_ROOT . '?code=' . $aInviteRow['code'],
+                'reset_url' => BX_DOL_URL_ROOT . 'workspaces.php?invite_ws=' . $iInviteWs . '&invite_reset=1',
+                'close_url' => BX_DOL_URL_ROOT
+            ];
+    }
 }
 
 $oTemplate = BxDolTemplate::getInstance();
