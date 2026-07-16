@@ -1,5 +1,6 @@
 <script language="javascript">
-    /* GFunnel authorized header: search focus + Cmd/Ctrl+K, live clock, work timer. */
+    /* GFunnel authorized header: search focus + Cmd/Ctrl+K, live clock.
+       The time-tracking pill and popup live in template/js/gf_timer.js. */
 
     function gfHeaderFocusSearch() {
         setTimeout(function() {
@@ -118,83 +119,6 @@
                 fClock();
                 setInterval(fClock, 60000);
             }, 60000 - Date.now() % 60000);
-        }
-
-        //--- Work timer pill (state persisted in localStorage)
-        if($('#gf-timer').length) {
-            var sTimerKey = 'gf_work_timer';
-
-            var fTimerLoad = function() {
-                try {
-                    var o = JSON.parse(localStorage.getItem(sTimerKey));
-                    if(o && typeof o == 'object')
-                        return {running: !!o.running, accumulated: parseInt(o.accumulated) || 0, started: parseInt(o.started) || 0};
-                }
-                catch(e) {}
-
-                return {running: false, accumulated: 0, started: 0};
-            };
-
-            var fTimerSave = function(o) {
-                try {
-                    localStorage.setItem(sTimerKey, JSON.stringify(o));
-                }
-                catch(e) {}
-            };
-
-            var fTimerElapsed = function(o) {
-                return o.accumulated + (o.running ? Math.max(0, Date.now() - o.started) : 0);
-            };
-
-            var fTimerFormat = function(iMs) {
-                var iSeconds = Math.floor(iMs / 1000),
-                    fPad = function(i) { return ('0' + i).slice(-2); };
-
-                return fPad(Math.floor(iSeconds / 3600)) + ':' + fPad(Math.floor(iSeconds / 60) % 60) + ':' + fPad(iSeconds % 60);
-            };
-
-            var fTimerRender = function() {
-                var eTimer = $('#gf-timer');
-                if(!eTimer.length)
-                    return;
-
-                var o = fTimerLoad(),
-                    bPaused = !o.running && o.accumulated > 0;
-
-                eTimer.toggleClass('gf-timer-running', o.running).toggleClass('gf-timer-paused', bPaused);
-                eTimer.find('.gf-timer-time').text(fTimerFormat(fTimerElapsed(o)));
-                eTimer.find('.gf-timer-label').text(o.running ? 'Tracking' : (bPaused ? 'Paused' : 'No active timer'));
-            };
-
-            // delegated handlers survive any re-render of the header markup
-            $(document).on('click.gf-timer', '#gf-timer .gf-timer-toggle', function(oEvent) {
-                oEvent.preventDefault();
-                oEvent.stopPropagation();
-
-                var o = fTimerLoad();
-                if(o.running)
-                    o = {running: false, accumulated: fTimerElapsed(o), started: 0};
-                else
-                    o = {running: true, accumulated: o.accumulated, started: Date.now()};
-
-                fTimerSave(o);
-                fTimerRender();
-            });
-
-            $(document).on('dblclick.gf-timer', '#gf-timer .gf-timer-time', function() {
-                fTimerSave({running: false, accumulated: 0, started: 0});
-                fTimerRender();
-            });
-
-            // sync across tabs: another tab starting/stopping the timer updates this one
-            $(window).on('storage.gf-timer', function(oEvent) {
-                if(oEvent.originalEvent && oEvent.originalEvent.key == sTimerKey)
-                    fTimerRender();
-            });
-
-            // one persistent ticker keeps the display correct in every state
-            setInterval(fTimerRender, 1000);
-            fTimerRender();
         }
     });
 </script>

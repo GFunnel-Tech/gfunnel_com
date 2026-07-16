@@ -148,6 +148,8 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             $sSearchPlaceholder = 'Ask anything';
 
         $sCssFile = 'template/css/gf_header.css';
+        $sTimerCssFile = 'template/css/gf_timer.css';
+        $sTimerJsFile = 'template/js/gf_timer.js';
 
         // Bug report widget: on by default, gf_bug_reports = 'off' disables it;
         // gf_bug_komodo_url overrides the external-recording referral target.
@@ -161,6 +163,9 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
         return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth.html', [
             'chrome_class' => $sChromeClass,
+            'timer_css_url' => BX_DOL_URL_ROOT . $sTimerCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerCssFile),
+            'timer_js_url' => BX_DOL_URL_ROOT . $sTimerJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerJsFile),
+            'timer_boot' => $this->getGfTimerBoot(),
             'bx_if:app_togglers' => [
                 'condition' => $bApp,
                 'content' => ['app' => 1] // non-empty content required by the template compiler
@@ -241,6 +246,53 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             $iWorkspace = (int)$oSession->getValue('gf_active_workspace');
 
         return $iWorkspace;
+    }
+
+    /**
+     * GFunnel time tracking: initial state for the header pill + popup
+     * (template/js/gf_timer.js), embedded as JSON so no extra request is
+     * needed on page load. Tables are created lazily by gf_timer.php, so
+     * until the first popup action this degrades to "no running timer".
+     */
+    public function getGfTimerBoot()
+    {
+        $iWorkspace = $this->getGfActiveWorkspaceId();
+
+        $sWsName = 'General';
+        if($iWorkspace > 0 && ($oWsProfile = BxDolProfile::getInstance($iWorkspace)))
+            $sWsName = $oWsProfile->getDisplayName();
+
+        $aTimer = null;
+        $oDb = BxDolDb::getInstance();
+        if($oDb->isTableExists('gf_time_entries')) {
+            $aRow = $oDb->getRow($oDb->prepare(
+                "SELECT * FROM `gf_time_entries` WHERE `account_id` = ? AND `running` = 1 ORDER BY `id` DESC LIMIT 1",
+                (int)getLoggedId()
+            ));
+            if(!empty($aRow)) {
+                $sTimerWsName = 'General';
+                if((int)$aRow['workspace_id'] > 0 && ($oTimerWsProfile = BxDolProfile::getInstance((int)$aRow['workspace_id'])))
+                    $sTimerWsName = $oTimerWsProfile->getDisplayName();
+
+                // raw values: the popup JS escapes everything at render time
+                $aTimer = [
+                    'id' => (int)$aRow['id'],
+                    'title' => $aRow['title'],
+                    'description' => $aRow['description'],
+                    'date_start' => (int)$aRow['date_start'],
+                    'ws' => (int)$aRow['workspace_id'],
+                    'ws_name' => $sTimerWsName
+                ];
+            }
+        }
+
+        return json_encode([
+            'url' => BX_DOL_URL_ROOT . 'gf_timer.php',
+            'now' => time(),
+            'ws' => $iWorkspace,
+            'ws_name' => $sWsName,
+            'timer' => $aTimer
+        ]);
     }
 
     /**
