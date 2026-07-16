@@ -179,6 +179,17 @@
 .gf-auth-page input::placeholder {
     color: #6b7280;
 }
+/* Keep browser autofill dark instead of the default pale-blue fill */
+.gf-auth-page input:-webkit-autofill,
+.gf-auth-page input:-webkit-autofill:hover,
+.gf-auth-page input:-webkit-autofill:focus,
+.gf-auth-page input:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0 1000px #17171d inset !important;
+    caret-color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, .12) !important;
+    transition: background-color 9999s ease-in-out 0s;
+}
 .gf-auth-page input[type="text"]:focus,
 .gf-auth-page input[type="email"]:focus,
 .gf-auth-page input[type="password"]:focus {
@@ -260,8 +271,40 @@
     font-size: 12px;
     text-align: center;
 }
+/* Hide UNA's in-form title/description - our .gf-auth-heading already covers it */
+.gf-auth-page #bx-form-element-create_a_new_account,
+.gf-auth-page #bx-form-element-log_in,
+.gf-auth-page #bx-form-element-sign_in {
+    display: none !important;
+}
+
+/* Newsletter / remember-me switch: give the label room from the toggle */
+.gf-auth-page .bx-form-caption-oneline-switcher,
+.gf-auth-page .bx-form-caption-oneline {
+    margin: 0 0 0 12px !important;
+}
+
+/* Password show/hide eye → muted, not the default blue */
+.gf-auth-page .bx-form-input-wrapper-password i,
+.gf-auth-page .bx-form-input-wrapper-password a,
+.gf-auth-page .bx-form-input-wrapper-password svg,
+.gf-auth-page .bx-form-input-addon {
+    color: #9aa0b2 !important;
+}
+
+/* Links: agreement / forgot-password muted (our own action links stay orange) */
 .gf-auth-page a {
-    color: #f97316;
+    color: #9aa0b2 !important;
+}
+.gf-auth-page a:hover {
+    color: #cbd0da !important;
+}
+.gf-auth-page .gf-auth-alt a,
+.gf-auth-page .sys-auth a {
+    color: #f97316 !important;
+}
+.gf-auth-page .gf-auth-alt a:hover {
+    color: #fb923c !important;
 }
 
 /*--- Our cross-link ---*/

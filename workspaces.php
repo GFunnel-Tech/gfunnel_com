@@ -30,19 +30,44 @@ BxTemplFunctions::$bGfToolbarSubheader = false;
 
 /*
  * ---------------------------------------------------------------------------
- * Workspace invite codes (phase 2). Requires the gf_workspace_invites table
- * (docs/sql/gf_workspace_invites.sql); every feature stays hidden without it.
- * Ported from the GFunnel workspaces audit: 8-char ambiguity-free codes,
- * pending/expiry/max-uses validation, permanent codes never flip to accepted.
+ * Workspace invite codes (phase 2). The gf_workspace_invites table is created
+ * automatically on first use (same self-provisioning pattern as the timer and
+ * bug modules), so no manual SQL is required; docs/sql/gf_workspace_invites.sql
+ * is kept for reference. 8-char ambiguity-free codes, pending/expiry/max-uses
+ * validation, permanent codes never flip to accepted.
  * ---------------------------------------------------------------------------
  */
 
 function gfWsInvitesEnabled()
 {
     static $bEnabled = null;
-    if($bEnabled === null)
-        $bEnabled = (bool)BxDolDb::getInstance()->getOne("SHOW TABLES LIKE 'gf_workspace_invites'");
+    if($bEnabled !== null)
+        return $bEnabled;
 
+    $oDb = BxDolDb::getInstance();
+    if(!$oDb->getOne("SHOW TABLES LIKE 'gf_workspace_invites'"))
+        $oDb->query("CREATE TABLE IF NOT EXISTS `gf_workspace_invites` (
+            `id` int unsigned NOT NULL AUTO_INCREMENT,
+            `workspace_id` int unsigned NOT NULL,
+            `code` varchar(8) NOT NULL,
+            `email` varchar(255) NOT NULL DEFAULT '',
+            `role` varchar(32) NOT NULL DEFAULT 'member',
+            `type` varchar(16) NOT NULL DEFAULT 'permanent',
+            `status` varchar(16) NOT NULL DEFAULT 'pending',
+            `max_uses` int unsigned NOT NULL DEFAULT 0,
+            `uses` int unsigned NOT NULL DEFAULT 0,
+            `expires_at` int unsigned NOT NULL DEFAULT 0,
+            `created_by` int unsigned NOT NULL DEFAULT 0,
+            `created_at` int unsigned NOT NULL DEFAULT 0,
+            `accepted_by` int unsigned NOT NULL DEFAULT 0,
+            `accepted_at` int unsigned NOT NULL DEFAULT 0,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `code` (`code`),
+            KEY `workspace_status` (`workspace_id`, `status`),
+            KEY `email_status` (`email`(64), `status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    $bEnabled = (bool)$oDb->getOne("SHOW TABLES LIKE 'gf_workspace_invites'");
     return $bEnabled;
 }
 
