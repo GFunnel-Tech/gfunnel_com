@@ -19,6 +19,18 @@ $sPath = parse_url(BX_DOL_URL_ROOT, PHP_URL_PATH);
 if ($sPath && '/' != $sPath)
     $sRequest = bx_ltrim_str($sRequest, rtrim($sPath, '/'));
 
+// GFunnel: dark-themed auth pages. Routes /login and /create-account here
+// (not just via .htaccess, which some deploys don't sync). gf_auth_pages='off'
+// or a logged-in visitor falls through to the stock pages / redirect.
+if(!isLogged() && getParam('gf_auth_pages') != 'off') {
+    $sGfReq = strtolower(trim($sRequest, '/'));
+    if($sGfReq === 'login' || $sGfReq === 'create-account') {
+        $sGfAuthMode = $sGfReq === 'create-account' ? 'join' : 'login';
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_auth.php');
+        exit;
+    }
+}
+
 $aRewriteRules = BxDolRewriteRulesQuery::getActiveRules();
 foreach ($aRewriteRules as $a) {
     if (preg_match('#'.$a['preg'].'#i', $sRequest, $aMatches)) {
