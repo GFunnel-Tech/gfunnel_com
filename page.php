@@ -14,6 +14,17 @@ bx_import('BxDolLanguages');
 
 check_logged();
 
+// GFunnel: dark-themed auth pages also cover the direct page.php?i=login /
+// page/login and page.php?i=create-account routes (friendly URLs go via r.php).
+if(!isLogged() && getParam('gf_auth_pages') != 'off') {
+    $sGfPage = bx_get('i');
+    if($sGfPage === 'login' || $sGfPage === 'create-account') {
+        $sGfAuthMode = $sGfPage === 'create-account' ? 'join' : 'login';
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_auth.php');
+        exit;
+    }
+}
+
 if(($sObject = bx_get('o')) !== false && ($sAction = bx_get('a')) !== false) {
     $sObject = bx_process_input($sObject);
     $sAction = bx_process_input($sAction);
