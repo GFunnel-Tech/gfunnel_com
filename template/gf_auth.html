@@ -9,7 +9,17 @@
         <div class="gf-auth-brand">__logo__</div>
         <div class="gf-auth-heading">__heading__</div>
 
+        <bx_if:social_top>
+        <div class="gf-auth-social">__social__</div>
+        <div class="gf-auth-divider"><span></span>__divider__<span></span></div>
+        </bx_if:social_top>
+
         <div class="gf-auth-form">__form__</div>
+
+        <bx_if:social_bottom>
+        <div class="gf-auth-divider"><span></span>__divider__<span></span></div>
+        <div class="gf-auth-social">__social__</div>
+        </bx_if:social_bottom>
 
         <bx_if:join>
         <div class="gf-auth-alt">Already have an account? <a href="__login_url__">Sign in</a></div>

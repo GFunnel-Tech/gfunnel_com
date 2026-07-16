@@ -39,17 +39,21 @@ function getGfAuthPageCode($sMode)
 
     $bJoin = $sMode == 'join';
 
-    // UNA's real form (includes CSRF, ajax, validation, the agreement line and
-    // the cross-link to the other page) + the configured social auth buttons.
+    // Social auth buttons (Google / Facebook / Discord / ... — whatever is
+    // configured in sys_objects_auths) rendered standalone so we control order.
+    $sSocial = (string)BxDolService::call('system', 'member_auth_code', [], 'TemplServiceLogin');
+
+    // UNA's real form WITHOUT its own social block (we place ours), keeping
+    // CSRF, ajax, validation and the agreement line intact.
     if($bJoin) {
-        $sForm = BxDolService::call('system', 'create_account_form', [], 'TemplServiceAccount');
+        $sForm = BxDolService::call('system', 'create_account_form', ['no_auth_buttons' => true], 'TemplServiceAccount');
         $sHeading = 'Create your account and start building';
-        $sTitle = 'Get started';
+        $sDivider = 'or sign up with email';
     }
     else {
-        $sForm = BxDolService::call('system', 'login_form', [], 'TemplServiceLogin');
+        $sForm = BxDolService::call('system', 'login_form', ['no_auth_buttons no_join_text'], 'TemplServiceLogin');
         $sHeading = 'Sign in to GFunnel';
-        $sTitle = 'Welcome back';
+        $sDivider = 'or continue with';
     }
 
     // Brand logo (uses the site logo configured in Studio -> Designs).
@@ -58,12 +62,23 @@ function getGfAuthPageCode($sMode)
     $sCrossUrl = BX_DOL_URL_ROOT . $oPermalink->permalink('page.php?i=' . ($bJoin ? 'login' : 'create-account'));
     $sCssFile = 'template/css/gf_auth.css';
 
+    $bSocial = trim(strip_tags($sSocial)) !== '' || strpos($sSocial, 'sys-auth') !== false;
+
     return $oTemplate->parseHtmlByName('gf_auth.html', [
         'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
         'mode' => $bJoin ? 'join' : 'login',
         'logo' => $sLogo,
         'heading' => $sHeading,
         'form' => $sForm,
+        // signup: social on top; login: social below the form (matches the design)
+        'bx_if:social_top' => [
+            'condition' => $bSocial && $bJoin,
+            'content' => ['social' => $sSocial, 'divider' => $sDivider]
+        ],
+        'bx_if:social_bottom' => [
+            'condition' => $bSocial && !$bJoin,
+            'content' => ['social' => $sSocial, 'divider' => $sDivider]
+        ],
         'bx_if:join' => [
             'condition' => $bJoin,
             'content' => ['login_url' => $sCrossUrl]
