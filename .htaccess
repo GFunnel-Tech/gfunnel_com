@@ -13,6 +13,9 @@ Options -MultiViews -Indexes
     RewriteRule ^sitemap\.xml$  sitemap.php [QSA,L]
     RewriteRule ^sitemap-([0-9]+)\.xml$  sitemap.php?chunk=$1 [QSA,L]
     RewriteRule ^robots\.txt$  robots.php [L]
+    # GFunnel dark-themed auth pages (fall back to stock when gf_auth_pages=off)
+    RewriteRule ^login/?$  gf_login.php [QSA,L]
+    RewriteRule ^create-account/?$  gf_create_account.php [QSA,L]
     RewriteRule ^m/(.*)$  modules/index.php?r=$1 [QSA,L]
     RewriteRule ^page/(.*)$  page.php?i=$1 [QSA,L]
     RewriteRule ^s/([a-zA-Z0-9_]+)/([a-zA-Z0-9\.]+)  storage.php?o=$1&f=$2   [QSA,L]
