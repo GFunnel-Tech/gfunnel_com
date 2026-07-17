@@ -811,6 +811,14 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
     {
         $this->aPage['url'] = $s;
     }
+    /**
+     * Get page url (used as the canonical URL). Empty when none was set.
+     * @return string page url
+     */
+    function getPageUrl()
+    {
+        return isset($this->aPage['url']) ? $this->aPage['url'] : '';
+    }
 
     /**
      * Get page type
@@ -1329,13 +1337,31 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
             }
         }
 
-        // facebook / twitter
+        // canonical URL — computed once, reused for og:url and the <link> below.
+        // Content/system pages set aPage['url'] (see BxBasePage::_addSysTemplateVars),
+        // so a page always points search engines and social scrapers at one URL.
+        $sCanonical = '';
+        if (!empty($this->aPage['url']))
+            $sCanonical = bx_absolute_url(BxDolPermalinks::getInstance()->permalink($this->aPage['url']));
+
+        // facebook (Open Graph) / twitter
+        $sMetaTitleTag = isset($this->aPage['header']) ? bx_html_attribute(strip_tags($this->aPage['header'])) : '';
+        $sMetaDescTag = $bDescription ? bx_html_attribute($sDescription) : '';
         $bPageImage = !empty($this->aPage['image']);
+
         $sRet .= '<meta name="twitter:card" content="' . ($bPageImage ? 'summary_large_image' : 'summary') . '" />';
-        if ($bPageImage)
+        $sRet .= '<meta property="og:type" content="website" />';
+        $sRet .= '<meta property="og:site_name" content="' . bx_html_attribute(getParam('site_title')) . '" />';
+        $sRet .= '<meta property="og:title" content="' . $sMetaTitleTag . '" />';
+        $sRet .= '<meta name="twitter:title" content="' . $sMetaTitleTag . '" />';
+        $sRet .= '<meta property="og:description" content="' . $sMetaDescTag . '" />';
+        $sRet .= '<meta name="twitter:description" content="' . $sMetaDescTag . '" />';
+        if ($bPageImage) {
             $sRet .= '<meta property="og:image" content="' . $this->aPage['image'] . '" />';
-        $sRet .= '<meta property="og:title" content="' . (isset($this->aPage['header']) ? bx_html_attribute(strip_tags($this->aPage['header'])) : '') . '" />';
-        $sRet .= '<meta property="og:description" content="' . ($bDescription ? bx_html_attribute($sDescription) : '') . '" />';
+            $sRet .= '<meta name="twitter:image" content="' . $this->aPage['image'] . '" />';
+        }
+        if ($sCanonical)
+            $sRet .= '<meta property="og:url" content="' . bx_html_attribute($sCanonical) . '" />';
 
         // Smart App Banner
         if (getParam('smart_app_banner') && false === strpos($_SERVER['HTTP_USER_AGENT'], 'UNAMobileApp')) {
@@ -1353,10 +1379,9 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         
         $sRet .= "<link rel=\"alternate\" type=\"application/json+oembed\" href=\"" . BX_DOL_URL_ROOT ."em.php?url=" . urlencode($_SERVER["REQUEST_URI"]) . "&format=json\" title=\"". (isset($this->aPage['header']) ? bx_html_attribute(strip_tags($this->aPage['header'])) : '') . "\" />";
         
-        if (!empty($this->aPage['url'])){
-            $sRet .= '<link rel="canonical" href="' . bx_absolute_url(BxDolPermalinks::getInstance()->permalink($this->aPage['url'])) . '" />';
-        }
-        
+        if ($sCanonical)
+            $sRet .= '<link rel="canonical" href="' . bx_html_attribute($sCanonical) . '" />';
+
         return $sRet;
     }
     /**

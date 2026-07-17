@@ -982,6 +982,13 @@ class BxBasePage extends BxDolPage
         $sMetaKeywords = $this->_getPageMetaKeywords();
         if ($sMetaKeywords)
             $oTemplate->addPageKeywords ($sMetaKeywords);
+
+        // Self-referencing canonical: content pages already set their own URL
+        // (BxBaseModGeneralPageEntry sets page.php?i=uri&id=id before this runs),
+        // so only plain/system pages fall through here and get a canonical to
+        // their own page URI — collapsing /uri, /page/uri and ?i=uri duplicates.
+        if ('' === $oTemplate->getPageUrl() && !empty($this->_aObject['uri']))
+            $oTemplate->setPageUrl('page.php?i=' . $this->_aObject['uri']);
     }
 
     /**

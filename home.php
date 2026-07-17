@@ -10,6 +10,8 @@
  * Optional settings (sys_options):
  *  - gf_root_home              'off' disables the page (root falls back to splash/home)
  *  - gf_home_meta_description  overrides the meta/og description
+ *  - gf_org_same_as            newline/comma-separated official social profile
+ *                              URLs, emitted as Organization sameAs (knowledge panel)
  */
 
 require_once('./inc/header.inc.php');
@@ -61,6 +63,62 @@ function getGfHomePageCode()
     ]);
 }
 
+/**
+ * Organization + WebSite JSON-LD for the site root — feeds Google's brand
+ * knowledge panel and the sitelinks search box. Emitted only here (Google
+ * wants Organization markup on one representative page), escaped as valid
+ * JSON so it can't break the page.
+ */
+function getGfHomeStructuredData($sDescription)
+{
+    $oPermalink = BxDolPermalinks::getInstance();
+    $sSiteName = getParam('site_title');
+
+    // official logo, reusing the same site-icon storage the meta tags fall back to
+    $sLogo = '';
+    if (($oImgStorage = BxDolStorage::getObjectInstance(BX_DOL_STORAGE_OBJ_IMAGES)) !== false)
+        foreach (['icon_apple', 'icon_android', 'icon_android_splash'] as $sIcon)
+            if (($iIcon = (int)getParam('sys_site_' . $sIcon)) != 0 && ($sUrl = $oImgStorage->getFileUrlById($iIcon))) {
+                $sLogo = $sUrl;
+                break;
+            }
+
+    $aOrganization = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => $sSiteName,
+        'url' => BX_DOL_URL_ROOT,
+        'description' => $sDescription,
+    ];
+    if ($sLogo)
+        $aOrganization['logo'] = $sLogo;
+
+    // official social profiles → sameAs (helps entity disambiguation)
+    $aSameAs = preg_split('/[\s,]+/', trim((string)getParam('gf_org_same_as')), -1, PREG_SPLIT_NO_EMPTY);
+    if (!empty($aSameAs))
+        $aOrganization['sameAs'] = array_values($aSameAs);
+
+    $sSearchResults = BX_DOL_URL_ROOT . $oPermalink->permalink('page.php?i=search-keyword');
+    $aWebSite = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => $sSiteName,
+        'url' => BX_DOL_URL_ROOT,
+        'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => [
+                '@type' => 'EntryPoint',
+                'urlTemplate' => $sSearchResults . '?keyword={search_term_string}',
+            ],
+            'query-input' => 'required name=search_term_string',
+        ],
+    ];
+
+    $iFlags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG;
+    return '<script type="application/ld+json">' . json_encode($aOrganization, $iFlags) . '</script>'
+         . '<script type="application/ld+json">' . json_encode($aWebSite, $iFlags) . '</script>';
+}
+
 check_logged();
 
 $sMetaDescription = trim((string)getParam('gf_home_meta_description'));
@@ -73,6 +131,7 @@ $oTemplate->setPageType(BX_PAGE_TYPE_DEFAULT_WO_HF);
 $oTemplate->setPageHeader(bx_replace_markers(_t('_sys_page_title_home'), array('site_title' => getParam('site_title'))));
 $oTemplate->setPageDescription($sMetaDescription);
 $oTemplate->setPageUrl(BX_DOL_URL_ROOT); // canonical: the site root
+$oTemplate->addInjection('meta_info', 'text', getGfHomeStructuredData($sMetaDescription)); // Organization + WebSite JSON-LD
 $oTemplate->setPageContent('page_main_code', getGfHomePageCode());
 $oTemplate->getPageCode();
 
