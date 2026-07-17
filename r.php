@@ -37,12 +37,19 @@ if(getParam('gf_auth_pages') != 'off') {
     }
 }
 
-// GFunnel: Directory (Phase 1 slice). Public page that renders the local MySQL
-// mirror of Supabase `directory_apps` (see gf_directory.php + the sync Edge
-// Function). gf_directory='off' disables it and falls through to normal routing.
-if(getParam('gf_directory') != 'off' && strtolower(trim($sRequest, '/')) === 'directory') {
-    require_once(BX_DIRECTORY_PATH_ROOT . 'gf_directory.php');
-    exit;
+// GFunnel: Application Directory. Public pages rendering the local MySQL mirror
+// of Supabase (see gf_directory.php + the sync Edge Function):
+//   /directory          -> searchable app grid
+//   /directory/<slug>   -> per-app detail page
+// gf_directory='off' disables it and falls through to normal routing.
+if(getParam('gf_directory') != 'off') {
+    $sGfDir = trim($sRequest, '/');
+    $sGfDirLc = strtolower($sGfDir);
+    if($sGfDirLc === 'directory' || strpos($sGfDirLc, 'directory/') === 0) {
+        $GLOBALS['gf_directory_slug'] = ($sGfDirLc === 'directory') ? '' : substr($sGfDir, strlen('directory/'));
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_directory.php');
+        exit;
+    }
 }
 
 $aRewriteRules = BxDolRewriteRulesQuery::getActiveRules();
