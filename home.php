@@ -47,6 +47,7 @@ function getGfHomePageCode()
 
         //--- Explore
         'community_url' => $fnPageUrl('home'),
+        'applications_url' => BX_DOL_URL_ROOT . 'applications',
         'market_url' => $fnPageUrl('market-home'),
         'events_url' => $fnPageUrl('events-home'),
         'learn_url' => $fnPageUrl('courses-home'),
