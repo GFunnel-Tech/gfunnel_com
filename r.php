@@ -37,6 +37,14 @@ if(getParam('gf_auth_pages') != 'off') {
     }
 }
 
+// GFunnel: Directory (Phase 1 slice). Public page that renders the local MySQL
+// mirror of Supabase `directory_apps` (see gf_directory.php + the sync Edge
+// Function). gf_directory='off' disables it and falls through to normal routing.
+if(getParam('gf_directory') != 'off' && strtolower(trim($sRequest, '/')) === 'directory') {
+    require_once(BX_DIRECTORY_PATH_ROOT . 'gf_directory.php');
+    exit;
+}
+
 $aRewriteRules = BxDolRewriteRulesQuery::getActiveRules();
 foreach ($aRewriteRules as $a) {
     if (preg_match('#'.$a['preg'].'#i', $sRequest, $aMatches)) {
