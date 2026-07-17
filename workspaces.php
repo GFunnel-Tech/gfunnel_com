@@ -545,6 +545,31 @@ if(!isLogged()) {
     exit;
 }
 
+// Onboarding gate: new members funnel through the workspace picker, so route
+// anyone who hasn't finished profile setup to /welcome here - reliable no matter
+// what the post-activation redirect does. Only NEW profiles are gated (recent
+// created-time), so existing members are never pulled into onboarding.
+if(getParam('gf_auth_pages') != 'off' && getParam('gf_onboarding_gate') != 'off') {
+    $oGfOnbGate = BxDolModule::getInstance('gfunnel_onb');
+    if($oGfOnbGate && method_exists($oGfOnbGate, 'isOnboardingComplete') && !$oGfOnbGate->isOnboardingComplete(bx_get_logged_profile_id())) {
+        // "new" = profile added within the window (default 30 days); pre-existing
+        // members fall outside it and are treated as already onboarded.
+        $iGfWindow = (int)getParam('gf_onboarding_new_days');
+        if($iGfWindow <= 0)
+            $iGfWindow = 30;
+
+        // Account creation time (sys_accounts.added). If unreadable, $iGfAdded
+        // stays 0 and the gate never fires - fail-safe, no disruption.
+        $aGfAcc = BxDolAccount::getInstance()->getInfo();
+        $iGfAdded = isset($aGfAcc['added']) ? (int)$aGfAcc['added'] : 0;
+
+        if($iGfAdded > 0 && $iGfAdded >= (time() - $iGfWindow * 86400)) {
+            header('Location: ' . BX_DOL_URL_ROOT . 'gf_onboarding.php');
+            exit;
+        }
+    }
+}
+
 //--- Invite actions (join by code, accept/decline, manage a workspace's code)
 $GLOBALS['gfWsNotice'] = '';
 $GLOBALS['gfWsInviteCard'] = [];
