@@ -16,11 +16,16 @@ check_logged();
 
 // GFunnel: dark-themed auth pages also cover the direct page.php?i=login /
 // page/login and page.php?i=create-account routes (friendly URLs go via r.php).
-if(!isLogged() && getParam('gf_auth_pages') != 'off') {
+if(getParam('gf_auth_pages') != 'off') {
     $sGfPage = bx_get('i');
-    if($sGfPage === 'login' || $sGfPage === 'create-account') {
+    if(!isLogged() && ($sGfPage === 'login' || $sGfPage === 'create-account')) {
         $sGfAuthMode = $sGfPage === 'create-account' ? 'join' : 'login';
         require_once(BX_DIRECTORY_PATH_ROOT . 'gf_auth.php');
+        exit;
+    }
+    // page/onboarding (gfunnel_onb onLoginAfter target) + /welcome alias
+    if(isLogged() && ($sGfPage === 'onboarding' || $sGfPage === 'welcome')) {
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_onboarding.php');
         exit;
     }
 }
