@@ -442,6 +442,12 @@
     font-size: 18px;
     line-height: 1;
     margin: 0;
+    /* muted chrome color, overriding colored classes (e.g. col-green3 on the
+       notification bell) so all member icons match */
+    color: #6b7280 !important;
+}
+.gf-chrome .gf-member .bx-menu-toolbar-item > a:hover .sys-icon {
+    color: #11132a !important;
 }
 /* Marka (animated) icons are hardcoded white in the shared menu template —
    repaint them for the light chrome */
@@ -450,6 +456,13 @@
 }
 .gf-chrome .bx-menu-toolbar-item-title {
     display: none;
+}
+
+/* App layout (pt_application): the sidebar collapse toggler is the ONLY
+   collapse control here, so never render the site-menu hamburger - deterministic
+   CSS, independent of the JS that also hides it. Kills the duplicate icon. */
+.bx-main.bx-pt-application .gf-chrome .gf-hamburger {
+    display: none !important;
 }
 
 /* Items hidden in the spec header: add-content (+), the apps grid and the
