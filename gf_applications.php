@@ -5,8 +5,8 @@
  * Star-Head-style application directory rendered standalone (dark theme), the
  * same self-contained pattern as home.php / splash.php.
  *
- *   /directory            -> searchable grid of apps  (gf_directory_apps)
- *   /directory/<slug>     -> per-app detail page       (gf_platform_apps + children)
+ *   /applications         -> searchable grid of apps  (gf_directory_apps)
+ *   /application/<slug>   -> per-app detail page       (gf_platform_apps + children)
  *
  * DATA FLOW (see docs/directory-sync-runbook.md):
  *   Supabase Postgres  = source of truth
@@ -25,7 +25,7 @@
  * No Supabase creds live here; mirror tables auto-create on first load so the
  * page renders cleanly (empty state) before the first sync runs.
  *
- * Routes wired in r.php. Setting `gf_directory = off` (sys_options) disables it.
+ * Routes wired in r.php. Setting `gf_applications = off` (sys_options) disables it.
  */
 
 require_once('./inc/header.inc.php');
@@ -33,7 +33,7 @@ require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
 
 bx_import('BxDolLanguages');
 
-if(getParam('gf_directory') == 'off') {
+if(getParam('gf_applications') == 'off') {
     BxDolTemplate::getInstance()->displayPageNotFound();
     exit;
 }
@@ -41,7 +41,7 @@ if(getParam('gf_directory') == 'off') {
 $oDb = BxDolDb::getInstance();
 gfDirEnsureTables($oDb);
 
-$sSlug = isset($GLOBALS['gf_directory_slug']) ? trim((string)$GLOBALS['gf_directory_slug'], '/') : '';
+$sSlug = isset($GLOBALS['gf_app_slug']) ? trim((string)$GLOBALS['gf_app_slug'], '/') : '';
 if($sSlug === '' && bx_get('app') !== false)
     $sSlug = trim((string)bx_get('app'));
 
@@ -150,9 +150,8 @@ function gfDirJson($s)
 function gfDirUrl($aApp)
 {
     $sSlug = trim((string)$aApp['slug']);
-    if($sSlug !== '')
-        return BX_DOL_URL_ROOT . 'directory/' . rawurlencode($sSlug);
-    return BX_DOL_URL_ROOT . 'directory?app=' . rawurlencode($aApp['id']);
+    if($sSlug === '') $sSlug = (string)$aApp['id'];
+    return BX_DOL_URL_ROOT . 'application/' . rawurlencode($sSlug);
 }
 
 /** Shared page chrome. */
@@ -283,20 +282,20 @@ function gfDirRenderList($oDb)
     if($sGrid === '')
         $sGrid = '<div class="gfd-empty">No directory entries yet. Once the Supabase sync runs, ' . $iTotal . ' apps will appear here.</div>';
 
-    $sChips = '<a class="gfd-chip' . ($sCat === '' ? ' gfd-chip-on' : '') . '" href="' . BX_DOL_URL_ROOT . 'directory">All</a>';
+    $sChips = '<a class="gfd-chip' . ($sCat === '' ? ' gfd-chip-on' : '') . '" href="' . BX_DOL_URL_ROOT . 'applications">All</a>';
     foreach($aCats as $c)
-        $sChips .= '<a class="gfd-chip' . ($sCat === $c ? ' gfd-chip-on' : '') . '" href="' . BX_DOL_URL_ROOT . 'directory?cat=' . rawurlencode($c) . '">' . gfDirOut($c) . '</a>';
+        $sChips .= '<a class="gfd-chip' . ($sCat === $c ? ' gfd-chip-on' : '') . '" href="' . BX_DOL_URL_ROOT . 'applications?cat=' . rawurlencode($c) . '">' . gfDirOut($c) . '</a>';
 
     $sCss = gfDirCss();
     $sSite = gfDirOut(getParam('site_title'));
     echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Directory — {$sSite}</title><meta name=\"description\" content=\"Explore every app, tool and company in the GFunnel Directory.\">{$sCss}</head><body><div class=\"gfd-wrap\">";
-    echo '<div class="gfd-hero"><h1>The GFunnel Directory</h1><p>Every app, tool and company in the \'verse — searchable, in one place.</p>'
+    echo '<div class="gfd-hero"><h1>Application Directory</h1><p>Every app and tool in the \'verse — searchable, in one place.</p>'
         . '<div class="gfd-search"><input id="gfdSearch" type="text" placeholder="Search ' . $iTotal . ' apps, tools, companies…" autocomplete="off"><div class="gfd-count" id="gfdCount"></div></div></div>';
     if($sFeatured !== '' && $sCat === '')
         echo '<div class="gfd-featured"><div class="gfd-section">Featured</div><div class="gfd-grid">' . $sFeatured . '</div></div>';
     echo '<div class="gfd-chips">' . $sChips . '</div>';
     echo '<div class="gfd-grid" id="gfdGrid">' . $sGrid . '</div>';
-    echo '<div class="gfd-foot">GFunnel Directory · synced from Supabase · ' . $iTotal . ' entries</div></div>';
+    echo '<div class="gfd-foot">GFunnel · Application Directory · synced from Supabase · ' . $iTotal . ' entries</div></div>';
     echo <<<JS
 <script>(function(){var i=document.getElementById('gfdSearch'),g=document.getElementById('gfdGrid'),c=document.getElementById('gfdCount');if(!i||!g)return;var cards=[].slice.call(g.querySelectorAll('.gfd-card'));i.addEventListener('input',function(){var q=i.value.trim().toLowerCase(),n=0;cards.forEach(function(x){var h=q===''||x.textContent.toLowerCase().indexOf(q)>-1;x.style.display=h?'':'none';if(h)n++;});c.textContent=q?n+' match'+(n===1?'':'es'):'';});})();</script>
 JS;
@@ -370,7 +369,7 @@ function gfDirRenderDetail($oDb, $sSlug)
     echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{$sTitle} — Directory — {$sSite}</title>";
     if($sTagline !== '') echo "<meta name=\"description\" content=\"{$sTagline}\">";
     echo "{$sCss}</head><body><div class=\"gfd-wrap\">";
-    echo '<a class="gfd-back" href="' . BX_DOL_URL_ROOT . 'directory">← All apps</a>';
+    echo '<a class="gfd-back" href="' . BX_DOL_URL_ROOT . 'applications">← All apps</a>';
 
     // Hero
     echo '<div class="gfd-dhero">'
@@ -438,11 +437,11 @@ function gfDirRenderDetail($oDb, $sSlug)
         foreach($aRelated as $sRel) {
             $sRel = trim((string)$sRel);
             if($sRel === '') continue;
-            $sR .= '<a class="gfd-chip" href="' . BX_DOL_URL_ROOT . 'directory/' . rawurlencode($sRel) . '">' . gfDirOut($sRel) . '</a>';
+            $sR .= '<a class="gfd-chip" href="' . BX_DOL_URL_ROOT . 'application/' . rawurlencode($sRel) . '">' . gfDirOut($sRel) . '</a>';
         }
         if($sR !== '') echo '<div class="gfd-block"><h2>Related</h2><div class="gfd-chips">' . $sR . '</div></div>';
     }
     echo '</div></div>';
 
-    echo '<div class="gfd-foot">GFunnel Directory · synced from Supabase</div></div></body></html>';
+    echo '<div class="gfd-foot">GFunnel · Application Directory · synced from Supabase</div></div></body></html>';
 }

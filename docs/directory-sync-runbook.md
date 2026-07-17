@@ -17,8 +17,8 @@ Edge Function sync-directory-apps-to-mysql   (owned one-way push, PG → MySQL,
 UNA MySQL mirrors: gf_directory_apps, gf_platform_apps, gf_app_tutorials,
         │           gf_app_docs, gf_app_help_articles
         ▼
-gf_directory.php   /directory          → searchable app grid
-                   /directory/<slug>   → per-app detail (about, use cases,
+gf_applications.php  /applications          → searchable app grid
+                   /application/<slug>   → per-app detail (about, use cases,
                                           automation ideas, categories,
                                           departments, tutorials, docs, help)
 ```
@@ -32,7 +32,7 @@ get/create/update on Postgres; the Edge Function lands those changes in MySQL.
 
 | Artifact | Path |
 |---|---|
-| UNA list + detail pages + routes | `gf_directory.php`, `r.php` (`/directory`, `/directory/<slug>`) |
+| UNA list + detail pages + routes | `gf_applications.php`, `r.php` (`/applications`, `/application/<slug>`) |
 | Mirror-table DDL (also auto-created by the page) | `docs/sql/gf_directory_apps.mysql.sql` |
 | PG→MySQL sync Edge Function (5 tables) | `supabase/functions/sync-directory-apps-to-mysql/index.ts` |
 
@@ -41,7 +41,7 @@ get/create/update on Postgres; the Edge Function lands those changes in MySQL.
 Nothing below has been run yet. Each step is idempotent.
 
 ### 1. Create the MySQL mirror table
-Either deploy this branch and hit `/directory` once (the page runs
+Either deploy this branch and hit `/applications` once (the page runs
 `CREATE TABLE IF NOT EXISTS`), or run `docs/sql/gf_directory_apps.mysql.sql`
 against the UNA database manually. **Write scope:** one new table, no existing
 data touched.
@@ -78,7 +78,7 @@ field in the payload, so all webhooks point at the same function.
 
 ### 6. Prove it end to end
 Create one row **through the MCP** (source of truth), then confirm it appears at
-`/directory` within a couple seconds:
+`/applications` within a couple seconds:
 ```sql
 insert into public.directory_apps (name, slug, description, category, app_url, is_featured, is_gfunnel_native)
 values ('Sync Smoke Test','sync-smoke-test','Created via MCP to prove the pipeline.','Testing','https://gfunnel.com', true, true);
@@ -87,11 +87,11 @@ Then delete it to leave production clean:
 ```sql
 delete from public.directory_apps where slug = 'sync-smoke-test';
 ```
-Both the insert and the delete should reflect at `/directory` (delete removes the
+Both the insert and the delete should reflect at `/applications` (delete removes the
 card), proving INSERT and DELETE propagate.
 
 ## Rollback
-- Disable the page: set `sys_option` `gf_directory = off`.
+- Disable the page: set `sys_option` `gf_applications = off`.
 - Disable sync: delete the Database Webhook.
 - Full teardown: `DROP TABLE gf_directory_apps, gf_platform_apps, gf_app_tutorials,
   gf_app_docs, gf_app_help_articles;` (mirrors only — Supabase source untouched).
