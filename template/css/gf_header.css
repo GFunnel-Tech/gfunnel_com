@@ -425,10 +425,16 @@
 }
 .gf-chrome .gf-member .bx-menu-toolbar-item > a,
 .gf-chrome .gf-hamburger .bx-menu-toolbar-item > a {
+    /* Fixed square so EVERY member icon has an identical hover box, no matter
+       what its icon's intrinsic size is (the notifications bell used to render a
+       larger box than its neighbours). */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    box-sizing: border-box;
     border-radius: 8px;
     color: #6b7280;
     text-decoration: none;
@@ -485,25 +491,30 @@
     display: none;
 }
 
-/* Unread/count badges */
+/* Unread/count badges. Sit just inside the top-right of the 36px icon square
+   (not the extreme corner) so the badge is never clipped by the header edge.
+   Height and line-height match so the digit is vertically centred rather than
+   cropped at the top. */
 .gf-chrome .bx-menu-toolbar-item .bx-menu-item-addon {
     position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 18px;
-    height: 18px;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 5px;
+    padding: 0 4px;
     border-radius: 9999px;
     background-color: #f97316;
     color: #ffffff;
     font-size: 10px;
     font-weight: 700;
-    line-height: 1;
+    line-height: 16px;
+    text-align: center;
     box-shadow: 0 0 0 2px #ffffff;
+    pointer-events: none;
 }
 
 /* Account avatar */
