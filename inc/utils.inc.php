@@ -7,6 +7,25 @@
  * @{
  */
 
+// GFunnel: UNA renders content-heavy pages (profiles with many blocks, the
+// directory, admin/studio) that exceed PHP's stock 128M default and trigger
+// "Allowed memory size ... exhausted" fatals. UNA's own recommended minimum
+// is 256M. Raise the limit here, at the earliest point loaded on every
+// request, but never lower an already-higher host/php.ini value (and never
+// touch an unlimited "-1"). Belt-and-suspenders with the php_value fallback
+// in .htaccess; both are no-ops where a higher limit is already configured.
+$sGfMemLimit = trim((string)@ini_get('memory_limit'));
+if ($sGfMemLimit !== '' && $sGfMemLimit !== '-1') {
+    $iGfMemBytes = (int)$sGfMemLimit;
+    switch (strtolower(substr($sGfMemLimit, -1))) {
+        case 'g': $iGfMemBytes *= 1024 * 1024 * 1024; break;
+        case 'm': $iGfMemBytes *= 1024 * 1024; break;
+        case 'k': $iGfMemBytes *= 1024; break;
+    }
+    if ($iGfMemBytes < 256 * 1024 * 1024)
+        @ini_set('memory_limit', '256M');
+}
+
 define('BX_DOL_LINK_CLASS', 'bx-link'); ///< class to add to every link in user content
 
 define('BX_DATA_TEXT', 1); ///< regular text data type
