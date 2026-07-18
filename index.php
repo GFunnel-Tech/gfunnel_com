@@ -26,6 +26,17 @@ if (!file_exists("./inc/header.inc.php")) {
 require_once('./inc/header.inc.php');
 require_once(BX_DIRECTORY_PATH_INC . "profiles.inc.php");
 
+// A workspace invite link is BX_DOL_URL_ROOT . '?code=XXXXXXXX' (root). When the
+// invitee is not yet a member, root sends them to home/splash and the register
+// flow drops query params, so stash the code in a cookie. workspaces.php redeems
+// it once the new member lands back on the picker (see gfWsInvitesEnabled block).
+// The inviter's affiliate am_id (also on the link) is captured separately by the
+// Affiliate System, so affiliate attribution survives the same flow.
+if (!isLogged() && !empty($_GET['code']) && preg_match('/^[A-Za-z0-9]{8}$/', $_GET['code'])) {
+    $aGfUrl = parse_url(BX_DOL_URL_ROOT);
+    setcookie('gf_ws_invite', strtoupper($_GET['code']), time() + 86400 * 14, !empty($aGfUrl['path']) ? $aGfUrl['path'] : '/', '', false, true /* http only */);
+}
+
 if (!isLogged() && getParam('gf_root_home') != 'off' && false === strpos($_SERVER['HTTP_USER_AGENT'], 'UNAMobileApp')) {
     require_once("./home.php");
     exit;
