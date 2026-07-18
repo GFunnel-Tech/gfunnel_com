@@ -449,6 +449,17 @@
 .gf-chrome .gf-member .bx-menu-toolbar-item > a:hover .sys-icon {
     color: #11132a !important;
 }
+/* Marka (animated) icons — e.g. the notifications bell — get an inline
+   width/height from JS that is larger than the 18px font icons, which made the
+   bell (and its padded hover box) bigger than its neighbours. Pin the marka
+   box to 18px so every member icon matches; !important beats the inline style. */
+.gf-chrome .bx-menu-toolbar-item .sys-icon-a.marka {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
+}
 /* Marka (animated) icons are hardcoded white in the shared menu template —
    repaint them for the light chrome */
 .gf-chrome .bx-menu-toolbar-item .sys-icon-a.marka i {
