@@ -44,6 +44,17 @@ class GfSiteMapGenerator
     protected $sCachePrefix = 'gf_sitemap_';
     protected $aEnabledModules;
 
+    // streaming writer state — URLs are flushed to chunk files as they are
+    // produced, so a full rebuild never holds the whole URL set in memory.
+    protected $aSeenLoc = [];      // dedupe set: loc => true (first occurrence wins)
+    protected $rChunkHandle = null; // handle of the chunk file currently open
+    protected $sChunkTmp = '';      // temp path of the chunk being written
+    protected $sChunkFinal = '';    // final path it is renamed to on close
+    protected $iChunkIndex = 0;     // number of chunks opened so far (1-based)
+    protected $iChunkRows = 0;      // URLs written into the current chunk
+    protected $iTotalUrls = 0;      // total URLs written across all chunks
+    protected $bStreamError = false;// sticky: a write/rotation failed mid-stream
+
     /**
      * Modules skipped by default: private, ephemeral or thin-content types.
      * Extend with gf_sitemap_modules_exclude, re-include with
@@ -240,33 +251,28 @@ class GfSiteMapGenerator
     {
         $fStart = microtime(true);
 
-        $aUrls = [];
+        // Stream URLs straight to chunk files as they are produced. Sources are
+        // walked in priority order (root, system pages, module content, extras)
+        // and emitUrl() dedupes by loc — first occurrence wins — so the only
+        // thing kept in memory is the lightweight seen-loc set, never the full
+        // URL set (which on a large site would exhaust PHP's memory limit).
+        $this->streamStart();
 
         // 1. site root (marketing home page)
-        $aUrls[] = ['loc' => BX_DOL_URL_ROOT, 'changefreq' => 'daily', 'priority' => '1.0'];
+        $this->emitUrl(['loc' => BX_DOL_URL_ROOT, 'changefreq' => 'daily', 'priority' => '1.0']);
 
         // 2. system/builder pages, 3. module content, 4. hand-maintained extras
-        $aUrls = array_merge($aUrls, $this->collectSystemPages(), $this->collectModuleEntries(), $this->collectExtraUrls());
+        $this->collectSystemPages();
+        $this->collectModuleEntries();
+        $this->collectExtraUrls();
 
-        // dedupe by loc, first occurrence wins
-        $aByLoc = [];
-        foreach ($aUrls as $aUrl)
-            if (!isset($aByLoc[$aUrl['loc']]))
-                $aByLoc[$aUrl['loc']] = $aUrl;
-        $aUrls = array_values($aByLoc);
-        unset($aByLoc);
+        $aStream = $this->streamFinish();
+        if ($aStream === false)
+            return false;
 
-        // write chunk files
-        $aChunks = array_chunk($aUrls, self::CHUNK_SIZE);
-        if (empty($aChunks))
-            $aChunks = [[]];
-
-        foreach ($aChunks as $iIndex => $aChunkUrls)
-            if (!$this->writeCacheFile($this->getChunkFile($iIndex + 1), $this->renderUrlSet($aChunkUrls)))
-                return false;
+        $iChunks = $aStream['chunks'];
 
         // write index file when split
-        $iChunks = count($aChunks);
         if ($iChunks > 1 && !$this->writeCacheFile($this->getIndexFile(), $this->renderIndex($iChunks)))
             return false;
 
@@ -276,7 +282,7 @@ class GfSiteMapGenerator
 
         $aMeta = [
             'generated' => time(),
-            'urls' => count($aUrls),
+            'urls' => $aStream['urls'],
             'chunks' => $iChunks,
             'duration' => round(microtime(true) - $fStart, 3),
         ];
@@ -318,9 +324,8 @@ class GfSiteMapGenerator
 
         $aPages = $oDb->getAll("SELECT `uri`, `module`, `visible_for_levels`, `meta_robots` FROM `sys_objects_page`");
         if (!is_array($aPages))
-            return [];
+            return;
 
-        $aResult = [];
         $aDone = [];
         foreach ($aPages as $aPage) {
             $sUri = (string)$aPage['uri'];
@@ -344,14 +349,12 @@ class GfSiteMapGenerator
                 continue;
 
             $aDone[$sUri] = true;
-            $aResult[] = [
+            $this->emitUrl([
                 'loc' => BX_DOL_URL_ROOT . $oPermalinks->permalink('page.php?i=' . $sUri),
                 'changefreq' => 'weekly',
                 'priority' => '0.6',
-            ];
+            ]);
         }
-
-        return $aResult;
     }
 
     /**
@@ -368,7 +371,6 @@ class GfSiteMapGenerator
         // modules whose entries are profiles (must have an active sys_profiles row)
         $aProfileTypes = array_flip((array)$oDb->getColumn("SELECT DISTINCT `type` FROM `sys_profiles`"));
 
-        $aResult = [];
         foreach ($this->getEnabledModules() as $sModule => $aModule) {
             if (isset($aExclude[$sModule]))
                 continue;
@@ -452,7 +454,7 @@ class GfSiteMapGenerator
                     if ($iLastMod > 0)
                         $aUrl['lastmod'] = gmdate('Y-m-d\TH:i:s\Z', $iLastMod);
 
-                    $aResult[] = $aUrl;
+                    $this->emitUrl($aUrl);
                     $iCollected++;
                 }
 
@@ -460,8 +462,6 @@ class GfSiteMapGenerator
                     break;
             }
         }
-
-        return $aResult;
     }
 
     /**
@@ -472,9 +472,8 @@ class GfSiteMapGenerator
     {
         $sParam = trim((string)getParam('gf_sitemap_extra_urls'));
         if ('' === $sParam)
-            return [];
+            return;
 
-        $aResult = [];
         foreach (preg_split('/[\r\n]+/', $sParam, -1, PREG_SPLIT_NO_EMPTY) as $sLine) {
             $aParts = preg_split('/\s+/', trim($sLine));
             if (empty($aParts[0]))
@@ -486,10 +485,8 @@ class GfSiteMapGenerator
             if (isset($aParts[2]) && is_numeric($aParts[2]))
                 $aUrl['priority'] = sprintf('%.1f', min(1, max(0, (float)$aParts[2])));
 
-            $aResult[] = $aUrl;
+            $this->emitUrl($aUrl);
         }
-
-        return $aResult;
     }
 
     // ------------------------------------------------------------ helpers
@@ -570,23 +567,139 @@ class GfSiteMapGenerator
         return isset($aRewrites[$sPageUri]) ? $aRewrites[$sPageUri] : $sPageUri;
     }
 
-    protected function renderUrlSet($aUrls)
+    protected function renderUrlSetHeader()
     {
-        $s = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+        return '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
             . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    }
 
-        foreach ($aUrls as $aUrl) {
-            $s .= "<url><loc>" . htmlspecialchars($aUrl['loc'], ENT_QUOTES | ENT_XML1) . "</loc>";
-            if (!empty($aUrl['lastmod']))
-                $s .= "<lastmod>" . $aUrl['lastmod'] . "</lastmod>";
-            if (!empty($aUrl['changefreq']))
-                $s .= "<changefreq>" . $aUrl['changefreq'] . "</changefreq>";
-            if (!empty($aUrl['priority']))
-                $s .= "<priority>" . $aUrl['priority'] . "</priority>";
-            $s .= "</url>\n";
+    protected function renderUrlSetFooter()
+    {
+        return '</urlset>' . "\n";
+    }
+
+    protected function renderUrl($aUrl)
+    {
+        $s = "<url><loc>" . htmlspecialchars($aUrl['loc'], ENT_QUOTES | ENT_XML1) . "</loc>";
+        if (!empty($aUrl['lastmod']))
+            $s .= "<lastmod>" . $aUrl['lastmod'] . "</lastmod>";
+        if (!empty($aUrl['changefreq']))
+            $s .= "<changefreq>" . $aUrl['changefreq'] . "</changefreq>";
+        if (!empty($aUrl['priority']))
+            $s .= "<priority>" . $aUrl['priority'] . "</priority>";
+        return $s . "</url>\n";
+    }
+
+    // ---------------------------------------------------- streaming writer
+
+    /** Reset streaming state before a rebuild. */
+    protected function streamStart()
+    {
+        $this->aSeenLoc = [];
+        $this->rChunkHandle = null;
+        $this->sChunkTmp = '';
+        $this->sChunkFinal = '';
+        $this->iChunkIndex = 0;
+        $this->iChunkRows = 0;
+        $this->iTotalUrls = 0;
+        $this->bStreamError = false;
+    }
+
+    /**
+     * Emit one URL into the sitemap stream: dedupe by loc (first occurrence
+     * wins), rotate to a new chunk file once CHUNK_SIZE is reached, and write
+     * the entry straight to disk so it never has to be held in memory.
+     */
+    protected function emitUrl(array $aUrl)
+    {
+        if ($this->bStreamError)
+            return;
+        if (empty($aUrl['loc']) || isset($this->aSeenLoc[$aUrl['loc']]))
+            return;
+        $this->aSeenLoc[$aUrl['loc']] = true;
+
+        if ($this->rChunkHandle === null || $this->iChunkRows >= self::CHUNK_SIZE)
+            if (!$this->openNextChunk())
+                return;
+
+        if (false === @fwrite($this->rChunkHandle, $this->renderUrl($aUrl))) {
+            bx_log('sys_cron_jobs', 'gf_sitemap ERROR: cannot write ' . $this->sChunkTmp . ' — check disk space');
+            $this->bStreamError = true;
+            return;
         }
 
-        return $s . '</urlset>' . "\n";
+        $this->iChunkRows++;
+        $this->iTotalUrls++;
+    }
+
+    /** Close the current chunk (if any) and open the next one, header written. */
+    protected function openNextChunk()
+    {
+        if ($this->rChunkHandle !== null && !$this->closeChunk())
+            return false;
+
+        $this->iChunkIndex++;
+        $this->iChunkRows = 0;
+
+        $sFinal = $this->getChunkFile($this->iChunkIndex);
+        $sTmp = $sFinal . '.tmp.' . getmypid();
+
+        $rHandle = @fopen($sTmp, 'w');
+        if (!$rHandle || false === @fwrite($rHandle, $this->renderUrlSetHeader())) {
+            if ($rHandle)
+                @fclose($rHandle);
+            @unlink($sTmp);
+            bx_log('sys_cron_jobs', 'gf_sitemap ERROR: cannot open ' . $sTmp . ' — check ' . $this->sCacheDir . ' permissions/disk space');
+            $this->bStreamError = true;
+            return false;
+        }
+
+        $this->rChunkHandle = $rHandle;
+        $this->sChunkTmp = $sTmp;
+        $this->sChunkFinal = $sFinal;
+        return true;
+    }
+
+    /** Write the footer, close the temp file and atomically rename it into place. */
+    protected function closeChunk()
+    {
+        if ($this->rChunkHandle === null)
+            return true;
+
+        $bOk = (false !== @fwrite($this->rChunkHandle, $this->renderUrlSetFooter()));
+        @fclose($this->rChunkHandle);
+        $this->rChunkHandle = null;
+
+        if (!$bOk || !@rename($this->sChunkTmp, $this->sChunkFinal)) {
+            @unlink($this->sChunkTmp);
+            bx_log('sys_cron_jobs', 'gf_sitemap ERROR: cannot write ' . $this->sChunkFinal . ' — check ' . $this->sCacheDir . ' permissions/disk space');
+            $this->bStreamError = true;
+            return false;
+        }
+
+        @chmod($this->sChunkFinal, 0666);
+        return true;
+    }
+
+    /**
+     * Finish the stream: guarantee at least one (possibly empty) chunk exists,
+     * flush the last one, and return ['urls' => int, 'chunks' => int] — or
+     * false if any write failed along the way.
+     * @return array|false
+     */
+    protected function streamFinish()
+    {
+        // an empty site still needs a valid, empty sitemap.xml (chunk 1)
+        if ($this->iChunkIndex === 0 && !$this->openNextChunk())
+            return false;
+
+        if (!$this->closeChunk())
+            return false;
+
+        if ($this->bStreamError)
+            return false;
+
+        return ['urls' => $this->iTotalUrls, 'chunks' => $this->iChunkIndex];
     }
 
     protected function renderIndex($iChunks)
