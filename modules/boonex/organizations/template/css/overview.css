@@ -1,0 +1,489 @@
+/**
+ * GFunnel — Organization Overview block.
+ *
+ * Scoped styling (all rules under .gforg) for the custom "Overview" service
+ * block rendered on the organization profile page. Reproduces the GFunnel
+ * org-home layout: greeting / Ask-AI panel, Departments grid, Activity feed,
+ * Network & Partners, and a right rail with Calendar + Quick Links.
+ *
+ * Palette follows the GFunnel brand (orange #EA580C / #F97316) and the light
+ * card system used across the app. Everything is prefixed .gforg- so it never
+ * collides with UNA core or other module CSS.
+ */
+
+.gforg {
+    --gforg-orange: #ea580c;
+    --gforg-orange-2: #f97316;
+    --gforg-ink: #0f172a;
+    --gforg-muted: #64748b;
+    --gforg-line: #e7ebf0;
+    --gforg-bg: #f5f7fa;
+    --gforg-card: #ffffff;
+    --gforg-radius: 16px;
+    --gforg-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .05);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--gforg-ink);
+    box-sizing: border-box;
+}
+
+.gforg *,
+.gforg *::before,
+.gforg *::after {
+    box-sizing: border-box;
+}
+
+/* ---- Layout ------------------------------------------------------------ */
+.gforg-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 980px) {
+    .gforg-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .gforg-rail {
+        order: -1;
+    }
+}
+
+.gforg-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.gforg-card {
+    background: var(--gforg-card);
+    border: 1px solid var(--gforg-line);
+    border-radius: var(--gforg-radius);
+    box-shadow: var(--gforg-shadow);
+}
+
+.gforg-card-pad {
+    padding: 20px;
+}
+
+/* ---- Section headings -------------------------------------------------- */
+.gforg-sec-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.gforg-sec-head h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.gforg-sec-head p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--gforg-muted);
+}
+
+.gforg-sec-link {
+    flex: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gforg-orange);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.gforg-sec-link:hover { text-decoration: underline; }
+
+.gforg-btn-soft {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--gforg-line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--gforg-ink);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.gforg-btn-soft:hover { border-color: #cbd5e1; }
+
+/* ---- Ask-AI panel ------------------------------------------------------ */
+.gforg-ai-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    border: 1px solid var(--gforg-line);
+    border-radius: 12px;
+    width: fit-content;
+    margin-bottom: 16px;
+}
+.gforg-ai-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gforg-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+.gforg-ai-tab.gforg-on {
+    background: #fff;
+    color: var(--gforg-ink);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
+}
+
+.gforg-ai-greeting {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.gforg-ai-spark {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--gforg-orange-2), var(--gforg-orange));
+}
+.gforg-ai-bubble {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: var(--gforg-ink);
+}
+
+.gforg-ai-input {
+    position: relative;
+    margin-bottom: 12px;
+}
+.gforg-ai-input input {
+    width: 100%;
+    height: 52px;
+    border: 1px solid var(--gforg-line);
+    border-radius: 12px;
+    padding: 0 58px 0 16px;
+    font-size: 15px;
+    color: var(--gforg-ink);
+    outline: none;
+}
+.gforg-ai-input input:focus { border-color: var(--gforg-orange-2); }
+.gforg-ai-send {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--gforg-orange);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.gforg-ai-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.gforg-ai-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--gforg-line);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+}
+.gforg-ai-chip:hover { border-color: #cbd5e1; }
+.gforg-ai-chip svg { color: var(--gforg-muted); }
+
+/* ---- Pinned ------------------------------------------------------------ */
+.gforg-pinned-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--gforg-muted);
+    margin-bottom: 12px;
+}
+.gforg-pinned-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+.gforg-pinned-tile {
+    height: 150px;
+    border: 1px dashed var(--gforg-line);
+    border-radius: 14px;
+    background: #fbfcfe;
+}
+
+/* ---- Departments ------------------------------------------------------- */
+.gforg-dept-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+@media (max-width: 640px) {
+    .gforg-dept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.gforg-dept {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding: 16px;
+    border: 1px solid var(--gforg-line);
+    border-radius: 14px;
+    background: #fff;
+    transition: border-color .15s, transform .15s;
+}
+.gforg-dept:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+.gforg-dept-ico {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+}
+.gforg-dept-name {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+}
+.gforg-dept-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--gforg-muted);
+    margin-top: 2px;
+}
+.gforg-dept-more {
+    margin-top: 14px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* ---- Activity ---------------------------------------------------------- */
+.gforg-activity-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 0;
+    border-top: 1px solid var(--gforg-line);
+}
+.gforg-activity-item:first-child { border-top: 0; }
+.gforg-activity-dot {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #eef2f7;
+}
+.gforg-activity-lines { flex: 1; }
+.gforg-activity-lines span {
+    display: block;
+    height: 9px;
+    border-radius: 6px;
+    background: #eef2f7;
+}
+.gforg-activity-lines span:first-child { width: 70%; margin-bottom: 8px; }
+.gforg-activity-lines span:last-child { width: 40%; }
+
+/* ---- Partners ---------------------------------------------------------- */
+.gforg-partner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--gforg-line);
+}
+.gforg-partner:first-of-type { border-top: 0; }
+.gforg-partner-logo {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+}
+.gforg-partner-info { flex: 1; min-width: 0; }
+.gforg-partner-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+}
+.gforg-partner-role {
+    display: block;
+    font-size: 12px;
+    color: var(--gforg-muted);
+}
+.gforg-partner-tag {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    border-radius: 999px;
+    padding: 4px 12px;
+}
+
+/* ---- Right rail -------------------------------------------------------- */
+.gforg-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.gforg-rail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.gforg-rail-head h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+.gforg-rail-head p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--gforg-muted);
+}
+
+.gforg-cal {
+    border: 1px solid var(--gforg-line);
+    border-radius: 14px;
+    padding: 26px 20px;
+    text-align: center;
+    margin-top: 14px;
+}
+.gforg-cal-ico {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 12px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: var(--gforg-orange);
+    background: #fff7ed;
+}
+.gforg-cal-title { font-size: 15px; font-weight: 700; }
+.gforg-cal-text {
+    font-size: 13px;
+    color: var(--gforg-muted);
+    margin: 6px 0 16px;
+}
+.gforg-btn-orange {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--gforg-orange);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+.gforg-btn-orange:hover { background: #c2410c; }
+
+.gforg-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--gforg-line);
+    text-decoration: none;
+    color: inherit;
+}
+.gforg-link:first-of-type { border-top: 0; }
+.gforg-link-ico {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #f1f5f9;
+    display: grid;
+    place-items: center;
+    color: var(--gforg-muted);
+}
+.gforg-link-info { flex: 1; min-width: 0; }
+.gforg-link-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gforg-link-sub {
+    display: block;
+    font-size: 12px;
+    color: var(--gforg-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gforg-status {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.gforg-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+.gforg-status-live { color: #16a34a; }
+.gforg-status-draft { color: #d97706; }
+
+.gforg-rail-add {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gforg-orange);
+    text-decoration: none;
+}
