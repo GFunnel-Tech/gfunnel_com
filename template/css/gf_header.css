@@ -58,13 +58,31 @@
 }
 
 /*--- Application layout: sidebar togglers ---*/
+/* Hidden by default; the two ID rules below reveal exactly one per breakpoint.
+   Box/hover match the .gf-icon-btn recipe so the toggler looks like every other
+   header icon. These carry the full 36px square themselves (they intentionally
+   do NOT use .gf-icon-btn, to keep their display governed solely by the rules
+   here rather than fighting .gf-icon-btn's display:flex). */
 .gf-chrome .gf-sidebar-toggler {
     display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    box-sizing: border-box;
     border: 0;
+    border-radius: 8px;
     background-color: transparent;
+    color: #6b7280;
     cursor: pointer;
 }
-/* desktop toggler at >=1280px, mobile toggler below (mirrors xl: breakpoint) */
+.gf-chrome .gf-sidebar-toggler:hover {
+    background-color: #f3f4f7;
+    color: #11132a;
+}
+/* desktop toggler at >=1280px, mobile toggler below (mirrors xl: breakpoint).
+   ID specificity beats the base rule, so exactly one is shown. */
 @media (min-width: 1280px) {
     .gf-chrome #toggleSidebar.gf-sidebar-toggler {
         display: flex;
