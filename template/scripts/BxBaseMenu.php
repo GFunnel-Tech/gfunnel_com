@@ -369,7 +369,20 @@ class BxBaseMenu extends BxDolMenu
     
     protected function _getMenuIcon ($a)
     {
-        return BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon(!empty($a['icon']) ? $a['icon'] : '');
+        $sIcon = !empty($a['icon']) ? $a['icon'] : '';
+
+        // GFunnel chrome: render the header toolbar icons as plain font icons
+        // rather than marka "animated" ones (whose code is prefixed "a:", e.g.
+        // the notifications bell "a:bell"). The animated variant is JS-drawn and
+        // sized independently, so the bell — and its padded hover box — came out
+        // larger than the font icons beside it. Stripping the "a:" prefix makes
+        // it a normal <i class="sys-icon bell">, identical in size, colour and
+        // hover target to every other member icon. Scoped to the sys_toolbar_*
+        // menus so animated icons elsewhere are untouched.
+        if($sIcon !== '' && strncmp($sIcon, 'a:', 2) === 0 && strncmp((string)$this->_sObject, 'sys_toolbar', 11) === 0)
+            $sIcon = substr($sIcon, 2);
+
+        return BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon($sIcon);
     }
     
     public function getMenuIconHtml($sIcon)
