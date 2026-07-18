@@ -28,9 +28,10 @@ per instance:
 1. **Studio → Pages** → open **Organizations → View organization profile**
    (page URI `view-organization-profile`).
 2. **Add block → Service**.
-3. Module: **Organizations**. Method: **Overview** (`serviceOverview`).
-   Leave the parameter empty — the profile page passes the organization id in
-   automatically.
+3. Module: **Organizations** (`bx_organizations`). Service: **`overview`**
+   (UNA's name for the `serviceOverview()` method — enter it lowercase, without
+   the `service` prefix). Leave the parameter empty — the profile page passes
+   the organization id in automatically.
 4. Drag it to the top of the main (center) column. To make the profile look
    like the reference design, you can hide/relocate the default blocks you no
    longer want front-and-center (About, etc.); the **Members** and **Cover**
