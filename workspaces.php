@@ -511,11 +511,22 @@ function getGfWorkspacesPageCode()
             'condition' => !empty($GLOBALS['gfWsInviteCard']),
             'content' => !empty($GLOBALS['gfWsInviteCard']) ? $GLOBALS['gfWsInviteCard'] : ['ws_title' => '', 'code' => '', 'join_url' => '', 'reset_url' => '', 'close_url' => '']
         ],
+        // The invites tab label and the invites pane are two separate template
+        // blocks; they MUST use distinct bx_if names. The template engine matches
+        // each bx_if with a greedy /<bx_if:NAME>(.*)<\/bx_if:NAME>/s regex, so
+        // reusing one name across two blocks makes the match span everything in
+        // between (the whole workspaces list), which then re-parses with the wrong
+        // variable set and leaks __workspaces_list__ / raw bx_if tags to the page.
         'bx_if:invites_tab' => [
             'condition' => $bInvites,
             'content' => [
-                'invites_list' => $sInvitesList !== '' ? $sInvitesList : '<div class="gf-ws-invites-empty">No open invites right now.</div>',
                 'invites_count_badge' => $iOpenInvites > 0 ? '<span class="gf-ws-tab-badge">' . $iOpenInvites . '</span>' : ''
+            ]
+        ],
+        'bx_if:invites_pane' => [
+            'condition' => $bInvites,
+            'content' => [
+                'invites_list' => $sInvitesList !== '' ? $sInvitesList : '<div class="gf-ws-invites-empty">No open invites right now.</div>'
             ]
         ],
         'bx_if:personal' => [
