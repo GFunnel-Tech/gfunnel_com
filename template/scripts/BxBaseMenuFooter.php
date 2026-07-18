@@ -82,6 +82,12 @@ class BxBaseMenuFooter extends BxTemplMenu
 
         $bResult = true;
         switch ($a['name']) {
+            case 'powered_by':
+                // GFunnel white-labeling: never render the "powered by" credit,
+                // regardless of the footer menu's stored state.
+                $bResult = false;
+                break;
+
             case 'switch_language':
                 $aLanguages = BxDolLanguagesQuery::getInstance()->getLanguages(false, true);
                 if(count($aLanguages) <= 1)
