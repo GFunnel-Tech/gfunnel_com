@@ -1116,6 +1116,46 @@ class AqbAffiliateModule extends BxBaseModTextModule
 
 	   return [$this->_oConfig->CNF['REFER_PREFIX'] => $this->getAdsHash($iProfileId)];
     }
+
+    /**
+     * Programmatically connect an invitee to a referral (sponsor). Used by the
+     * workspace-invite flow so an org invite also credits the inviter's affiliate
+     * account, mirroring what a normal am_id referral link does at registration.
+     *
+     * @param  int  $iInviteeProfileId  the profile that was invited/joined
+     * @param  int  $iReferralProfileId the inviting (sponsor) profile
+     * @return bool true when the referral is now recorded (including a no-op when
+     *              it already pointed at this sponsor), false when rejected.
+     */
+    function serviceSetReferral($iInviteeProfileId, $iReferralProfileId){
+        $CNF = &$this->_oConfig->CNF;
+
+        $iInviteeProfileId = (int)$iInviteeProfileId;
+        $iReferralProfileId = (int)$iReferralProfileId;
+
+        // must be two distinct, valid profiles
+        if(!$iInviteeProfileId || !$iReferralProfileId || $iInviteeProfileId == $iReferralProfileId)
+            return false;
+
+        $oInvitee = BxDolProfile::getInstance($iInviteeProfileId);
+        $oReferral = BxDolProfile::getInstance($iReferralProfileId);
+        if(!$oInvitee || !$oReferral)
+            return false;
+
+        if(!in_array($oInvitee->getModule(), $CNF['ALLOWED_PROFILE_TYPES']) || !in_array($oReferral->getModule(), $CNF['ALLOWED_PROFILE_TYPES']))
+            return false;
+
+        // already sponsored by this referral - nothing to do (avoids a needless UPDATE)
+        $iExisting = $this->_oDb->getSponsorProfileId($iInviteeProfileId);
+        if($iExisting == $iReferralProfileId)
+            return true;
+
+        // refuse the trivial 2-cycle (referral is itself sponsored by the invitee)
+        if($this->_oDb->getSponsorProfileId($iReferralProfileId) == $iInviteeProfileId)
+            return false;
+
+        return (bool)$this->_oDb->saveReferral($iInviteeProfileId, $iReferralProfileId);
+    }
 }
 
 /** @} */

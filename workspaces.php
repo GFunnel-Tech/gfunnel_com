@@ -173,6 +173,14 @@ function gfWsExecuteInvite($aInvite, $oAccount, $oProfile, &$sNotice)
         return '';
     }
 
+    // Credit the inviter's affiliate account for this member. New signups already
+    // have referredby set from the am_id on the invite link (captured at register
+    // time); this also covers existing members joining via a code, and is a no-op
+    // when the referral already points at the inviter.
+    $iInviter = (int)$aInvite['created_by'];
+    if($iInviter > 0 && $iInviter != $oProfile->id() && BxDolRequest::serviceExists('aqb_affiliate', 'set_referral'))
+        BxDolService::call('aqb_affiliate', 'set_referral', [$oProfile->id(), $iInviter]);
+
     // bookkeeping: permanent codes stay pending forever, everything else flips
     // to accepted once its uses are spent (email invites default to single-use)
     $oDb = BxDolDb::getInstance();
@@ -231,6 +239,21 @@ function gfWsPermanentInvite($iWorkspaceId, $iProfileId, $bReset = false)
     }
 
     return $oDb->getRow("SELECT * FROM `gf_workspace_invites` WHERE `workspace_id` = :ws AND `type` = 'permanent' AND `status` = 'pending' LIMIT 1", ['ws' => $iWorkspaceId]);
+}
+
+/**
+ * Affiliate URL params ([am_id => hash]) for the given inviter profile, so the
+ * shared invite/join link carries the inviter's affiliate attribution. Returns
+ * an empty array when the Affiliate System is absent (link stays code-only).
+ */
+function gfWsAffiliateParams($iProfileId)
+{
+    $iProfileId = (int)$iProfileId;
+    if($iProfileId <= 0 || !BxDolRequest::serviceExists('aqb_affiliate', 'get_referral_code'))
+        return [];
+
+    $mixedParams = BxDolService::call('aqb_affiliate', 'get_referral_code', [$iProfileId, false]);
+    return is_array($mixedParams) ? $mixedParams : [];
 }
 
 function gfWsOpenInvites($sEmail)
@@ -598,6 +621,23 @@ if(gfWsInvitesEnabled() && $oGfAccount && $oGfProfile) {
             exit;
         }
     }
+    // A member who registered via an invite link: the code was stashed in a cookie
+    // before login (index.php), because root drops query params through the
+    // register/login/onboarding flow. Redeem it now that they've landed here. The
+    // cookie is cleared either way so a failed/expired code is not retried forever.
+    else if(!empty($_COOKIE['gf_ws_invite'])) {
+        $sCookieCode = (string)$_COOKIE['gf_ws_invite'];
+
+        $aGfUrl = parse_url(BX_DOL_URL_ROOT);
+        setcookie('gf_ws_invite', '', time() - 86400, !empty($aGfUrl['path']) ? $aGfUrl['path'] : '/', '', false, true /* http only */);
+        unset($_COOKIE['gf_ws_invite']);
+
+        $sRedirect = gfWsHandleJoinByCode($sCookieCode, $oGfAccount, $oGfProfile, $GLOBALS['gfWsNotice']);
+        if($sRedirect !== '') {
+            header('Location: ' . $sRedirect);
+            exit;
+        }
+    }
 
     if(($iAccept = (int)bx_get('accept_invite')) > 0) {
         $aInvite = BxDolDb::getInstance()->getRow("SELECT * FROM `gf_workspace_invites` WHERE `id` = :id AND `email` = :email AND `status` = 'pending' LIMIT 1", ['id' => $iAccept, 'email' => $sGfEmail]);
@@ -625,7 +665,9 @@ if(gfWsInvitesEnabled() && $oGfAccount && $oGfProfile) {
             $GLOBALS['gfWsInviteCard'] = [
                 'ws_title' => bx_process_output($oInviteWsProfile->getDisplayName()),
                 'code' => $aInviteRow['code'],
-                'join_url' => BX_DOL_URL_ROOT . '?code=' . $aInviteRow['code'],
+                // the join link carries the inviter's affiliate am_id so a new
+                // member who registers through it credits the inviter
+                'join_url' => bx_append_url_params(BX_DOL_URL_ROOT . '?code=' . $aInviteRow['code'], gfWsAffiliateParams((int)$aInviteRow['created_by'] ?: $oGfProfile->id())),
                 'reset_url' => BX_DOL_URL_ROOT . 'workspaces.php?invite_ws=' . $iInviteWs . '&invite_reset=1',
                 'close_url' => BX_DOL_URL_ROOT
             ];
