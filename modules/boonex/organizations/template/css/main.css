@@ -20,3 +20,43 @@
     display: inline-block;
     float: none;
 }
+
+/* =====================================================================
+   GFunnel — Organization profile "dashboard" card restyle.
+
+   Makes the page's own native blocks (Timeline, Member Link, Members,
+   Membership, Map, Events, etc.) read as the clean card grid from the
+   GFunnel org-home design — no custom/mockup block, all real data.
+   Scoped to the organization profile page only. The site runs light-only,
+   so no dark-mode handling is needed.
+   ===================================================================== */
+
+/* Titled cards: white surface, soft border, rounded corners, subtle shadow. */
+body.bx-page-view-organization-profile #bx-content-wrapper .bx-db-container.bx-def-color-bg-block {
+    border: 1px solid #e7ebf0;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 6px 20px rgba(15, 23, 42, .05);
+    overflow: hidden;
+}
+
+/* Breathing room between stacked cards. */
+body.bx-page-view-organization-profile #bx-content-wrapper .bx-page-block-container {
+    margin-bottom: 20px;
+}
+
+/* Card header + title typography to match the design. */
+body.bx-page-view-organization-profile #bx-content-wrapper .bx-db-header {
+    padding: 16px 20px 0;
+}
+body.bx-page-view-organization-profile #bx-content-wrapper .bx-db-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    color: #0f172a;
+}
+
+/* Comfortable content padding. */
+body.bx-page-view-organization-profile #bx-content-wrapper .bx-content-padding-block {
+    padding: 16px 20px 20px;
+}
