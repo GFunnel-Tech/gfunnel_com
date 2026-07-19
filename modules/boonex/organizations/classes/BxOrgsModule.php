@@ -99,40 +99,33 @@ class BxOrgsModule extends BxBaseModGroupsModule
     /**
      * GFunnel — Organization Overview block.
      *
-     * Renders the branded org-home overview (Ask-AI panel, Departments,
-     * Activity, Network & Partners, Calendar + Quick Links rail) on the
-     * organization profile page. Add it via Studio as a Service block:
-     * module "Organizations", method "Overview". See
-     * docs/organization-overview-block.md for placement and data-wiring notes.
+     * A lean "workspace home" for the organization profile page: a welcome /
+     * assistant card wired to real GFunnel actions and a Calendar connect
+     * card. Every link points at a real page — no placeholder data. Add it via
+     * Studio as a Service block (module "Organizations", service "overview") or
+     * see docs/organization-overview-block.md.
      *
      * @param $iContentId organization content id (auto-passed on a profile page)
      * @return string block HTML
      */
     public function serviceOverview ($iContentId = 0)
     {
-        $CNF = &$this->_oConfig->CNF;
-
         if(empty($iContentId))
             $iContentId = bx_process_input(bx_get('id'), BX_DATA_INT);
 
         $sTitle = '';
-        $sUrl = BX_DOL_URL_ROOT;
-        if($iContentId && ($oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->getName()))) {
+        if($iContentId && ($oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->getName())))
             $sTitle = $oProfile->getDisplayName();
-            $sUrl = $oProfile->getUrl();
-        }
-
-        $sPartnersUrl = BxDolPermalinks::getInstance()->permalink('page.php?i=affiliate-activities');
-        $sEventsUrl = BxDolPermalinks::getInstance()->permalink('page.php?i=events-home');
 
         $this->_oTemplate->addCss(['overview.css']);
 
         return $this->_oTemplate->parseHtmlByName('overview.html', [
-            'greeting' => 'Good evening',
-            'base_url' => $sUrl,
-            'manage_url' => $sUrl,
-            'partners_url' => $sPartnersUrl,
-            'events_url' => $sEventsUrl,
+            'title' => $sTitle,
+            'ai_url' => BX_DOL_URL_ROOT . 'agents.php',
+            'post_url' => BX_DOL_URL_ROOT . 'create-post',
+            'event_url' => BX_DOL_URL_ROOT . 'create-event-profile',
+            'space_url' => BX_DOL_URL_ROOT . 'create-space-profile',
+            'events_url' => BX_DOL_URL_ROOT . 'events-home',
         ]);
     }
 

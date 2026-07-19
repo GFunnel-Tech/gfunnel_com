@@ -33,6 +33,28 @@
 }
 
 /* ---- Layout ------------------------------------------------------------ */
+.gforg-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gforg-ai-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 12px;
+    background: var(--gforg-orange);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 14px;
+}
+.gforg-ai-cta:hover { background: #c2410c; }
+.gforg-ai-cta-arrow { margin-left: 2px; }
+
 .gforg-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
@@ -218,6 +240,7 @@
     font-size: 13px;
     font-weight: 500;
     color: #334155;
+    text-decoration: none;
     cursor: pointer;
 }
 .gforg-ai-chip:hover { border-color: #cbd5e1; }
