@@ -1,6 +1,6 @@
 /**
  * GFunnel — dark login & account-creation pages (gf_auth.php / gf_auth.html).
- * Wraps UNA's real forms + social buttons; everything below is scoped to
+ * Wraps the platform's real forms + social buttons; everything below is scoped to
  * .gf-auth-page so the stock form markup is restyled, not rebuilt.
  */
 

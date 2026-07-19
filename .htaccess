@@ -1,6 +1,26 @@
 
 Options -MultiViews -Indexes
 
+# GFunnel: keep the underlying platform invisible to outside visitors.
+# PHP sources execute rather than reveal themselves, but static give-aways
+# (readme/license/changelog/schema/build metadata) are directly fetchable —
+# deny them. Guarded by mod_authz_core so it never 500s on older Apache.
+<IfModule mod_authz_core.c>
+    <FilesMatch "(?i)\.(md|markdown|sql|bak|dist|lock|log|yml|yaml|sh)$">
+        Require all denied
+    </FilesMatch>
+    <FilesMatch "(?i)^(readme|license|licence|changelog|install|upgrade|contributing|authors|composer|package(-lock)?)($|\.)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# Strip the version/platform hints from response headers.
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
+</IfModule>
+ServerSignature Off
+
 <IfModule mod_php5.c>
     php_flag allow_url_include Off
     php_flag register_globals Off
@@ -20,6 +40,10 @@ Options -MultiViews -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine on
     RewriteRule ^\.well-known/ - [L]
+    # GFunnel: 403 the directories that expose the platform (docs, VCS metadata)
+    RewriteRule ^\.git(/|$) - [F,L]
+    RewriteRule ^\.github(/|$) - [F,L]
+    RewriteRule ^docs/ - [F,L]
     # GFunnel SEO: sitemap + robots are generated dynamically (modules/gfunnel/sitemap)
     RewriteRule ^sitemap\.xml$  sitemap.php [QSA,L]
     RewriteRule ^sitemap-([0-9]+)\.xml$  sitemap.php?chunk=$1 [QSA,L]
