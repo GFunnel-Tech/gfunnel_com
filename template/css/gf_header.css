@@ -58,13 +58,31 @@
 }
 
 /*--- Application layout: sidebar togglers ---*/
+/* Hidden by default; the two ID rules below reveal exactly one per breakpoint.
+   Box/hover match the .gf-icon-btn recipe so the toggler looks like every other
+   header icon. These carry the full 36px square themselves (they intentionally
+   do NOT use .gf-icon-btn, to keep their display governed solely by the rules
+   here rather than fighting .gf-icon-btn's display:flex). */
 .gf-chrome .gf-sidebar-toggler {
     display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    box-sizing: border-box;
     border: 0;
+    border-radius: 8px;
     background-color: transparent;
+    color: #6b7280;
     cursor: pointer;
 }
-/* desktop toggler at >=1280px, mobile toggler below (mirrors xl: breakpoint) */
+.gf-chrome .gf-sidebar-toggler:hover {
+    background-color: #f3f4f7;
+    color: #11132a;
+}
+/* desktop toggler at >=1280px, mobile toggler below (mirrors xl: breakpoint).
+   ID specificity beats the base rule, so exactly one is shown. */
 @media (min-width: 1280px) {
     .gf-chrome #toggleSidebar.gf-sidebar-toggler {
         display: flex;
@@ -278,36 +296,19 @@
     gap: 4px;
 }
 
-/* Icon-button unread badge (messages) */
+/* Shared icon-button recipe. EVERY header icon — the chrome action buttons
+   (bug / AI / messages) AND the member-menu icons (notifications bell, account)
+   — uses this exact 36px square so all boxes, and their hover backgrounds, are
+   identical. Kept in sync with the member rule below. */
 .gf-chrome .gf-icon-btn {
     position: relative;
-}
-.gf-chrome .gf-hdr-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 18px;
-    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 5px;
-    border-radius: 9999px;
-    background-color: #f97316;
-    color: #ffffff;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1;
-    box-shadow: 0 0 0 2px #ffffff;
-}
-
-/* Shared icon-button recipe */
-.gf-chrome .gf-icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
     border-radius: 8px;
     color: #6b7280;
     text-decoration: none;
@@ -316,6 +317,39 @@
 .gf-chrome .gf-icon-btn:hover {
     background-color: #f3f4f7;
     color: #11132a;
+}
+/* Chrome action-button SVGs at a consistent 20px */
+.gf-chrome .gf-icon-btn > svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ONE unread/count badge style for both the chrome buttons (.gf-hdr-badge, e.g.
+   messages) and the member menu items (.bx-menu-item-addon, e.g. the bell "4").
+   Sits just inside the top-right of the 36px square — never at the extreme
+   corner — so the header edge can't clip it, and height == line-height so the
+   digit is vertically centred rather than cropped at the top. */
+.gf-chrome .gf-icon-btn .gf-hdr-badge,
+.gf-chrome .bx-menu-toolbar-item .bx-menu-item-addon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border-radius: 9999px;
+    background-color: #f97316;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    box-shadow: 0 0 0 2px #ffffff;
+    pointer-events: none;
 }
 
 /*--- Work timer pill ---*/
@@ -445,7 +479,7 @@
     color: #11132a;
 }
 .gf-chrome .bx-menu-toolbar-item .sys-icon {
-    font-size: 18px;
+    font-size: 20px; /* match the 20px chrome-button SVGs */
     line-height: 1;
     margin: 0;
     /* muted chrome color, overriding colored classes (e.g. col-green3 on the
@@ -491,31 +525,8 @@
     display: none;
 }
 
-/* Unread/count badges. Sit just inside the top-right of the 36px icon square
-   (not the extreme corner) so the badge is never clipped by the header edge.
-   Height and line-height match so the digit is vertically centred rather than
-   cropped at the top. */
-.gf-chrome .bx-menu-toolbar-item .bx-menu-item-addon {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    min-width: 16px;
-    height: 16px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    border-radius: 9999px;
-    background-color: #f97316;
-    color: #ffffff;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 16px;
-    text-align: center;
-    box-shadow: 0 0 0 2px #ffffff;
-    pointer-events: none;
-}
+/* (Count-badge styling is unified with the chrome buttons above, so the bell's
+   "4" and the messages badge render identically.) */
 
 /* Account avatar */
 .gf-chrome .gf-member .bx-menu-item-account > a {
