@@ -43,7 +43,8 @@ All server-rendered pages go through `BxDolTemplate::getMetaInfo()`
 - `<meta name="keywords">` — only if supplied (content pages get these from metatags/hashtags)
 - `og:title`, `og:description`, `twitter:card` — always emitted; **empty when no description/header**
 - `og:image` — page cover if set, else entry image, else the site's Android/Apple icon (`sys_site_icon_*` settings)
-- `<link rel="canonical">` — **only when the page sets an internal URL** (content pages do; plain pages don't)
+- `og:url`, `og:type`, `og:site_name`, `twitter:title`, `twitter:description`, `twitter:image` — **now emitted for every page** (added this branch; previously og:url/site_name/type and all twitter:* except the card were missing)
+- `<link rel="canonical">` — **now self-referencing on every page** (added this branch): content pages canonicalize to their entry URL, plain/system pages to their own page URI, collapsing `/uri` vs `/page/uri` vs `?i=uri` duplicates
 - geo meta, RSS alternate, oEmbed discovery — when applicable
 - `<meta name="robots">` — per-page `meta_robots` field from Studio
 
@@ -83,8 +84,8 @@ Structure status:
 | Meta description | ⚠️ **supported but empty on most pages** | per-page `meta_description` field, Studio → Pages → SEO block. Nothing fills it automatically for builder pages |
 | Meta keywords | ⚠️ same | per-page field |
 | Meta robots | ✅ supported | per-page field; also honored by the new sitemap generator (noindex pages are excluded) |
-| OG tags | ⚠️ partial | og:title always; og:description empty unless the description above is filled; og:image falls back to the site icon |
-| Canonical | ❌ **never emitted** | `BxBasePage` never calls `setPageUrl()`, so plain pages have no canonical tag (content pages do) |
+| OG / Twitter tags | ✅ **now complete** | og:title/description/url/type/site_name and twitter:card/title/description/image all emitted; og:description still needs the meta description below to be filled to be non-empty |
+| Canonical | ✅ **now emitted** | `BxBasePage::_addSysTemplateVars` now sets a self-referencing canonical to the page's own URI when the page doesn't set one |
 | Visibility | ✅ | guest visibility honored via membership levels; the sitemap generator only lists guest-visible, non-noindex pages |
 
 **Needs work (content task, no code):** fill Studio → Pages → SEO
@@ -95,10 +96,9 @@ meta description for the ~20 pages that matter for search:
 (`posts-home`, `events-home`, `courses-home`, `market-home`,
 `discussions-home`, `persons-home`, `organizations-home`, `spaces-home`).
 
-**Needs work (small code task, optional):** emit a self-referencing canonical
-for plain system pages (one override in `BxBasePage::_addSysTemplateVars` or a
-`meta_info` injection), which would kill duplicate-URL indexing
-(`/about` vs `/page/about` vs `/page.php?i=about` all render the same page today).
+**Done this branch:** self-referencing canonical for plain system pages, added
+in `BxBasePage::_addSysTemplateVars`, killing duplicate-URL indexing
+(`/about` vs `/page/about` vs `/page.php?i=about`).
 
 ---
 
@@ -194,25 +194,31 @@ published page/entry appears without anyone touching anything.
 
 ## 8. Priority worklist
 
-Done on this branch:
+Done (technical foundation — all in code, no per-page input needed):
 
 1. ✅ Automatic, always-current `/sitemap.xml` (+ cron + on-demand rebuild)
 2. ✅ `/robots.txt` with utility-endpoint disallows and the `Sitemap:` directive
-3. ✅ Homepage meta description + canonical (`home.php`)
-4. ✅ Stale static `sitemap.xml` removed
+3. ✅ Stale static `sitemap.xml` removed
+4. ✅ Homepage meta description + canonical (`home.php`)
+5. ✅ **Self-referencing canonical on every page** (`BxBasePage`) — kills duplicate-URL indexing
+6. ✅ **Complete Open Graph + Twitter Card tags on every page** (`BxDolTemplate::getMetaInfo`)
+7. ✅ **Organization + WebSite JSON-LD on the homepage** (`home.php`) — brand knowledge panel + sitelinks search box
 
-Remaining, in order of impact:
+Remaining:
 
-1. **Run the installer on the server** (`php modules/gfunnel/sitemap/install.php`),
+1. **Run the sitemap installer / SQL on the server** (see `modules/gfunnel/sitemap/README.md`),
    verify `https://gfunnel.com/sitemap.xml`, resubmit in Google Search Console
    and Bing Webmaster Tools.
-2. **Fill meta descriptions in Studio** for the ~20 key landing pages listed
-   in section 4 (content task, ~an hour).
-3. **Set the site icon images** in Studio → Settings if not already set — they
-   are the og:image fallback for every page without its own image.
-4. Optional code: self-referencing canonicals on plain system pages (section 4).
-5. Optional: structured data (Organization + WebSite JSON-LD on `home.php`;
-   Product/Event JSON-LD on market/event pages) — nothing on the site emits
-   JSON-LD today.
-6. Housekeeping: delete root `index.html` / `default.php` placeholders; add
-   the same description/canonical lines to `splash.php` if it's ever re-enabled.
+2. **Per-page copy — the last real gap (needs the SEO strategy):** meta
+   descriptions, title patterns and target keywords for the ~20 key landing
+   pages in section 4. This is content, not code — stored per page in
+   `sys_objects_page.meta_description` (Studio → Pages → SEO), and can be
+   applied in bulk via `UPDATE` SQL once the copy is written.
+3. **Set the site icon images** in Studio → Settings — they are the og:image
+   and Organization `logo` fallback for pages without their own image.
+4. **Set `gf_org_same_as`** (sys_options) to the official social profile URLs
+   so the Organization JSON-LD emits `sameAs` (entity disambiguation).
+5. Optional next step: `Product`/`Event`/`Course` JSON-LD on those content view
+   pages (per-module templates) for rich results.
+6. Housekeeping: delete root `index.html` / `default.php` placeholders; add the
+   same description/canonical lines to `splash.php` if it's ever re-enabled.
