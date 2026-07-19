@@ -114,13 +114,25 @@ class BxOrgsModule extends BxBaseModGroupsModule
             $iContentId = bx_process_input(bx_get('id'), BX_DATA_INT);
 
         $sTitle = '';
-        if($iContentId && ($oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->getName())))
+        $sThumb = '';
+        $sUrl = BX_DOL_URL_ROOT;
+        $sEditUrl = '';
+        if($iContentId && ($oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->getName()))) {
             $sTitle = $oProfile->getDisplayName();
+            $sThumb = $oProfile->getThumb();
+            $sUrl = $oProfile->getUrl();
+            $sEditUrl = $oProfile->getEditUrl();
+        }
 
         $this->_oTemplate->addCss(['overview.css']);
 
         return $this->_oTemplate->parseHtmlByName('overview.html', [
-            'title' => $sTitle,
+            'title' => $sTitle !== '' ? $sTitle : 'Your workspace',
+            'initial' => $sTitle !== '' ? mb_strtoupper(mb_substr($sTitle, 0, 1)) : 'W',
+            'thumb' => $sThumb,
+            'thumb_style' => $sThumb !== '' ? 'background-image:url(' . $sThumb . ')' : '',
+            'profile_url' => $sUrl,
+            'edit_url' => $sEditUrl !== '' ? $sEditUrl : $sUrl,
             'ai_url' => BX_DOL_URL_ROOT . 'agents.php',
             'post_url' => BX_DOL_URL_ROOT . 'create-post',
             'event_url' => BX_DOL_URL_ROOT . 'create-event-profile',
