@@ -7,71 +7,46 @@
     <a class="gfh-skip" href="#gfh-main">Skip to content</a>
 
     <!-- ============================================================ -->
-    <!-- Header                                                       -->
+    <!-- Nav                                                          -->
     <!-- ============================================================ -->
-    <header class="gfh-header" id="gfh-header">
-        <div class="gfh-topbar">
-            <div class="gfh-container gfh-topbar-in">
-                <a class="gfh-brand" href="__site_url__" aria-label="GFunnel home">
-                    <span class="gfh-brand-mark" aria-hidden="true">
-                        <svg width="20" height="20" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg>
-                    </span>
-                    GFunnel
+    <header class="gfh-nav" id="gfh-header">
+        <div class="gfh-container gfh-nav-in">
+            <a class="gfh-brand" href="__site_url__" aria-label="GFunnel home">
+                <span class="gfh-brand-mark" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg>
+                </span>
+                GFunnel
+            </a>
+
+            <nav class="gfh-nav-links" aria-label="Primary">
+                <a href="#departments">Departments</a>
+                <a href="__marketplace_url__">Marketplace</a>
+                <a href="#explore">Integrations</a>
+                <a href="__learn_url__">Learn</a>
+                <a href="__partners_url__">Partners</a>
+                <a href="#community">Community</a>
+            </nav>
+
+            <div class="gfh-nav-right">
+                __version_badge__
+                <a class="gfh-nav-search" href="__search_url__" aria-label="Search GFunnel">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </a>
-
-                <nav class="gfh-audience" aria-label="Audiences">
-                    <a href="__personal_url__">For Personal</a>
-                    <a href="__business_url__">For Business</a>
-                    <a href="__agencies_url__">For Agencies</a>
-                </nav>
-
-                <form class="gfh-search" action="__search_url__" method="get" role="search">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" name="keyword" placeholder="Search GFunnel..." autocomplete="off" aria-label="Search GFunnel" />
-                    <button type="submit" aria-label="Search">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
-                </form>
-
-                <div class="gfh-top-actions">
-                    <a class="gfh-signin" href="__login_url__">Sign in</a>
-                    <a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="__join_url__">Create Workspace</a>
-                </div>
-
+                <a class="gfh-signin" href="__login_url__">Sign in</a>
+                <a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="__join_url__">Create Workspace</a>
                 <button class="gfh-burger" id="gfh-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="gfh-mobile">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
                 </button>
             </div>
         </div>
 
-        <div class="gfh-subbar">
-            <div class="gfh-container gfh-subbar-in">
-                <nav class="gfh-subnav" aria-label="Explore">
-                    <a href="#departments">Departments</a>
-                    <a href="#paths">Processes</a>
-                    <a href="__marketplace_url__">Marketplace</a>
-                    <a href="#community">Community</a>
-                    <a href="__learn_url__">Learn</a>
-                    <a href="__partners_url__">Partners</a>
-                    <a href="__pricing_url__">Pricing</a>
-                </nav>
-            </div>
-        </div>
-
         <div class="gfh-mobile" id="gfh-mobile">
-            <form class="gfh-mobile-search" action="__search_url__" method="get" role="search">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" name="keyword" placeholder="Search GFunnel..." autocomplete="off" aria-label="Search GFunnel" />
-            </form>
-            <a href="__personal_url__">For Personal</a>
-            <a href="__business_url__">For Business</a>
-            <a href="__agencies_url__">For Agencies</a>
             <a href="#departments">Departments</a>
-            <a href="#paths">Processes</a>
             <a href="__marketplace_url__">Marketplace</a>
-            <a href="#community">Community</a>
+            <a href="#explore">Integrations</a>
             <a href="__learn_url__">Learn</a>
             <a href="__partners_url__">Partners</a>
+            <a href="#community">Community</a>
             <a href="__pricing_url__">Pricing</a>
             <a href="__login_url__">Sign in</a>
             <a class="gfh-mobile-cta" href="__join_url__">Create Workspace</a>
@@ -84,53 +59,37 @@
         <!-- Hero                                                     -->
         <!-- ======================================================== -->
         <section class="gfh-hero">
+            <div class="gfh-hero-glow" aria-hidden="true"></div>
+            <div class="gfh-hero-grid" aria-hidden="true"></div>
             <div class="gfh-hero-inner">
-                <span class="gfh-hero-badge">One workspace for how your business runs</span>
-                <h1>Run every <span class="gfh-accent">department</span><br />from one workspace.</h1>
-                <p class="gfh-hero-sub">GFunnel organizes your business the way it actually runs &mdash; by department, from Strategy and Sales to Operations, Finance, and Legal. Turn on the processes each one needs, connect the tools you already use, and run it all in one place.</p>
-                <div class="gfh-hero-ctas">
-                    <a class="gfh-btn gfh-btn-orange" href="__join_url__">Create A Workspace</a>
-                    <a class="gfh-btn gfh-btn-ghost" href="#departments">Explore The Departments</a>
-                </div>
+                <span class="gfh-hero-mark" aria-hidden="true">
+                    <svg width="72" height="72" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg>
+                </span>
+                <h1 class="gfh-hero-word">GFunnel</h1>
+                <p class="gfh-hero-sub">The operating hub for how your business runs. Departments, apps, integrations and automation &mdash; one searchable workspace.</p>
+
+                <form class="gfh-hero-search" action="__search_url__" method="get" role="search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" name="keyword" placeholder="Search departments, apps, integrations, guides..." autocomplete="off" aria-label="Search GFunnel" />
+                    <button type="submit">Search</button>
+                </form>
+
                 __hero_stats__
-                <p class="gfh-hero-note">Free to start &middot; No credit card required &middot; Cancel anytime</p>
-            </div>
-            <div class="gfh-hero-curve" aria-hidden="true">
-                <svg viewBox="0 0 1440 84" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,84 L0,60 Q720,-36 1440,60 L1440,84 Z" fill="#ffffff"/></svg>
             </div>
         </section>
 
         <!-- ======================================================== -->
-        <!-- Three-path band (Build / Buy / Earn)                     -->
+        <!-- Explore / catalogs (the "Database" row)                  -->
         <!-- ======================================================== -->
-        <section class="gfh-sec gfh-sec-soft" id="paths">
+        <section class="gfh-sec" id="explore">
             <div class="gfh-container">
                 <div class="gfh-sec-head gfh-reveal">
-                    <span class="gfh-eyebrow">How To Begin</span>
-                    <h2 class="gfh-h2">Build it, buy it, or earn from it.</h2>
-                    <p class="gfh-sub">Three ways into the same connected workspace &mdash; start from scratch, install what already works, or grow it with partners.</p>
+                    <h2 class="gfh-h2">Explore the ecosystem</h2>
+                    <p class="gfh-sub">Every surface of GFunnel, in one hub &mdash; browse it, search it, and deploy it into your workspace.</p>
                 </div>
 
-                <div class="gfh-cols-3">
-                    <a class="gfh-path-card gfh-reveal" href="__join_url__">
-                        <span class="gfh-path-ico" style="color:#c2410c;background:rgba(249,115,22,.12)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
-                        </span>
-                        <span class="gfh-path-kicker">Build</span>
-                        <h3>Build your operation</h3>
-                        <p>Spin up a workspace, turn on the departments and processes you run, and connect the tools you already use. No code required.</p>
-                        <span class="gfh-link-more">Create a workspace <span aria-hidden="true">&rarr;</span></span>
-                    </a>
-                    <a class="gfh-path-card gfh-reveal" href="__marketplace_url__">
-                        <span class="gfh-path-ico" style="color:#1d4ed8;background:rgba(59,130,246,.12)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-                        </span>
-                        <span class="gfh-path-kicker">Buy</span>
-                        <h3>Buy what already works</h3>
-                        <p>Browse the marketplace of apps and integrations, then install proven pieces straight into your workspace instead of building from zero.</p>
-                        <span class="gfh-link-more">Browse the marketplace <span aria-hidden="true">&rarr;</span></span>
-                    </a>
-                    __earn_card__
+                <div class="gfh-cat-grid">
+                    __catalog_cards__
                 </div>
             </div>
         </section>
@@ -138,7 +97,7 @@
         <!-- ======================================================== -->
         <!-- Department grid (process domains)                        -->
         <!-- ======================================================== -->
-        <section class="gfh-sec" id="departments">
+        <section class="gfh-sec gfh-sec-alt" id="departments">
             <div class="gfh-container">
                 <div class="gfh-sec-head gfh-reveal">
                     <span class="gfh-eyebrow">The Operating Model</span>
@@ -153,235 +112,25 @@
         </section>
 
         <!-- ======================================================== -->
-        <!-- Operations / app directory                               -->
+        <!-- News & Community                                         -->
         <!-- ======================================================== -->
-        <section class="gfh-sec" id="operations">
+        <section class="gfh-sec" id="community">
             <div class="gfh-container">
-                <div class="gfh-sec-head gfh-reveal">
-                    <h2 class="gfh-h2">Operations live here.</h2>
-                    <p class="gfh-sub">Your company, your household, your team &mdash; every tool and every workflow in one workspace, not fifteen tabs.</p>
+                <div class="gfh-sec-head gfh-sec-head-left gfh-reveal">
+                    <h2 class="gfh-h2">News &amp; Community</h2>
+                    <p class="gfh-sub">What's happening across the GFunnel ecosystem.</p>
                 </div>
-
-                <div class="gfh-window gfh-reveal">
-                    <div class="gfh-window-bar">
-                        <div class="gfh-window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-                        <div class="gfh-window-url">gfunnel.com/workspace/app-directory</div>
-                    </div>
-                    <div class="gfh-appdir">
-                        <div class="gfh-appdir-side" aria-hidden="true">
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V21H3z"/></svg>Home</div>
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Social</div>
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/></svg>Explore</div>
-                            <div class="gfh-appdir-side-label">Discover</div>
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Communities</div>
-                            <div class="gfh-appdir-side-item gfh-active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Marketplace</div>
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Events</div>
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>Learning</div>
-                            <div class="gfh-appdir-side-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 1 0-6 0 3 3 0 0 0 6 0z"/><path d="M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><path d="M18 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><path d="m13.5 10.5-5 4"/><path d="m15.5 11 .9 4"/></svg>Partners</div>
-                        </div>
-                        <div class="gfh-appdir-main">
-                            <div class="gfh-appdir-head">
-                                <span class="gfh-appdir-title">App Directory</span>
-                                <label class="gfh-appdir-search">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                                    <input type="text" id="gfh-app-search" placeholder="Try it &mdash; search apps..." autocomplete="off" aria-label="Search apps in the demo directory" />
-                                </label>
-                            </div>
-                            <div class="gfh-appdir-pills" id="gfh-app-pills" role="group" aria-label="Filter apps by category">
-                                <button type="button" class="gfh-appdir-pill gfh-active" data-cat="">All</button>
-                                <button type="button" class="gfh-appdir-pill" data-cat="ai">AI</button>
-                                <button type="button" class="gfh-appdir-pill" data-cat="automation">Automation</button>
-                                <button type="button" class="gfh-appdir-pill" data-cat="design">Design</button>
-                                <button type="button" class="gfh-appdir-pill" data-cat="marketing">Marketing</button>
-                                <button type="button" class="gfh-appdir-pill" data-cat="productivity">Productivity</button>
-                                <button type="button" class="gfh-appdir-pill" data-cat="communication">Communication</button>
-                            </div>
-                            <div class="gfh-appdir-grid" id="gfh-app-grid">
-                                <div class="gfh-app-card gfh-app-card-new" data-app="add new app custom build" data-cat="">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico gfh-app-ico-new">+</span><span class="gfh-app-name">Add New App</span></div>
-                                    <p class="gfh-app-desc">Add an existing app, your own software, or request a custom build.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="google drive cloud storage" data-cat="productivity">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#16A34A">D</span><span class="gfh-app-name">Google Drive</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Google Drive">+</button></span></div>
-                                    <p class="gfh-app-desc">Cloud storage and file sharing by Google.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="gmail email google" data-cat="communication">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#EA4335">M</span><span class="gfh-app-name">Gmail</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Gmail">+</button></span></div>
-                                    <p class="gfh-app-desc">Email by Google.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="google calendar scheduling" data-cat="productivity">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#4285F4">C</span><span class="gfh-app-name">Google Calendar</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Google Calendar">+</button></span></div>
-                                    <p class="gfh-app-desc">Scheduling and calendar management.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="google chat team messaging" data-cat="communication">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#0F9D58">C</span><span class="gfh-app-name">Google Chat</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Google Chat">+</button></span></div>
-                                    <p class="gfh-app-desc">Team messaging and collaboration.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="platform crm funnels email marketing" data-cat="marketing">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#F97316">G</span><span class="gfh-app-name">Platform</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle gfh-on" aria-pressed="true" aria-label="Add Platform">&#10003;</button></span></div>
-                                    <p class="gfh-app-desc">Your all-in-one business platform with CRM, funnels, email marketing, and more.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="lead connector leads channels automation" data-cat="automation">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#FB923C">L</span><span class="gfh-app-name">Lead Connector</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle gfh-on" aria-pressed="true" aria-label="Add Lead Connector">&#10003;</button></span></div>
-                                    <p class="gfh-app-desc">Connect and manage leads across all your channels with advanced automation.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="ads advertising campaigns" data-cat="marketing">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#1E40AF">A</span><span class="gfh-app-name">Ads</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Ads">+</button></span></div>
-                                    <p class="gfh-app-desc">Launch and manage advertising campaigns across multiple platforms.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="diagrams flowcharts visual workflows" data-cat="design">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#F59E0B">D</span><span class="gfh-app-name">Diagrams</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Diagrams">+</button></span></div>
-                                    <p class="gfh-app-desc">Create professional diagrams, flowcharts, and visual workflows.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="projects tasks team management" data-cat="productivity">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#0F172A">P</span><span class="gfh-app-name">Projects</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Projects">+</button></span></div>
-                                    <p class="gfh-app-desc">Project management and task tracking for your team.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="flows ai voice automation" data-cat="ai">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#EA580C">F</span><span class="gfh-app-name">Flows AI</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Flows AI">+</button></span></div>
-                                    <p class="gfh-app-desc">Voice AI and intelligent automation flows for your business.</p>
-                                </div>
-                                <div class="gfh-app-card" data-app="recruiter ai hiring" data-cat="ai">
-                                    <div class="gfh-app-row"><span class="gfh-app-ico" style="background:#C2410C">R</span><span class="gfh-app-name">Recruiter</span><span class="gfh-app-actions"><button type="button" class="gfh-app-toggle" aria-pressed="false" aria-label="Add Recruiter">+</button></span></div>
-                                    <p class="gfh-app-desc">AI-powered recruiting and hiring management tool.</p>
-                                </div>
-                                <div class="gfh-appdir-empty" id="gfh-app-empty">No apps match that search &mdash; browse the full directory for the rest.</div>
-                            </div>
-                            <div class="gfh-appdir-foot" style="text-align:center;padding:16px 0 4px">
-                                <a class="gfh-appdir-browse" href="__applications_url__" style="display:inline-block;padding:11px 22px;border-radius:10px;background:#F97316;color:#fff;font-weight:600;font-size:14px;text-decoration:none">Browse the full Application Directory &rarr;</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- Integrations                                             -->
-        <!-- ======================================================== -->
-        <section class="gfh-sec" id="integrations">
-            <div class="gfh-container">
-                <div class="gfh-sec-head gfh-reveal">
-                    <span class="gfh-eyebrow">Connect Apps</span>
-                    <h2 class="gfh-h2">Your tools, already inside.</h2>
-                    <p class="gfh-sub">The tools you already use flow in and out of GFunnel &mdash; Stripe, Slack, Notion, Google, Zapier, OpenAI, and many more, connected to the departments that depend on them.</p>
-                </div>
-            </div>
-
-            <div class="gfh-marquee-wrap gfh-reveal">
-                <div class="gfh-marquee">
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#635BFF">S</span>Stripe</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#EA4335">G</span>Gmail</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#00C4CC">C</span>Canva</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#E1306C">I</span>Instagram</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#611F69">S</span>Slack</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#0F172A">N</span>Notion</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#FBBC05">G</span>Google Drive</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#5865F2">D</span>Discord</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#2D8CFF">Z</span>Zoom</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#635BFF">S</span>Stripe</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#EA4335">G</span>Gmail</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#00C4CC">C</span>Canva</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#E1306C">I</span>Instagram</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#611F69">S</span>Slack</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#0F172A">N</span>Notion</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#FBBC05">G</span>Google Drive</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#5865F2">D</span>Discord</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#2D8CFF">Z</span>Zoom</span>
-                </div>
-            </div>
-            <div class="gfh-marquee-wrap gfh-reveal">
-                <div class="gfh-marquee gfh-marquee-rev">
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#0EA5E9">G</span>GoHighLevel</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#FF4F00">Z</span>Zapier</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#2CA01C">Q</span>QuickBooks</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#96BF48">S</span>Shopify</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#10A37F">O</span>OpenAI</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#FF7A59">H</span>HubSpot</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#F59E0B">M</span>Mailchimp</span>
-                    <span class="gfh-int-chip"><span class="gfh-int-dot" style="background:#1877F2">F</span>Facebook</span>
-                    <span class="gfh-int-chip gfh-int-chip-more"><span class="gfh-int-dot" style="background:#F97316">+</span>many more</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#0EA5E9">G</span>GoHighLevel</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#FF4F00">Z</span>Zapier</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#2CA01C">Q</span>QuickBooks</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#96BF48">S</span>Shopify</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#10A37F">O</span>OpenAI</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#FF7A59">H</span>HubSpot</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#F59E0B">M</span>Mailchimp</span>
-                    <span class="gfh-int-chip" aria-hidden="true"><span class="gfh-int-dot" style="background:#1877F2">F</span>Facebook</span>
-                    <span class="gfh-int-chip gfh-int-chip-more" aria-hidden="true"><span class="gfh-int-dot" style="background:#F97316">+</span>many more</span>
-                </div>
-            </div>
-
-            <div class="gfh-sec-foot gfh-reveal">
-                <a class="gfh-link-more" href="__marketplace_url__">Browse the full marketplace <span aria-hidden="true">&rarr;</span></a>
-            </div>
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- Why it works                                             -->
-        <!-- ======================================================== -->
-        <section class="gfh-sec gfh-sec-soft" id="system">
-            <div class="gfh-container">
-                <div class="gfh-sec-head gfh-reveal">
-                    <span class="gfh-eyebrow">Why It Works</span>
-                    <h2 class="gfh-h2">The system between your thought and your creation.</h2>
-                    <p class="gfh-sub">Every operation, every workspace, every module runs through the same three-step loop. That&rsquo;s why it scales from a personal wish list to a company with a team.</p>
-                </div>
-
-                <div class="gfh-cols-3">
-                    <div class="gfh-why-col gfh-reveal">
-                        <span class="gfh-why-num">01 &mdash; Thought</span>
-                        <h3>It starts in your head</h3>
-                        <p>An offer, a community, a company, a plan for your family. Every creation begins as a thought &mdash; and most die there, scattered across tools that don&rsquo;t talk to each other.</p>
-                    </div>
-                    <div class="gfh-why-col gfh-reveal">
-                        <span class="gfh-why-num">02 &mdash; System</span>
-                        <h3>GFunnel gives it structure</h3>
-                        <p>One workspace turns the thought into a system: the modules it needs, the automations that run it, the people who work in it, and the tools it connects to.</p>
-                    </div>
-                    <div class="gfh-why-col gfh-reveal">
-                        <span class="gfh-why-num">03 &mdash; Creation</span>
-                        <h3>The structure ships</h3>
-                        <p>Funnels go live. Members join. Invoices get paid. The system keeps every action connected, so the next idea starts further ahead than the last one did.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- Founder quote                                            -->
-        <!-- ======================================================== -->
-        <section class="gfh-quote">
-            <div class="gfh-container">
-                <div class="gfh-quote-card gfh-reveal">
-                    <span class="gfh-quote-mark" aria-hidden="true">
-                        <svg width="30" height="30" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg>
-                    </span>
-                    <blockquote>
-                        &ldquo;GFunnel exists because I believed every business starts as a thought &mdash; and the only thing standing between that thought and reality is the system connecting them. I built the system. Then the tools. Then the team. <em>Thought. System. Creation.</em> Your world, connected.&rdquo;
-                    </blockquote>
-                    <div class="gfh-quote-cite">&mdash; <b>Cameron D. Garlick</b>, Founder &amp; CEO, GFunnel</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- Community + News/guides                                  -->
-        <!-- ======================================================== -->
-        <section class="gfh-sec gfh-sec-soft" id="community">
-            <div class="gfh-container">
                 <div class="gfh-feeds">
                     <div class="gfh-feed-col gfh-reveal">
                         <div class="gfh-feed-head">
-                            <h2 class="gfh-feed-title">From the community</h2>
+                            <h3 class="gfh-feed-title">From the community</h3>
                             <a class="gfh-link-more" href="__community_url__">Open community <span aria-hidden="true">&rarr;</span></a>
                         </div>
                         __community_feed__
                     </div>
                     <div class="gfh-feed-col gfh-reveal">
                         <div class="gfh-feed-head">
-                            <h2 class="gfh-feed-title">News &amp; guides</h2>
+                            <h3 class="gfh-feed-title">News &amp; guides</h3>
                             <a class="gfh-link-more" href="__learn_url__">Browse all <span aria-hidden="true">&rarr;</span></a>
                         </div>
                         __news_feed__
@@ -394,12 +143,9 @@
         <!-- CTA                                                      -->
         <!-- ======================================================== -->
         <section class="gfh-cta">
-            <div class="gfh-cta-curve" aria-hidden="true">
-                <svg viewBox="0 0 1440 84" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,0 L0,24 Q720,120 1440,24 L1440,0 Z" fill="#ffffff"/></svg>
-            </div>
-            <div class="gfh-cta-inner">
-                <h2>Start your creation.</h2>
-                <p>Free to start. Everything connected from day one. Your first workspace is minutes away.</p>
+            <div class="gfh-cta-inner gfh-reveal">
+                <h2>Start your workspace.</h2>
+                <p>Free to start. Every department, app and automation connected from day one.</p>
                 <div class="gfh-hero-ctas">
                     <a class="gfh-btn gfh-btn-orange" href="__join_url__">Create A Workspace</a>
                     <a class="gfh-btn gfh-btn-ghost" href="__pricing_url__">Explore Pricing</a>
@@ -422,7 +168,7 @@
                         </span>
                         GFunnel
                     </a>
-                    <p class="gfh-footer-tagline">The operating hub for everyone who builds. Every tool, every action, one platform &mdash; your world, connected.</p>
+                    <p class="gfh-footer-tagline">The operating hub for how your business runs. Every department, every tool, one workspace.</p>
                     <div class="gfh-socials">
                         <a href="https://www.linkedin.com/company/gfunnel-business" target="_blank" rel="noopener" aria-label="GFunnel on LinkedIn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45z"/></svg>
@@ -436,45 +182,35 @@
                     </div>
                 </div>
 
-                <div class="gfh-news">
-                    <h4>Stay updated</h4>
-                    <p>Product drops, playbooks, and community highlights. No spam &mdash; ever.</p>
-                    <form class="gfh-news-form" id="gfh-news-form" data-join-url="__join_url__" novalidate>
-                        <input type="email" id="gfh-news-email" placeholder="you@yourventure.com" autocomplete="email" aria-label="Email address" />
-                        <button type="submit" class="gfh-btn gfh-btn-orange gfh-btn-sm">Subscribe</button>
-                    </form>
-                    <span class="gfh-news-msg" id="gfh-news-msg" role="status"></span>
-                </div>
-            </div>
-
-            <div class="gfh-footer-cols">
-                <div class="gfh-footer-col">
-                    <h5>Platform</h5>
-                    <a href="#departments">Departments</a>
-                    <a href="__marketplace_url__">Marketplace</a>
-                    <a href="#integrations">Integrations</a>
-                    <a href="__pricing_url__">Pricing</a>
-                </div>
-                <div class="gfh-footer-col">
-                    <h5>Solutions</h5>
-                    <a href="__personal_url__">For Personal</a>
-                    <a href="__business_url__">For Business</a>
-                    <a href="__agencies_url__">For Agencies</a>
-                    <a href="__partners_url__">Partners</a>
-                </div>
-                <div class="gfh-footer-col">
-                    <h5>Resources</h5>
-                    <a href="#community">Community</a>
-                    <a href="__learn_url__">Learn</a>
-                    <a href="__events_url__">Events</a>
-                    <a href="__contact_url__">Help &amp; Support</a>
-                </div>
-                <div class="gfh-footer-col">
-                    <h5>Company</h5>
-                    <a href="__about_url__">About</a>
-                    <a href="__contact_url__">Contact</a>
-                    <a href="__login_url__">Sign in</a>
-                    <a href="__join_url__">Create Workspace</a>
+                <div class="gfh-footer-cols">
+                    <div class="gfh-footer-col">
+                        <h5>Platform</h5>
+                        <a href="#departments">Departments</a>
+                        <a href="__marketplace_url__">Marketplace</a>
+                        <a href="#explore">Integrations</a>
+                        <a href="__pricing_url__">Pricing</a>
+                    </div>
+                    <div class="gfh-footer-col">
+                        <h5>Solutions</h5>
+                        <a href="__personal_url__">For Personal</a>
+                        <a href="__business_url__">For Business</a>
+                        <a href="__agencies_url__">For Agencies</a>
+                        <a href="__partners_url__">Partners</a>
+                    </div>
+                    <div class="gfh-footer-col">
+                        <h5>Resources</h5>
+                        <a href="#community">Community</a>
+                        <a href="__learn_url__">Learn</a>
+                        <a href="__events_url__">Events</a>
+                        <a href="__contact_url__">Help &amp; Support</a>
+                    </div>
+                    <div class="gfh-footer-col">
+                        <h5>Company</h5>
+                        <a href="__about_url__">About</a>
+                        <a href="__contact_url__">Contact</a>
+                        <a href="__login_url__">Sign in</a>
+                        <a href="__join_url__">Create Workspace</a>
+                    </div>
                 </div>
             </div>
 

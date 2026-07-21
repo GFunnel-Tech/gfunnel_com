@@ -174,35 +174,79 @@ function gfHomeDepartmentsGrid()
 }
 
 /**
- * Earn card for the Build / Buy / Earn band. Affiliate/partner attribution lives in
- * the UNA write plane, which this read-only public homepage cannot drive yet
- * (audit B6 / TODO T4). The destination is gated behind `gf_home_earn_enabled`
- * (sys_options): off by default -> render the card with a "coming soon" state instead
- * of linking to a partners page that may not be public.
+ * Platform status badge for the nav (Star-Head-style "LIVE" pill). Shows a real
+ * version only if `gf_platform_version` (sys_options) is set — never a fabricated
+ * number; otherwise just an honest live-status pill.
  */
-function gfHomeEarnCard($fnPageUrl)
+function gfHomeVersionBadge()
 {
-    $bEnabled = getParam('gf_home_earn_enabled') == 'on';
-    $sIco = '<span class="gfh-path-ico" style="color:#0f766e;background:rgba(20,184,166,.12)">'
-        . '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.5 7.5 15.5 16M9 18h6"/></svg></span>';
+    $sVer = trim((string)getParam('gf_platform_version'));
+    $s = '<span class="gfh-live" title="Platform status">'
+        . '<span class="gfh-live-dot" aria-hidden="true"></span>';
+    if ($sVer !== '')
+        $s .= '<b>' . htmlspecialchars($sVer, ENT_QUOTES, 'UTF-8') . '</b>';
+    $s .= 'Live</span>';
+    return $s;
+}
 
-    if ($bEnabled) {
-        return '<a class="gfh-path-card gfh-reveal" href="' . $fnPageUrl('affiliate-activities') . '">'
-            . $sIco
-            . '<span class="gfh-path-kicker">Earn</span>'
-            . '<h3>Refer, resell, and earn</h3>'
-            . '<p>Bring partners into your workspace and turn referrals into recurring income &mdash; tracked and paid where the work already happens.</p>'
-            . '<span class="gfh-link-more">Explore partners <span aria-hidden="true">&rarr;</span></span>'
-            . '</a>';
+/** Inline SVG for a catalog-card icon. */
+function gfHomeCatIcon($sName)
+{
+    $aMap = [
+        'grid'   => '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+        'apps'   => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+        'plug'   => '<path d="M9 2v6M15 2v6"/><path d="M7 8h10v3a5 5 0 0 1-10 0V8z"/><path d="M12 16v6"/>',
+        'layout' => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+        'book'   => '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h13"/>',
+        'share'  => '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.5 7.5 15.5 16M9 18h6"/>',
+    ];
+    $sInner = isset($aMap[$sName]) ? $aMap[$sName] : $aMap['grid'];
+    return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $sInner . '</svg>';
+}
+
+/**
+ * Catalog cards — the Star-Head-style "Database" row: the ecosystem's browsable
+ * surfaces. Counts are shown only where a real number is reachable (apps from the
+ * directory mirror; the department count) — everything else is description-only, no
+ * fabricated totals. Partners is gated behind gf_home_earn_enabled (audit B6/T4).
+ */
+function gfHomeCatalogCards($fnPageUrl)
+{
+    $sMarket = BX_DOL_URL_ROOT . 'applications';
+    $sApps = gfHomeCountPlus(gfHomeAppsCount());
+    $iDepts = count(gfHomeDepartments());
+    $bEarn = getParam('gf_home_earn_enabled') == 'on';
+
+    $aCards = [
+        ['ico' => 'grid',   'title' => 'Departments',  'desc' => 'Run every function of your business, from Strategy and Sales to Operations, Finance and Legal.', 'href' => '#departments',           'count' => ($iDepts > 0 ? (string)$iDepts : '')],
+        ['ico' => 'apps',   'title' => 'Marketplace',  'desc' => 'Apps and integrations, ready to install straight into your workspace.',                        'href' => $sMarket,                 'count' => $sApps],
+        ['ico' => 'plug',   'title' => 'Integrations', 'desc' => 'Connect the tools you already use — Stripe, Slack, Google, OpenAI and many more.',              'href' => $sMarket,                 'count' => ''],
+        ['ico' => 'layout', 'title' => 'Templates',    'desc' => 'Deploy proven funnels, sites and automations instead of building from zero.',                  'href' => $sMarket,                 'count' => ''],
+        ['ico' => 'book',   'title' => 'Learn',        'desc' => 'Guides, courses and the GFunnel University, organized by department.',                         'href' => $fnPageUrl('courses-home'), 'count' => ''],
+        ['ico' => 'share',  'title' => 'Partners',     'desc' => 'The white-label and affiliate network for agencies and partners.',                             'href' => ($bEarn ? $fnPageUrl('affiliate-activities') : ''), 'count' => '', 'soon' => !$bEarn],
+    ];
+
+    $s = '';
+    foreach ($aCards as $aCard) {
+        $bSoon = !empty($aCard['soon']);
+        $sTitle = htmlspecialchars($aCard['title'], ENT_QUOTES, 'UTF-8');
+        $sDesc = htmlspecialchars($aCard['desc'], ENT_QUOTES, 'UTF-8');
+        $sBadge = '';
+        if ($aCard['count'] !== '')
+            $sBadge = '<span class="gfh-cat-count">' . htmlspecialchars($aCard['count'], ENT_QUOTES, 'UTF-8') . '</span>';
+        elseif ($bSoon)
+            $sBadge = '<span class="gfh-cat-count gfh-cat-soon">Soon</span>';
+
+        $sInner = '<span class="gfh-cat-ico">' . gfHomeCatIcon($aCard['ico']) . '</span>'
+            . '<span class="gfh-cat-head"><span class="gfh-cat-title">' . $sTitle . '</span>' . $sBadge . '</span>'
+            . '<span class="gfh-cat-desc">' . $sDesc . '</span>';
+
+        if ($bSoon)
+            $s .= '<div class="gfh-cat-card gfh-cat-card-soon">' . $sInner . '</div>';
+        else
+            $s .= '<a class="gfh-cat-card" href="' . htmlspecialchars($aCard['href'], ENT_QUOTES, 'UTF-8') . '">' . $sInner . '<span class="gfh-cat-go" aria-hidden="true">&rarr;</span></a>';
     }
-
-    return '<div class="gfh-path-card gfh-reveal gfh-path-soon">'
-        . $sIco
-        . '<span class="gfh-path-kicker">Earn <span class="gfh-soon">Coming soon</span></span>'
-        . '<h3>Refer, resell, and earn</h3>'
-        . '<p>Partner and affiliate payouts run on the GFunnel account layer. The public earn surface is on the way &mdash; it isn&rsquo;t wired into this page yet.</p>'
-        . '<span class="gfh-link-more gfh-link-disabled" aria-disabled="true">In the works <span aria-hidden="true">&rarr;</span></span>'
-        . '</div>';
+    return $s;
 }
 
 /** Shared designed empty state for a homepage feed column (no fabricated rows). */
@@ -342,9 +386,10 @@ function getGfHomePageCode()
         'cookies_url' => $fnPageUrl('cookies'),
 
         //--- Real, computed content (no placeholders — see docs/audits/homepage-audit.md)
+        'version_badge' => gfHomeVersionBadge(),
         'hero_stats' => gfHomeHeroStats(),
+        'catalog_cards' => gfHomeCatalogCards($fnPageUrl),
         'departments_grid' => gfHomeDepartmentsGrid(),
-        'earn_card' => gfHomeEarnCard($fnPageUrl),
         'community_feed' => gfHomeCommunityFeed(),
         'news_feed' => gfHomeNewsFeed()
     ]);
