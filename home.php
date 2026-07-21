@@ -21,37 +21,51 @@ bx_import('BxDolLanguages');
 
 /**
  * The GFunnel operating model — the departments a business runs on, rendered as
- * process domains on the homepage. This is a real snapshot of the platform's
- * `departments` table (Supabase read plane, project yjneucgsaayyzoyxrlnb): 14 rows,
- * ordered by sort_order, with the live name/subtitle/color/color_bg values.
+ * process domains on the homepage. Values mirror the platform's `departments` table
+ * (Supabase read plane, project yjneucgsaayyzoyxrlnb): 14 rows ordered by sort_order,
+ * with the live name/subtitle/icon/color/color_bg values.
  *
- * It lives here as static data (not a live query) on purpose: the source table is
- * membership-scoped in the read plane and is not mirrored into this platform's MySQL,
- * so it cannot be anon-read at request time (see docs/audits/homepage-audit.md, B1).
- * When a departments -> MySQL mirror is built on the directory-apps sync pattern (TODO
- * T1 in the audit), swap this function's body for that query — the grid renderer and
- * the rest of the page stay unchanged.
+ * Data source resolution (see docs/audits/homepage-audit.md, B1 + TODO T1):
+ *   1. If a `gf_departments` MySQL table exists, read it live (ordered by sort_order).
+ *      Load it with docs/sql/gf_departments.mysql.sql — that makes the grid live.
+ *   2. Otherwise fall back to the static real snapshot below, so the page always
+ *      renders correctly before the table is loaded.
+ * The source table is membership-scoped in the read plane and not anon-readable, so a
+ * local MySQL table (loaded by an admin, or later populated by a sync on the
+ * directory-apps pattern) is the reachable path for this public PHP page.
  *
- * `icon` is a Tabler (ti-*) name from the source row, mapped to an inline SVG by
- * gfHomeDeptIcon() so it matches the homepage's own stroke-icon set.
+ * `icon` is a Tabler (ti-*) name mapped to an inline SVG by gfHomeDeptIcon().
+ * Names/subtitles are plain text here and HTML-escaped at render time.
  */
 function gfHomeDepartments()
 {
+    $oDb = BxDolDb::getInstance();
+    if ($oDb->getOne("SHOW TABLES LIKE 'gf_departments'")) {
+        $aRows = $oDb->getAll("SELECT `name`, `subtitle`, `icon`, `color`, `color_bg` FROM `gf_departments` ORDER BY `sort_order` ASC, `name` ASC");
+        if (!empty($aRows))
+            return $aRows;
+    }
+    return gfHomeDepartmentsStatic();
+}
+
+/** Real 14-department snapshot used when the gf_departments table is not loaded. */
+function gfHomeDepartmentsStatic()
+{
     return [
-        ['name' => 'Strategy',                    'subtitle' => 'Planning, KPIs',                 'icon' => 'ti-target',           'color' => '#4338ca', 'color_bg' => 'rgba(99,102,241,.12)'],
-        ['name' => 'Marketing',                   'subtitle' => 'Demand gen, brand, paid',        'icon' => 'ti-speakerphone',     'color' => '#be123c', 'color_bg' => 'rgba(244,63,94,.12)'],
-        ['name' => 'Sales / Revenue',             'subtitle' => 'Sales, Partnerships',            'icon' => 'ti-trending-up',      'color' => '#047857', 'color_bg' => 'rgba(16,185,129,.12)'],
-        ['name' => 'Product',                     'subtitle' => 'Roadmap, UX',                    'icon' => 'ti-box',              'color' => '#1d4ed8', 'color_bg' => 'rgba(59,130,246,.12)'],
-        ['name' => 'Creative',                    'subtitle' => 'Design, Content',                'icon' => 'ti-palette',          'color' => '#be185d', 'color_bg' => 'rgba(236,72,153,.12)'],
-        ['name' => 'Technology',                  'subtitle' => 'Dev, Integrations',              'icon' => 'ti-cpu',              'color' => '#6d28d9', 'color_bg' => 'rgba(124,58,237,.12)'],
-        ['name' => 'AI &amp; Automation',         'subtitle' => 'Agents, Chatbots',               'icon' => 'ti-robot',            'color' => '#0f766e', 'color_bg' => 'rgba(20,184,166,.12)'],
-        ['name' => 'Delivery / Fulfillment',      'subtitle' => 'Service delivery, PM',           'icon' => 'ti-truck-delivery',   'color' => '#b45309', 'color_bg' => 'rgba(245,158,11,.14)'],
-        ['name' => 'Operations',                  'subtitle' => 'CRM, Workflows, RevOps',         'icon' => 'ti-settings',         'color' => '#475569', 'color_bg' => 'rgba(100,116,139,.14)'],
-        ['name' => 'Data &amp; Analytics',        'subtitle' => 'BI, Attribution',                'icon' => 'ti-chart-bar',        'color' => '#0e7490', 'color_bg' => 'rgba(6,182,212,.12)'],
-        ['name' => 'Customer Success &amp; Support', 'subtitle' => 'Onboarding, Success',         'icon' => 'ti-headset',          'color' => '#7c3aed', 'color_bg' => 'rgba(124,58,237,.12)'],
-        ['name' => 'People / HR',                 'subtitle' => 'Recruiting, Culture, Payroll',   'icon' => 'ti-users',            'color' => '#c2410c', 'color_bg' => 'rgba(249,115,22,.12)'],
-        ['name' => 'Finance',                     'subtitle' => 'Billing, Accounting',            'icon' => 'ti-currency-dollar',  'color' => '#059669', 'color_bg' => 'rgba(16,185,129,.12)'],
-        ['name' => 'Legal, Risk &amp; Security',  'subtitle' => 'Contracts, Compliance, InfoSec', 'icon' => 'ti-shield',           'color' => '#334155', 'color_bg' => 'rgba(51,65,85,.12)'],
+        ['name' => 'Strategy',                       'subtitle' => 'Planning, KPIs',                 'icon' => 'ti-target',          'color' => '#4338ca', 'color_bg' => 'rgba(99,102,241,.12)'],
+        ['name' => 'Marketing',                      'subtitle' => 'Demand gen, brand, paid',        'icon' => 'ti-speakerphone',    'color' => '#be123c', 'color_bg' => 'rgba(244,63,94,.12)'],
+        ['name' => 'Sales / Revenue',                'subtitle' => 'Sales, Partnerships',            'icon' => 'ti-trending-up',     'color' => '#047857', 'color_bg' => 'rgba(16,185,129,.12)'],
+        ['name' => 'Product',                        'subtitle' => 'Roadmap, UX',                    'icon' => 'ti-box',             'color' => '#1d4ed8', 'color_bg' => 'rgba(59,130,246,.12)'],
+        ['name' => 'Creative',                       'subtitle' => 'Design, Content',                'icon' => 'ti-palette',         'color' => '#be185d', 'color_bg' => 'rgba(236,72,153,.12)'],
+        ['name' => 'Technology',                     'subtitle' => 'Dev, Integrations',              'icon' => 'ti-cpu',             'color' => '#6d28d9', 'color_bg' => 'rgba(124,58,237,.12)'],
+        ['name' => 'AI & Automation',                'subtitle' => 'Agents, Chatbots',               'icon' => 'ti-robot',           'color' => '#0f766e', 'color_bg' => 'rgba(20,184,166,.12)'],
+        ['name' => 'Delivery / Fulfillment',         'subtitle' => 'Service delivery, PM',           'icon' => 'ti-truck-delivery',  'color' => '#b45309', 'color_bg' => 'rgba(245,158,11,.14)'],
+        ['name' => 'Operations',                     'subtitle' => 'CRM, Workflows, RevOps',         'icon' => 'ti-settings',        'color' => '#475569', 'color_bg' => 'rgba(100,116,139,.14)'],
+        ['name' => 'Data & Analytics',               'subtitle' => 'BI, Attribution',                'icon' => 'ti-chart-bar',       'color' => '#0e7490', 'color_bg' => 'rgba(6,182,212,.12)'],
+        ['name' => 'Customer Success & Support',     'subtitle' => 'Onboarding, Success',            'icon' => 'ti-headset',         'color' => '#7c3aed', 'color_bg' => 'rgba(124,58,237,.12)'],
+        ['name' => 'People / HR',                    'subtitle' => 'Recruiting, Culture, Payroll',   'icon' => 'ti-users',           'color' => '#c2410c', 'color_bg' => 'rgba(249,115,22,.12)'],
+        ['name' => 'Finance',                        'subtitle' => 'Billing, Accounting',            'icon' => 'ti-currency-dollar', 'color' => '#059669', 'color_bg' => 'rgba(16,185,129,.12)'],
+        ['name' => 'Legal, Risk & Security',         'subtitle' => 'Contracts, Compliance, InfoSec', 'icon' => 'ti-shield',          'color' => '#334155', 'color_bg' => 'rgba(51,65,85,.12)'],
     ];
 }
 
@@ -144,11 +158,16 @@ function gfHomeDepartmentsGrid()
     $sMarketUrl = BX_DOL_URL_ROOT . 'applications';
     $s = '';
     foreach (gfHomeDepartments() as $aDept) {
+        $sName = htmlspecialchars((string)$aDept['name'], ENT_QUOTES, 'UTF-8');
+        $sSub = htmlspecialchars((string)$aDept['subtitle'], ENT_QUOTES, 'UTF-8');
+        // colors land in a style attribute, so only allow hex / rgb(a) / named tokens
+        $sColor = preg_replace('/[^A-Za-z0-9#.,()%\s]/', '', (string)$aDept['color']);
+        $sColorBg = preg_replace('/[^A-Za-z0-9#.,()%\s]/', '', (string)$aDept['color_bg']);
         $s .= '<a class="gfh-dept-card gfh-reveal" href="' . $sMarketUrl . '">'
-            . '<span class="gfh-dept-ico" style="color:' . $aDept['color'] . ';background:' . $aDept['color_bg'] . '">'
+            . '<span class="gfh-dept-ico" style="color:' . $sColor . ';background:' . $sColorBg . '">'
             . gfHomeDeptIcon($aDept['icon']) . '</span>'
-            . '<span class="gfh-dept-name">' . $aDept['name'] . '</span>'
-            . '<span class="gfh-dept-sub">' . $aDept['subtitle'] . '</span>'
+            . '<span class="gfh-dept-name">' . $sName . '</span>'
+            . '<span class="gfh-dept-sub">' . $sSub . '</span>'
             . '</a>';
     }
     return $s;
