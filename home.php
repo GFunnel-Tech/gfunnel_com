@@ -205,6 +205,94 @@ function gfHomeEarnCard($fnPageUrl)
         . '</div>';
 }
 
+/** Shared designed empty state for a homepage feed column (no fabricated rows). */
+function gfHomeFeedEmpty($sTitle, $sSub)
+{
+    return '<div class="gfh-feed-empty">'
+        . '<span class="gfh-feed-empty-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v12H8l-4 4z"/></svg></span>'
+        . '<p class="gfh-feed-empty-title">' . htmlspecialchars($sTitle, ENT_QUOTES, 'UTF-8') . '</p>'
+        . '<p class="gfh-feed-empty-sub">' . htmlspecialchars($sSub, ENT_QUOTES, 'UTF-8') . '</p>'
+        . '</div>';
+}
+
+/**
+ * News &amp; guides feed. Renders real published content from a `gf_content_objects`
+ * MySQL table when present (newest first); otherwise a designed empty state.
+ * The read-plane `content_objects` type is not anon-readable and not mirrored, so
+ * live rows require loading/syncing that table (audit B5 / TODO T2) — no fake rows.
+ */
+function gfHomeNewsFeed()
+{
+    $oDb = BxDolDb::getInstance();
+    $aRows = [];
+    if ($oDb->getOne("SHOW TABLES LIKE 'gf_content_objects'"))
+        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `published_at`, `canonical_url` FROM `gf_content_objects` WHERE `status` = 'published' ORDER BY `published_at` DESC LIMIT 5");
+
+    if (empty($aRows))
+        return gfHomeFeedEmpty('Guides are on the way', 'Product updates and how-to guides will appear here as they’re published.');
+
+    $s = '<ul class="gfh-feed-list">';
+    foreach ($aRows as $aRow) {
+        $sTitle = htmlspecialchars((string)$aRow['title'], ENT_QUOTES, 'UTF-8');
+        $sExcerpt = htmlspecialchars((string)$aRow['excerpt'], ENT_QUOTES, 'UTF-8');
+        $sWhen = gfHomeFeedDate($aRow['published_at']);
+        $sUrl = (string)$aRow['canonical_url'];
+        $bLink = (bool)preg_match('#^https?://#i', $sUrl);
+        $sOpen = $bLink ? '<a class="gfh-feed-item" href="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '">' : '<div class="gfh-feed-item">';
+        $sClose = $bLink ? '</a>' : '</div>';
+        $s .= $sOpen
+            . '<span class="gfh-feed-item-title">' . $sTitle . '</span>'
+            . ($sExcerpt !== '' ? '<span class="gfh-feed-item-sub">' . $sExcerpt . '</span>' : '')
+            . ($sWhen !== '' ? '<span class="gfh-feed-item-meta">' . $sWhen . '</span>' : '')
+            . $sClose;
+    }
+    return $s . '</ul>';
+}
+
+/**
+ * Community feed. Renders recent public posts from a `gf_community_posts` MySQL table
+ * when present; otherwise a designed empty state. The read-plane `posts_posts` feed is
+ * not anon-readable and not mirrored (audit B4 / TODO T3), so live rows require a
+ * mirror or a native UNA-posts wire — never fabricated posts.
+ */
+function gfHomeCommunityFeed()
+{
+    $oDb = BxDolDb::getInstance();
+    $aRows = [];
+    if ($oDb->getOne("SHOW TABLES LIKE 'gf_community_posts'"))
+        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `author_name`, `published_at`, `url` FROM `gf_community_posts` WHERE `status` = 'active' ORDER BY `published_at` DESC LIMIT 5");
+
+    if (empty($aRows))
+        return gfHomeFeedEmpty('The community is warming up', 'Highlights from the GFunnel community will show up here. Jump in and start the conversation.');
+
+    $s = '<ul class="gfh-feed-list">';
+    foreach ($aRows as $aRow) {
+        $sTitle = htmlspecialchars((string)$aRow['title'], ENT_QUOTES, 'UTF-8');
+        $sAuthor = htmlspecialchars((string)$aRow['author_name'], ENT_QUOTES, 'UTF-8');
+        $sWhen = gfHomeFeedDate($aRow['published_at']);
+        $sMeta = trim($sAuthor . ($sAuthor !== '' && $sWhen !== '' ? ' &middot; ' : '') . $sWhen);
+        $sUrl = (string)$aRow['url'];
+        $bLink = (bool)preg_match('#^https?://#i', $sUrl);
+        $sOpen = $bLink ? '<a class="gfh-feed-item" href="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '">' : '<div class="gfh-feed-item">';
+        $sClose = $bLink ? '</a>' : '</div>';
+        $s .= $sOpen
+            . '<span class="gfh-feed-item-title">' . $sTitle . '</span>'
+            . ($sMeta !== '' ? '<span class="gfh-feed-item-meta">' . $sMeta . '</span>' : '')
+            . $sClose;
+    }
+    return $s . '</ul>';
+}
+
+/** Format a feed timestamp ('M j, Y'); returns '' if unparseable. */
+function gfHomeFeedDate($sWhen)
+{
+    $sWhen = trim((string)$sWhen);
+    if ($sWhen === '')
+        return '';
+    $iTs = strtotime($sWhen);
+    return $iTs ? date('M j, Y', $iTs) : '';
+}
+
 function getGfHomePageCode()
 {
     $oTemplate = BxDolTemplate::getInstance();
@@ -256,7 +344,9 @@ function getGfHomePageCode()
         //--- Real, computed content (no placeholders — see docs/audits/homepage-audit.md)
         'hero_stats' => gfHomeHeroStats(),
         'departments_grid' => gfHomeDepartmentsGrid(),
-        'earn_card' => gfHomeEarnCard($fnPageUrl)
+        'earn_card' => gfHomeEarnCard($fnPageUrl),
+        'community_feed' => gfHomeCommunityFeed(),
+        'news_feed' => gfHomeNewsFeed()
     ]);
 }
 
