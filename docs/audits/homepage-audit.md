@@ -211,8 +211,13 @@ The homepage (`template/page_home.html` + `template/css/gf_home.css` + `home.php
   static real snapshot. No process counts.
 - **Build / Buy / Earn band** — Build→join, Buy→`/applications`; **Earn is
   feature-flagged** (`gf_home_earn_enabled`, off by default → "coming soon").
+- **Featured apps & modules** — live section pulled from the synced `gf_directory_apps`
+  mirror (featured first, else most recent), deep-linking to `/application/<slug>`; the
+  section omits itself when the mirror is empty. This is the dynamic "workable modules"
+  surface — it updates automatically as the directory syncs.
 - **Community + News feeds** — real rows when a backing MySQL table exists
   (`gf_community_posts` / `gf_content_objects`), else designed **empty states**. No fake rows.
+  Add an article/highlight by inserting a row (DDL: `docs/sql/gf_home_content.mysql.sql`).
 - **Removed** every fabricated section (workspaces picker, modules split, stats band,
   case studies) and stripped invented counts ("1,000+", "100+", "5,000+ entrepreneurs")
   from kept illustrative sections.

@@ -548,6 +548,96 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Featured apps & modules (live directory)                            */
+/* ------------------------------------------------------------------ */
+
+.gfh-sec-head-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: none;
+}
+.gfh-sec-head-row .gfh-h2 { margin-bottom: 8px; }
+.gfh-sec-head-row .gfh-sub { margin: 0; }
+.gfh-sec-head-row .gfh-link-more { flex: 0 0 auto; padding-bottom: 4px; }
+
+.gfh-app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+.gfh-app-card {
+    display: flex;
+    gap: 13px;
+    border: 1px solid var(--gfh-line);
+    background: var(--gfh-panel);
+    border-radius: var(--gfh-radius);
+    padding: 16px;
+    transition: border-color .18s ease, transform .18s ease, background .18s ease;
+}
+.gfh-app-card:hover {
+    border-color: var(--gfh-orange);
+    background: var(--gfh-panel-2);
+    transform: translateY(-3px);
+}
+.gfh-app-logo {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    background: var(--gfh-panel-2);
+    border: 1px solid var(--gfh-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.gfh-app-logo img { width: 100%; height: 100%; object-fit: contain; }
+.gfh-app-ini { font-family: var(--gfh-font-head); font-weight: 800; font-size: 18px; color: var(--gfh-orange-300); }
+.gfh-app-info { min-width: 0; display: flex; flex-direction: column; }
+.gfh-app-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--gfh-font-head);
+    font-weight: 700;
+    font-size: 14.5px;
+    color: #fff;
+    line-height: 1.25;
+}
+.gfh-app-badge {
+    font-family: var(--gfh-font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gfh-orange-300);
+    background: var(--gfh-orange-soft);
+    border: 1px solid rgba(249, 115, 22, .25);
+    border-radius: 999px;
+    padding: 1px 7px;
+}
+.gfh-app-cat {
+    font-family: var(--gfh-font-mono);
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--gfh-muted);
+    margin-top: 4px;
+}
+.gfh-app-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--gfh-txt-dim);
+    margin-top: 6px;
+}
+
+/* ------------------------------------------------------------------ */
 /* News & Community feeds                                              */
 /* ------------------------------------------------------------------ */
 
@@ -754,6 +844,7 @@ a.gfh-feed-item:hover { background: var(--gfh-panel-2); }
     .gfh-nav-links { display: none; }
     .gfh-cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-dept-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .gfh-app-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 860px) {
@@ -761,6 +852,7 @@ a.gfh-feed-item:hover { background: var(--gfh-panel-2); }
     .gfh-burger { display: inline-flex; }
     .gfh-dept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-feeds { grid-template-columns: 1fr; }
+    .gfh-sec-head-row { flex-direction: column; align-items: flex-start; }
     .gfh-footer-top { grid-template-columns: 1fr; }
     .gfh-footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-sec { padding: 56px 0; }
@@ -770,6 +862,7 @@ a.gfh-feed-item:hover { background: var(--gfh-panel-2); }
 @media (max-width: 560px) {
     .gfh-cat-grid { grid-template-columns: 1fr; }
     .gfh-dept-grid { grid-template-columns: 1fr; }
+    .gfh-app-grid { grid-template-columns: 1fr; }
     .gfh-live b { display: none; }
     .gfh-hero-search button { padding: 0 14px; }
     .gfh-footer-bottom-in { justify-content: center; text-align: center; }

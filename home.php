@@ -249,6 +249,61 @@ function gfHomeCatalogCards($fnPageUrl)
     return $s;
 }
 
+/**
+ * Featured apps & modules — pulled LIVE from the directory mirror `gf_directory_apps`
+ * (the platform's real apps/modules, synced from Supabase; see gf_applications.php).
+ * Featured rows first, falling back to the most recent. Returns the whole <section>,
+ * or '' so the section is omitted entirely when the mirror is absent/empty — the page
+ * stays honest with no placeholder apps. Cards deep-link to /application/<slug>.
+ */
+function gfHomeFeaturedSection()
+{
+    $oDb = BxDolDb::getInstance();
+    if (!$oDb->getOne("SHOW TABLES LIKE 'gf_directory_apps'"))
+        return '';
+
+    $sCols = "`name`, `slug`, `description`, `logo_url`, `category`, `is_gfunnel_native`";
+    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 8");
+    if (empty($aApps))
+        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 8");
+    if (empty($aApps))
+        return '';
+
+    $sBase = BX_DOL_URL_ROOT . 'application/';
+    $sCards = '';
+    foreach ($aApps as $a) {
+        $sNameRaw = trim((string)$a['name']);
+        $sName = htmlspecialchars($sNameRaw, ENT_QUOTES, 'UTF-8');
+        $sSlug = trim((string)$a['slug']);
+        $sHref = $sSlug !== '' ? $sBase . rawurlencode($sSlug) : BX_DOL_URL_ROOT . 'applications';
+        $sCat = htmlspecialchars((string)$a['category'], ENT_QUOTES, 'UTF-8');
+        $sDesc = htmlspecialchars((string)$a['description'], ENT_QUOTES, 'UTF-8');
+        $sLogo = trim((string)$a['logo_url']);
+        $sMedia = preg_match('#^https?://#i', $sLogo)
+            ? '<img src="' . htmlspecialchars($sLogo, ENT_QUOTES, 'UTF-8') . '" alt="" loading="lazy" />'
+            : '<span class="gfh-app-ini">' . htmlspecialchars(mb_strtoupper(mb_substr($sNameRaw, 0, 1)), ENT_QUOTES, 'UTF-8') . '</span>';
+        $sBadge = !empty($a['is_gfunnel_native']) ? '<span class="gfh-app-badge">Native</span>' : '';
+        $sCards .= '<a class="gfh-app-card" href="' . $sHref . '">'
+            . '<span class="gfh-app-logo">' . $sMedia . '</span>'
+            . '<span class="gfh-app-info">'
+            . '<span class="gfh-app-name">' . $sName . $sBadge . '</span>'
+            . ($sCat !== '' ? '<span class="gfh-app-cat">' . $sCat . '</span>' : '')
+            . ($sDesc !== '' ? '<span class="gfh-app-desc">' . $sDesc . '</span>' : '')
+            . '</span></a>';
+    }
+
+    $sMarket = BX_DOL_URL_ROOT . 'applications';
+    return '<section class="gfh-sec" id="apps">'
+        . '<div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-sec-head-left gfh-sec-head-row gfh-reveal">'
+        . '<div><span class="gfh-eyebrow">Featured</span><h2 class="gfh-h2">Apps &amp; modules, ready to plug in.</h2>'
+        . '<p class="gfh-sub">Pulled live from the GFunnel directory &mdash; install any of them into your workspace.</p></div>'
+        . '<a class="gfh-link-more" href="' . $sMarket . '">Browse all apps <span aria-hidden="true">&rarr;</span></a>'
+        . '</div>'
+        . '<div class="gfh-app-grid">' . $sCards . '</div>'
+        . '</div></section>';
+}
+
 /** Shared designed empty state for a homepage feed column (no fabricated rows). */
 function gfHomeFeedEmpty($sTitle, $sSub)
 {
@@ -390,6 +445,7 @@ function getGfHomePageCode()
         'hero_stats' => gfHomeHeroStats(),
         'catalog_cards' => gfHomeCatalogCards($fnPageUrl),
         'departments_grid' => gfHomeDepartmentsGrid(),
+        'featured_section' => gfHomeFeaturedSection(),
         'community_feed' => gfHomeCommunityFeed(),
         'news_feed' => gfHomeNewsFeed()
     ]);
