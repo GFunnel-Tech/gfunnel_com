@@ -385,6 +385,34 @@
     color: rgba(255, 255, 255, .5);
 }
 
+/* Hero stat line — real numbers only (see home.php gfHomeHeroStats) */
+.gfh-hero-stats {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 34px;
+}
+.gfh-hero-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, .62);
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 999px;
+    padding: 8px 16px;
+}
+.gfh-hero-stat b {
+    font-family: var(--gfh-font-head);
+    font-weight: 800;
+    font-size: 16px;
+    color: #fff;
+    letter-spacing: -.01em;
+}
+
 .gfh-hero-curve {
     position: absolute;
     left: 0;
