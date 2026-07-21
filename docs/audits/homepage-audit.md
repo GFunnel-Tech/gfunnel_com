@@ -187,6 +187,26 @@ or the UNA write plane.
 | **Footer legal — DMCA / Terms / Privacy / Cookies** | UNA pages (`terms`, `privacy`) exist; **DMCA/Cookies** not confirmed | **BUILD NOW (Terms/Privacy) + add DMCA** | Add `/legal/dmca` link; create the page/route if missing and flag it. |
 | **SEO metadata + JSON-LD** | `home.php` already sets title/description/canonical + Organization/WebSite JSON-LD | **BUILD NOW** | Extend existing metadata; do not duplicate. |
 
+### Build outcome (what shipped in this branch)
+
+The homepage (`template/page_home.html` + `template/css/gf_home.css` + `home.php`) was
+reworked processes-first, in place, conforming to the existing design system:
+
+- **Nav/hero** reframed to the operating model; hero stat line uses the **real** app
+  count (from `gf_directory_apps`, conservative "N,000+", omitted if empty) + the real
+  department count.
+- **Department grid** — 14 real process domains. Reads a **`gf_departments` MySQL
+  table when present** (load `docs/sql/gf_departments.mysql.sql`), else an identical
+  static real snapshot. No process counts.
+- **Build / Buy / Earn band** — Build→join, Buy→`/applications`; **Earn is
+  feature-flagged** (`gf_home_earn_enabled`, off by default → "coming soon").
+- **Community + News feeds** — real rows when a backing MySQL table exists
+  (`gf_community_posts` / `gf_content_objects`), else designed **empty states**. No fake rows.
+- **Removed** every fabricated section (workspaces picker, modules split, stats band,
+  case studies) and stripped invented counts ("1,000+", "100+", "5,000+ entrepreneurs")
+  from kept illustrative sections.
+- **Footer** — Terms / Privacy / **DMCA** / Cookies; dead in-page anchors repaired.
+
 ### Open TODOs / gaps (documented, not faked)
 - **T1 — Department live sync:** to make the department grid live (vs. static-real), build a
   `departments` → MySQL mirror on the `sync-directory-apps-to-mysql` pattern. Until then the grid uses a
@@ -197,7 +217,12 @@ or the UNA write plane.
   empty state.
 - **T4 — Earn route:** confirm whether `affiliate-activities` (or another partners page) is public; if
   not, feature-flag the Earn destination.
-- **T5 — Existing placeholder data:** the current `page_home.html` contains hardcoded demo data (e.g.
-  "5,000+ entrepreneurs", "12,000 members in 6 weeks", fabricated workspace rows, static app cards). The
-  rework must replace real-claimable numbers with computed/real values and treat clearly illustrative
-  demo UI (the interactive app-directory mock) as labeled illustration, not data.
+- **T5 — Existing placeholder data:** DONE — fabricated sections removed and invented counts stripped in
+  this branch. The interactive app-directory mock is kept as a clearly-framed browser-window illustration
+  (labeled `gfunnel.com/workspace/app-directory`), not presented as live data.
+- **T6 — Legal CMS pages:** the footer now links `page.php?i=dmca` and `page.php?i=cookies` (same
+  permalink pattern as Terms/Privacy). The **DMCA and Cookies page content must be created in UNA CMS**
+  for those links to resolve to real pages — the routes resolve, the content is a CMS task.
+- **T7 — Live feeds:** to light up the Community/News columns with real rows, load/sync
+  `gf_community_posts` (from `posts_posts`) and `gf_content_objects` (published `content_objects`) into
+  MySQL on the directory-apps sync pattern; the renderers already read them when present.

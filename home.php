@@ -116,7 +116,7 @@ function gfHomeHeroStats()
     foreach ($aStats as $aStat)
         $s .= '<span class="gfh-hero-stat"><b>' . $aStat['num'] . '</b>' . $aStat['label'] . '</span>';
 
-    return '<div class="gfh-hero-stats" role="list">' . $s . '</div>';
+    return '<div class="gfh-hero-stats">' . $s . '</div>';
 }
 
 /**
