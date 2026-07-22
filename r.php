@@ -69,6 +69,18 @@ if(getParam('gf_business') != 'off') {
     }
 }
 
+// GFunnel: Services & Talent. A branded, SEO-optimized landing for hiring verified
+// VAs and vendors, GFunnel's own done-for-you services, and DIY workspaces:
+//   /services -> service paths + (live) verified-vendor slice
+// gf_services='off' disables it and falls through to normal routing.
+if(getParam('gf_services') != 'off') {
+    $sGfSvc = strtolower(trim($sRequest, '/'));
+    if($sGfSvc === 'services') {
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_services.php');
+        exit;
+    }
+}
+
 $aRewriteRules = BxDolRewriteRulesQuery::getActiveRules();
 foreach ($aRewriteRules as $a) {
     if (preg_match('#'.$a['preg'].'#i', $sRequest, $aMatches)) {

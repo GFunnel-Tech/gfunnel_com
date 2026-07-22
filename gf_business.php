@@ -163,7 +163,7 @@ header('Content-Type: text/html; charset=utf-8');
             </a>
             <nav class="gfh-nav-links" aria-label="Primary">
                 <a href="<?php echo $sSelf; ?>">Businesses</a>
-                <a href="<?php echo BX_DOL_URL_ROOT; ?>#services">Services</a>
+                <a href="<?php echo BX_DOL_URL_ROOT; ?>services">Services</a>
                 <a href="<?php echo BX_DOL_URL_ROOT; ?>applications">Software</a>
                 <a href="<?php echo BX_DOL_URL_ROOT; ?>#resources">Resources</a>
             </nav>

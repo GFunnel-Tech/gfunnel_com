@@ -469,11 +469,16 @@ function gfHomeSearchUrl($sKeyword)
  * done-for-you team, or start free with a workspace + industry snapshot. Verification
  * is the through-line. Real CTAs; the deep talent/vendor marketplace fills in later.
  */
-function gfHomeServicesSection()
+/**
+ * The four real service paths (Hire a VA / Verified Vendors / GFunnel Services / DIY)
+ * as card HTML. Shared by the homepage section and the standalone /services route
+ * (gf_services.php) so both stay in sync. Hrefs resolve to real destinations —
+ * keyword search, the Business Listing module, contact, and sign-up.
+ */
+function gfHomeServiceCards()
 {
     $sJoin = gfHomeUrl('create-account');
     $sContact = gfHomeUrl('contact');
-    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
     $bBiz = (gfHomeBusinessCount() >= 0);
     $sVendors = $bBiz ? gfHomeListingUrl('listing-home') : gfHomeSearchUrl('agency');
     $sVA = gfHomeSearchUrl('virtual assistant');
@@ -519,6 +524,14 @@ function gfHomeServicesSection()
             . '<span class="gfh-link-more">' . $a['cta'] . ' <span aria-hidden="true">&rarr;</span></span>'
             . '</a>';
     }
+    return $sCards;
+}
+
+function gfHomeServicesSection()
+{
+    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $sMore = BX_DOL_URL_ROOT . 'services';
+    $sCards = gfHomeServiceCards();
 
     return '<section class="gfh-sec" id="services"><div class="gfh-container">'
         . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Services &amp; Talent</span>'
@@ -530,6 +543,7 @@ function gfHomeServicesSection()
         . '<button type="submit">Search</button></form>'
         . '<p class="gfh-svc-trust"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="m9 12 2 2 4-4"/></svg> Every VA and vendor is verified before it&rsquo;s listed &mdash; so you always get the most trusted resource.</p>'
         . '<div class="gfh-svc-grid">' . $sCards . '</div>'
+        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMore . '">Explore services &amp; talent <span aria-hidden="true">&rarr;</span></a></div>'
         . '</div></section>';
 }
 
