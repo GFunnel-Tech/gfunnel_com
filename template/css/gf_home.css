@@ -220,10 +220,15 @@
 .gfh-app-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 12.5px; line-height: 1.45; color: var(--gfh-slate); margin-top: 6px; }
 
 /* Featured apps — App-Directory-style card grid */
+.gfh-appd-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.gfh-appd-title { font-family: var(--gfh-font-head); font-weight: 800; font-size: 26px; letter-spacing: -.01em; color: var(--gfh-ink); margin: 0; }
+.gfh-appd-search { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 500; color: var(--gfh-muted); background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 12px; padding: 9px 16px; min-width: 220px; transition: border-color .15s ease, color .15s ease; }
+.gfh-appd-search:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
 .gfh-appd-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.gfh-appd-chip { font-size: 13px; font-weight: 600; color: var(--gfh-slate); background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 999px; padding: 7px 15px; transition: all .15s ease; white-space: nowrap; }
+.gfh-appd-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--gfh-slate); background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 999px; padding: 7px 15px; transition: all .15s ease; white-space: nowrap; }
 .gfh-appd-chip:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
 .gfh-appd-chip.gfh-on { background: var(--gfh-orange); border-color: var(--gfh-orange); color: #fff; }
+.gfh-appd-chip-ico { flex: 0 0 auto; opacity: .8; }
 .gfh-appd-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .gfh-appd-card { display: flex; flex-direction: column; border: 1px solid var(--gfh-line); background: var(--gfh-card); border-radius: 14px; padding: 18px; transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
 .gfh-appd-card:hover { border-color: #CBD5E1; box-shadow: var(--gfh-shadow-lg); transform: translateY(-3px); }
@@ -236,6 +241,9 @@
 .gfh-appd-open { flex: 0 0 auto; color: var(--gfh-muted); display: inline-flex; }
 .gfh-appd-card:hover .gfh-appd-open { color: var(--gfh-orange); }
 .gfh-appd-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; line-height: 1.5; color: var(--gfh-slate); }
+.gfh-appd-add { border-style: dashed; border-color: #CBD5E1; background: transparent; }
+.gfh-appd-add:hover { border-color: var(--gfh-orange); background: var(--gfh-orange-soft); box-shadow: none; }
+.gfh-appd-plus { font-family: var(--gfh-font-head); font-weight: 700; font-size: 22px; line-height: 1; color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border-color: rgba(249, 115, 22, .25); }
 
 /* ------------------------------------------------------------------ */
 /* GFunnel Services (value ladder)                                     */

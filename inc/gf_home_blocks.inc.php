@@ -247,6 +247,31 @@ function gfHomeCatalogCards($fnPageUrl)
  * or '' so the section is omitted entirely when the mirror is absent/empty — the page
  * stays honest with no placeholder apps. Cards deep-link to /application/<slug>.
  */
+/**
+ * Small inline icon for an app-directory category pill. Decoration only: known
+ * categories get a recognizable glyph; anything else returns '' and the pill simply
+ * shows its label (no fake/guessed iconography).
+ */
+function gfHomeAppdChipIcon($sCat)
+{
+    $sKey = strtolower(trim((string)$sCat));
+    $aMap = array(
+        'ai' => 'M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-1 8 4 4 0 0 1-8 0 5 5 0 0 1-1-8V7a5 5 0 0 1 5-5Z',
+        'automation' => 'M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3',
+        'design' => 'M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5',
+        'video' => 'm22 8-6 4 6 4V8ZM2 6h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6Z',
+        'marketing' => 'm3 11 18-5v12L3 14v-3ZM11.6 16.8a3 3 0 1 1-5.8-1.6',
+        'productivity' => 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+        'development' => 'm16 18 6-6-6-6M8 6l-6 6 6 6',
+        'finance' => 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
+        'communication' => 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z',
+        'popular' => 'm12 2 3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2Z',
+    );
+    if (!isset($aMap[$sKey]))
+        return '';
+    return '<svg class="gfh-appd-chip-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' . $aMap[$sKey] . '"/></svg>';
+}
+
 function gfHomeFeaturedSection()
 {
     $oDb = BxDolDb::getInstance();
@@ -254,18 +279,28 @@ function gfHomeFeaturedSection()
         return '';
 
     $sCols = "`name`, `slug`, `description`, `logo_url`, `is_gfunnel_native`";
-    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 8");
+    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 11");
     if (empty($aApps))
-        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 8");
+        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 11");
     if (!is_array($aApps) || empty($aApps))
         return '';
 
     $sMarket = BX_DOL_URL_ROOT . 'applications';
     $sBase = BX_DOL_URL_ROOT . 'application/';
-    $sExtIco = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
+    $sExtIco = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
 
-    // App-directory-style cards: logo + name on top, description below.
-    $sCards = '';
+    // Total apps in the directory — for the "browse all" tile (real count, or omitted).
+    $iTotal = (int)$oDb->getOne("SELECT COUNT(*) FROM `gf_directory_apps`");
+    $sTotal = $iTotal > 0 ? gfHomeCountPlus($iTotal) . ' integrations' : 'every integration';
+
+    // Lead tile — mirrors the directory's dashed "Add New App" card.
+    $sCards = '<a class="gfh-appd-card gfh-appd-add" href="' . $sMarket . '">'
+        . '<span class="gfh-appd-head"><span class="gfh-appd-logo gfh-appd-plus" aria-hidden="true">+</span>'
+        . '<span class="gfh-appd-name">Browse all apps</span></span>'
+        . '<span class="gfh-appd-desc">Explore ' . $sTotal . ', or add your own software.</span>'
+        . '</a>';
+
+    // App-directory-style cards: logo + name + open icon on top, description below.
     foreach ($aApps as $a) {
         $sNameRaw = trim((string)$a['name']);
         if ($sNameRaw === '') continue;
@@ -287,23 +322,26 @@ function gfHomeFeaturedSection()
     }
 
     // Real category chips (from the directory) → the full directory, filtered.
-    $aCats = $oDb->getAll("SELECT `category`, COUNT(*) AS c FROM `gf_directory_apps` WHERE `category` IS NOT NULL AND `category` <> '' GROUP BY `category` ORDER BY c DESC LIMIT 8");
+    $aCats = $oDb->getAll("SELECT `category`, COUNT(*) AS c FROM `gf_directory_apps` WHERE `category` IS NOT NULL AND `category` <> '' GROUP BY `category` ORDER BY c DESC LIMIT 9");
     if (!is_array($aCats)) $aCats = array();
     $sChips = '<a class="gfh-appd-chip gfh-on" href="' . $sMarket . '">All</a>';
     foreach ($aCats as $c) {
         $sCat = trim((string)$c['category']);
         if ($sCat === '') continue;
-        $sChips .= '<a class="gfh-appd-chip" href="' . $sMarket . '?cat=' . rawurlencode($sCat) . '">' . htmlspecialchars($sCat, ENT_QUOTES, 'UTF-8') . '</a>';
+        $sChips .= '<a class="gfh-appd-chip" href="' . $sMarket . '?cat=' . rawurlencode($sCat) . '">'
+            . gfHomeAppdChipIcon($sCat) . htmlspecialchars($sCat, ENT_QUOTES, 'UTF-8') . '</a>';
     }
 
+    // Header mirrors the directory: plain title + a search affordance (no marketing chrome).
+    $sSearchIco = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
+
     return '<section class="gfh-sec" id="apps"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-sec-head-left gfh-sec-head-row gfh-reveal">'
-        . '<div><span class="gfh-eyebrow">Featured</span><h2 class="gfh-h2">Apps &amp; modules, ready to plug in.</h2>'
-        . '<p class="gfh-sub">Pulled live from the GFunnel directory &mdash; install any of them into your workspace.</p></div>'
-        . '<a class="gfh-link-more" href="' . $sMarket . '">Browse all apps <span aria-hidden="true">&rarr;</span></a>'
+        . '<div class="gfh-appd-bar gfh-reveal">'
+        . '<h2 class="gfh-appd-title">App Directory</h2>'
+        . '<a class="gfh-appd-search" href="' . $sMarket . '">' . $sSearchIco . '<span>Search apps&hellip;</span></a>'
         . '</div>'
-        . '<div class="gfh-appd-chips">' . $sChips . '</div>'
-        . '<div class="gfh-appd-grid">' . $sCards . '</div>'
+        . '<div class="gfh-appd-chips gfh-reveal">' . $sChips . '</div>'
+        . '<div class="gfh-appd-grid gfh-reveal">' . $sCards . '</div>'
         . '</div></section>';
 }
 
