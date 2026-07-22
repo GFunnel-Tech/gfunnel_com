@@ -433,7 +433,7 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     .gfh-res-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) {
-    .gfh-signin, .gfh-nav-search { display: none; }
+    .gfh-signin, .gfh-nav-search, .gfh-live { display: none; }
     .gfh-burger { display: inline-flex; }
     .gfh-dept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-feeds { grid-template-columns: 1fr; }
@@ -450,6 +450,8 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     .gfh-appd-grid { grid-template-columns: 1fr; }
     .gfh-svc-grid { grid-template-columns: 1fr; }
     .gfh-res-grid { grid-template-columns: 1fr; }
+    .gfh-biz-grid, .gfh-dir-grid { grid-template-columns: 1fr; }
+    .gfh-container { padding: 0 16px; }
     .gfh-hero-kbd { display: none; }
     .gfh-hero-search button { padding: 0 14px; }
     .gfh-live b { display: none; }
