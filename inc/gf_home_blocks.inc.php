@@ -209,10 +209,10 @@ function gfHomeCatalogCards($fnPageUrl)
     $bEarn = getParam('gf_home_earn_enabled') == 'on';
 
     $aCards = [
-        ['ico' => 'grid',   'title' => 'Departments',  'desc' => 'Run every function of your business, from Strategy and Sales to Operations, Finance and Legal.', 'href' => '#departments',           'count' => ($iDepts > 0 ? (string)$iDepts : '')],
+        ['ico' => 'grid',   'title' => 'Departments',  'desc' => 'Run every function of your business, from Strategy and Sales to Operations, Finance and Legal.', 'href' => BX_DOL_URL_ROOT . 'business', 'count' => ($iDepts > 0 ? (string)$iDepts : '')],
         ['ico' => 'apps',   'title' => 'Software',     'desc' => 'Apps and integrations, ready to install straight into your workspace.',                        'href' => $sMarket,                 'count' => $sApps],
-        ['ico' => 'plug',   'title' => 'Marketplace',  'desc' => 'Buy templates, industry snapshots and premium software, then deploy them in a click.',         'href' => '#marketplace',           'count' => ''],
-        ['ico' => 'layout', 'title' => 'Resources',    'desc' => 'Articles, guides, courses and help to run every part of it.',                                  'href' => '#resources',             'count' => ''],
+        ['ico' => 'plug',   'title' => 'Marketplace',  'desc' => 'Buy templates, industry snapshots and premium software, then deploy them in a click.',         'href' => BX_DOL_URL_ROOT . 'marketplace', 'count' => ''],
+        ['ico' => 'layout', 'title' => 'Resources',    'desc' => 'Articles, guides, courses and help to run every part of it.',                                  'href' => BX_DOL_URL_ROOT . 'resources', 'count' => ''],
         ['ico' => 'book',   'title' => 'Learn',        'desc' => 'Guides, courses and the GFunnel University, organized by department.',                         'href' => $fnPageUrl('courses-home'), 'count' => ''],
         ['ico' => 'share',  'title' => 'Partners',     'desc' => 'The white-label and affiliate network for agencies and partners.',                             'href' => ($bEarn ? $fnPageUrl('affiliate-activities') : ''), 'count' => '', 'soon' => !$bEarn],
     ];
