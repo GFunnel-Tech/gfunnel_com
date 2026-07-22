@@ -74,6 +74,7 @@ function getGfHomePageCode()
         'version_badge' => gfHomeVersionBadge(),
         'hero_stats' => gfHomeHeroStats(),
         'business_section' => gfHomeBusinessSection(),
+        'services_section' => gfHomeServicesSection(),
         'catalog_cards' => gfHomeCatalogCards($fnPageUrl),
         'departments_grid' => gfHomeDepartmentsGrid(),
         'featured_section' => gfHomeFeaturedSection(),

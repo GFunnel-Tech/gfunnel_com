@@ -218,6 +218,23 @@
 .gfh-app-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 12.5px; line-height: 1.45; color: var(--gfh-slate); margin-top: 6px; }
 
 /* ------------------------------------------------------------------ */
+/* GFunnel Services (value ladder)                                     */
+/* ------------------------------------------------------------------ */
+
+.gfh-svc-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.gfh-svc-card { display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--gfh-line); background: var(--gfh-card); border-radius: 16px; padding: 24px 22px; transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
+.gfh-svc-card:hover { border-color: #CBD5E1; box-shadow: var(--gfh-shadow-lg); transform: translateY(-3px); }
+.gfh-svc-ico { width: 46px; height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: var(--gfh-orange-soft); color: var(--gfh-orange-600); border: 1px solid rgba(249, 115, 22, .18); margin-bottom: 14px; }
+.gfh-svc-tag { font-family: var(--gfh-font-mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: 3px 10px; margin-bottom: 12px; }
+.gfh-svc-tag-free { color: #047857; background: rgba(16, 185, 129, .1); border: 1px solid rgba(16, 185, 129, .26); }
+.gfh-svc-tag-paid { color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border: 1px solid rgba(249, 115, 22, .28); }
+.gfh-svc-tag-mixed { color: #1d4ed8; background: rgba(59, 130, 246, .1); border: 1px solid rgba(59, 130, 246, .26); }
+.gfh-svc-title { font-family: var(--gfh-font-head); font-weight: 700; font-size: 17px; letter-spacing: -.01em; color: var(--gfh-ink); margin-bottom: 8px; }
+.gfh-svc-desc { font-size: 13.5px; line-height: 1.5; color: var(--gfh-slate); margin-bottom: 16px; flex: 1 1 auto; }
+.gfh-svc-trust { display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-size: 13.5px; color: var(--gfh-slate); margin: 0 auto 32px; max-width: 640px; }
+.gfh-svc-trust svg { color: #047857; flex: 0 0 auto; }
+
+/* ------------------------------------------------------------------ */
 /* Business Database                                                   */
 /* ------------------------------------------------------------------ */
 

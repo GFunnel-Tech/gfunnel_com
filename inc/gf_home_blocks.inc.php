@@ -384,6 +384,82 @@ function gfHomeBusinessSection()
         . '</div></section>';
 }
 
+/** Global-search URL preset to a keyword (routes people to real results). */
+function gfHomeSearchUrl($sKeyword)
+{
+    return BX_DOL_URL_ROOT . 'searchKeyword.php?keyword=' . rawurlencode($sKeyword);
+}
+
+/**
+ * GFunnel Services — a trust-first marketplace + our own value ladder. People can hire
+ * verified VAs (Fiverr-style), find verified vendors/agencies, bring in GFunnel's own
+ * done-for-you team, or start free with a workspace + industry snapshot. Verification
+ * is the through-line. Real CTAs; the deep talent/vendor marketplace fills in later.
+ */
+function gfHomeServicesSection()
+{
+    $sJoin = gfHomeUrl('create-account');
+    $sContact = gfHomeUrl('contact');
+    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $bBiz = (gfHomeBusinessCount() >= 0);
+    $sVendors = $bBiz ? gfHomeListingUrl('listing-home') : gfHomeSearchUrl('agency');
+    $sVA = gfHomeSearchUrl('virtual assistant');
+
+    $aCards = array(
+        array(
+            'ico' => '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/><path d="M18 8l2 2 3-3"/>',
+            'tag' => 'Verified talent', 'tag_kind' => 'mixed',
+            'title' => 'Hire a VA',
+            'desc' => 'Search vetted virtual assistants and freelancers &mdash; matched to your workspace, managed and paid in one place.',
+            'cta' => 'Find a VA', 'href' => $sVA,
+        ),
+        array(
+            'ico' => '<path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="m9 12 2 2 4-4"/>',
+            'tag' => 'Verified vendors', 'tag_kind' => 'free',
+            'title' => 'Verified Vendors',
+            'desc' => 'Find verified marketing agencies, sales teams and service vendors &mdash; every one vetted, so you get the most trusted resource.',
+            'cta' => 'Browse vendors', 'href' => $sVendors,
+        ),
+        array(
+            'ico' => '<circle cx="9" cy="7" r="3.2"/><path d="M2.5 21v-1.5a6.5 6.5 0 0 1 13 0V21"/><path d="M17 8.5a3 3 0 0 1 0 6"/><path d="M20 21v-1a5 5 0 0 0-3-4.6"/>',
+            'tag' => 'Done-for-you', 'tag_kind' => 'paid',
+            'title' => 'GFunnel Services',
+            'desc' => 'Prefer our team? Bring in GFunnel&rsquo;s own VAs, marketing and sales (CSO) talent &mdash; an expert for every department.',
+            'cta' => 'Talk to us', 'href' => $sContact,
+        ),
+        array(
+            'ico' => '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+            'tag' => 'Free to start', 'tag_kind' => 'free',
+            'title' => 'Do it yourself',
+            'desc' => 'Spin up a workspace, drop in an industry snapshot, add your software, and follow our playbooks. Free to start.',
+            'cta' => 'Create a workspace', 'href' => $sJoin,
+        ),
+    );
+
+    $sCards = '';
+    foreach ($aCards as $a) {
+        $sCards .= '<a class="gfh-svc-card" href="' . $a['href'] . '">'
+            . '<span class="gfh-svc-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $a['ico'] . '</svg></span>'
+            . '<span class="gfh-svc-tag gfh-svc-tag-' . $a['tag_kind'] . '">' . $a['tag'] . '</span>'
+            . '<span class="gfh-svc-title">' . $a['title'] . '</span>'
+            . '<span class="gfh-svc-desc">' . $a['desc'] . '</span>'
+            . '<span class="gfh-link-more">' . $a['cta'] . ' <span aria-hidden="true">&rarr;</span></span>'
+            . '</a>';
+    }
+
+    return '<section class="gfh-sec" id="services"><div class="gfh-container">'
+        . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Services &amp; Talent</span>'
+        . '<h2 class="gfh-h2">Get it done &mdash; with talent you can trust.</h2>'
+        . '<p class="gfh-sub">Hire a verified VA, find a trusted agency or vendor, or bring in our own team &mdash; then run it all from your workspace. Free to start.</p></div>'
+        . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
+        . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
+        . '<input type="text" name="keyword" placeholder="Search verified VAs, agencies &amp; vendors by skill or industry..." autocomplete="off" aria-label="Search services and talent" />'
+        . '<button type="submit">Search</button></form>'
+        . '<p class="gfh-svc-trust"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="m9 12 2 2 4-4"/></svg> Every VA and vendor is verified before it&rsquo;s listed &mdash; so you always get the most trusted resource.</p>'
+        . '<div class="gfh-svc-grid">' . $sCards . '</div>'
+        . '</div></section>';
+}
+
 /** Shared designed empty state for a homepage feed column (no fabricated rows). */
 function gfHomeFeedEmpty($sTitle, $sSub)
 {

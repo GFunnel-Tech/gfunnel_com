@@ -77,6 +77,13 @@ class BxGfHomeModule extends BxDolModule
         return gfHomeBusinessSection();
     }
 
+    public function serviceBlockServices()
+    {
+        $this->_assets();
+        $this->_blocks();
+        return gfHomeServicesSection();
+    }
+
     public function serviceBlockDepartments()
     {
         $this->_assets();
