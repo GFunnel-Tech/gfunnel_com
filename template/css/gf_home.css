@@ -380,9 +380,10 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     background-clip: text;
     color: transparent;
 }
-/* Hero kicker becomes a pill badge */
+/* Hero kicker becomes a pill badge — on its own line, centered, above the tabs */
 .gfh-hero-kicker {
-    display: inline-block;
+    display: block;
+    width: fit-content;
     font-size: 11px;
     letter-spacing: .2em;
     color: var(--gfh-orange-300);
@@ -390,7 +391,7 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     border: 1px solid rgba(249, 115, 22, .3);
     border-radius: 999px;
     padding: 6px 15px;
-    margin-bottom: 22px;
+    margin: 0 auto 22px;
 }
 /* Soft ring around the hero mark */
 .gfh-hero-mark { position: relative; }
