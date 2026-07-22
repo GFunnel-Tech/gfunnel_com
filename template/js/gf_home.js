@@ -68,6 +68,20 @@
             });
         }
 
+        /* --- Hero search scope tabs (focus + routing) --- */
+        var heroTabs = root.querySelectorAll('.gfh-hero-tab');
+        var heroScope = document.getElementById('gfh-hero-scope');
+        if (heroTabs.length) {
+            heroTabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    heroTabs.forEach(function(t) { t.classList.toggle('gfh-on', t === tab); });
+                    if (heroScope) heroScope.value = tab.getAttribute('data-scope') || 'all';
+                    var ph = tab.getAttribute('data-ph');
+                    if (heroInput && ph) { heroInput.setAttribute('placeholder', ph); heroInput.focus(); }
+                });
+            });
+        }
+
         /* --- Reveal on scroll --- */
         var reveals = root.querySelectorAll('.gfh-reveal');
         if ('IntersectionObserver' in window) {
