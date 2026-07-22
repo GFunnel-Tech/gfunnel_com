@@ -82,7 +82,8 @@ function gfHomeMarkerArray($fnPageUrl)
         'news_feed' => gfHomeNewsFeed(),
 
         //--- Marketing / conversion sections (from the merged homepage; real copy + real data)
-        'showcase_operations' => gfHomeShowcaseSection('The Platform', 'Operations live here.', 'Your company, your team, your client work &mdash; every business runs from one place.', 'gfunnel-workspace-app-directory.png', 'The GFunnel workspace — sidebar, top nav and an app directory of integrated business tools.'),
+        'showcase_operations' => gfHomeShowcaseSection('The Platform', 'Operations live here.', 'Your company, your team, your client work &mdash; every business runs from one place.', 'gfunnel-workspace-app-directory.webp', 'The GFunnel App Directory — Google Workspace, CRM, Ads, Ecommerce and more, all integrated into one business workspace.'),
+        'showcase_modules' => gfHomeShowcaseSection('The Platform', 'Modules for anything your business runs.', 'Every workspace boots with the modules it needs &mdash; sales, support, finance, delivery &mdash; and adds more as you grow.', 'gfunnel-sales-hub-workspace.webp', 'A GFunnel Sales Hub workspace — a 7-step sales process, objection playbook, scripts, training and a payouts dashboard.'),
         'integrations_wall' => gfHomeIntegrationsWall(),
         'three_paths' => gfHomeThreePaths(),
         'founder_quote' => gfHomeFounderQuote(),
