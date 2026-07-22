@@ -135,9 +135,16 @@
 </div>
 
 <script language="javascript">
-    /* Dynamic phrases & banner theme - evaluated from the VIEWER's local clock
-       per the Workspaces dynamic-phrases spec, re-checked every 60 seconds. */
+    /* Living sky — greeting, affirmation, gradient, stars and sun/moon are all
+       evaluated from the VIEWER's local clock and glide continuously. The sky is
+       a continuous function of the exact time (not 4 buckets), so dawn/dusk are
+       watchable in real time. Progressive enhancement: the server-rendered
+       .gf-ws-hero--{daypart} gradient is the no-JS fallback. */
     (function() {
+        var eHero = document.getElementById('gf-ws-hero');
+        if(!eHero)
+            return;
+
         var aAffirmations = {
             'late-night': ['Builders work when the world rests.', 'Late, but never alone.', 'Tomorrow rewards what you do tonight.', 'Quiet hours, sharper thoughts.', 'The midnight blueprint is yours alone.', 'Patience is built one late hour at a time.', 'Correctness compounds — even at this hour.'],
             'early-morning': ['The world is yours before it wakes.', 'Pre-dawn is a competitive advantage.', 'Whatever you build now, no one can take from you.', 'First light, first move.', 'The early hour is the honest hour.', 'Discipline before sunrise is a head start on the day.', 'Quiet hours, sharp thinking.'],
@@ -155,33 +162,125 @@
             if(iHour < 21) return 'evening';
             return 'late-night';
         };
-        var fTheme = function(iHour) {
-            if(iHour < 5 || iHour >= 22) return 'night';
-            if(iHour < 12) return 'morning';
-            if(iHour < 17) return 'afternoon';
-            return 'evening';
-        };
         var fDayOfYear = function(oDate) {
             return Math.floor((oDate - new Date(oDate.getFullYear(), 0, 0)) / 86400000);
         };
 
-        var fUpdate = function() {
-            var eHero = document.getElementById('gf-ws-hero');
-            if(!eHero)
-                return;
+        /* Sky colour anchors by local hour: top = zenith, bot = horizon (rgb),
+           d = darkness 0..1 (drives star opacity and the text theme). */
+        var SKY = [
+            {h: 0,  top: [11, 16, 38],   bot: [19, 26, 58],    d: 1.00},
+            {h: 5,  top: [26, 33, 81],   bot: [75, 59, 107],   d: 0.88},
+            {h: 6,  top: [45, 58, 122],  bot: [240, 168, 104], d: 0.55},
+            {h: 7,  top: [106, 134, 201],bot: [255, 217, 160], d: 0.22},
+            {h: 9,  top: [125, 178, 240],bot: [223, 240, 255], d: 0.00},
+            {h: 12, top: [74, 149, 232], bot: [191, 224, 255], d: 0.00},
+            {h: 16, top: [90, 155, 224], bot: [255, 233, 176], d: 0.02},
+            {h: 18, top: [59, 77, 158],  bot: [255, 138, 92],  d: 0.35},
+            {h: 19, top: [42, 47, 107],  bot: [217, 90, 138],  d: 0.62},
+            {h: 20, top: [22, 26, 68],   bot: [91, 58, 122],   d: 0.85},
+            {h: 22, top: [13, 18, 48],   bot: [26, 33, 72],    d: 1.00},
+            {h: 24, top: [11, 16, 38],   bot: [19, 26, 58],    d: 1.00}
+        ];
 
-            var oNow = new Date(),
-                iHour = oNow.getHours(),
-                sBucket = fBucket(iHour),
-                sName = eHero.getAttribute('data-name');
-
-            eHero.className = 'gf-ws-hero gf-ws-hero--' + fTheme(iHour);
-            document.getElementById('gf-ws-greeting').textContent = aGreetings[sBucket] + (sName ? ', ' + sName : '');
-            document.getElementById('gf-ws-tagline').textContent = aAffirmations[sBucket][fDayOfYear(oNow) % 7];
+        var fLerp = function(a, b, t) { return a + (b - a) * t; };
+        var fRgb = function(c1, c2, t) {
+            return 'rgb(' + Math.round(fLerp(c1[0], c2[0], t)) + ',' + Math.round(fLerp(c1[1], c2[1], t)) + ',' + Math.round(fLerp(c1[2], c2[2], t)) + ')';
+        };
+        var fSky = function(h) {
+            h = ((h % 24) + 24) % 24;
+            var i = 0;
+            for(; i < SKY.length - 1; i++)
+                if(h >= SKY[i].h && h <= SKY[i + 1].h)
+                    break;
+            var a = SKY[i], b = SKY[i + 1] || SKY[i];
+            var t = b.h > a.h ? (h - a.h) / (b.h - a.h) : 0;
+            return {top: fRgb(a.top, b.top, t), bot: fRgb(a.bot, b.bot, t), dark: fLerp(a.d, b.d, t)};
         };
 
-        fUpdate();
-        setInterval(fUpdate, 60000);
+        var bReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* Star field (built once) */
+        var eStars = eHero.querySelector('.gf-ws-stars');
+        if(eStars) {
+            eStars.style.backgroundImage = 'none';
+            var sHtml = '';
+            for(var s = 0; s < 60; s++) {
+                var fLeft = (Math.random() * 100).toFixed(2),
+                    fTop = (Math.random() * 82).toFixed(2),
+                    fSize = (Math.random() * 1.6 + 1).toFixed(2),
+                    fDur = (Math.random() * 3.5 + 2.5).toFixed(2),
+                    fDelay = (Math.random() * 5).toFixed(2);
+                sHtml += '<span class="gf-ws-star" style="left:' + fLeft + '%;top:' + fTop + '%;--s:' + fSize + 'px;--d:' + fDur + 's;--delay:' + fDelay + 's;"></span>';
+            }
+            eStars.innerHTML = sHtml;
+        }
+
+        /* Sun / moon orb */
+        var eOrb = document.createElement('div');
+        eOrb.className = 'gf-ws-orb';
+        eHero.appendChild(eOrb);
+
+        var fApplyOrb = function(h) {
+            var bDay = h >= 6 && h < 18, t;
+            if(bDay) {
+                t = (h - 6) / 12;
+                eOrb.classList.add('gf-ws-orb--sun');
+                eOrb.classList.remove('gf-ws-orb--moon');
+            }
+            else {
+                t = (h < 6 ? h + 6 : h - 18) / 12;
+                eOrb.classList.add('gf-ws-orb--moon');
+                eOrb.classList.remove('gf-ws-orb--sun');
+            }
+            var fAlt = Math.sin(t * Math.PI); // 0 at horizon, 1 at peak
+            eOrb.style.left = (8 + t * 84).toFixed(1) + '%';
+            eOrb.style.top = (80 - fAlt * 62).toFixed(1) + '%';
+            eOrb.style.opacity = fAlt < 0.06 ? '0' : (bDay ? '0.95' : '0.9');
+        };
+
+        var fApplyGreeting = function(oNow) {
+            var sBucket = fBucket(oNow.getHours()), sName = eHero.getAttribute('data-name');
+            var eG = document.getElementById('gf-ws-greeting'), eT = document.getElementById('gf-ws-tagline');
+            if(eG) eG.textContent = aGreetings[sBucket] + (sName ? ', ' + sName : '');
+            if(eT) eT.textContent = aAffirmations[sBucket][fDayOfYear(oNow) % 7];
+        };
+
+        var fApplySky = function(oWhen) {
+            var h = oWhen.getHours() + oWhen.getMinutes() / 60 + oWhen.getSeconds() / 3600;
+            var oSky = fSky(h);
+            eHero.style.setProperty('--gf-sky-top', oSky.top);
+            eHero.style.setProperty('--gf-sky-bottom', oSky.bot);
+            if(eStars) eStars.style.opacity = oSky.dark.toFixed(3);
+            eHero.classList.toggle('gf-ws-hero--darktext', oSky.dark < 0.4);
+            eHero.classList.toggle('gf-ws-hero--lighttext', oSky.dark >= 0.4);
+            fApplyOrb(h);
+        };
+
+        var fTick = function() {
+            var oNow = new Date();
+            fApplyGreeting(oNow);
+            // look 30s ahead so the CSS transition glides to where the sky should be
+            fApplySky(bReduce ? oNow : new Date(oNow.getTime() + 30000));
+        };
+
+        // Initial paint with correct colours (no glide), then hand over to the sky.
+        eHero.className = 'gf-ws-hero gf-ws-live';
+        var oInit = new Date();
+        fApplyGreeting(oInit);
+        fApplySky(oInit);
+
+        if(!bReduce) {
+            var fStart = function() {
+                eHero.classList.add('gf-ws-live-anim');
+                fTick();
+                setInterval(fTick, 30000);
+            };
+            if(window.requestAnimationFrame)
+                window.requestAnimationFrame(fStart);
+            else
+                fStart();
+        }
     })();
 
     function gfWsSwitchTab(oTab) {

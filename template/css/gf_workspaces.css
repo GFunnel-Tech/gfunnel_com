@@ -110,16 +110,90 @@ body.bx-def-color-bg-page {
 .gf-ws-hero--night .gf-ws-title {
     text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
 }
-/* Star overlay: night theme only */
+/*--- Living sky: continuous time-of-day gradient + twinkling stars + sun/moon.
+      Progressive enhancement — the static .gf-ws-hero--{daypart} gradients above
+      stay as the no-JS fallback; the page JS enables .gf-ws-live and drives it. ---*/
+
+/* Animatable gradient stops. Browsers without @property still get correct colours
+   on each 30s tick; they just miss the between-tick glide. */
+@property --gf-sky-top {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: #0d1230;
+}
+@property --gf-sky-bottom {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: #1a2148;
+}
+.gf-ws-hero.gf-ws-live {
+    background: linear-gradient(to bottom, var(--gf-sky-top) 0%, var(--gf-sky-bottom) 100%);
+}
+.gf-ws-hero.gf-ws-live-anim {
+    transition: --gf-sky-top 30s linear, --gf-sky-bottom 30s linear;
+}
+
+/* Star field — opacity is set by JS to the sky's darkness (fades in at dusk) */
 .gf-ws-stars {
     position: absolute;
     inset: 0;
-    display: none;
-    opacity: .5;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='20' cy='30' r='1.2'/%3E%3Ccircle cx='80' cy='70' r='1'/%3E%3Ccircle cx='140' cy='40' r='1.4'/%3E%3Ccircle cx='60' cy='140' r='1'/%3E%3Ccircle cx='170' cy='120' r='1.2'/%3E%3Ccircle cx='110' cy='180' r='1'/%3E%3C/g%3E%3C/svg%3E");
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 30s linear;
 }
-.gf-ws-hero--night .gf-ws-stars {
-    display: block;
+.gf-ws-star {
+    position: absolute;
+    width: var(--s, 2px);
+    height: var(--s, 2px);
+    border-radius: 50%;
+    background: #ffffff;
+    opacity: .5;
+    will-change: opacity, transform;
+    animation: gfWsTwinkle var(--d, 4s) ease-in-out var(--delay, 0s) infinite;
+}
+@keyframes gfWsTwinkle {
+    0%, 100% { opacity: .2; transform: scale(.7); }
+    50%      { opacity: 1;  transform: scale(1.15); }
+}
+
+/* Sun / moon — JS positions it along a time-of-day arc */
+.gf-ws-orb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: left 30s linear, top 30s linear, opacity 3s linear, background 30s linear, box-shadow 30s linear;
+}
+.gf-ws-orb--sun {
+    background: radial-gradient(circle at 50% 50%, #fff7d6 0%, #ffd469 55%, rgba(255, 200, 90, 0) 72%);
+    box-shadow: 0 0 60px 22px rgba(255, 202, 110, .45);
+}
+.gf-ws-orb--moon {
+    background: radial-gradient(circle at 36% 34%, #fdfeff 0%, #d3ddf2 70%, rgba(211, 221, 242, 0) 74%);
+    box-shadow: 0 0 34px 8px rgba(206, 220, 255, .3);
+}
+
+/* Text theme chosen from the live sky's darkness (overrides the daypart buckets;
+   the JS drops the bucket class when it goes live, so only these apply). */
+.gf-ws-hero--darktext .gf-ws-title { color: #0f172a; text-shadow: 0 1px 2px rgba(255, 255, 255, .4); }
+.gf-ws-hero--darktext .gf-ws-tagline { color: #334155; }
+.gf-ws-hero--darktext .gf-ws-subtitle { color: rgba(51, 65, 85, .8); }
+.gf-ws-hero--lighttext .gf-ws-title { color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, .55); }
+.gf-ws-hero--lighttext .gf-ws-tagline { color: rgba(255, 255, 255, .9); }
+.gf-ws-hero--lighttext .gf-ws-subtitle { color: rgba(255, 255, 255, .75); }
+
+@media (prefers-reduced-motion: reduce) {
+    .gf-ws-hero.gf-ws-live-anim { transition: none; }
+    .gf-ws-stars { transition: none; }
+    .gf-ws-star { animation: none; opacity: .6; }
+    .gf-ws-orb { transition: opacity 1s linear; }
 }
 .gf-ws-hero-inner {
     position: relative;
@@ -151,6 +225,7 @@ body.bx-def-color-bg-page {
     left: 0;
     right: 0;
     bottom: -1px;
+    z-index: 2;
     line-height: 0;
 }
 .gf-ws-hero-curve svg {
