@@ -219,17 +219,23 @@
 .gfh-app-cat { font-family: var(--gfh-font-mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--gfh-muted); margin-top: 4px; }
 .gfh-app-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 12.5px; line-height: 1.45; color: var(--gfh-slate); margin-top: 6px; }
 
-/* Featured apps — sliding logo marquee */
-.gfh-marquee-wrap { position: relative; overflow: hidden; padding: 10px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-.gfh-marquee { display: inline-flex; align-items: center; gap: 12px; width: max-content; animation: gfh-scroll 60s linear infinite; will-change: transform; }
-.gfh-marquee-wrap:hover .gfh-marquee { animation-play-state: paused; }
-@keyframes gfh-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.gfh-mq-chip { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--gfh-line); background: var(--gfh-card); border-radius: 999px; padding: 9px 18px 9px 9px; font-family: var(--gfh-font-head); font-weight: 700; font-size: 14px; color: var(--gfh-ink); white-space: nowrap; box-shadow: 0 2px 8px rgba(8, 18, 38, .05); transition: border-color .15s ease, box-shadow .15s ease; }
-.gfh-mq-chip:hover { border-color: var(--gfh-orange); box-shadow: var(--gfh-shadow); }
-.gfh-mq-logo { width: 30px; height: 30px; border-radius: 8px; background: #F4F6FA; border: 1px solid var(--gfh-line); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 auto; }
-.gfh-mq-logo img { width: 100%; height: 100%; object-fit: contain; }
-.gfh-mq-ini { font-family: var(--gfh-font-head); font-weight: 800; font-size: 13px; color: var(--gfh-orange-600); }
-.gfh-mq-native { color: #16A34A; font-size: 9px; margin-left: -2px; }
+/* Featured apps — App-Directory-style card grid */
+.gfh-appd-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.gfh-appd-chip { font-size: 13px; font-weight: 600; color: var(--gfh-slate); background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 999px; padding: 7px 15px; transition: all .15s ease; white-space: nowrap; }
+.gfh-appd-chip:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
+.gfh-appd-chip.gfh-on { background: var(--gfh-orange); border-color: var(--gfh-orange); color: #fff; }
+.gfh-appd-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.gfh-appd-card { display: flex; flex-direction: column; border: 1px solid var(--gfh-line); background: var(--gfh-card); border-radius: 14px; padding: 18px; transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
+.gfh-appd-card:hover { border-color: #CBD5E1; box-shadow: var(--gfh-shadow-lg); transform: translateY(-3px); }
+.gfh-appd-head { display: flex; align-items: center; gap: 11px; margin-bottom: 11px; }
+.gfh-appd-logo { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 10px; background: #F4F6FA; border: 1px solid var(--gfh-line); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
+.gfh-appd-logo img { width: 100%; height: 100%; object-fit: contain; }
+.gfh-appd-ini { font-family: var(--gfh-font-head); font-weight: 800; font-size: 16px; color: var(--gfh-orange-600); }
+.gfh-appd-name { flex: 1 1 auto; min-width: 0; font-family: var(--gfh-font-head); font-weight: 700; font-size: 15px; color: var(--gfh-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gfh-appd-badge { flex: 0 0 auto; font-family: var(--gfh-font-mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border: 1px solid rgba(249, 115, 22, .25); border-radius: 999px; padding: 2px 7px; }
+.gfh-appd-open { flex: 0 0 auto; color: var(--gfh-muted); display: inline-flex; }
+.gfh-appd-card:hover .gfh-appd-open { color: var(--gfh-orange); }
+.gfh-appd-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; line-height: 1.5; color: var(--gfh-slate); }
 
 /* ------------------------------------------------------------------ */
 /* GFunnel Services (value ladder)                                     */
@@ -411,6 +417,7 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     .gfh-cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-dept-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .gfh-app-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gfh-appd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-biz-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-svc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gfh-res-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -430,6 +437,7 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     .gfh-cat-grid { grid-template-columns: 1fr; }
     .gfh-dept-grid { grid-template-columns: 1fr; }
     .gfh-app-grid { grid-template-columns: 1fr; }
+    .gfh-appd-grid { grid-template-columns: 1fr; }
     .gfh-svc-grid { grid-template-columns: 1fr; }
     .gfh-res-grid { grid-template-columns: 1fr; }
     .gfh-hero-kbd { display: none; }
@@ -439,7 +447,5 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
 }
 @media (prefers-reduced-motion: reduce) {
     .gfh-reveal { opacity: 1; transform: none; transition: none; }
-    .gfh-btn, .gfh-cat-card, .gfh-dept-card, .gfh-app-card { transition: none; }
-    .gfh-marquee { animation: none; }
-    .gfh-marquee-wrap { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+    .gfh-btn, .gfh-cat-card, .gfh-dept-card, .gfh-app-card, .gfh-appd-card { transition: none; }
 }

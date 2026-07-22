@@ -253,48 +253,58 @@ function gfHomeFeaturedSection()
     if (!$oDb->getOne("SHOW TABLES LIKE 'gf_directory_apps'"))
         return '';
 
-    $sCols = "`name`, `slug`, `logo_url`, `is_gfunnel_native`";
-    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 24");
+    $sCols = "`name`, `slug`, `description`, `logo_url`, `is_gfunnel_native`";
+    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 8");
     if (empty($aApps))
-        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 24");
+        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 8");
     if (!is_array($aApps) || empty($aApps))
         return '';
 
-    $sBase = BX_DOL_URL_ROOT . 'application/';
-
-    // One pass builds the chip set; $bDup marks the duplicate copy that makes the
-    // marquee loop seamlessly (hidden from assistive tech).
-    $fnChips = function($bDup) use ($aApps, $sBase) {
-        $s = '';
-        foreach ($aApps as $a) {
-            $sNameRaw = trim((string)$a['name']);
-            if ($sNameRaw === '') continue;
-            $sName = htmlspecialchars($sNameRaw, ENT_QUOTES, 'UTF-8');
-            $sSlug = trim((string)$a['slug']);
-            $sHref = $sSlug !== '' ? $sBase . rawurlencode($sSlug) : BX_DOL_URL_ROOT . 'applications';
-            $sLogo = trim((string)$a['logo_url']);
-            $sMedia = preg_match('#^https?://#i', $sLogo)
-                ? '<img src="' . htmlspecialchars($sLogo, ENT_QUOTES, 'UTF-8') . '" alt="" loading="lazy" />'
-                : '<span class="gfh-mq-ini">' . htmlspecialchars(mb_strtoupper(mb_substr($sNameRaw, 0, 1)), ENT_QUOTES, 'UTF-8') . '</span>';
-            $sBadge = !empty($a['is_gfunnel_native']) ? '<span class="gfh-mq-native" title="GFunnel native">&#9679;</span>' : '';
-            $sAttrs = $bDup ? ' aria-hidden="true" tabindex="-1"' : '';
-            $s .= '<a class="gfh-mq-chip" href="' . $sHref . '"' . $sAttrs . '>'
-                . '<span class="gfh-mq-logo">' . $sMedia . '</span>'
-                . '<span class="gfh-mq-name">' . $sName . '</span>' . $sBadge . '</a>';
-        }
-        return $s;
-    };
-
     $sMarket = BX_DOL_URL_ROOT . 'applications';
-    return '<section class="gfh-sec" id="apps">'
-        . '<div class="gfh-container">'
+    $sBase = BX_DOL_URL_ROOT . 'application/';
+    $sExtIco = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
+
+    // App-directory-style cards: logo + name on top, description below.
+    $sCards = '';
+    foreach ($aApps as $a) {
+        $sNameRaw = trim((string)$a['name']);
+        if ($sNameRaw === '') continue;
+        $sName = htmlspecialchars($sNameRaw, ENT_QUOTES, 'UTF-8');
+        $sSlug = trim((string)$a['slug']);
+        $sHref = $sSlug !== '' ? $sBase . rawurlencode($sSlug) : $sMarket;
+        $sDesc = htmlspecialchars(gfHomeExcerpt($a['description'], 90), ENT_QUOTES, 'UTF-8');
+        $sLogo = trim((string)$a['logo_url']);
+        $sMedia = preg_match('#^https?://#i', $sLogo)
+            ? '<img src="' . htmlspecialchars($sLogo, ENT_QUOTES, 'UTF-8') . '" alt="" loading="lazy" />'
+            : '<span class="gfh-appd-ini">' . htmlspecialchars(mb_strtoupper(mb_substr($sNameRaw, 0, 1)), ENT_QUOTES, 'UTF-8') . '</span>';
+        $sBadge = !empty($a['is_gfunnel_native']) ? '<span class="gfh-appd-badge">Native</span>' : '';
+        $sCards .= '<a class="gfh-appd-card" href="' . $sHref . '">'
+            . '<span class="gfh-appd-head"><span class="gfh-appd-logo">' . $sMedia . '</span>'
+            . '<span class="gfh-appd-name">' . $sName . '</span>' . $sBadge
+            . '<span class="gfh-appd-open">' . $sExtIco . '</span></span>'
+            . ($sDesc !== '' ? '<span class="gfh-appd-desc">' . $sDesc . '</span>' : '')
+            . '</a>';
+    }
+
+    // Real category chips (from the directory) → the full directory, filtered.
+    $aCats = $oDb->getAll("SELECT `category`, COUNT(*) AS c FROM `gf_directory_apps` WHERE `category` IS NOT NULL AND `category` <> '' GROUP BY `category` ORDER BY c DESC LIMIT 8");
+    if (!is_array($aCats)) $aCats = array();
+    $sChips = '<a class="gfh-appd-chip gfh-on" href="' . $sMarket . '">All</a>';
+    foreach ($aCats as $c) {
+        $sCat = trim((string)$c['category']);
+        if ($sCat === '') continue;
+        $sChips .= '<a class="gfh-appd-chip" href="' . $sMarket . '?cat=' . rawurlencode($sCat) . '">' . htmlspecialchars($sCat, ENT_QUOTES, 'UTF-8') . '</a>';
+    }
+
+    return '<section class="gfh-sec" id="apps"><div class="gfh-container">'
         . '<div class="gfh-sec-head gfh-sec-head-left gfh-sec-head-row gfh-reveal">'
         . '<div><span class="gfh-eyebrow">Featured</span><h2 class="gfh-h2">Apps &amp; modules, ready to plug in.</h2>'
         . '<p class="gfh-sub">Pulled live from the GFunnel directory &mdash; install any of them into your workspace.</p></div>'
         . '<a class="gfh-link-more" href="' . $sMarket . '">Browse all apps <span aria-hidden="true">&rarr;</span></a>'
-        . '</div></div>'
-        . '<div class="gfh-marquee-wrap"><div class="gfh-marquee">' . $fnChips(false) . $fnChips(true) . '</div></div>'
-        . '</section>';
+        . '</div>'
+        . '<div class="gfh-appd-chips">' . $sChips . '</div>'
+        . '<div class="gfh-appd-grid">' . $sCards . '</div>'
+        . '</div></section>';
 }
 
 /**
