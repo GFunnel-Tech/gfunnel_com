@@ -253,35 +253,37 @@ function gfHomeFeaturedSection()
     if (!$oDb->getOne("SHOW TABLES LIKE 'gf_directory_apps'"))
         return '';
 
-    $sCols = "`name`, `slug`, `description`, `logo_url`, `category`, `is_gfunnel_native`";
-    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 8");
+    $sCols = "`name`, `slug`, `logo_url`, `is_gfunnel_native`";
+    $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 24");
     if (empty($aApps))
-        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 8");
-    if (empty($aApps))
+        $aApps = $oDb->getAll("SELECT $sCols FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 24");
+    if (!is_array($aApps) || empty($aApps))
         return '';
 
     $sBase = BX_DOL_URL_ROOT . 'application/';
-    $sCards = '';
-    foreach ($aApps as $a) {
-        $sNameRaw = trim((string)$a['name']);
-        $sName = htmlspecialchars($sNameRaw, ENT_QUOTES, 'UTF-8');
-        $sSlug = trim((string)$a['slug']);
-        $sHref = $sSlug !== '' ? $sBase . rawurlencode($sSlug) : BX_DOL_URL_ROOT . 'applications';
-        $sCat = htmlspecialchars((string)$a['category'], ENT_QUOTES, 'UTF-8');
-        $sDesc = htmlspecialchars((string)$a['description'], ENT_QUOTES, 'UTF-8');
-        $sLogo = trim((string)$a['logo_url']);
-        $sMedia = preg_match('#^https?://#i', $sLogo)
-            ? '<img src="' . htmlspecialchars($sLogo, ENT_QUOTES, 'UTF-8') . '" alt="" loading="lazy" />'
-            : '<span class="gfh-app-ini">' . htmlspecialchars(mb_strtoupper(mb_substr($sNameRaw, 0, 1)), ENT_QUOTES, 'UTF-8') . '</span>';
-        $sBadge = !empty($a['is_gfunnel_native']) ? '<span class="gfh-app-badge">Native</span>' : '';
-        $sCards .= '<a class="gfh-app-card" href="' . $sHref . '">'
-            . '<span class="gfh-app-logo">' . $sMedia . '</span>'
-            . '<span class="gfh-app-info">'
-            . '<span class="gfh-app-name">' . $sName . $sBadge . '</span>'
-            . ($sCat !== '' ? '<span class="gfh-app-cat">' . $sCat . '</span>' : '')
-            . ($sDesc !== '' ? '<span class="gfh-app-desc">' . $sDesc . '</span>' : '')
-            . '</span></a>';
-    }
+
+    // One pass builds the chip set; $bDup marks the duplicate copy that makes the
+    // marquee loop seamlessly (hidden from assistive tech).
+    $fnChips = function($bDup) use ($aApps, $sBase) {
+        $s = '';
+        foreach ($aApps as $a) {
+            $sNameRaw = trim((string)$a['name']);
+            if ($sNameRaw === '') continue;
+            $sName = htmlspecialchars($sNameRaw, ENT_QUOTES, 'UTF-8');
+            $sSlug = trim((string)$a['slug']);
+            $sHref = $sSlug !== '' ? $sBase . rawurlencode($sSlug) : BX_DOL_URL_ROOT . 'applications';
+            $sLogo = trim((string)$a['logo_url']);
+            $sMedia = preg_match('#^https?://#i', $sLogo)
+                ? '<img src="' . htmlspecialchars($sLogo, ENT_QUOTES, 'UTF-8') . '" alt="" loading="lazy" />'
+                : '<span class="gfh-mq-ini">' . htmlspecialchars(mb_strtoupper(mb_substr($sNameRaw, 0, 1)), ENT_QUOTES, 'UTF-8') . '</span>';
+            $sBadge = !empty($a['is_gfunnel_native']) ? '<span class="gfh-mq-native" title="GFunnel native">&#9679;</span>' : '';
+            $sAttrs = $bDup ? ' aria-hidden="true" tabindex="-1"' : '';
+            $s .= '<a class="gfh-mq-chip" href="' . $sHref . '"' . $sAttrs . '>'
+                . '<span class="gfh-mq-logo">' . $sMedia . '</span>'
+                . '<span class="gfh-mq-name">' . $sName . '</span>' . $sBadge . '</a>';
+        }
+        return $s;
+    };
 
     $sMarket = BX_DOL_URL_ROOT . 'applications';
     return '<section class="gfh-sec" id="apps">'
@@ -290,9 +292,9 @@ function gfHomeFeaturedSection()
         . '<div><span class="gfh-eyebrow">Featured</span><h2 class="gfh-h2">Apps &amp; modules, ready to plug in.</h2>'
         . '<p class="gfh-sub">Pulled live from the GFunnel directory &mdash; install any of them into your workspace.</p></div>'
         . '<a class="gfh-link-more" href="' . $sMarket . '">Browse all apps <span aria-hidden="true">&rarr;</span></a>'
-        . '</div>'
-        . '<div class="gfh-app-grid">' . $sCards . '</div>'
-        . '</div></section>';
+        . '</div></div>'
+        . '<div class="gfh-marquee-wrap"><div class="gfh-marquee">' . $fnChips(false) . $fnChips(true) . '</div></div>'
+        . '</section>';
 }
 
 /**
@@ -311,6 +313,31 @@ function gfHomeBusinessCount()
     if (!$oDb->getOne("SHOW TABLES LIKE 'mz_listing_entries'"))
         return -1;
     return (int)$oDb->getOne("SELECT COUNT(*) FROM `mz_listing_entries` WHERE `status` = 'active'");
+}
+
+/**
+ * Human-readable location from a Business Listing `location` value. The module stores
+ * it as a PHP-serialized array (lat/lng/country/state/city/zip/street). Return
+ * "City, ST" (or the best available part); '' if it can't be resolved — never the raw
+ * serialized blob.
+ */
+function gfHomeListingLocation($mLoc)
+{
+    $s = trim((string)$mLoc);
+    if ($s !== '' && strncmp($s, 'a:', 2) === 0) {
+        $a = @unserialize($s);
+        if (is_array($a)) {
+            $sCity = isset($a['city']) ? trim((string)$a['city']) : '';
+            $sState = isset($a['state']) ? trim((string)$a['state']) : '';
+            $sCountry = isset($a['country']) ? trim((string)$a['country']) : '';
+            if ($sCity !== '' && $sState !== '') return $sCity . ', ' . $sState;
+            if ($sCity !== '') return $sCity;
+            if ($sState !== '') return $sState;
+            return $sCountry;
+        }
+        return ''; // serialized but unparseable — don't dump the blob
+    }
+    return $s;
 }
 
 /** Permalinked module page URL with optional query params (e.g. view-listing&id=..). */
@@ -333,7 +360,7 @@ function gfHomeBusinessSection()
     $aRows = array();
     if ($bLive) {
         $oDb = BxDolDb::getInstance();
-        $aRows = $oDb->getAll("SELECT `id`, `title`, `subcategory`, `location`, `claim_status` FROM `mz_listing_entries` WHERE `status` = 'active' ORDER BY `featured` DESC, `views` DESC LIMIT 8");
+        $aRows = $oDb->getAll("SELECT `id`, `title`, `location`, `claim_status` FROM `mz_listing_entries` WHERE `status` = 'active' ORDER BY `featured` DESC, `views` DESC LIMIT 8");
         if (!is_array($aRows))
             $aRows = array();
     }
@@ -345,10 +372,8 @@ function gfHomeBusinessSection()
             continue;
         $sTitle = htmlspecialchars($sTitleRaw, ENT_QUOTES, 'UTF-8');
         $sHref = gfHomeListingUrl('view-listing', array('id' => (int)$a['id']));
-        $sMetaParts = array();
-        if (trim((string)$a['subcategory']) !== '') $sMetaParts[] = htmlspecialchars(trim((string)$a['subcategory']), ENT_QUOTES, 'UTF-8');
-        if (trim((string)$a['location']) !== '') $sMetaParts[] = htmlspecialchars(trim((string)$a['location']), ENT_QUOTES, 'UTF-8');
-        $sMeta = implode(' &middot; ', $sMetaParts);
+        $sLoc = gfHomeListingLocation($a['location']);
+        $sMeta = $sLoc !== '' ? htmlspecialchars($sLoc, ENT_QUOTES, 'UTF-8') : '';
         $sClaim = (strtolower(trim((string)$a['claim_status'])) === 'claimable') ? '<span class="gfh-biz-claim">Claimable</span>' : '';
         $sIni = htmlspecialchars(mb_strtoupper(mb_substr($sTitleRaw, 0, 1)), ENT_QUOTES, 'UTF-8');
         $sCards .= '<a class="gfh-biz-card" href="' . $sHref . '">'
@@ -362,10 +387,10 @@ function gfHomeBusinessSection()
         ? 'Search <b>' . number_format($iCount) . '</b> businesses today &mdash; on the way to every business on earth. Find yours, claim it, and connect it to your workspace.'
         : 'The directory of every business on earth &mdash; find yours, claim it, and connect it to your workspace.';
 
-    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $sSearch = BX_DOL_URL_ROOT . 'business';
     $sClaimUrl = $bLive ? gfHomeListingUrl('listing-claim') : gfHomeUrl('create-account');
     $sBrowseLink = $bLive
-        ? '<a class="gfh-link-more" href="' . gfHomeListingUrl('listing-home') . '">Browse all businesses <span aria-hidden="true">&rarr;</span></a>'
+        ? '<a class="gfh-link-more" href="' . BX_DOL_URL_ROOT . 'business">Browse all businesses <span aria-hidden="true">&rarr;</span></a>'
         : '';
 
     return '<section class="gfh-sec gfh-sec-alt" id="business"><div class="gfh-container">'
@@ -374,7 +399,7 @@ function gfHomeBusinessSection()
         . '<p class="gfh-sub">' . $sCountLine . '</p></div>'
         . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
         . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
-        . '<input type="text" name="keyword" placeholder="Search businesses by name, category, or location..." autocomplete="off" aria-label="Search businesses" />'
+        . '<input type="text" name="q" placeholder="Search businesses by name, category, or location..." autocomplete="off" aria-label="Search businesses" />'
         . '<button type="submit">Search</button></form>'
         . ($sCards !== '' ? '<div class="gfh-biz-grid">' . $sCards . '</div>' : '')
         . '<div class="gfh-sec-foot gfh-biz-foot">'
@@ -706,6 +731,12 @@ function gfHomeFeedItem($sTitle, $sExcerpt, $sMeta, $sUrl)
  * URL + season helpers
  * ================================================================== */
 
+/** HTML-escape a string for safe output. */
+function gfHomeOut($sText)
+{
+    return htmlspecialchars((string)$sText, ENT_QUOTES, 'UTF-8');
+}
+
 /** Permalinked UNA page URL (page.php?i=<uri>). */
 function gfHomeUrl($sUri)
 {
@@ -786,7 +817,6 @@ function gfHomeSectionHero()
         . '<span class="gfh-hero-mark" aria-hidden="true"><svg width="72" height="72" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg></span>'
         . '<h1 class="gfh-hero-word">GFunnel</h1>'
         . '<span class="gfh-hero-kicker">The Business Operating Hub</span>'
-        . '<p class="gfh-hero-sub">Find a business, tool, or team &mdash; then run everything in one place. Start with a search.</p>'
         . '<div class="gfh-hero-tabs" role="tablist" aria-label="Search scope">'
         . '<button type="button" class="gfh-hero-tab gfh-on" data-scope="all" data-ph="Search businesses, software, departments, guides...">All</button>'
         . '<button type="button" class="gfh-hero-tab" data-scope="business" data-ph="Search businesses by name, category, or location...">Businesses</button>'
@@ -799,6 +829,7 @@ function gfHomeSectionHero()
         . '<input type="hidden" name="scope" id="gfh-hero-scope" value="all" />'
         . '<kbd class="gfh-hero-kbd" aria-hidden="true">&#8984;K</kbd>'
         . '<button type="submit">Search</button></form>'
+        . '<p class="gfh-hero-sub">Find a business, tool, or team &mdash; then run everything in one place. Start with a search.</p>'
         . '<div class="gfh-hero-jump" aria-label="Jump to">'
         . '<a href="#business">Business Database</a><a href="' . gfHomeMarketUrl() . '">Software</a>'
         . '<a href="#departments">Departments</a><a href="#community">News</a>'

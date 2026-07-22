@@ -57,6 +57,18 @@ if(getParam('gf_applications') != 'off') {
     }
 }
 
+// GFunnel: Business Directory. A branded, SEO-optimized browse page over the
+// Business Listing module (mz_listing):
+//   /business (or /businesses) -> searchable, paginated directory
+// gf_business='off' disables it and falls through to normal routing.
+if(getParam('gf_business') != 'off') {
+    $sGfBiz = strtolower(trim($sRequest, '/'));
+    if($sGfBiz === 'business' || $sGfBiz === 'businesses') {
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_business.php');
+        exit;
+    }
+}
+
 $aRewriteRules = BxDolRewriteRulesQuery::getActiveRules();
 foreach ($aRewriteRules as $a) {
     if (preg_match('#'.$a['preg'].'#i', $sRequest, $aMatches)) {

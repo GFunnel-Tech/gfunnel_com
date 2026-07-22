@@ -22,19 +22,13 @@ bx_import('BxDolLanguages');
 require_once(BX_DIRECTORY_PATH_INC . 'gf_home_blocks.inc.php'); // shared homepage block renderers (also used by the GFunnel Home module)
 
 
-function getGfHomePageCode()
+/** Marker set shared by the standalone template and the block-composed template. */
+function gfHomeMarkerArray($fnPageUrl)
 {
-    $oTemplate = BxDolTemplate::getInstance();
-    $oPermalink = BxDolPermalinks::getInstance();
-
-    $fnPageUrl = function($sUri) use ($oPermalink) {
-        return BX_DOL_URL_ROOT . $oPermalink->permalink('page.php?i=' . $sUri);
-    };
-
     $sCssFile = 'template/css/gf_home.css';
     $sJsFile = 'template/js/gf_home.js';
 
-    return $oTemplate->parseHtmlByName('page_home.html', [
+    return [
         'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
         'js_url' => BX_DOL_URL_ROOT . $sJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sJsFile),
         'site_url' => BX_DOL_URL_ROOT,
@@ -59,8 +53,9 @@ function getGfHomePageCode()
         'partners_url' => $fnPageUrl('affiliate-activities'),
         'pricing_url' => $fnPageUrl('pricing'),
 
-        //--- Marketplace / directory (real route, see r.php + gf_applications.php)
+        //--- Marketplace / directory (real routes, see r.php + gf_applications.php / gf_business.php)
         'marketplace_url' => BX_DOL_URL_ROOT . 'applications',
+        'business_url' => BX_DOL_URL_ROOT . 'business',
 
         //--- Company
         'about_url' => $fnPageUrl('about'),
@@ -82,7 +77,53 @@ function getGfHomePageCode()
         'resources_section' => gfHomeResourcesSection(),
         'community_feed' => gfHomeCommunityFeed(),
         'news_feed' => gfHomeNewsFeed()
-    ]);
+    ];
+}
+
+/** Build the $fnPageUrl helper used to permalink UNA pages. */
+function gfHomePageUrlFn()
+{
+    $oPermalink = BxDolPermalinks::getInstance();
+    return function($sUri) use ($oPermalink) {
+        return BX_DOL_URL_ROOT . $oPermalink->permalink('page.php?i=' . $sUri);
+    };
+}
+
+/** Standalone (hardcoded) homepage — the default and the always-safe fallback. */
+function getGfHomePageCode()
+{
+    return BxDolTemplate::getInstance()->parseHtmlByName('page_home.html', gfHomeMarkerArray(gfHomePageUrlFn()));
+}
+
+/**
+ * Block-composed homepage: our nav/footer shell wrapping the section blocks of a UNA
+ * Page-Builder page, so the whole content area is editable in Studio (add / reorder /
+ * inject via block_seasonal_html). $sBlocks is that page's rendered block HTML.
+ */
+function getGfHomeBlocksPageCode($sBlocks)
+{
+    $aMarkers = gfHomeMarkerArray(gfHomePageUrlFn());
+    $aMarkers['blocks_content'] = $sBlocks;
+    return BxDolTemplate::getInstance()->parseHtmlByName('page_home_blocks.html', $aMarkers);
+}
+
+/**
+ * Render the designated Studio Page-Builder page's blocks, or '' to keep the standalone
+ * template. Activated by the `gf_home_blocks_uri` sys_option pointing at a page URI whose
+ * blocks are the GFunnel Home service blocks (see docs/gfunnel-home-blocks.md).
+ * Any failure returns '' so the homepage always falls back safely.
+ */
+function getGfHomeBlocksContent()
+{
+    $sUri = trim((string)getParam('gf_home_blocks_uri'));
+    if ($sUri === '')
+        return '';
+    bx_import('BxDolPage');
+    $oPage = BxDolPage::getObjectInstanceByURI($sUri);
+    if (!$oPage)
+        return '';
+    $sCode = $oPage->getCode();
+    return is_string($sCode) ? trim($sCode) : '';
 }
 
 /**
@@ -160,7 +201,12 @@ $oTemplate->setPageHeader($sSeoTitle);
 $oTemplate->setPageDescription($sMetaDescription);
 $oTemplate->setPageUrl(BX_DOL_URL_ROOT); // canonical: the site root
 $oTemplate->addInjection('meta_info', 'text', getGfHomeStructuredData($sMetaDescription)); // Organization + WebSite JSON-LD
-$oTemplate->setPageContent('page_main_code', getGfHomePageCode());
+
+// Prefer a Studio Page-Builder composition when configured (gf_home_blocks_uri);
+// otherwise render the standalone template. getGfHomeBlocksContent() returns '' on any
+// problem, so the homepage always falls back safely to the hardcoded template.
+$sHomeBlocks = getGfHomeBlocksContent();
+$oTemplate->setPageContent('page_main_code', $sHomeBlocks !== '' ? getGfHomeBlocksPageCode($sHomeBlocks) : getGfHomePageCode());
 $oTemplate->getPageCode();
 
 /** @} */

@@ -72,13 +72,40 @@ styles (buttons `gfh-btn gfh-btn-orange`, sections `gfh-sec`, etc.).
   (`docs/sql/gf_home_content.mysql.sql`).
 - **Counts** — computed live; shown only where real.
 
-## 5. Making the block page the site root (optional)
+## 5. Making the homepage Studio-editable (the root flip)
 
-The root currently renders the standalone `home.php` for logged-out visitors
-(`index.php` → `home.php`). To serve the block-based page at the root instead, point that
-branch of `index.php` at your Page-Builder page (e.g. `page.php?i=<your-uri>`), or set the
-page as the site’s home in Studio. Keep `home.php` as a fallback until the block page is
-verified in staging.
+`home.php` now supports **two render modes**, chosen automatically:
+
+- **Default (fallback):** the hardcoded `template/page_home.html`. This is what ships and
+  what renders if anything below is unset or errors — so the live homepage can never break.
+- **Block-composed:** when the `gf_home_blocks_uri` sys_option points at a Page-Builder
+  page, `home.php` renders **our dark nav + that page’s blocks + our footer**
+  (`template/page_home_blocks.html`). The **content sections become fully editable in
+  Studio** (add / reorder / hide / inject `block_seasonal_html`); the nav and footer stay
+  in the shell (edit them in code — they rarely change).
+
+**Activate it (do this on staging first, then production):**
+
+1. Install + enable **GFunnel Home** (§1).
+2. Studio → **Page Builder** → **add a page**, e.g. URI `home-hub`, using a **single
+   full-width column** layout.
+3. Add these **Service** blocks (module `gfunnel_home`), in order, each with the
+   **“Content only”** design box (no border/caption):
+   `block_hero` · `block_business` · `block_services` · `block_catalogs` ·
+   `block_departments` · `block_featured` · `block_marketplace` · `block_resources` ·
+   `block_community_news` · `block_cta`
+   *(the nav and footer come from the shell — don’t add them as blocks.)*
+4. Studio → **Settings** → set sys_option **`gf_home_blocks_uri` = `home-hub`**.
+5. Load `/` — the homepage now renders from your Page-Builder page. Add/reorder blocks or
+   drop a `block_seasonal_html` and it shows immediately.
+
+**Instant rollback:** clear `gf_home_blocks_uri` (or delete the page) → the homepage
+falls straight back to `template/page_home.html`. Nothing else to change.
+
+> Verify on staging: this renders a UNA page’s blocks inside our shell. Confirm the
+> full-bleed sections aren’t constrained by the page layout’s cell padding (use a
+> full-width, single-cell layout + “content only” design boxes). The fallback keeps
+> production safe while you check.
 
 ## Uninstall / rollback
 
