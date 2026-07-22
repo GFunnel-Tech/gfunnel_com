@@ -86,13 +86,19 @@ function gfHomeHeroStats()
 {
     $aStats = [];
 
+    if (function_exists('gfHomeBusinessCount')) {
+        $iBiz = gfHomeBusinessCount();
+        if ($iBiz > 0)
+            $aStats[] = ['num' => gfHomeCountPlus($iBiz), 'label' => 'businesses listed'];
+    }
+
     $sApps = gfHomeCountPlus(gfHomeAppsCount());
     if ($sApps !== '')
         $aStats[] = ['num' => $sApps, 'label' => 'apps &amp; integrations'];
 
     $iDepts = count(gfHomeDepartments());
     if ($iDepts > 0)
-        $aStats[] = ['num' => (string)$iDepts, 'label' => 'departments, one workspace'];
+        $aStats[] = ['num' => (string)$iDepts, 'label' => 'departments'];
 
     if (empty($aStats))
         return '';
@@ -286,6 +292,95 @@ function gfHomeFeaturedSection()
         . '<a class="gfh-link-more" href="' . $sMarket . '">Browse all apps <span aria-hidden="true">&rarr;</span></a>'
         . '</div>'
         . '<div class="gfh-app-grid">' . $sCards . '</div>'
+        . '</div></section>';
+}
+
+/**
+ * Business Database — the flagship directory. Reads the real Business Listing module
+ * (mz_listing / modzzz): mz_listing_entries (active), with the module's own claim flow
+ * (listing-claim) and browse pages (listing-home / listing-featured). Built to scale:
+ * only a small featured slice is loaded here; full browse/search runs in the module
+ * (Elasticsearch-backed). Returns '' if the module/table isn't present.
+ *
+ * This is the surface for "every business — claim yours and connect an account":
+ * cards deep-link to the entry (view-listing), and the CTA routes into listing-claim.
+ */
+function gfHomeBusinessCount()
+{
+    $oDb = BxDolDb::getInstance();
+    if (!$oDb->getOne("SHOW TABLES LIKE 'mz_listing_entries'"))
+        return -1;
+    return (int)$oDb->getOne("SELECT COUNT(*) FROM `mz_listing_entries` WHERE `status` = 'active'");
+}
+
+/** Permalinked module page URL with optional query params (e.g. view-listing&id=..). */
+function gfHomeListingUrl($sUri, $aParams = array())
+{
+    $sQuery = 'page.php?i=' . $sUri;
+    foreach ($aParams as $k => $v)
+        $sQuery .= '&' . rawurlencode($k) . '=' . rawurlencode((string)$v);
+    return BX_DOL_URL_ROOT . BxDolPermalinks::getInstance()->permalink($sQuery);
+}
+
+function gfHomeBusinessSection()
+{
+    // Always render the idea + the access (per product direction). Live count/cards
+    // and the real claim/browse routes fill in when the Business Listing module is
+    // connected; until then the CTA falls back to sign-up so the entry point still works.
+    $iCount = gfHomeBusinessCount(); // -1 if the module/table isn't present yet
+    $bLive = ($iCount >= 0);
+
+    $aRows = array();
+    if ($bLive) {
+        $oDb = BxDolDb::getInstance();
+        $aRows = $oDb->getAll("SELECT `id`, `title`, `subcategory`, `location`, `claim_status` FROM `mz_listing_entries` WHERE `status` = 'active' ORDER BY `featured` DESC, `views` DESC LIMIT 8");
+        if (!is_array($aRows))
+            $aRows = array();
+    }
+
+    $sCards = '';
+    foreach ($aRows as $a) {
+        $sTitleRaw = trim((string)$a['title']);
+        if ($sTitleRaw === '')
+            continue;
+        $sTitle = htmlspecialchars($sTitleRaw, ENT_QUOTES, 'UTF-8');
+        $sHref = gfHomeListingUrl('view-listing', array('id' => (int)$a['id']));
+        $sMetaParts = array();
+        if (trim((string)$a['subcategory']) !== '') $sMetaParts[] = htmlspecialchars(trim((string)$a['subcategory']), ENT_QUOTES, 'UTF-8');
+        if (trim((string)$a['location']) !== '') $sMetaParts[] = htmlspecialchars(trim((string)$a['location']), ENT_QUOTES, 'UTF-8');
+        $sMeta = implode(' &middot; ', $sMetaParts);
+        $sClaim = (strtolower(trim((string)$a['claim_status'])) === 'claimable') ? '<span class="gfh-biz-claim">Claimable</span>' : '';
+        $sIni = htmlspecialchars(mb_strtoupper(mb_substr($sTitleRaw, 0, 1)), ENT_QUOTES, 'UTF-8');
+        $sCards .= '<a class="gfh-biz-card" href="' . $sHref . '">'
+            . '<span class="gfh-biz-logo">' . $sIni . '</span>'
+            . '<span class="gfh-biz-info"><span class="gfh-biz-name">' . $sTitle . $sClaim . '</span>'
+            . ($sMeta !== '' ? '<span class="gfh-biz-meta">' . $sMeta . '</span>' : '')
+            . '</span></a>';
+    }
+
+    $sCountLine = $iCount > 0
+        ? 'Search <b>' . number_format($iCount) . '</b> businesses today &mdash; on the way to every business on earth. Find yours, claim it, and connect it to your workspace.'
+        : 'The directory of every business on earth &mdash; find yours, claim it, and connect it to your workspace.';
+
+    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $sClaimUrl = $bLive ? gfHomeListingUrl('listing-claim') : gfHomeUrl('create-account');
+    $sBrowseLink = $bLive
+        ? '<a class="gfh-link-more" href="' . gfHomeListingUrl('listing-home') . '">Browse all businesses <span aria-hidden="true">&rarr;</span></a>'
+        : '';
+
+    return '<section class="gfh-sec gfh-sec-alt" id="business"><div class="gfh-container">'
+        . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Business Database</span>'
+        . '<h2 class="gfh-h2">Every business, in one place.</h2>'
+        . '<p class="gfh-sub">' . $sCountLine . '</p></div>'
+        . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
+        . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
+        . '<input type="text" name="keyword" placeholder="Search businesses by name, category, or location..." autocomplete="off" aria-label="Search businesses" />'
+        . '<button type="submit">Search</button></form>'
+        . ($sCards !== '' ? '<div class="gfh-biz-grid">' . $sCards . '</div>' : '')
+        . '<div class="gfh-sec-foot gfh-biz-foot">'
+        . '<a class="gfh-btn gfh-btn-orange" href="' . $sClaimUrl . '">Claim your business</a>'
+        . $sBrowseLink
+        . '</div>'
         . '</div></section>';
 }
 

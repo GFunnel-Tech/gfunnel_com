@@ -73,6 +73,7 @@ function getGfHomePageCode()
         //--- Real, computed content (no placeholders — see docs/audits/homepage-audit.md)
         'version_badge' => gfHomeVersionBadge(),
         'hero_stats' => gfHomeHeroStats(),
+        'business_section' => gfHomeBusinessSection(),
         'catalog_cards' => gfHomeCatalogCards($fnPageUrl),
         'departments_grid' => gfHomeDepartmentsGrid(),
         'featured_section' => gfHomeFeaturedSection(),
