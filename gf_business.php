@@ -51,7 +51,7 @@ $iTotal = (int)($aBind ? $oDb->getOne($oDb->prepare($sCountSql, ...$aBind)) : $o
 $iPages = max(1, (int)ceil($iTotal / $iPerPage));
 if ($iPage > $iPages) { $iPage = $iPages; $iOffset = ($iPage - 1) * $iPerPage; }
 
-$sListSql = "SELECT `id`, `title`, `subcategory`, `location`, `claim_status`, `website` "
+$sListSql = "SELECT `id`, `title`, `location`, `claim_status`, `website` "
     . "FROM `mz_listing_entries` WHERE $sWhere ORDER BY `featured` DESC, `views` DESC "
     . "LIMIT " . (int)$iOffset . ", " . (int)$iPerPage;
 $aRows = $aBind ? $oDb->getAll($oDb->prepare($sListSql, ...$aBind)) : $oDb->getAll($sListSql);
@@ -85,10 +85,8 @@ foreach ($aRows as $a) {
     if ($sNameRaw === '') continue;
     $sName = gfHomeOut($sNameRaw);
     $sHref = gfHomeListingUrl('view-listing', array('id' => (int)$a['id']));
-    $aMeta = array();
-    if (trim((string)$a['subcategory']) !== '') $aMeta[] = gfHomeOut(trim((string)$a['subcategory']));
-    if (trim((string)$a['location']) !== '') $aMeta[] = gfHomeOut(trim((string)$a['location']));
-    $sMeta = implode(' &middot; ', $aMeta);
+    $sLoc = gfHomeListingLocation($a['location']);
+    $sMeta = $sLoc !== '' ? gfHomeOut($sLoc) : '';
     $sClaim = (strtolower(trim((string)$a['claim_status'])) === 'claimable') ? '<span class="gfh-biz-claim">Claimable</span>' : '';
     $sIni = gfHomeOut(mb_strtoupper(mb_substr($sNameRaw, 0, 1)));
     $sCards .= '<a class="gfh-biz-card" href="' . $sHref . '">'
