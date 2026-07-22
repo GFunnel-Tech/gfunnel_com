@@ -195,15 +195,15 @@ what you `grep` for to find a module's code.
 
 | File | Does | | File | Does |
 |---|---|---|---|---|
-| `gf_auth.php` | login + create-account pages (renderer) | | `gf_applications.php` | app **Directory** (list + detail), `/applications` |
+| `gf_auth.php` | login + create-account pages (renderer) | | `gf_applications.php` | **Application Hub**: `/applications` (Apps: welcome hero + Core Applications icon grid + hub cards), `/marketplace/applications` (App Directory), `/application/<slug>` (detail). Own skin: `template/css/gf_applications.css` + `template/js/gf_applications.js` (+ `gf_app_banner_{1-4}.jpg`) |
 | `gf_login.php` | `/login` → renders via `gf_auth.php` | | `gf_business.php` | Business **Directory** over `mz_listing`, `/business` |
 | `gf_create_account.php` | `/create-account` → via `gf_auth.php` | | `gf_services.php` | **Services & Talent** hub (VAs/vendors), `/services` |
 | `gf_onboarding.php` | post-signup onboarding (step 2) | | `gf_marketplace.php` | **Marketplace** over `bx_market`, `/marketplace` |
 | `gf_bug.php` | bug-report endpoint | | `gf_resources.php` | **Resources** library (articles/guides), `/resources` |
 | `gf_menu.php` | member menu personalization (hub tabs) | | `gf_timer.php` | time-tracking popup endpoint |
 
-> These SEO landing routes (`/applications`, `/business`, `/services`, `/marketplace`,
-> `/resources`) are all
+> These SEO landing routes (`/applications`, `/marketplace/applications`, `/business`,
+> `/services`, `/marketplace`, `/resources`) are all
 > dispatched from `r.php` and share the homepage skin (`template/css/gf_home.css`)
 > + the shared section renderers in `inc/gf_home_blocks.inc.php`. Each has a
 > `gf_<name>` sys_option kill-switch (`= off` disables it). The homepage itself is

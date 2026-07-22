@@ -1,0 +1,151 @@
+/*
+ * GFunnel — Application Hub (gf_applications.php).
+ * The member-facing app launcher: welcome hero, Apps | Marketplace tabs,
+ * Core Applications (iOS-style icon grid), hub cards, and the App Directory.
+ *
+ * Sits ON TOP of gf_home.css (shared design system) and only adds the
+ * hub-specific components. Everything here is namespaced under .gfa-*, and it
+ * reuses .gfh-* tokens (--gfh-orange, --gfh-card, etc.) for perfect visual
+ * continuity with the rest of the public site.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Hub shell                                                           */
+/* ------------------------------------------------------------------ */
+
+.gfa-main { padding: 26px 0 72px; }
+.gfa-main .gfh-container { max-width: 1240px; }
+
+/* Top context bar (account chip + actions) — only when signed in */
+.gfa-context { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.gfa-chip { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border: 1px solid var(--gfh-line); background: var(--gfh-card); border-radius: 999px; box-shadow: var(--gfh-shadow); }
+.gfa-chip-av { width: 30px; height: 30px; border-radius: 50%; background: var(--gfh-orange-soft); color: var(--gfh-orange-600); display: inline-flex; align-items: center; justify-content: center; font-family: var(--gfh-font-head); font-weight: 800; font-size: 14px; flex: 0 0 auto; overflow: hidden; }
+.gfa-chip-av img { width: 100%; height: 100%; object-fit: cover; }
+.gfa-chip-name { font-family: var(--gfh-font-head); font-weight: 700; font-size: 14px; color: var(--gfh-ink); line-height: 1.1; }
+.gfa-chip-role { font-size: 11.5px; color: var(--gfh-muted); }
+.gfa-context-actions { display: inline-flex; align-items: center; gap: 8px; }
+.gfa-ghost { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--gfh-slate); background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 10px; padding: 8px 13px; transition: all .15s ease; }
+.gfa-ghost:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
+
+/* ------------------------------------------------------------------ */
+/* Welcome hero (rotating banners)                                     */
+/* ------------------------------------------------------------------ */
+
+.gfa-hero { position: relative; height: 300px; border-radius: 20px; overflow: hidden; border: 1px solid var(--gfh-line); box-shadow: var(--gfh-shadow-lg); margin-bottom: 22px; }
+.gfa-hero-slides { position: absolute; inset: 0; }
+.gfa-hero-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s ease; }
+.gfa-hero-slide.gfa-on { opacity: 1; }
+.gfa-hero-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,8,20,.72) 0%, rgba(6,8,20,.5) 42%, rgba(6,8,20,.25) 100%); }
+.gfa-hero-inner { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 0 clamp(22px, 5vw, 52px); max-width: 640px; }
+.gfa-hero-title { font-family: var(--gfh-font-head); font-weight: 800; font-size: clamp(30px, 5vw, 46px); letter-spacing: -.03em; color: #fff; line-height: 1; }
+.gfa-hero-date { font-size: clamp(13px, 1.8vw, 16px); color: rgba(255,255,255,.9); font-weight: 500; }
+.gfa-hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.gfa-hero-glass { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); color: #fff; }
+.gfa-hero-glass:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.5); }
+.gfa-hero-dots { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.gfa-hero-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.42); border: 0; padding: 0; cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.gfa-hero-dot.gfa-on { background: #fff; transform: scale(1.25); }
+
+/* ------------------------------------------------------------------ */
+/* Tab bar                                                             */
+/* ------------------------------------------------------------------ */
+
+.gfa-tabbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--gfh-line); margin-bottom: 26px; flex-wrap: wrap; }
+.gfa-tabs { display: inline-flex; align-items: center; gap: 2px; }
+.gfa-tab { display: inline-flex; align-items: center; gap: 8px; font-family: var(--gfh-font-body); font-weight: 700; font-size: 14.5px; color: var(--gfh-slate); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 13px 16px; margin-bottom: -1px; transition: color .15s ease, border-color .15s ease; }
+.gfa-tab:hover { color: var(--gfh-ink); }
+.gfa-tab.gfa-on { color: var(--gfh-orange-600); border-bottom-color: var(--gfh-orange); }
+.gfa-tab svg { flex: 0 0 auto; }
+.gfa-tabbar-actions { display: inline-flex; align-items: center; gap: 8px; padding-bottom: 6px; }
+.gfa-videochat { display: inline-flex; align-items: center; gap: 8px; background: var(--gfh-orange); color: #fff; border: 0; border-radius: 10px; font-weight: 700; font-size: 13.5px; padding: 9px 15px; box-shadow: 0 8px 20px rgba(249,115,22,.3); transition: background .15s ease; }
+.gfa-videochat:hover { background: var(--gfh-orange-600); }
+.gfa-gear { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--gfh-line); background: var(--gfh-card); color: var(--gfh-slate); display: inline-flex; align-items: center; justify-content: center; transition: all .15s ease; }
+.gfa-gear:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
+
+/* ------------------------------------------------------------------ */
+/* Core Applications (iOS-style icon grid)                             */
+/* ------------------------------------------------------------------ */
+
+.gfa-sec { margin-bottom: 42px; }
+.gfa-sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.gfa-sec-ico { width: 42px; height: 42px; border-radius: 12px; background: var(--gfh-orange-soft); color: var(--gfh-orange-600); border: 1px solid rgba(249,115,22,.18); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.gfa-sec-title { font-family: var(--gfh-font-head); font-weight: 800; font-size: 20px; letter-spacing: -.01em; color: var(--gfh-ink); line-height: 1.15; }
+.gfa-sec-sub { font-size: 13.5px; color: var(--gfh-muted); margin-top: 2px; }
+
+.gfa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 22px 10px; }
+.gfa-icon { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; position: relative; }
+.gfa-icon-tile { width: 60px; height: 60px; border-radius: 15px; background: var(--gfh-card); border: 1px solid var(--gfh-line); box-shadow: 0 4px 12px rgba(8,18,38,.06); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease; }
+.gfa-icon:hover .gfa-icon-tile { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(8,18,38,.14); border-color: rgba(249,115,22,.4); }
+.gfa-icon:active .gfa-icon-tile { transform: scale(.95); }
+.gfa-icon-tile img { width: 42px; height: 42px; object-fit: contain; }
+.gfa-icon-ini { font-family: var(--gfh-font-head); font-weight: 800; font-size: 22px; color: var(--gfh-orange-600); }
+.gfa-icon-label { font-size: 11.5px; line-height: 1.2; color: var(--gfh-slate); max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gfa-icon-add .gfa-icon-tile { border: 2px dashed var(--gfh-line-2); background: transparent; box-shadow: none; color: var(--gfh-muted); }
+.gfa-icon-add:hover .gfa-icon-tile { border-color: var(--gfh-orange); background: var(--gfh-orange-soft); color: var(--gfh-orange-600); }
+.gfa-icon-badge { position: absolute; top: -6px; right: 50%; transform: translateX(30px); font-family: var(--gfh-font-mono); font-size: 8.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border: 1px solid rgba(249,115,22,.3); border-radius: 999px; padding: 1px 6px; }
+.gfa-showmore { display: block; margin: 26px auto 0; }
+
+/* ------------------------------------------------------------------ */
+/* Hub cards (Learning / Software / Help)                              */
+/* ------------------------------------------------------------------ */
+
+.gfa-hubs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.gfa-hub { position: relative; display: flex; flex-direction: column; min-height: 186px; border-radius: 18px; padding: 24px; color: #fff; overflow: hidden; box-shadow: var(--gfh-shadow); transition: transform .18s ease, box-shadow .18s ease; }
+.gfa-hub:hover { transform: translateY(-3px); box-shadow: var(--gfh-shadow-lg); }
+.gfa-hub-learn { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+.gfa-hub-soft { background: linear-gradient(135deg, #A855F7 0%, #9333EA 100%); }
+.gfa-hub-help { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+.gfa-hub-ico { width: 42px; height: 42px; border-radius: 11px; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.gfa-hub-title { font-family: var(--gfh-font-head); font-weight: 800; font-size: 20px; letter-spacing: -.01em; margin-bottom: 8px; }
+.gfa-hub-desc { font-size: 13.5px; line-height: 1.5; color: rgba(255,255,255,.92); flex: 1 1 auto; margin-bottom: 18px; }
+.gfa-hub-cta { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; font-weight: 700; font-size: 13.5px; color: #fff; background: rgba(255,255,255,.22); border: 0; border-radius: 10px; padding: 9px 16px; transition: background .15s ease, gap .15s ease; }
+.gfa-hub:hover .gfa-hub-cta { background: rgba(255,255,255,.32); gap: 11px; }
+
+/* ------------------------------------------------------------------ */
+/* Scroll indicator                                                    */
+/* ------------------------------------------------------------------ */
+
+.gfa-scroll { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 40px 0 6px; color: var(--gfh-muted); }
+.gfa-scroll svg { animation: gfa-bounce 1.8s infinite; }
+.gfa-scroll span { font-size: 12.5px; font-weight: 600; }
+@keyframes gfa-bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+/* ------------------------------------------------------------------ */
+/* App Directory (marketplace tab) — extends .gfh-appd-* from gf_home  */
+/* ------------------------------------------------------------------ */
+
+.gfa-appd-card { position: relative; }
+.gfa-appd-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.gfa-appd-iconbtn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--gfh-line); background: var(--gfh-card); color: var(--gfh-muted); display: inline-flex; align-items: center; justify-content: center; transition: all .15s ease; }
+.gfa-appd-iconbtn:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
+.gfa-appd-add-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(249,115,22,.35); background: var(--gfh-orange-soft); color: var(--gfh-orange-600); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; transition: all .15s ease; cursor: pointer; }
+.gfa-appd-add-btn:hover { background: var(--gfh-orange); color: #fff; border-color: var(--gfh-orange); }
+.gfa-appd-card.gfa-added { border-color: rgba(16,185,129,.5); box-shadow: 0 0 0 1px rgba(16,185,129,.4); }
+.gfa-appd-card.gfa-added .gfa-appd-add-btn { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.4); color: #059669; }
+.gfa-appd-badge-pop { color: #1d4ed8; background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.26); }
+.gfa-appd-badge-paid { color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border-color: rgba(249,115,22,.28); }
+
+/* logo fallback: JS adds .gfa-noimg to the tile when a remote image 404s */
+.gfa-noimg-fallback { position: relative; }
+.gfa-icon-tile.gfa-noimg::before,
+.gfh-appd-logo.gfa-noimg::before { content: attr(data-initial); font-family: var(--gfh-font-head); font-weight: 800; color: var(--gfh-orange-600); }
+.gfa-icon-tile.gfa-noimg::before { font-size: 22px; }
+.gfh-appd-logo.gfa-noimg::before { font-size: 16px; }
+
+/* directory hidden by client-side filter */
+.gfa-hidden { display: none !important; }
+.gfa-dir-empty-js { grid-column: 1/-1; text-align: center; color: var(--gfh-slate); padding: 44px 0; }
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+    .gfa-hubs { grid-template-columns: 1fr; }
+    .gfa-hero { height: 260px; }
+}
+@media (max-width: 560px) {
+    .gfa-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 18px 6px; }
+    .gfa-videochat span { display: none; }
+    .gfa-context-actions .gfa-ghost span { display: none; }
+}
