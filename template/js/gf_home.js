@@ -82,6 +82,19 @@
             });
         }
 
+        /* --- Product tour tabs (hubs) --- */
+        var hubTabs = root.querySelectorAll('.gfh-hub-tab');
+        var hubPanels = root.querySelectorAll('.gfh-hub-panel');
+        if (hubTabs.length) {
+            hubTabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    var key = tab.getAttribute('data-hub');
+                    hubTabs.forEach(function(t) { t.classList.toggle('gfh-on', t === tab); });
+                    hubPanels.forEach(function(p) { p.classList.toggle('gfh-on', p.getAttribute('data-hub') === key); });
+                });
+            });
+        }
+
         /* --- Reveal on scroll --- */
         var reveals = root.querySelectorAll('.gfh-reveal');
         if ('IntersectionObserver' in window) {

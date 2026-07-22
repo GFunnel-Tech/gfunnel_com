@@ -878,14 +878,6 @@ function gfHomeShowcaseSection($sEyebrow, $sTitle, $sSub, $sImg, $sAlt)
  */
 function gfHomeModulesSection()
 {
-    $sImg = 'gfunnel-sales-hub-workspace.webp';
-    $sPath = BX_DIRECTORY_PATH_ROOT . 'template/images/' . $sImg;
-    $sShot = '';
-    if (is_file($sPath)) {
-        $sUrl = BX_DOL_URL_ROOT . 'template/images/' . rawurlencode($sImg) . '?v=' . (int)@filemtime($sPath);
-        $sShot = '<div class="gfh-mod-shot gfh-shot"><img src="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '" alt="A GFunnel Sales Hub workspace — a 7-step sales process, objection playbook, scripts, training and a payouts dashboard." loading="lazy" /></div>';
-    }
-
     // Business modules: 2-letter badge, name, and a soft badge color (matches old style).
     $aMods = array(
         array('SP', 'Sales Pipeline', '#C2410C', '#FEF3EC'),
@@ -919,9 +911,83 @@ function gfHomeModulesSection()
     return '<section class="gfh-sec"><div class="gfh-container">'
         . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">The Platform</span>'
         . '<h2 class="gfh-h2">Modules for anything your business runs.</h2>'
-        . '<p class="gfh-sub">Every workspace boots with the modules it needs &mdash; sales, support, finance, delivery &mdash; and adds more as you grow.</p></div>'
-        . '<div class="gfh-mod-wrap gfh-reveal">' . $sShot . '<div class="gfh-mod-grid">' . $sCards . '</div></div>'
+        . '<p class="gfh-sub">Every workspace boots with the modules it needs &mdash; sales, support, finance, delivery &mdash; and adds more as you grow. 150+ in the catalog.</p></div>'
+        . '<div class="gfh-mod-grid gfh-mod-grid-wide gfh-reveal">' . $sCards . '</div>'
         . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">Browse all modules <span aria-hidden="true">&rarr;</span></a></div>'
+        . '</div></section>';
+}
+
+/**
+ * Tabbed product tour ("See it in action") — one section that switches between software
+ * hubs (App Directory, Sales Hub, AI Assistant, AI Agents, …). Each hub is a real product
+ * screenshot + a title + detail bullets + a CTA. A hub only appears when its screenshot is
+ * vendored (no fake mockups), so new hubs light up as their images arrive. JS switches
+ * tabs; without JS the panels stack (all visible). Add a hub by dropping its .webp in
+ * template/images/ and adding a row below.
+ */
+function gfHomeHubsSection()
+{
+    $aHubs = array(
+        array('key' => 'apps', 'tab' => 'App Directory', 'img' => 'gfunnel-workspace-app-directory.webp',
+            'title' => 'Every tool you use, in one place.',
+            'alt' => 'The GFunnel App Directory — Google Workspace, CRM, Ads, Ecommerce and more, integrated into one workspace.',
+            'bullets' => array('5,000+ apps and integrations, ready to connect', 'Add what you use &mdash; or request what you don&rsquo;t', 'Run your whole operation from one workspace'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Browse the App Directory'),
+        array('key' => 'sales', 'tab' => 'Sales Hub', 'img' => 'gfunnel-sales-hub-workspace.webp',
+            'title' => 'A hub for every function you run.',
+            'alt' => 'A GFunnel Sales Hub workspace — a 7-step sales process, objection playbook, scripts, training and a payouts dashboard.',
+            'bullets' => array('Sales, support, finance, delivery and more', 'Each workspace boots with the modules it needs', 'Proven processes, scripts and payouts built in'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore the hubs'),
+        // Light up when the screenshots are vendored:
+        array('key' => 'ai-assistant', 'tab' => 'AI Assistant', 'img' => 'gfunnel-ai-assistant.webp',
+            'title' => 'Your always-on AI operator.',
+            'alt' => 'The GFunnel AI Assistant answering questions across a business workspace.',
+            'bullets' => array('Answers across your whole workspace', 'Drafts, sends and follows up for you', 'Learns how your business runs'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Meet the assistant'),
+        array('key' => 'ai-agents', 'tab' => 'AI Agents', 'img' => 'gfunnel-ai-agents.webp',
+            'title' => 'Agents that run the work.',
+            'alt' => 'GFunnel AI Agents automating a business workflow.',
+            'bullets' => array('Automate whole workflows end to end', 'Trigger on events, run 24/7', 'Hand off between departments'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore agents'),
+    );
+
+    // keep only hubs whose screenshot exists (no fake mockups)
+    $aLive = array();
+    foreach ($aHubs as $aHub) {
+        $sPath = BX_DIRECTORY_PATH_ROOT . 'template/images/' . $aHub['img'];
+        if (is_file($sPath)) {
+            $aHub['url'] = BX_DOL_URL_ROOT . 'template/images/' . rawurlencode($aHub['img']) . '?v=' . (int)@filemtime($sPath);
+            $aLive[] = $aHub;
+        }
+    }
+    if (empty($aLive))
+        return '';
+
+    $sTabs = '';
+    $sPanels = '';
+    $bFirst = true;
+    foreach ($aLive as $aHub) {
+        $sOn = $bFirst ? ' gfh-on' : '';
+        $sKey = htmlspecialchars($aHub['key'], ENT_QUOTES, 'UTF-8');
+        $sTabs .= '<button type="button" class="gfh-hub-tab' . $sOn . '" data-hub="' . $sKey . '">' . gfHomeOut($aHub['tab']) . '</button>';
+        $sBul = '';
+        foreach ($aHub['bullets'] as $sB)
+            $sBul .= '<li>' . $sB . '</li>';
+        $sPanels .= '<div class="gfh-hub-panel' . $sOn . '" data-hub="' . $sKey . '">'
+            . '<div class="gfh-hub-text"><h3 class="gfh-hub-title">' . $aHub['title'] . '</h3>'
+            . '<ul class="gfh-hub-bullets">' . $sBul . '</ul>'
+            . '<a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="' . $aHub['cta'] . '">' . gfHomeOut($aHub['cta_label']) . ' <span aria-hidden="true">&rarr;</span></a></div>'
+            . '<div class="gfh-hub-shot"><img src="' . htmlspecialchars($aHub['url'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($aHub['alt'], ENT_QUOTES, 'UTF-8') . '" loading="lazy" /></div>'
+            . '</div>';
+        $bFirst = false;
+    }
+
+    return '<section class="gfh-sec" id="tour"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">See it in action</span>'
+        . '<h2 class="gfh-h2">One platform. Every hub.</h2>'
+        . '<p class="gfh-sub">Switch between the software your business runs on &mdash; each hub, live in your workspace.</p></div>'
+        . '<div class="gfh-hub-tabs gfh-reveal" role="tablist">' . $sTabs . '</div>'
+        . '<div class="gfh-hub-panels gfh-reveal">' . $sPanels . '</div>'
         . '</div></section>';
 }
 
