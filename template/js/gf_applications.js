@@ -79,7 +79,10 @@
             search.addEventListener('input', applyFilter);
         }
 
-        /* ---- Add to My Apps: localStorage toggle ------------------- */
+        /* ---- Add to My Apps ---------------------------------------- */
+        /* Signed-in members persist to the server (survives across devices);   */
+        /* guests fall back to localStorage.                                    */
+        var GFA = window.GFA || { logged: false, endpoint: '' };
         var mine = readSet(LS_APPS);
         function paint(btn, on) {
             var card = btn.closest('.gfa-appd-card');
@@ -92,13 +95,25 @@
         }
         [].slice.call(root.querySelectorAll('.gfa-appd-add-btn')).forEach(function (btn) {
             var id = btn.getAttribute('data-app');
-            if (id && mine.has(id)) paint(btn, true);
+            if (!GFA.logged && id && mine.has(id)) paint(btn, true); // guest: hydrate from LS
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); e.stopPropagation();
-                if (!id) return;
-                if (mine.has(id)) { mine.delete(id); paint(btn, false); }
-                else { mine.add(id); paint(btn, true); }
-                writeSet(LS_APPS, mine);
+                if (!id || btn.disabled) return;
+                var next = btn.getAttribute('aria-pressed') !== 'true';
+                if (GFA.logged) {
+                    paint(btn, next); btn.disabled = true; // optimistic
+                    var action = next ? 'add' : 'remove';
+                    fetch(GFA.endpoint + '?gfa_action=' + action + '&app=' + encodeURIComponent(id),
+                          { method: 'POST', credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+                        .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+                        .then(function (j) { if (!j || !j.ok) paint(btn, !next); })
+                        .catch(function () { paint(btn, !next); }) // revert on failure
+                        .then(function () { btn.disabled = false; });
+                } else {
+                    if (next) mine.add(id); else mine.delete(id);
+                    paint(btn, next);
+                    writeSet(LS_APPS, mine);
+                }
             });
         });
 

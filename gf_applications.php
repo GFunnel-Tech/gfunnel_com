@@ -46,6 +46,16 @@ if (getParam('gf_applications') == 'off') {
 
 $oDb = BxDolDb::getInstance();
 gfDirEnsureTables($oDb);
+gfUserAppsEnsureTable($oDb);
+
+// JSON endpoint: add/remove an app from the signed-in member's collection.
+// POST ?gfa_action=add|remove|list&app=<id>. Anonymous callers get a 401 so the
+// client falls back to localStorage. Keeps personalization server-side + synced
+// across devices for members.
+if (bx_get('gfa_action') !== false) {
+    gfAppHandleUserAction($oDb);
+    exit;
+}
 
 $sSlug = isset($GLOBALS['gf_app_slug']) ? trim((string)$GLOBALS['gf_app_slug'], '/') : '';
 if ($sSlug === '' && bx_get('app') !== false)
@@ -186,21 +196,87 @@ function gfDirImg($sLogo, $sClass = '')
         . '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.classList.add(\'gfa-noimg\');">';
 }
 
-/** Info about the current logged-in member (name/initial), or empty strings. */
+/** Info about the current logged-in member (id/name/initial), or empty. */
 function gfAppMember()
 {
-    $a = array('logged' => false, 'name' => '', 'initial' => '');
+    $a = array('logged' => false, 'id' => 0, 'name' => '', 'initial' => '');
     if (!function_exists('isLogged') || !isLogged()) return $a;
     $a['logged'] = true;
     if (class_exists('BxDolProfile')) {
         $o = BxDolProfile::getInstance();
         if ($o) {
+            $a['id'] = (int)$o->id();
             $sName = strip_tags((string)$o->getDisplayName());
             $a['name'] = $sName;
             $a['initial'] = gfDirInitial($sName);
         }
     }
     return $a;
+}
+
+/** Platform-owned table for each member's personal app collection (NOT synced). */
+function gfUserAppsEnsureTable($oDb)
+{
+    $oDb->query("CREATE TABLE IF NOT EXISTS `gf_user_apps` (
+        `member_id` int(11) NOT NULL,
+        `app_id` char(36) NOT NULL,
+        `display_order` int(11) NOT NULL DEFAULT 0,
+        `added_at` datetime DEFAULT NULL,
+        PRIMARY KEY (`member_id`, `app_id`), KEY `member` (`member_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+/** IDs of the apps a member has added, in their chosen order. */
+function gfUserAppIds($oDb, $iMember)
+{
+    if ((int)$iMember <= 0) return array();
+    $a = $oDb->getColumn($oDb->prepare("SELECT `app_id` FROM `gf_user_apps` WHERE `member_id` = ? ORDER BY `display_order`, `added_at`", (int)$iMember));
+    return is_array($a) ? $a : array();
+}
+
+/** Handle the add/remove/list JSON endpoint (members only). */
+function gfAppHandleUserAction($oDb)
+{
+    header('Content-Type: application/json; charset=utf-8');
+    // Writes require POST (blocks GET/img-tag CSRF); 'list' may be GET.
+    $sAct0 = strtolower((string)bx_get('gfa_action'));
+    if ($sAct0 !== 'list' && (empty($_SERVER['REQUEST_METHOD']) || strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST')) {
+        http_response_code(405);
+        echo json_encode(array('ok' => false, 'error' => 'method'));
+        return;
+    }
+    $aMember = gfAppMember();
+    if (!$aMember['logged'] || $aMember['id'] <= 0) {
+        http_response_code(401);
+        echo json_encode(array('ok' => false, 'error' => 'auth', 'guest' => true));
+        return;
+    }
+    $iMember = (int)$aMember['id'];
+    $sAction = strtolower((string)bx_get('gfa_action'));
+    $sApp = trim((string)bx_get('app'));
+
+    if ($sAction === 'list') {
+        echo json_encode(array('ok' => true, 'apps' => array_values(gfUserAppIds($oDb, $iMember))));
+        return;
+    }
+    // add / remove require a valid app id that exists in the directory mirror.
+    if ($sApp === '' || strlen($sApp) > 36) { http_response_code(400); echo json_encode(array('ok' => false, 'error' => 'app')); return; }
+    $bExists = (int)$oDb->getOne($oDb->prepare("SELECT COUNT(*) FROM `gf_directory_apps` WHERE `id` = ?", $sApp)) > 0;
+    if (!$bExists) { http_response_code(404); echo json_encode(array('ok' => false, 'error' => 'unknown')); return; }
+
+    if ($sAction === 'add') {
+        $iOrder = (int)$oDb->getOne($oDb->prepare("SELECT COALESCE(MAX(`display_order`),0)+1 FROM `gf_user_apps` WHERE `member_id` = ?", $iMember));
+        $oDb->query($oDb->prepare("INSERT INTO `gf_user_apps` (`member_id`,`app_id`,`display_order`,`added_at`) VALUES (?,?,?,NOW()) ON DUPLICATE KEY UPDATE `added_at` = `added_at`", $iMember, $sApp, $iOrder));
+        echo json_encode(array('ok' => true, 'added' => true, 'app' => $sApp));
+        return;
+    }
+    if ($sAction === 'remove') {
+        $oDb->query($oDb->prepare("DELETE FROM `gf_user_apps` WHERE `member_id` = ? AND `app_id` = ?", $iMember, $sApp));
+        echo json_encode(array('ok' => true, 'added' => false, 'app' => $sApp));
+        return;
+    }
+    http_response_code(400);
+    echo json_encode(array('ok' => false, 'error' => 'action'));
 }
 
 // ============================================================================
@@ -307,6 +383,7 @@ function gfAppShell($sInner, $aMeta)
 
     <button class="gfh-top-btn" id="gfh-top-btn" aria-label="Back to top"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
 </div>
+<script>window.GFA = { logged: <?php echo $aMember['logged'] ? 'true' : 'false'; ?>, endpoint: <?php echo json_encode(BX_DOL_URL_ROOT . 'applications'); ?> };</script>
 <script src="<?php echo BX_DOL_URL_ROOT; ?>template/js/gf_home.js?v=<?php echo (int)@filemtime(BX_DIRECTORY_PATH_ROOT . 'template/js/gf_home.js'); ?>"></script>
 <script src="<?php echo bx_html_attribute($sJsUrl); ?>"></script>
 </body>
@@ -324,11 +401,15 @@ function gfAppRenderHub($oDb, $sTab)
     $sAppsUrl = BX_DOL_URL_ROOT . 'applications';
     $sMktUrl = BX_DOL_URL_ROOT . 'marketplace/applications';
 
+    // Member's saved app collection (empty for guests → client uses localStorage).
+    $aMine = $aMember['logged'] ? gfUserAppIds($oDb, $aMember['id']) : array();
+    $aMineSet = array_flip($aMine);
+
     // --- tab bar (shared) ----------------------------------------------------
     $sTabBar = gfAppTabBar($sTab, $sAppsUrl, $sMktUrl);
 
     if ($sTab === 'marketplace') {
-        $sInner = gfAppMarketplaceTab($oDb, $sTabBar, $aMember);
+        $sInner = gfAppMarketplaceTab($oDb, $sTabBar, $aMember, $aMineSet);
         $aMeta = array(
             'title' => 'App Directory — Every Tool in the GFunnel Ecosystem | ' . gfHomeOut(getParam('site_title')),
             'desc'  => 'Browse and search every app in the GFunnel ecosystem. Filter by category, open any tool, and build your own software stack.',
@@ -336,7 +417,7 @@ function gfAppRenderHub($oDb, $sTab)
             'member' => $aMember,
         );
     } else {
-        $sInner = gfAppAppsTab($oDb, $sTabBar, $aMember);
+        $sInner = gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine);
         $aMeta = array(
             'title' => 'Applications — Your Ecosystem, One Hub | ' . gfHomeOut(getParam('site_title')),
             'desc'  => 'Quick access to your ecosystem tools and applications: launch apps, discover new software, and keep learning — all in one hub.',
@@ -392,11 +473,28 @@ function gfAppContextBar($aMember)
 }
 
 /** Apps tab: welcome hero + Core Applications icon grid + hub cards. */
-function gfAppAppsTab($oDb, $sTabBar, $aMember)
+function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
 {
-    // Icons: featured first, then the rest by name. Cap for a tidy launcher.
-    $aApps = $oDb->getAll("SELECT `id`,`name`,`slug`,`logo_url` FROM `gf_directory_apps` ORDER BY `is_featured` DESC, `name` LIMIT 23");
-    if (!is_array($aApps)) $aApps = array();
+    // Icons: a member's own saved apps (in their order) come first; otherwise
+    // the featured set. Cap for a tidy launcher.
+    $bMine = false;
+    $aApps = array();
+    if (!empty($aMine)) {
+        $aIds = array_slice($aMine, 0, 40);
+        $aPh = implode(',', array_fill(0, count($aIds), '?'));
+        $aRows = $oDb->getAll($oDb->prepare("SELECT `id`,`name`,`slug`,`logo_url` FROM `gf_directory_apps` WHERE `id` IN ($aPh)", ...$aIds));
+        if (is_array($aRows) && $aRows) {
+            $aById = array();
+            foreach ($aRows as $r) $aById[(string)$r['id']] = $r;
+            foreach ($aMine as $sId) if (isset($aById[$sId])) $aApps[] = $aById[$sId]; // preserve member order
+            $bMine = true;
+        }
+    }
+    if (empty($aApps)) {
+        $aApps = $oDb->getAll("SELECT `id`,`name`,`slug`,`logo_url` FROM `gf_directory_apps` ORDER BY `is_featured` DESC, `name` LIMIT 23");
+        if (!is_array($aApps)) $aApps = array();
+    }
+    $sCoreSub = $bMine ? 'Your apps — launch, add, or manage them anytime.' : 'Quick Access to Your Ecosystem Tools and Applications.';
 
     // --- welcome hero --------------------------------------------------------
     $sGetStarted = $aMember['logged'] ? (BX_DOL_URL_ROOT . 'welcome') : (BX_DOL_URL_ROOT . 'create-account');
@@ -449,7 +547,7 @@ function gfAppAppsTab($oDb, $sTabBar, $aMember)
     $sCore = '<section class="gfa-sec" id="gfa-core">'
         . '<div class="gfa-sec-head"><span class="gfa-sec-ico">' . $sGridIcon . '</span>'
         .   '<div><div class="gfa-sec-title">Core Applications</div>'
-        .   '<div class="gfa-sec-sub">Quick Access to Your Ecosystem Tools and Applications.</div></div></div>'
+        .   '<div class="gfa-sec-sub">' . gfDirOut($sCoreSub) . '</div></div></div>'
         . '<div class="gfa-grid">' . $sIcons . '</div>'
         . '</section>';
 
@@ -491,7 +589,7 @@ function gfAppHubCards()
 }
 
 /** Marketplace tab: full App Directory (search + category chips + grid + pager). */
-function gfAppMarketplaceTab($oDb, $sTabBar, $aMember)
+function gfAppMarketplaceTab($oDb, $sTabBar, $aMember, $aMineSet = array())
 {
     $sSelf = BX_DOL_URL_ROOT . 'marketplace/applications';
 
@@ -576,13 +674,19 @@ function gfAppMarketplaceTab($oDb, $sTabBar, $aMember)
             ? '<a class="gfa-appd-iconbtn" href="' . bx_html_attribute($sAppUrl) . '" target="_blank" rel="noopener nofollow" title="Visit site" onclick="event.stopPropagation()">' . $extSvg . '</a>'
             : '';
 
-        $sCards .= '<div class="gfh-appd-card gfa-appd-card" data-search="' . bx_html_attribute($sSearch) . '">'
+        // reflect the member's saved collection server-side
+        $bAdded = isset($aMineSet[(string)$a['id']]);
+        $sAddInner = $bAdded
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+            : $plusSvg;
+
+        $sCards .= '<div class="gfh-appd-card gfa-appd-card' . ($bAdded ? ' gfa-added' : '') . '" data-search="' . bx_html_attribute($sSearch) . '">'
             . '<div class="gfh-appd-head">'
             .   '<a class="gfh-appd-logo gfa-noimg-fallback" href="' . bx_html_attribute($sHref) . '" data-initial="' . bx_html_attribute($sIni) . '">' . $sLogoInner . '</a>'
             .   '<a class="gfh-appd-name" href="' . bx_html_attribute($sHref) . '">' . gfDirOut($sName) . '</a>'
             .   $sBadge
             .   '<span class="gfa-appd-actions">' . $sExt
-            .     '<button class="gfa-appd-add-btn" type="button" data-app="' . bx_html_attribute($a['id']) . '" aria-pressed="false" title="Add to My Apps">' . $plusSvg . '</button>'
+            .     '<button class="gfa-appd-add-btn" type="button" data-app="' . bx_html_attribute($a['id']) . '" aria-pressed="' . ($bAdded ? 'true' : 'false') . '" title="' . ($bAdded ? 'Remove from My Apps' : 'Add to My Apps') . '">' . $sAddInner . '</button>'
             .   '</span>'
             . '</div>'
             . ($sDesc !== '' ? '<p class="gfh-appd-desc">' . gfDirOut($sDesc) . '</p>' : '<p class="gfh-appd-desc" style="color:var(--gfh-muted)">' . gfDirOut($sCatRaw) . '</p>')
