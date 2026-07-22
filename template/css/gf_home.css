@@ -104,7 +104,7 @@
 /* ------------------------------------------------------------------ */
 
 .gfh-hero {
-    position: relative; text-align: center; padding: 104px 24px 118px; overflow: hidden;
+    position: relative; text-align: center; padding: 88px 24px 104px; overflow: hidden;
     background:
         radial-gradient(120% 90% at 50% 0%, #16233F 0%, #0C1224 46%, #080A16 100%);
     color: var(--gfh-shell-txt);
@@ -129,9 +129,9 @@
 .gfh-hero-mark { display: inline-flex; align-items: center; justify-content: center; width: 104px; height: 104px; border-radius: 26px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 24px 60px rgba(0, 0, 0, .5); margin-bottom: 26px; }
 .gfh-hero-logo { width: 72px; height: auto; display: block; filter: drop-shadow(0 6px 14px rgba(249, 115, 22, .28)); }
 .gfh-hero-word { font-family: var(--gfh-font-head); font-weight: 800; font-size: clamp(52px, 9.5vw, 92px); line-height: 1; letter-spacing: -.045em; color: #fff; margin-bottom: 8px; }
-.gfh-hero-kicker { display: block; font-family: var(--gfh-font-mono); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; color: var(--gfh-orange-300); margin-bottom: 20px; }
-.gfh-hero-title { font-family: var(--gfh-font-head); font-weight: 800; font-size: clamp(38px, 6.6vw, 68px); line-height: 1.02; letter-spacing: -.035em; color: #fff; margin: 0 0 22px; background: linear-gradient(180deg, #ffffff 0%, #C7D2E4 132%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.gfh-hero-lead { font-size: clamp(16px, 2.2vw, 19px); line-height: 1.55; color: rgba(255, 255, 255, .74); max-width: 600px; margin: 0 auto 30px; }
+.gfh-hero-kicker { display: block; font-family: var(--gfh-font-mono); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; color: var(--gfh-orange-300); margin-bottom: 26px; }
+.gfh-hero-title { font-family: var(--gfh-font-head); font-weight: 800; font-size: clamp(38px, 6.6vw, 66px); line-height: 1.08; letter-spacing: -.03em; color: #fff; margin: 0 0 26px; background: linear-gradient(180deg, #ffffff 35%, #DCE3EF 150%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gfh-hero-lead { font-size: clamp(16px, 2.2vw, 19px); line-height: 1.55; color: rgba(255, 255, 255, .74); max-width: 580px; margin: 0 auto 36px; }
 .gfh-hero-textlink { font-size: 15px; font-weight: 500; color: rgba(255, 255, 255, .85); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255, 255, 255, .32); transition: color .15s ease, text-decoration-color .15s ease; }
 .gfh-hero-textlink:hover { color: #fff; text-decoration-color: rgba(255, 255, 255, .7); }
 .gfh-btn-lg { padding: 0 26px; height: 52px; font-size: 15.5px; border-radius: 12px; }
