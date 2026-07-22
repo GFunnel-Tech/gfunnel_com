@@ -460,6 +460,67 @@ function gfHomeServicesSection()
         . '</div></section>';
 }
 
+/**
+ * Resources — a searchable library of articles, guides, courses and help. Search +
+ * topic chips route people to results; the "Latest" grid pulls real published rows
+ * from gf_content_objects when present (add via docs/sql/gf_home_content.mysql.sql),
+ * else a designed empty state. No fabricated articles.
+ */
+function gfHomeResourcesSection()
+{
+    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $sCourses = gfHomeUrl('courses-home');
+
+    // chips = preset searches (always functional)
+    $aChips = array('Articles', 'Guides', 'Playbooks', 'Templates', 'Help');
+    $sChips = '';
+    foreach ($aChips as $sChip)
+        $sChips .= '<a class="gfh-res-chip" href="' . gfHomeSearchUrl($sChip) . '">' . htmlspecialchars($sChip, ENT_QUOTES, 'UTF-8') . '</a>';
+
+    // latest real articles
+    $oDb = BxDolDb::getInstance();
+    $aRows = array();
+    if ($oDb->getOne("SHOW TABLES LIKE 'gf_content_objects'"))
+        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `published_at`, `canonical_url` FROM `gf_content_objects` WHERE `status` = 'published' ORDER BY `published_at` DESC LIMIT 6");
+    if (!is_array($aRows))
+        $aRows = array();
+
+    if (!empty($aRows)) {
+        $sBody = '<div class="gfh-res-grid">';
+        foreach ($aRows as $a) {
+            $sTitle = htmlspecialchars((string)$a['title'], ENT_QUOTES, 'UTF-8');
+            $sExcerpt = htmlspecialchars((string)$a['excerpt'], ENT_QUOTES, 'UTF-8');
+            $sWhen = gfHomeFeedDate($a['published_at']);
+            $sUrl = (string)$a['canonical_url'];
+            $bLink = (bool)preg_match('#^https?://#i', $sUrl);
+            $sOpen = $bLink ? '<a class="gfh-res-card" href="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '">' : '<div class="gfh-res-card">';
+            $sClose = $bLink ? '</a>' : '</div>';
+            $sBody .= $sOpen
+                . '<span class="gfh-res-kind">Article</span>'
+                . '<span class="gfh-res-title">' . $sTitle . '</span>'
+                . ($sExcerpt !== '' ? '<span class="gfh-res-excerpt">' . $sExcerpt . '</span>' : '')
+                . ($sWhen !== '' ? '<span class="gfh-res-meta">' . $sWhen . '</span>' : '')
+                . $sClose;
+        }
+        $sBody .= '</div>';
+    } else {
+        $sBody = gfHomeFeedEmpty('The library is filling up', 'Articles, guides and playbooks will appear here as they&rsquo;re published. Search above or browse the courses in the meantime.');
+    }
+
+    return '<section class="gfh-sec gfh-sec-alt" id="resources"><div class="gfh-container">'
+        . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Resources</span>'
+        . '<h2 class="gfh-h2">Learn how to run every part of it.</h2>'
+        . '<p class="gfh-sub">Articles, guides, courses and help &mdash; search the library, or browse the latest.</p></div>'
+        . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
+        . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
+        . '<input type="text" name="keyword" placeholder="Search articles, guides, courses &amp; help..." autocomplete="off" aria-label="Search resources" />'
+        . '<button type="submit">Search</button></form>'
+        . '<div class="gfh-res-chips">' . $sChips . '</div>'
+        . $sBody
+        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sCourses . '">Browse courses &amp; the University <span aria-hidden="true">&rarr;</span></a></div>'
+        . '</div></section>';
+}
+
 /** Shared designed empty state for a homepage feed column (no fabricated rows). */
 function gfHomeFeedEmpty($sTitle, $sSub)
 {

@@ -78,6 +78,7 @@ function getGfHomePageCode()
         'catalog_cards' => gfHomeCatalogCards($fnPageUrl),
         'departments_grid' => gfHomeDepartmentsGrid(),
         'featured_section' => gfHomeFeaturedSection(),
+        'resources_section' => gfHomeResourcesSection(),
         'community_feed' => gfHomeCommunityFeed(),
         'news_feed' => gfHomeNewsFeed()
     ]);
