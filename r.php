@@ -81,6 +81,30 @@ if(getParam('gf_services') != 'off') {
     }
 }
 
+// GFunnel: Marketplace. A branded, SEO-optimized browse page over the Market module
+// (bx_market): templates, industry snapshots and premium software:
+//   /marketplace -> searchable, paginated product directory
+// gf_marketplace='off' disables it and falls through to normal routing.
+if(getParam('gf_marketplace') != 'off') {
+    $sGfMkt = strtolower(trim($sRequest, '/'));
+    if($sGfMkt === 'marketplace') {
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_marketplace.php');
+        exit;
+    }
+}
+
+// GFunnel: Resources. A branded, SEO-optimized library landing (articles, guides,
+// playbooks, templates, help), access-first over gf_content_objects:
+//   /resources -> search + topic chips + latest (real or empty state)
+// gf_resources='off' disables it and falls through to normal routing.
+if(getParam('gf_resources') != 'off') {
+    $sGfRes = strtolower(trim($sRequest, '/'));
+    if($sGfRes === 'resources') {
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_resources.php');
+        exit;
+    }
+}
+
 $aRewriteRules = BxDolRewriteRulesQuery::getActiveRules();
 foreach ($aRewriteRules as $a) {
     if (preg_match('#'.$a['preg'].'#i', $sRequest, $aMatches)) {
