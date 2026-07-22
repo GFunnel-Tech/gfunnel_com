@@ -429,6 +429,16 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
 .gfh-shot { max-width: 1080px; margin: 0 auto; border-radius: 14px; overflow: hidden; border: 1px solid var(--gfh-line); background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 30px 60px -18px rgba(0,0,0,.22); }
 .gfh-shot img { display: block; width: 100%; height: auto; }
 
+.gfh-mod-wrap { display: grid; grid-template-columns: 3fr 2fr; gap: 28px; align-items: start; }
+.gfh-mod-shot { max-width: none; margin: 0; }
+.gfh-mod-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.gfh-mod { display: flex; align-items: center; gap: 11px; background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 10px; padding: 13px 14px; transition: border-color .15s ease, transform .15s ease; }
+.gfh-mod:hover { border-color: var(--gfh-orange); transform: translateY(-1px); }
+.gfh-mod-ico { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--gfh-font-head); font-weight: 700; font-size: 12px; }
+.gfh-mod-name { font-size: 13.5px; font-weight: 600; color: var(--gfh-ink); }
+.gfh-mod-custom { border-style: dashed; }
+.gfh-mod-custom .gfh-mod-ico { background: #F1F2F5; color: var(--gfh-muted); font-size: 18px; }
+
 .gfh-int-wall { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .gfh-int-chip { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 58px; padding: 8px 12px; background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 12px; font-weight: 600; font-size: 13.5px; color: var(--gfh-ink); }
 .gfh-int-more { color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border-color: rgba(249,115,22,.28); transition: background .15s ease; }

@@ -871,6 +871,61 @@ function gfHomeShowcaseSection($sEyebrow, $sTitle, $sSub, $sImg, $sAlt)
 }
 
 /**
+ * Modules showcase ("Modules for anything your business runs.") — the Sales Hub
+ * screenshot paired with a grid of business modules, matching the old marketing page.
+ * The screenshot only renders when the real image is vendored; the module grid always
+ * shows. Modules link into the app directory. Business-focused (no pet-care/recipe box).
+ */
+function gfHomeModulesSection()
+{
+    $sImg = 'gfunnel-sales-hub-workspace.webp';
+    $sPath = BX_DIRECTORY_PATH_ROOT . 'template/images/' . $sImg;
+    $sShot = '';
+    if (is_file($sPath)) {
+        $sUrl = BX_DOL_URL_ROOT . 'template/images/' . rawurlencode($sImg) . '?v=' . (int)@filemtime($sPath);
+        $sShot = '<div class="gfh-mod-shot gfh-shot"><img src="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '" alt="A GFunnel Sales Hub workspace — a 7-step sales process, objection playbook, scripts, training and a payouts dashboard." loading="lazy" /></div>';
+    }
+
+    // Business modules: 2-letter badge, name, and a soft badge color (matches old style).
+    $aMods = array(
+        array('SP', 'Sales Pipeline', '#C2410C', '#FEF3EC'),
+        array('CR', 'CRM', '#2E5597', '#E0EAFF'),
+        array('IN', 'Email Inbox', '#2E5597', '#E0EAFF'),
+        array('CL', 'Calendar', '#7C3AED', '#F3E8FF'),
+        array('TK', 'Tasks', '#166534', '#DCFCE7'),
+        array('PR', 'Projects', '#C2410C', '#FEF3EC'),
+        array('ND', 'Notes &amp; Docs', '#BE185D', '#FCE7F3'),
+        array('FN', 'Finance', '#0F766E', '#CCFBF1'),
+        array('IV', 'Invoicing', '#166534', '#DCFCE7'),
+        array('CS', 'Content Studio', '#C2410C', '#FEF3EC'),
+        array('CM', 'Community', '#2E5597', '#E0EAFF'),
+        array('CB', 'Course Builder', '#7C3AED', '#F3E8FF'),
+        array('SD', 'Support Desk', '#0F766E', '#CCFBF1'),
+        array('RC', 'Recruiting', '#BE185D', '#FCE7F3'),
+        array('CT', 'Contracts', '#2E5597', '#E0EAFF'),
+    );
+    $sMarket = BX_DOL_URL_ROOT . 'applications';
+    $sCards = '';
+    foreach ($aMods as $a) {
+        list($sIni, $sName, $sColor, $sBg) = $a;
+        $sColor = preg_replace('/[^A-Za-z0-9#(),.%\s]/', '', $sColor);
+        $sBg = preg_replace('/[^A-Za-z0-9#(),.%\s]/', '', $sBg);
+        $sCards .= '<a class="gfh-mod" href="' . $sMarket . '"><span class="gfh-mod-ico" style="color:' . $sColor . ';background:' . $sBg . '">' . $sIni . '</span>'
+            . '<span class="gfh-mod-name">' . $sName . '</span></a>';
+    }
+    // Custom build (dashed)
+    $sCards .= '<a class="gfh-mod gfh-mod-custom" href="' . $sMarket . '"><span class="gfh-mod-ico">+</span><span class="gfh-mod-name">Custom Build</span></a>';
+
+    return '<section class="gfh-sec"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">The Platform</span>'
+        . '<h2 class="gfh-h2">Modules for anything your business runs.</h2>'
+        . '<p class="gfh-sub">Every workspace boots with the modules it needs &mdash; sales, support, finance, delivery &mdash; and adds more as you grow.</p></div>'
+        . '<div class="gfh-mod-wrap gfh-reveal">' . $sShot . '<div class="gfh-mod-grid">' . $sCards . '</div></div>'
+        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">Browse all modules <span aria-hidden="true">&rarr;</span></a></div>'
+        . '</div></section>';
+}
+
+/**
  * Integrations wall ("Your tools, already inside."). Prefers real brand names from
  * the directory mirror (gf_directory_apps); falls back to the known integration set
  * we ship. The "+N" chip and CTA use the real live app count.
