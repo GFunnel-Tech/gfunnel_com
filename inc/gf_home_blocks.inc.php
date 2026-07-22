@@ -849,6 +849,147 @@ function gfHomeSeasonalHtml($aParams)
     return '<div class="gfh gfh-block-seasonal">' . $sHtml . '</div>';
 }
 
+/**
+ * Product screenshot showcase ("Operations live here", "Modules …"). Renders the
+ * framed screenshot only when the real image exists in template/images/ — no fake
+ * mockups. Returns '' (section omitted) until the asset is vendored, so the page
+ * degrades cleanly. $sImg is a filename under template/images/.
+ */
+function gfHomeShowcaseSection($sEyebrow, $sTitle, $sSub, $sImg, $sAlt)
+{
+    $sPath = BX_DIRECTORY_PATH_ROOT . 'template/images/' . $sImg;
+    if (!is_file($sPath))
+        return '';
+    $sUrl = BX_DOL_URL_ROOT . 'template/images/' . rawurlencode($sImg) . '?v=' . (int)@filemtime($sPath);
+    $sEye = $sEyebrow !== '' ? '<span class="gfh-eyebrow">' . gfHomeOut($sEyebrow) . '</span>' : '';
+    return '<section class="gfh-sec"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal">' . $sEye
+        . '<h2 class="gfh-h2">' . $sTitle . '</h2>'
+        . '<p class="gfh-sub">' . $sSub . '</p></div>'
+        . '<div class="gfh-shot gfh-reveal"><img src="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($sAlt, ENT_QUOTES, 'UTF-8') . '" loading="lazy" /></div>'
+        . '</div></section>';
+}
+
+/**
+ * Integrations wall ("Your tools, already inside."). Prefers real brand names from
+ * the directory mirror (gf_directory_apps); falls back to the known integration set
+ * we ship. The "+N" chip and CTA use the real live app count.
+ */
+function gfHomeIntegrationsWall()
+{
+    $oDb = BxDolDb::getInstance();
+    $iTotal = gfHomeAppsCount(); // real count from the mirror, or 0
+    $aNames = array();
+    if ($iTotal > 0) {
+        $aRows = $oDb->getAll("SELECT `name` FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 11");
+        if (!is_array($aRows) || empty($aRows))
+            $aRows = $oDb->getAll("SELECT `name` FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 11");
+        if (is_array($aRows))
+            foreach ($aRows as $a) { $s = trim((string)$a['name']); if ($s !== '') $aNames[] = $s; }
+    }
+    if (empty($aNames)) // fallback to the real integration set we ship
+        $aNames = array('Stripe', 'OpenAI', 'Anthropic', 'Slack', 'Notion', 'Google', 'Mailgun', 'Supabase', 'GoHighLevel', 'Discord', 'n8n');
+
+    $sMarket = BX_DOL_URL_ROOT . 'applications';
+    $sChips = '';
+    foreach ($aNames as $sName)
+        $sChips .= '<div class="gfh-int-chip">' . gfHomeOut($sName) . '</div>';
+    // the "+N,000" more chip
+    $iMore = $iTotal > count($aNames) ? $iTotal - count($aNames) : 0;
+    $sMoreLabel = $iMore >= 1000 ? '+ ' . number_format((int)floor($iMore / 1000) * 1000) : ($iMore > 0 ? '+ ' . number_format($iMore) : 'Browse all');
+    $sChips .= '<a class="gfh-int-chip gfh-int-more" href="' . $sMarket . '">' . gfHomeOut($sMoreLabel) . '</a>';
+
+    $sCount = gfHomeCountPlus($iTotal);
+    $sSub = $sCount !== ''
+        ? gfHomeOut($sCount) . ' integrations live inside GFunnel &mdash; Stripe, Slack, Notion, Google, OpenAI, Anthropic and every other app you already use.'
+        : 'The apps you already use, connected inside GFunnel &mdash; Stripe, Slack, Notion, Google, OpenAI, Anthropic and more.';
+    $sMoreCta = $sCount !== '' ? 'Browse all ' . gfHomeOut($sCount) . ' integrations' : 'Browse all integrations';
+
+    return '<section class="gfh-sec gfh-sec-alt"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Integrations</span>'
+        . '<h2 class="gfh-h2">Your tools, already inside.</h2>'
+        . '<p class="gfh-sub">' . $sSub . '</p></div>'
+        . '<div class="gfh-int-wall gfh-reveal">' . $sChips . '</div>'
+        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">' . $sMoreCta . ' <span aria-hidden="true">&rarr;</span></a></div>'
+        . '</div></section>';
+}
+
+/** "Three paths to deploy" — no-code / templates / custom (business framing). */
+function gfHomeThreePaths()
+{
+    $aPaths = array(
+        array('n' => '01', 'title' => 'Start without code.', 'desc' => 'AI-powered builders and drag-and-drop. Stand up a department in minutes.'),
+        array('n' => '02', 'title' => 'Use what&rsquo;s built.', 'desc' => 'Industry snapshots and templates for your business &mdash; pick one and go.'),
+        array('n' => '03', 'title' => 'Build custom.', 'desc' => 'Webhooks, n8n and custom modules. Engineer-grade control over your operation.'),
+    );
+    $sCards = '';
+    foreach ($aPaths as $a)
+        $sCards .= '<div class="gfh-path gfh-reveal"><span class="gfh-path-n">' . $a['n'] . '</span>'
+            . '<h3 class="gfh-path-title">' . $a['title'] . '</h3>'
+            . '<p class="gfh-path-desc">' . $a['desc'] . '</p></div>';
+    return '<section class="gfh-sec"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">How you build</span>'
+        . '<h2 class="gfh-h2">Three paths to deploy.</h2>'
+        . '<p class="gfh-sub">No code. Templates. Or build it exactly how your business needs.</p></div>'
+        . '<div class="gfh-paths">' . $sCards . '</div>'
+        . '</div></section>';
+}
+
+/** Founder quote (real, attributed). */
+function gfHomeFounderQuote()
+{
+    return '<section class="gfh-sec gfh-quote-sec"><div class="gfh-container">'
+        . '<div class="gfh-quote gfh-reveal">'
+        . '<span class="gfh-eyebrow">From the Founder</span>'
+        . '<blockquote>&ldquo;GFunnel exists because I believed every business starts as a thought &mdash; and the only thing standing between that thought and reality is the system connecting them. I built the system. Then the tools. Then the team. Thought, System, Creation. Your world, connected.&rdquo;</blockquote>'
+        . '<footer>&mdash; Cameron Garlick, Founder &amp; CEO, GFunnel</footer>'
+        . '</div></div></section>';
+}
+
+/** Case studies — real customers, business-focused (no dead links). */
+function gfHomeCaseStudies()
+{
+    $aCases = array(
+        array('tag' => 'Affiliate', 'title' => '30&ndash;100% recurring commissions, from one workspace.',
+            'desc' => 'Affiliate marketers run their entire funnel &mdash; capture, nurture, conversion, commissions &mdash; inside a single GFunnel workspace.',
+            'stats' => array('Stream' => 'Recurring', 'Commission' => '30&ndash;100%', 'Active' => '248 referrals')),
+        array('tag' => 'Community', 'title' => '12,000 members in 6 weeks.',
+            'desc' => 'Stayka Reach built a creator community on GFunnel &mdash; workspace, community module, onboarding and revenue flow from day one.',
+            'stats' => array('Members' => '12,000', 'Timeline' => '6 weeks', 'Workspaces' => '1')),
+        array('tag' => 'Agency', 'title' => 'The operating hub behind DJD Experts.',
+            'desc' => 'DJD Experts runs their entire operation &mdash; intake, client deliverables and team coordination &mdash; through one GFunnel deployment.',
+            'stats' => array('Departments' => 'Multiple', 'Workspaces' => 'Multiple', 'Operating' => '24/7')),
+    );
+    $sCards = '';
+    foreach ($aCases as $a) {
+        $sStats = '';
+        foreach ($a['stats'] as $k => $v)
+            $sStats .= '<div class="gfh-case-stat"><dt>' . gfHomeOut($k) . '</dt><dd>' . $v . '</dd></div>';
+        $sCards .= '<article class="gfh-case gfh-reveal">'
+            . '<span class="gfh-case-tag">' . gfHomeOut($a['tag']) . '</span>'
+            . '<h3 class="gfh-case-title">' . $a['title'] . '</h3>'
+            . '<p class="gfh-case-desc">' . $a['desc'] . '</p>'
+            . '<dl class="gfh-case-stats">' . $sStats . '</dl>'
+            . '</article>';
+    }
+    return '<section class="gfh-sec gfh-sec-alt"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">From the front lines</span>'
+        . '<h2 class="gfh-h2">Real businesses. Every stage.</h2>'
+        . '<p class="gfh-sub">From first earnings to enterprise &mdash; three businesses running on GFunnel.</p></div>'
+        . '<div class="gfh-cases">' . $sCards . '</div>'
+        . '</div></section>';
+}
+
+/** Trust bar — the assurances we make (SSL / GDPR / uptime). */
+function gfHomeTrustBar()
+{
+    $aItems = array('SSL Encrypted', 'GDPR Compliant', '99.9% Uptime', 'Unlimited seats');
+    $s = '';
+    foreach ($aItems as $sItem)
+        $s .= '<span class="gfh-trust-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' . gfHomeOut($sItem) . '</span>';
+    return '<div class="gfh-trust-bar gfh-reveal">' . $s . '</div>';
+}
+
 /* ==================================================================
  * Full-section wrappers (self-contained) — used by the module's
  * service blocks so each homepage section is one native page block.
