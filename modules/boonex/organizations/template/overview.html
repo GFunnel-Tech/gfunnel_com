@@ -1,188 +1,90 @@
 <!--
-    GFunnel — Organization Overview block markup.
+    GFunnel — Organization Dashboard (Stage 1).
 
-    Rendered by BxOrgsModule::serviceOverview(). Dynamic values are injected
-    through UNA placeholders (org url, greeting, section links). The
-    Departments / Partners / Quick Links content ships with GFunnel defaults;
-    see docs/organization-overview-block.md for how to make those data-driven.
+    Rendered by BxOrgsModule::serviceOverview(). Real data only:
+      · Profile card  — org name / logo / links (real)
+      · Ask AI        — wired to agents.php + real create pages
+      · Calendar      — live current-month grid, links to Events
+    Members / Departments / Pinned / Quick Links come in later stages, each
+    wired to a real source. No placeholder data.
 -->
-<div class="gforg">
-    <div class="gforg-grid">
-        <!-- ================= Main column ================= -->
-        <div class="gforg-col">
+<div class="gfdash">
+    <div class="gfdash-grid">
 
-            <!-- Ask AI -->
-            <section class="gforg-card gforg-card-pad">
-                <div class="gforg-ai-tabs" role="tablist" aria-label="Compose mode">
-                    <button type="button" class="gforg-ai-tab gforg-on" role="tab" aria-selected="true">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 4l1.9 4.6L18.5 10l-4.6 1.9L12 16l-1.9-4.1L5.5 10l4.6-1.4L12 4z"/></svg>
+        <!-- ================= Left rail ================= -->
+        <aside class="gfdash-col gfdash-col-left">
+            <section class="gfdash-card gfdash-profile">
+                <div class="gfdash-profile-cover" aria-hidden="true"></div>
+                <div class="gfdash-profile-body">
+                    <span class="gfdash-avatar" style="__thumb_style__"><span class="gfdash-avatar-letter">__initial__</span></span>
+                    <h2 class="gfdash-profile-name">__title__ <svg class="gfdash-verified" width="16" height="16" viewBox="0 0 24 24" fill="#ea580c"><path d="M12 2l2.4 1.8 3 .2.9 2.9 2.4 1.8-.9 2.9.9 2.9-2.4 1.8-.9 2.9-3 .2L12 22l-2.4-1.8-3-.2-.9-2.9L3.3 15l.9-2.9-.9-2.9 2.4-1.8.9-2.9 3-.2z"/><path d="m9 12 2 2 4-4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></h2>
+                    <p class="gfdash-profile-meta">Organization</p>
+                    <a class="gfdash-btn gfdash-btn-primary" href="__post_url__"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>New request</a>
+                    <div class="gfdash-profile-actions">
+                        <a class="gfdash-btn gfdash-btn-soft" href="__profile_url__"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>Share</a>
+                        <a class="gfdash-btn gfdash-btn-soft" href="__edit_url__"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</a>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- ================= Center ================= -->
+        <div class="gfdash-col gfdash-col-main">
+            <section class="gfdash-card gfdash-card-pad">
+                <div class="gfdash-ai-tabs" role="tablist" aria-label="Compose mode">
+                    <button type="button" class="gfdash-ai-tab gfdash-on" role="tab" aria-selected="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/></svg>
                         Ask AI
                     </button>
-                    <button type="button" class="gforg-ai-tab" role="tab" aria-selected="false">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
-                        Public
-                    </button>
-                    <button type="button" class="gforg-ai-tab" role="tab" aria-selected="false">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-                        Private
-                    </button>
+                    <a class="gfdash-ai-tab" href="__post_url__" role="tab"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>Public</a>
+                    <a class="gfdash-ai-tab" href="__post_url__" role="tab"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</a>
                 </div>
 
-                <div class="gforg-ai-greeting">
-                    <span class="gforg-ai-spark" aria-hidden="true">
+                <div class="gfdash-ai-greeting">
+                    <span class="gfdash-ai-spark" aria-hidden="true">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/></svg>
                     </span>
-                    <div class="gforg-ai-bubble" id="gforg-greeting">__greeting__ — what do you want to get done today?</div>
+                    <div class="gfdash-ai-bubble" id="gfdash-greeting">Good evening — what do you want to get done today?</div>
                 </div>
 
-                <form class="gforg-ai-input" onsubmit="return false;">
-                    <input type="text" placeholder="Ask anything, or describe a task…" aria-label="Ask anything, or describe a task" />
-                    <button type="submit" class="gforg-ai-send" aria-label="Send">
+                <form class="gfdash-ai-input" action="__ai_url__" method="get">
+                    <input type="text" name="q" placeholder="Ask anything, or describe a task…" aria-label="Ask anything, or describe a task" />
+                    <button type="submit" class="gfdash-ai-send" aria-label="Send">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
                     </button>
                 </form>
 
-                <div class="gforg-ai-chips">
-                    <button type="button" class="gforg-ai-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Draft a follow-up email</button>
-                    <button type="button" class="gforg-ai-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2"/></svg>Show last week's leads</button>
-                    <button type="button" class="gforg-ai-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Create a campaign</button>
-                    <button type="button" class="gforg-ai-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Summarize my day</button>
-                </div>
-            </section>
-
-            <!-- Departments -->
-            <section class="gforg-card gforg-card-pad">
-                <div class="gforg-sec-head">
-                    <div>
-                        <h2>Departments</h2>
-                        <p>Jump into the operational depth of any function</p>
-                    </div>
-                    <a class="gforg-btn-soft" href="__manage_url__">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
-                        Manage
-                    </a>
-                </div>
-
-                <div class="gforg-dept-grid">
-                    <a class="gforg-dept" href="__base_url__">
-                        <span class="gforg-dept-ico" style="background:#eef2ff;color:#4f46e5"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-                        <span class="gforg-dept-name">Strategy</span>
-                        <span class="gforg-dept-meta">Planning, KPIs</span>
-                    </a>
-                    <a class="gforg-dept" href="__base_url__">
-                        <span class="gforg-dept-ico" style="background:#fce7f3;color:#db2777"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.2-3"/></svg></span>
-                        <span class="gforg-dept-name">Marketing</span>
-                        <span class="gforg-dept-meta">Demand gen, brand, paid</span>
-                    </a>
-                    <a class="gforg-dept" href="__base_url__">
-                        <span class="gforg-dept-ico" style="background:#dcfce7;color:#16a34a"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 13 4-4 4 3 5-6"/></svg></span>
-                        <span class="gforg-dept-name">Sales / Revenue</span>
-                        <span class="gforg-dept-meta">Sales, Partnerships</span>
-                    </a>
-                    <a class="gforg-dept" href="__base_url__">
-                        <span class="gforg-dept-ico" style="background:#e0e7ff;color:#4338ca"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
-                        <span class="gforg-dept-name">Product</span>
-                        <span class="gforg-dept-meta">Roadmap, UX</span>
-                    </a>
-                    <a class="gforg-dept" href="__base_url__">
-                        <span class="gforg-dept-ico" style="background:#fae8ff;color:#a21caf"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="7" cy="12" r="2.5"/><circle cx="17" cy="14" r="2.5"/><path d="M4 21c2-5 14-6 16 0"/></svg></span>
-                        <span class="gforg-dept-name">Creative</span>
-                        <span class="gforg-dept-meta">Design, Content</span>
-                    </a>
-                    <a class="gforg-dept" href="__base_url__">
-                        <span class="gforg-dept-ico" style="background:#ede9fe;color:#6d28d9"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg></span>
-                        <span class="gforg-dept-name">Technology</span>
-                        <span class="gforg-dept-meta">Dev, Integrations</span>
-                    </a>
-                </div>
-
-                <a class="gforg-btn-soft gforg-dept-more" href="__base_url__">
-                    See 8 more
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                </a>
-            </section>
-
-            <!-- Activity -->
-            <section class="gforg-card gforg-card-pad">
-                <div class="gforg-sec-head">
-                    <div>
-                        <h2>Activity</h2>
-                        <p>Updates everyone on the team can see</p>
-                    </div>
-                    <a class="gforg-sec-link" href="__base_url__">View all
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                    </a>
-                </div>
-                <div class="gforg-activity-item"><span class="gforg-activity-dot"></span><span class="gforg-activity-lines"><span></span><span></span></span></div>
-                <div class="gforg-activity-item"><span class="gforg-activity-dot"></span><span class="gforg-activity-lines"><span></span><span></span></span></div>
-                <div class="gforg-activity-item"><span class="gforg-activity-dot"></span><span class="gforg-activity-lines"><span></span><span></span></span></div>
-            </section>
-
-            <!-- Network & Partners -->
-            <section class="gforg-card gforg-card-pad">
-                <div class="gforg-sec-head">
-                    <div>
-                        <h2>Network &amp; Partners</h2>
-                    </div>
-                    <a class="gforg-sec-link" href="__partners_url__">View all
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                    </a>
-                </div>
-                <div class="gforg-partner">
-                    <span class="gforg-partner-logo" style="background:#0ea5e9">EM</span>
-                    <span class="gforg-partner-info"><span class="gforg-partner-name">Expert Mortgage Marketing</span><span class="gforg-partner-role">Referral partner</span></span>
-                    <span class="gforg-partner-tag">Partner</span>
-                </div>
-                <div class="gforg-partner">
-                    <span class="gforg-partner-logo" style="background:#16a34a">G</span>
-                    <span class="gforg-partner-info"><span class="gforg-partner-name">GitScrum</span><span class="gforg-partner-role">Integration partner</span></span>
-                    <span class="gforg-partner-tag">Partner</span>
+                <div class="gfdash-ai-chips">
+                    <a class="gfdash-ai-chip" href="__ai_url__"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Draft a follow-up email</a>
+                    <a class="gfdash-ai-chip" href="__ai_url__"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2"/></svg>Show last week's leads</a>
+                    <a class="gfdash-ai-chip" href="__ai_url__"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Create a campaign</a>
+                    <a class="gfdash-ai-chip" href="__ai_url__"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Summarize my day</a>
                 </div>
             </section>
         </div>
 
         <!-- ================= Right rail ================= -->
-        <aside class="gforg-rail">
-            <!-- Calendar -->
-            <section class="gforg-card gforg-card-pad">
-                <div class="gforg-rail-head">
+        <aside class="gfdash-col gfdash-col-right">
+            <section class="gfdash-card gfdash-card-pad">
+                <div class="gfdash-cal-head">
                     <div>
                         <h3>Calendar</h3>
                         <p>Appointments and synced events</p>
                     </div>
-                    <a class="gforg-sec-link" href="__events_url__">Open
+                    <a class="gfdash-link" href="__events_url__">Open
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                     </a>
                 </div>
-                <div class="gforg-cal">
-                    <span class="gforg-cal-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-                    <div class="gforg-cal-title">Connect your calendar</div>
-                    <div class="gforg-cal-text">See your meetings from Google, Calendly, Cal.com, and GoHighLevel in one place.</div>
-                    <a class="gforg-btn-orange" href="__events_url__">Connect calendar →</a>
+                <div class="gfdash-cal" id="gfdash-cal">
+                    <div class="gfdash-cal-bar">
+                        <button type="button" class="gfdash-cal-nav" data-dir="-1" aria-label="Previous month">&#8249;</button>
+                        <span class="gfdash-cal-title" id="gfdash-cal-title"></span>
+                        <button type="button" class="gfdash-cal-nav" data-dir="1" aria-label="Next month">&#8250;</button>
+                        <button type="button" class="gfdash-cal-today" id="gfdash-cal-today">Today</button>
+                    </div>
+                    <div class="gfdash-cal-grid" id="gfdash-cal-grid"></div>
                 </div>
-            </section>
-
-            <!-- Quick Links -->
-            <section class="gforg-card gforg-card-pad">
-                <div class="gforg-rail-head">
-                    <h3>Quick Links</h3>
-                    <a class="gforg-rail-add" href="__base_url__">Add link +</a>
-                </div>
-                <a class="gforg-link" href="__base_url__">
-                    <span class="gforg-link-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></span>
-                    <span class="gforg-link-info"><span class="gforg-link-title">eazyclean.com</span><span class="gforg-link-sub">Primary marketing site</span></span>
-                    <span class="gforg-status gforg-status-live">Live</span>
-                </a>
-                <a class="gforg-link" href="__base_url__">
-                    <span class="gforg-link-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></span>
-                    <span class="gforg-link-info"><span class="gforg-link-title">Booking funnel</span><span class="gforg-link-sub">book.eazyclean.com</span></span>
-                    <span class="gforg-status gforg-status-live">Live</span>
-                </a>
-                <a class="gforg-link" href="__base_url__">
-                    <span class="gforg-link-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></span>
-                    <span class="gforg-link-info"><span class="gforg-link-title">Spring promo landing page</span><span class="gforg-link-sub">/lp/spring-clean-2026</span></span>
-                    <span class="gforg-status gforg-status-draft">Draft</span>
-                </a>
+                <a class="gfdash-cal-all" href="__events_url__">View all calendars &rarr;</a>
             </section>
         </aside>
     </div>
@@ -190,11 +92,48 @@
 
 <script>
 (function() {
-    /* Localised greeting from the viewer's clock, matching the Workspaces page. */
-    var el = document.getElementById('gforg-greeting');
-    if (!el) return;
-    var h = new Date().getHours(), g = 'Good evening';
-    if (h < 5) g = 'Late night'; else if (h < 12) g = 'Good morning'; else if (h < 17) g = 'Good afternoon';
-    el.textContent = g + ', there — what do you want to get done today?';
+    /* Greeting from the viewer's clock. */
+    var g = document.getElementById('gfdash-greeting');
+    if (g) {
+        var h = new Date().getHours(), s = 'Good evening';
+        if (h < 5) s = 'Late night'; else if (h < 12) s = 'Good morning'; else if (h < 17) s = 'Good afternoon';
+        g.textContent = s + ' — what do you want to get done today?';
+    }
+
+    /* Live month calendar. Real dates; today highlighted. Events wire in later. */
+    var elGrid = document.getElementById('gfdash-cal-grid'),
+        elTitle = document.getElementById('gfdash-cal-title');
+    if (!elGrid) return;
+
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'],
+        DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+        now = new Date(),
+        view = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    function render() {
+        elTitle.textContent = MONTHS[view.getMonth()] + ' ' + view.getFullYear();
+        var html = '';
+        for (var d = 0; d < 7; d++) html += '<span class="gfdash-cal-dow">' + DOW[d] + '</span>';
+
+        var first = new Date(view.getFullYear(), view.getMonth(), 1).getDay(),
+            days = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+        for (var i = 0; i < first; i++) html += '<span class="gfdash-cal-cell gfdash-cal-empty"></span>';
+        for (var day = 1; day <= days; day++) {
+            var isToday = day === now.getDate() && view.getMonth() === now.getMonth() && view.getFullYear() === now.getFullYear();
+            html += '<span class="gfdash-cal-cell' + (isToday ? ' gfdash-cal-today-cell' : '') + '">' + day + '</span>';
+        }
+        elGrid.innerHTML = html;
+    }
+
+    elGrid.parentNode.querySelectorAll('.gfdash-cal-nav').forEach(function(b) {
+        b.addEventListener('click', function() {
+            view.setMonth(view.getMonth() + parseInt(b.getAttribute('data-dir'), 10));
+            render();
+        });
+    });
+    var t = document.getElementById('gfdash-cal-today');
+    if (t) t.addEventListener('click', function() { view = new Date(now.getFullYear(), now.getMonth(), 1); render(); });
+
+    render();
 })();
 </script>
