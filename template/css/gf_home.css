@@ -334,6 +334,61 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
 .gfh-block-seasonal { display: block; }
 
 /* ------------------------------------------------------------------ */
+/* Polish pass                                                         */
+/* ------------------------------------------------------------------ */
+
+/* Anchor targets clear the sticky nav */
+.gfh [id] { scroll-margin-top: 84px; }
+
+/* Eyebrow gets a small leading accent bar */
+.gfh-eyebrow { display: inline-flex; align-items: center; gap: 8px; }
+.gfh-eyebrow::before { content: ''; width: 18px; height: 2px; border-radius: 2px; background: var(--gfh-orange); }
+
+/* Hero wordmark: subtle top-lit gradient for depth */
+.gfh-hero-word {
+    background: linear-gradient(180deg, #ffffff 0%, #C7D2E4 118%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+/* Hero kicker becomes a pill badge */
+.gfh-hero-kicker {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: var(--gfh-orange-300);
+    background: rgba(249, 115, 22, .1);
+    border: 1px solid rgba(249, 115, 22, .3);
+    border-radius: 999px;
+    padding: 6px 15px;
+    margin-bottom: 22px;
+}
+/* Soft ring around the hero mark */
+.gfh-hero-mark { position: relative; }
+.gfh-hero-mark::after { content: ''; position: absolute; inset: -9px; border-radius: 32px; border: 1px solid rgba(255, 255, 255, .07); }
+
+/* A little more breathing room under section heads */
+.gfh-sec-head { margin-bottom: 48px; }
+.gfh-sec-head .gfh-sub { max-width: 620px; margin-left: auto; margin-right: auto; }
+
+/* Unify card hover to a branded orange-tinted lift */
+.gfh-cat-card:hover,
+.gfh-app-card:hover,
+.gfh-svc-card:hover,
+.gfh-biz-card:hover,
+.gfh-res-card:hover,
+.gfh-dept-card:hover {
+    border-color: rgba(249, 115, 22, .45);
+    box-shadow: 0 18px 44px rgba(8, 18, 38, .12);
+}
+
+/* Section rhythm: gentle top divider on light sections that follow the hero flow */
+.gfh-sec + .gfh-sec { position: relative; }
+
+/* Feed columns: softer resting shadow */
+.gfh-feed-col { box-shadow: 0 12px 34px rgba(8, 18, 38, .06); }
+
+/* ------------------------------------------------------------------ */
 /* Responsive                                                          */
 /* ------------------------------------------------------------------ */
 

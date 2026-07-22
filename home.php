@@ -145,12 +145,18 @@ check_logged();
 
 $sMetaDescription = trim((string)getParam('gf_home_meta_description'));
 if ('' === $sMetaDescription)
-    $sMetaDescription = 'GFunnel is the operating hub entrepreneurs run their businesses on — community, CRM, funnels, courses, events and marketplace, from the first idea to launch to scale. Every tool. Every action. One platform.';
+    $sMetaDescription = 'GFunnel is the business operating hub: find and claim your business, hire verified VAs and vendors, add the software you already use, and run every department from one workspace.';
+
+// SEO page title — leads with the positioning keyword, brand appended.
+// Override via the gf_home_seo_title sys_option if you want a different phrase.
+$sSeoTitle = trim((string)getParam('gf_home_seo_title'));
+if ('' === $sSeoTitle)
+    $sSeoTitle = 'The Business Operating Hub';
 
 $oTemplate = BxDolTemplate::getInstance();
 $oTemplate->setPageNameIndex(BX_PAGE_DEFAULT);
 $oTemplate->setPageType(BX_PAGE_TYPE_DEFAULT_WO_HF);
-$oTemplate->setPageHeader(bx_replace_markers(_t('_sys_page_title_home'), array('site_title' => getParam('site_title'))));
+$oTemplate->setPageHeader($sSeoTitle);
 $oTemplate->setPageDescription($sMetaDescription);
 $oTemplate->setPageUrl(BX_DOL_URL_ROOT); // canonical: the site root
 $oTemplate->addInjection('meta_info', 'text', getGfHomeStructuredData($sMetaDescription)); // Organization + WebSite JSON-LD
