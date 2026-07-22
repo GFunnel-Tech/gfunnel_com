@@ -595,29 +595,30 @@ function gfHomeFeedEmpty($sTitle, $sSub)
 function gfHomeNewsFeed()
 {
     $oDb = BxDolDb::getInstance();
-    $aRows = [];
-    if ($oDb->getOne("SHOW TABLES LIKE 'gf_content_objects'"))
-        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `published_at`, `canonical_url` FROM `gf_content_objects` WHERE `status` = 'published' ORDER BY `published_at` DESC LIMIT 5");
 
-    if (empty($aRows))
-        return gfHomeFeedEmpty('Guides are on the way', 'Product updates and how-to guides will appear here as they’re published.');
-
-    $s = '<ul class="gfh-feed-list">';
-    foreach ($aRows as $aRow) {
-        $sTitle = htmlspecialchars((string)$aRow['title'], ENT_QUOTES, 'UTF-8');
-        $sExcerpt = htmlspecialchars((string)$aRow['excerpt'], ENT_QUOTES, 'UTF-8');
-        $sWhen = gfHomeFeedDate($aRow['published_at']);
-        $sUrl = (string)$aRow['canonical_url'];
-        $bLink = (bool)preg_match('#^https?://#i', $sUrl);
-        $sOpen = $bLink ? '<a class="gfh-feed-item" href="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '">' : '<div class="gfh-feed-item">';
-        $sClose = $bLink ? '</a>' : '</div>';
-        $s .= $sOpen
-            . '<span class="gfh-feed-item-title">' . $sTitle . '</span>'
-            . ($sExcerpt !== '' ? '<span class="gfh-feed-item-sub">' . $sExcerpt . '</span>' : '')
-            . ($sWhen !== '' ? '<span class="gfh-feed-item-meta">' . $sWhen . '</span>' : '')
-            . $sClose;
+    // 1. Real News module (mz_news).
+    if ($oDb->getOne("SHOW TABLES LIKE 'mz_news_news'")) {
+        $aRows = $oDb->getAll("SELECT `id`, `title`, `text`, `added` FROM `mz_news_news` WHERE `status` = 'active' ORDER BY `added` DESC LIMIT 5");
+        if (!empty($aRows)) {
+            $s = '<ul class="gfh-feed-list">';
+            foreach ($aRows as $a)
+                $s .= gfHomeFeedItem((string)$a['title'], gfHomeExcerpt($a['text']), gfHomeFeedDate($a['added']), gfHomeListingUrl('view-news', array('id' => (int)$a['id'])));
+            return $s . '</ul>';
+        }
     }
-    return $s . '</ul>';
+
+    // 2. Fallback: the editable content table.
+    if ($oDb->getOne("SHOW TABLES LIKE 'gf_content_objects'")) {
+        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `published_at`, `canonical_url` FROM `gf_content_objects` WHERE `status` = 'published' ORDER BY `published_at` DESC LIMIT 5");
+        if (!empty($aRows)) {
+            $s = '<ul class="gfh-feed-list">';
+            foreach ($aRows as $a)
+                $s .= gfHomeFeedItem((string)$a['title'], gfHomeExcerpt($a['excerpt']), gfHomeFeedDate($a['published_at']), (string)$a['canonical_url']);
+            return $s . '</ul>';
+        }
+    }
+
+    return gfHomeFeedEmpty('News is on the way', 'Product updates and announcements will appear here as they’re published.');
 }
 
 /**
@@ -629,39 +630,76 @@ function gfHomeNewsFeed()
 function gfHomeCommunityFeed()
 {
     $oDb = BxDolDb::getInstance();
-    $aRows = [];
-    if ($oDb->getOne("SHOW TABLES LIKE 'gf_community_posts'"))
-        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `author_name`, `published_at`, `url` FROM `gf_community_posts` WHERE `status` = 'active' ORDER BY `published_at` DESC LIMIT 5");
 
-    if (empty($aRows))
-        return gfHomeFeedEmpty('The community is warming up', 'Highlights from the GFunnel community will show up here. Jump in and start the conversation.');
-
-    $s = '<ul class="gfh-feed-list">';
-    foreach ($aRows as $aRow) {
-        $sTitle = htmlspecialchars((string)$aRow['title'], ENT_QUOTES, 'UTF-8');
-        $sAuthor = htmlspecialchars((string)$aRow['author_name'], ENT_QUOTES, 'UTF-8');
-        $sWhen = gfHomeFeedDate($aRow['published_at']);
-        $sMeta = trim($sAuthor . ($sAuthor !== '' && $sWhen !== '' ? ' &middot; ' : '') . $sWhen);
-        $sUrl = (string)$aRow['url'];
-        $bLink = (bool)preg_match('#^https?://#i', $sUrl);
-        $sOpen = $bLink ? '<a class="gfh-feed-item" href="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '">' : '<div class="gfh-feed-item">';
-        $sClose = $bLink ? '</a>' : '</div>';
-        $s .= $sOpen
-            . '<span class="gfh-feed-item-title">' . $sTitle . '</span>'
-            . ($sMeta !== '' ? '<span class="gfh-feed-item-meta">' . $sMeta . '</span>' : '')
-            . $sClose;
+    // 1. Real Posts module (bx_posts) — recent public posts.
+    if ($oDb->getOne("SHOW TABLES LIKE 'bx_posts_posts'")) {
+        $aRows = $oDb->getAll("SELECT `id`, `title`, `text`, `added` FROM `bx_posts_posts` WHERE `status` = 'active' ORDER BY `added` DESC LIMIT 5");
+        if (!empty($aRows)) {
+            $s = '<ul class="gfh-feed-list">';
+            foreach ($aRows as $a) {
+                $sTitle = trim((string)$a['title']);
+                if ($sTitle === '')
+                    $sTitle = gfHomeExcerpt($a['text'], 80);
+                $s .= gfHomeFeedItem($sTitle, ($sTitle === trim((string)$a['title']) ? gfHomeExcerpt($a['text']) : ''), gfHomeFeedDate($a['added']), gfHomeListingUrl('view-post', array('id' => (int)$a['id'])));
+            }
+            return $s . '</ul>';
+        }
     }
-    return $s . '</ul>';
+
+    // 2. Fallback: the editable community table.
+    if ($oDb->getOne("SHOW TABLES LIKE 'gf_community_posts'")) {
+        $aRows = $oDb->getAll("SELECT `title`, `excerpt`, `author_name`, `published_at`, `url` FROM `gf_community_posts` WHERE `status` = 'active' ORDER BY `published_at` DESC LIMIT 5");
+        if (!empty($aRows)) {
+            $s = '<ul class="gfh-feed-list">';
+            foreach ($aRows as $a) {
+                $sAuthor = trim((string)$a['author_name']);
+                $sWhen = gfHomeFeedDate($a['published_at']);
+                $sMeta = trim($sAuthor . ($sAuthor !== '' && $sWhen !== '' ? ' · ' : '') . $sWhen);
+                $s .= gfHomeFeedItem((string)$a['title'], gfHomeExcerpt($a['excerpt']), $sMeta, (string)$a['url']);
+            }
+            return $s . '</ul>';
+        }
+    }
+
+    return gfHomeFeedEmpty('The community is warming up', 'Highlights from the GFunnel community will show up here. Jump in and start the conversation.');
 }
 
-/** Format a feed timestamp ('M j, Y'); returns '' if unparseable. */
-function gfHomeFeedDate($sWhen)
+/** Format a feed timestamp ('M j, Y'); accepts a UNIX int (UNA) or a date string. */
+function gfHomeFeedDate($mWhen)
 {
-    $sWhen = trim((string)$sWhen);
+    if (is_numeric($mWhen)) {
+        $iTs = (int)$mWhen;
+        return $iTs > 0 ? date('M j, Y', $iTs) : '';
+    }
+    $sWhen = trim((string)$mWhen);
     if ($sWhen === '')
         return '';
     $iTs = strtotime($sWhen);
     return $iTs ? date('M j, Y', $iTs) : '';
+}
+
+/** Plain-text excerpt from (possibly HTML) body text, trimmed to $iLen chars. */
+function gfHomeExcerpt($sText, $iLen = 120)
+{
+    $sText = trim(preg_replace('/\s+/', ' ', strip_tags((string)$sText)));
+    if ($sText === '')
+        return '';
+    if (function_exists('mb_strlen') && mb_strlen($sText) > $iLen)
+        return rtrim(mb_substr($sText, 0, $iLen)) . '…';
+    return $sText;
+}
+
+/** Render one feed item (a link when a real URL is given, else a plain block). */
+function gfHomeFeedItem($sTitle, $sExcerpt, $sMeta, $sUrl)
+{
+    $bLink = (bool)preg_match('#^https?://#i', (string)$sUrl);
+    $sOpen = $bLink ? '<a class="gfh-feed-item" href="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8') . '">' : '<div class="gfh-feed-item">';
+    $sClose = $bLink ? '</a>' : '</div>';
+    return $sOpen
+        . '<span class="gfh-feed-item-title">' . htmlspecialchars($sTitle, ENT_QUOTES, 'UTF-8') . '</span>'
+        . ($sExcerpt !== '' ? '<span class="gfh-feed-item-sub">' . htmlspecialchars($sExcerpt, ENT_QUOTES, 'UTF-8') . '</span>' : '')
+        . ($sMeta !== '' ? '<span class="gfh-feed-item-meta">' . htmlspecialchars($sMeta, ENT_QUOTES, 'UTF-8') . '</span>' : '')
+        . $sClose;
 }
 
 /* ==================================================================
