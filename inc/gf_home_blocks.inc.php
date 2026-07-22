@@ -435,7 +435,6 @@ function gfHomeBusinessSection()
         ? 'Search <b>' . number_format($iCount) . '</b> businesses today &mdash; on the way to every business on earth. Find yours, claim it, and connect it to your workspace.'
         : 'The directory of every business on earth &mdash; find yours, claim it, and connect it to your workspace.';
 
-    $sSearch = BX_DOL_URL_ROOT . 'business';
     $sClaimUrl = $bLive ? gfHomeListingUrl('listing-claim') : gfHomeUrl('create-account');
     $sBrowseLink = $bLive
         ? '<a class="gfh-link-more" href="' . BX_DOL_URL_ROOT . 'business">Browse all businesses <span aria-hidden="true">&rarr;</span></a>'
@@ -445,10 +444,6 @@ function gfHomeBusinessSection()
         . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Business Database</span>'
         . '<h2 class="gfh-h2">Every business, in one place.</h2>'
         . '<p class="gfh-sub">' . $sCountLine . '</p></div>'
-        . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
-        . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
-        . '<input type="text" name="q" placeholder="Search businesses by name, category, or location..." autocomplete="off" aria-label="Search businesses" />'
-        . '<button type="submit">Search</button></form>'
         . ($sCards !== '' ? '<div class="gfh-biz-grid">' . $sCards . '</div>' : '')
         . '<div class="gfh-sec-foot gfh-biz-foot">'
         . '<a class="gfh-btn gfh-btn-orange" href="' . $sClaimUrl . '">Claim your business</a>'
@@ -529,7 +524,6 @@ function gfHomeServiceCards()
 
 function gfHomeServicesSection()
 {
-    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
     $sMore = BX_DOL_URL_ROOT . 'services';
     $sCards = gfHomeServiceCards();
 
@@ -537,10 +531,6 @@ function gfHomeServicesSection()
         . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Services &amp; Talent</span>'
         . '<h2 class="gfh-h2">Get it done &mdash; with talent you can trust.</h2>'
         . '<p class="gfh-sub">Hire a verified VA, find a trusted agency or vendor, or bring in our own team &mdash; then run it all from your workspace. Free to start.</p></div>'
-        . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
-        . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
-        . '<input type="text" name="keyword" placeholder="Search verified VAs, agencies &amp; vendors by skill or industry..." autocomplete="off" aria-label="Search services and talent" />'
-        . '<button type="submit">Search</button></form>'
         . '<p class="gfh-svc-trust"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="m9 12 2 2 4-4"/></svg> Every VA and vendor is verified before it&rsquo;s listed &mdash; so you always get the most trusted resource.</p>'
         . '<div class="gfh-svc-grid">' . $sCards . '</div>'
         . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMore . '">Explore services &amp; talent <span aria-hidden="true">&rarr;</span></a></div>'
@@ -555,7 +545,6 @@ function gfHomeServicesSection()
  */
 function gfHomeResourcesSection()
 {
-    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
     $sCourses = gfHomeUrl('courses-home');
 
     // chips = preset searches (always functional)
@@ -597,11 +586,7 @@ function gfHomeResourcesSection()
     return '<section class="gfh-sec gfh-sec-alt" id="resources"><div class="gfh-container">'
         . '<div class="gfh-sec-head"><span class="gfh-eyebrow">Resources</span>'
         . '<h2 class="gfh-h2">Learn how to run every part of it.</h2>'
-        . '<p class="gfh-sub">Articles, guides, courses and help &mdash; search the library, or browse the latest.</p></div>'
-        . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
-        . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
-        . '<input type="text" name="keyword" placeholder="Search articles, guides, courses &amp; help..." autocomplete="off" aria-label="Search resources" />'
-        . '<button type="submit">Search</button></form>'
+        . '<p class="gfh-sub">Articles, guides, courses and help &mdash; browse the topics, or search the full library.</p></div>'
         . '<div class="gfh-res-chips">' . $sChips . '</div>'
         . $sBody
         . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sCourses . '">Browse courses &amp; the University <span aria-hidden="true">&rarr;</span></a></div>'
