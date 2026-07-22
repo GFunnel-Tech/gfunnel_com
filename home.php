@@ -79,7 +79,15 @@ function gfHomeMarkerArray($fnPageUrl)
         'marketplace_section' => gfHomeMarketplaceSection(),
         'resources_section' => gfHomeResourcesSection(),
         'community_feed' => gfHomeCommunityFeed(),
-        'news_feed' => gfHomeNewsFeed()
+        'news_feed' => gfHomeNewsFeed(),
+
+        //--- Marketing / conversion sections (from the merged homepage; real copy + real data)
+        'showcase_operations' => gfHomeShowcaseSection('The Platform', 'Operations live here.', 'Your company, your team, your client work &mdash; every business runs from one place.', 'gfunnel-workspace-app-directory.png', 'The GFunnel workspace — sidebar, top nav and an app directory of integrated business tools.'),
+        'integrations_wall' => gfHomeIntegrationsWall(),
+        'three_paths' => gfHomeThreePaths(),
+        'founder_quote' => gfHomeFounderQuote(),
+        'case_studies' => gfHomeCaseStudies(),
+        'trust_bar' => gfHomeTrustBar()
     ];
 }
 
