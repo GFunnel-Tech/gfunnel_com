@@ -56,7 +56,8 @@ names — to your new module's. A half-renamed clone collides with its source.
 | Change **global chrome** (header, footer, layout, toolbar) | `template/*.html` | Module-specific templates live in each module's own `template/`. |
 | Add a **scheduled job** | A module cron class — copy `modules/gfunnel/sitemap/classes/GfSiteMapCron.php` | Registers in `sys_cron_jobs`; runs via `periodic/cron.php`. |
 | Run a **one-off data migration** | `custom_batch_updates/` (or `modules/database/`) | Standalone maintenance scripts (e.g. `update_member_id.php`). |
-| Change **Supabase directory sync** | `supabase/functions/sync-directory-apps-to-mysql/index.ts` | Only TypeScript in the repo. See `docs/directory-sync-runbook.md`. |
+| Change **Supabase directory sync** | `supabase/functions/sync-directory-apps-to-mysql/index.ts` | TypeScript. One-way PG→MySQL mirror. See `docs/directory-sync-runbook.md`. |
+| Add/change a **content monitor** (pull tutorials/docs into the directory) | `supabase/functions/fetch-app-tutorials/index.ts` (+ future docs/help monitors) | Scheduled YouTube→`app_tutorials` fetcher; flows to MySQL via the sync above. See `docs/directory-content-pipeline.md`. |
 | Add/upgrade a **PHP lib** / **front-end JS lib** | `plugins/` / `plugins_public/` | Vendored deps — don't hand-edit. |
 | Write/update **docs** | `docs/` — see §6 | Update the doc your change affects, same commit. |
 
@@ -301,6 +302,7 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/api/API_CAPABILITIES.md` (+ `http-endpoints`, `auth-and-oauth2`, `service-catalog`) | anything API |
 | `docs/seo/SEO_PAGE_MAP.md` | any page's URL, meta, or sitemap |
 | `docs/directory-sync-runbook.md`, `docs/directory-provisioning-target-model.md` | Supabase↔MySQL directory sync |
+| `docs/directory-content-pipeline.md` | Monitors that enrich the directory (YouTube tutorials → `app_tutorials` → mirror) |
 | `docs/organization-overview-block.md` | org overview UI block |
 | `docs/audits/homepage-audit.md` | the home page |
 | `docs/gfunnel-home-blocks.md`, `docs/homepage-module-mapping.md` | homepage sections, the GFunnel Home service blocks, and the section→module/data-source mapping |
