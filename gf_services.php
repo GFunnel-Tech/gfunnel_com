@@ -114,6 +114,7 @@ header('Content-Type: text/html; charset=utf-8');
                 <a href="<?php echo BX_DOL_URL_ROOT; ?>business">Businesses</a>
                 <a href="<?php echo $sSelf; ?>" aria-current="page">Services</a>
                 <a href="<?php echo BX_DOL_URL_ROOT; ?>applications">Software</a>
+                <a href="<?php echo gfHomeUrl('market-home'); ?>">Marketplace</a>
                 <a href="<?php echo BX_DOL_URL_ROOT; ?>#resources">Resources</a>
             </nav>
             <div class="gfh-nav-right">

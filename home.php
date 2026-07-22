@@ -53,9 +53,12 @@ function gfHomeMarkerArray($fnPageUrl)
         'partners_url' => $fnPageUrl('affiliate-activities'),
         'pricing_url' => $fnPageUrl('pricing'),
 
-        //--- Marketplace / directory (real routes, see r.php + gf_applications.php / gf_business.php)
-        'marketplace_url' => BX_DOL_URL_ROOT . 'applications',
+        //--- Hub pillars (real routes, see r.php + gf_applications.php / gf_business.php / gf_services.php)
+        'software_url' => BX_DOL_URL_ROOT . 'applications',
+        'marketplace_url' => $fnPageUrl('market-home'),
         'business_url' => BX_DOL_URL_ROOT . 'business',
+        'services_url' => BX_DOL_URL_ROOT . 'services',
+        'resources_url' => BX_DOL_URL_ROOT . '#resources',
 
         //--- Company
         'about_url' => $fnPageUrl('about'),
