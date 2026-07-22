@@ -37,14 +37,23 @@ if(getParam('gf_auth_pages') != 'off') {
     }
 }
 
-// GFunnel: Application Directory. Public pages rendering the local MySQL mirror
-// of Supabase (see gf_applications.php + the sync Edge Function):
-//   /applications        -> searchable app grid
-//   /application/<slug>  -> per-app detail page
+// GFunnel: Application Hub. Member-facing app launcher + directory, rendered
+// from the local MySQL mirror of Supabase (see gf_applications.php + the sync
+// Edge Function):
+//   /applications                -> Apps tab: welcome hero, Core Applications,
+//                                   hub cards
+//   /marketplace/applications    -> Marketplace tab: full App Directory
+//   /application/<slug>          -> per-app detail page
 // gf_applications='off' disables it and falls through to normal routing.
 if(getParam('gf_applications') != 'off') {
     $sGfApp = trim($sRequest, '/');
     $sGfAppLc = strtolower($sGfApp);
+    if($sGfAppLc === 'marketplace/applications' || $sGfAppLc === 'applications/marketplace') {
+        $GLOBALS['gf_app_slug'] = '';
+        $GLOBALS['gf_app_tab'] = 'marketplace';
+        require_once(BX_DIRECTORY_PATH_ROOT . 'gf_applications.php');
+        exit;
+    }
     if($sGfAppLc === 'applications' || $sGfAppLc === 'application') {
         $GLOBALS['gf_app_slug'] = '';
         require_once(BX_DIRECTORY_PATH_ROOT . 'gf_applications.php');
