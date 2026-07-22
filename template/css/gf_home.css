@@ -168,8 +168,8 @@
 .gfh-h2 { font-family: var(--gfh-font-head); font-weight: 800; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; letter-spacing: -.025em; color: var(--gfh-ink); margin-bottom: 14px; }
 .gfh-sub { font-size: 16px; color: var(--gfh-slate); }
 .gfh-sec-foot { text-align: center; margin-top: 36px; }
-.gfh-reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
-.gfh-reveal.gfh-in { opacity: 1; transform: none; }
+.gfh-js .gfh-reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.gfh-js .gfh-reveal.gfh-in { opacity: 1; transform: none; }
 
 /* ------------------------------------------------------------------ */
 /* Catalog cards ("Database" row)                                      */
@@ -456,6 +456,6 @@ a.gfh-feed-item:hover { background: #F4F6FA; }
     .gfh-footer-bottom-in { justify-content: center; text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .gfh-reveal { opacity: 1; transform: none; transition: none; }
+    .gfh-js .gfh-reveal { opacity: 1; transform: none; transition: none; }
     .gfh-btn, .gfh-cat-card, .gfh-dept-card, .gfh-app-card, .gfh-appd-card { transition: none; }
 }
