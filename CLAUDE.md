@@ -194,10 +194,18 @@ what you `grep` for to find a module's code.
 
 | File | Does | | File | Does |
 |---|---|---|---|---|
-| `gf_auth.php` | login + create-account pages (renderer) | | `gf_applications.php` | app **Directory** (list + detail) |
-| `gf_login.php` | `/login` → renders via `gf_auth.php` | | `gf_menu.php` | member menu personalization (hub tabs) |
-| `gf_create_account.php` | `/create-account` → via `gf_auth.php` | | `gf_timer.php` | time-tracking popup endpoint |
-| `gf_onboarding.php` | post-signup onboarding (step 2) | | `gf_bug.php` | bug-report endpoint |
+| `gf_auth.php` | login + create-account pages (renderer) | | `gf_applications.php` | app **Directory** (list + detail), `/applications` |
+| `gf_login.php` | `/login` → renders via `gf_auth.php` | | `gf_business.php` | Business **Directory** over `mz_listing`, `/business` |
+| `gf_create_account.php` | `/create-account` → via `gf_auth.php` | | `gf_services.php` | **Services & Talent** hub (VAs/vendors), `/services` |
+| `gf_onboarding.php` | post-signup onboarding (step 2) | | `gf_menu.php` | member menu personalization (hub tabs) |
+| `gf_bug.php` | bug-report endpoint | | `gf_timer.php` | time-tracking popup endpoint |
+
+> These SEO landing routes (`/applications`, `/business`, `/services`) are all
+> dispatched from `r.php` and share the homepage skin (`template/css/gf_home.css`)
+> + the shared section renderers in `inc/gf_home_blocks.inc.php`. Each has a
+> `gf_<name>` sys_option kill-switch (`= off` disables it). The homepage itself is
+> `home.php` (§1) → `template/page_home.html`, or a Studio Page-Builder composition
+> when `gf_home_blocks_uri` is set (see `docs/gfunnel-home-blocks.md`).
 
 ---
 
