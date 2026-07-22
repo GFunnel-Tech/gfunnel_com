@@ -210,9 +210,9 @@ function gfHomeCatalogCards($fnPageUrl)
 
     $aCards = [
         ['ico' => 'grid',   'title' => 'Departments',  'desc' => 'Run every function of your business, from Strategy and Sales to Operations, Finance and Legal.', 'href' => '#departments',           'count' => ($iDepts > 0 ? (string)$iDepts : '')],
-        ['ico' => 'apps',   'title' => 'Marketplace',  'desc' => 'Apps and integrations, ready to install straight into your workspace.',                        'href' => $sMarket,                 'count' => $sApps],
-        ['ico' => 'plug',   'title' => 'Integrations', 'desc' => 'Connect the tools you already use — Stripe, Slack, Google, OpenAI and many more.',              'href' => $sMarket,                 'count' => ''],
-        ['ico' => 'layout', 'title' => 'Templates',    'desc' => 'Deploy proven funnels, sites and automations instead of building from zero.',                  'href' => $sMarket,                 'count' => ''],
+        ['ico' => 'apps',   'title' => 'Software',     'desc' => 'Apps and integrations, ready to install straight into your workspace.',                        'href' => $sMarket,                 'count' => $sApps],
+        ['ico' => 'plug',   'title' => 'Marketplace',  'desc' => 'Buy templates, industry snapshots and premium software, then deploy them in a click.',         'href' => '#marketplace',           'count' => ''],
+        ['ico' => 'layout', 'title' => 'Resources',    'desc' => 'Articles, guides, courses and help to run every part of it.',                                  'href' => '#resources',             'count' => ''],
         ['ico' => 'book',   'title' => 'Learn',        'desc' => 'Guides, courses and the GFunnel University, organized by department.',                         'href' => $fnPageUrl('courses-home'), 'count' => ''],
         ['ico' => 'share',  'title' => 'Partners',     'desc' => 'The white-label and affiliate network for agencies and partners.',                             'href' => ($bEarn ? $fnPageUrl('affiliate-activities') : ''), 'count' => '', 'soon' => !$bEarn],
     ];
@@ -518,6 +518,61 @@ function gfHomeResourcesSection()
         . '<div class="gfh-res-chips">' . $sChips . '</div>'
         . $sBody
         . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sCourses . '">Browse courses &amp; the University <span aria-hidden="true">&rarr;</span></a></div>'
+        . '</div></section>';
+}
+
+/**
+ * Marketplace — the real Market module (bx_market): paid software, templates and
+ * industry snapshots you can buy and deploy. Reads bx_market_products (active),
+ * featured first; each card deep-links to view-product. Returns '' if the module
+ * isn't present. Price shows "Free" or "$N" (USD); no fabricated products.
+ */
+function gfHomeMarketplaceCount()
+{
+    $oDb = BxDolDb::getInstance();
+    if (!$oDb->getOne("SHOW TABLES LIKE 'bx_market_products'"))
+        return -1;
+    return (int)$oDb->getOne("SELECT COUNT(*) FROM `bx_market_products` WHERE `status` = 'active'");
+}
+
+function gfHomeMarketplaceSection()
+{
+    $iCount = gfHomeMarketplaceCount();
+    if ($iCount < 0)
+        return ''; // Market module not installed
+
+    $oDb = BxDolDb::getInstance();
+    $aRows = $oDb->getAll("SELECT `id`, `title`, `price_single` FROM `bx_market_products` WHERE `status` = 'active' ORDER BY `featured` DESC, `views` DESC LIMIT 8");
+    if (!is_array($aRows))
+        $aRows = array();
+
+    $sCards = '';
+    foreach ($aRows as $a) {
+        $sTitleRaw = trim((string)$a['title']);
+        if ($sTitleRaw === '')
+            continue;
+        $sTitle = htmlspecialchars($sTitleRaw, ENT_QUOTES, 'UTF-8');
+        $sHref = gfHomeListingUrl('view-product', array('id' => (int)$a['id']));
+        $fPrice = (float)$a['price_single'];
+        $sPrice = $fPrice > 0 ? '$' . number_format($fPrice, ($fPrice == (int)$fPrice ? 0 : 2)) : 'Free';
+        $sIni = htmlspecialchars(mb_strtoupper(mb_substr($sTitleRaw, 0, 1)), ENT_QUOTES, 'UTF-8');
+        $sCards .= '<a class="gfh-app-card" href="' . $sHref . '">'
+            . '<span class="gfh-app-logo"><span class="gfh-app-ini">' . $sIni . '</span></span>'
+            . '<span class="gfh-app-info"><span class="gfh-app-name">' . $sTitle . '</span>'
+            . '<span class="gfh-app-cat">' . $sPrice . '</span></span></a>';
+    }
+
+    $sBrowse = gfHomeListingUrl('market-home');
+    $sInner = $sCards !== ''
+        ? '<div class="gfh-app-grid">' . $sCards . '</div>'
+        : gfHomeFeedEmpty('The marketplace is stocking up', 'Templates, snapshots and premium software will appear here as they&rsquo;re published.');
+
+    return '<section class="gfh-sec" id="marketplace"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-sec-head-left gfh-sec-head-row"><div>'
+        . '<span class="gfh-eyebrow">Marketplace</span><h2 class="gfh-h2">Buy what&rsquo;s already built.</h2>'
+        . '<p class="gfh-sub">Templates, industry snapshots and premium software &mdash; deploy them straight into your workspace.</p></div>'
+        . '<a class="gfh-link-more" href="' . $sBrowse . '">Browse the marketplace <span aria-hidden="true">&rarr;</span></a></div>'
+        . $sInner
         . '</div></section>';
 }
 
