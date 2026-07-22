@@ -56,6 +56,18 @@
             window.scrollTo({ top: top, behavior: 'smooth' });
         });
 
+        /* --- Cmd/Ctrl+K focuses the hero search --- */
+        var heroInput = document.getElementById('gfh-hero-input');
+        if (heroInput) {
+            document.addEventListener('keydown', function(e) {
+                if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+                    e.preventDefault();
+                    heroInput.focus();
+                    heroInput.select();
+                }
+            });
+        }
+
         /* --- Reveal on scroll --- */
         var reveals = root.querySelectorAll('.gfh-reveal');
         if ('IntersectionObserver' in window) {

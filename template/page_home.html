@@ -66,15 +66,20 @@
                     <svg width="72" height="72" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg>
                 </span>
                 <h1 class="gfh-hero-word">GFunnel</h1>
-                <p class="gfh-hero-sub">The operating hub for how your business runs. Departments, apps, integrations and automation &mdash; one searchable workspace.</p>
+                <span class="gfh-hero-kicker">The Operating Hub</span>
+                <p class="gfh-hero-sub">Communication, tasks, calendar, finance, content, AI automation &mdash; every function of your business in one hub. Your tools come to you.</p>
 
-                <form class="gfh-hero-search" action="__search_url__" method="get" role="search">
+                <form class="gfh-hero-search" id="gfh-hero-search" action="__search_url__" method="get" role="search">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" name="keyword" placeholder="Search departments, apps, integrations, guides..." autocomplete="off" aria-label="Search GFunnel" />
+                    <input type="text" id="gfh-hero-input" name="keyword" placeholder="Search departments, apps, integrations, guides..." autocomplete="off" aria-label="Search GFunnel" />
+                    <kbd class="gfh-hero-kbd" aria-hidden="true">&#8984;K</kbd>
                     <button type="submit">Search</button>
                 </form>
 
                 __hero_stats__
+            </div>
+            <div class="gfh-hero-curve" aria-hidden="true">
+                <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,72 L0,42 Q720,-10 1440,42 L1440,72 Z" fill="#F3F4F7"/></svg>
             </div>
         </section>
 

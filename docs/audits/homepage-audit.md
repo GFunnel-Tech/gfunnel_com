@@ -199,6 +199,16 @@ a centered global search + a live-status badge, a Star-Head-style **catalogs row
 spec's "light content only" rule (§1) at the stakeholder's direction; counts and feeds
 remain real-or-omitted exactly as below.
 
+### Final design synthesis (stakeholder-directed)
+
+After iterating, the agreed look combines both references: a **Star-Head-style immersive
+dark hero** (large GFunnel wordmark, "The Operating Hub" kicker, a centered global search
+with a ⌘K shortcut + live badge, layered dark scene) sitting on a **light, card-based
+content body** (white cards on a light background), with a dark nav shell and dark
+footer. This lands on the spec's original "dark shell + light content" rule while giving
+the hero the immersive Star-Head feel. All section renderers keep the same class names,
+so the GFunnel Home module's page-builder blocks re-skin automatically.
+
 ### Build outcome (what shipped in this branch)
 
 The homepage (`template/page_home.html` + `template/css/gf_home.css` + `home.php`):
