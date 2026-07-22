@@ -362,10 +362,10 @@ function gfHomeBusinessSection()
         ? 'Search <b>' . number_format($iCount) . '</b> businesses today &mdash; on the way to every business on earth. Find yours, claim it, and connect it to your workspace.'
         : 'The directory of every business on earth &mdash; find yours, claim it, and connect it to your workspace.';
 
-    $sSearch = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $sSearch = BX_DOL_URL_ROOT . 'business';
     $sClaimUrl = $bLive ? gfHomeListingUrl('listing-claim') : gfHomeUrl('create-account');
     $sBrowseLink = $bLive
-        ? '<a class="gfh-link-more" href="' . gfHomeListingUrl('listing-home') . '">Browse all businesses <span aria-hidden="true">&rarr;</span></a>'
+        ? '<a class="gfh-link-more" href="' . BX_DOL_URL_ROOT . 'business">Browse all businesses <span aria-hidden="true">&rarr;</span></a>'
         : '';
 
     return '<section class="gfh-sec gfh-sec-alt" id="business"><div class="gfh-container">'
@@ -374,7 +374,7 @@ function gfHomeBusinessSection()
         . '<p class="gfh-sub">' . $sCountLine . '</p></div>'
         . '<form class="gfh-biz-search" action="' . $sSearch . '" method="get" role="search">'
         . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
-        . '<input type="text" name="keyword" placeholder="Search businesses by name, category, or location..." autocomplete="off" aria-label="Search businesses" />'
+        . '<input type="text" name="q" placeholder="Search businesses by name, category, or location..." autocomplete="off" aria-label="Search businesses" />'
         . '<button type="submit">Search</button></form>'
         . ($sCards !== '' ? '<div class="gfh-biz-grid">' . $sCards . '</div>' : '')
         . '<div class="gfh-sec-foot gfh-biz-foot">'
@@ -705,6 +705,12 @@ function gfHomeFeedItem($sTitle, $sExcerpt, $sMeta, $sUrl)
 /* ==================================================================
  * URL + season helpers
  * ================================================================== */
+
+/** HTML-escape a string for safe output. */
+function gfHomeOut($sText)
+{
+    return htmlspecialchars((string)$sText, ENT_QUOTES, 'UTF-8');
+}
 
 /** Permalinked UNA page URL (page.php?i=<uri>). */
 function gfHomeUrl($sUri)

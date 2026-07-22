@@ -59,8 +59,9 @@ function getGfHomePageCode()
         'partners_url' => $fnPageUrl('affiliate-activities'),
         'pricing_url' => $fnPageUrl('pricing'),
 
-        //--- Marketplace / directory (real route, see r.php + gf_applications.php)
+        //--- Marketplace / directory (real routes, see r.php + gf_applications.php / gf_business.php)
         'marketplace_url' => BX_DOL_URL_ROOT . 'applications',
+        'business_url' => BX_DOL_URL_ROOT . 'business',
 
         //--- Company
         'about_url' => $fnPageUrl('about'),
