@@ -125,11 +125,11 @@
     -webkit-mask-image: radial-gradient(75% 75% at 50% 25%, #000 0%, transparent 80%);
     mask-image: radial-gradient(75% 75% at 50% 25%, #000 0%, transparent 80%);
 }
-.gfh-hero-inner { position: relative; max-width: 760px; margin: 0 auto; }
+.gfh-hero-inner { position: relative; max-width: 760px; margin: 0 auto; text-align: center; }
 .gfh-hero-mark { display: inline-flex; align-items: center; justify-content: center; width: 104px; height: 104px; border-radius: 26px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 24px 60px rgba(0, 0, 0, .5); margin-bottom: 26px; }
 .gfh-hero-word { font-family: var(--gfh-font-head); font-weight: 800; font-size: clamp(52px, 9.5vw, 92px); line-height: 1; letter-spacing: -.045em; color: #fff; margin-bottom: 8px; }
 .gfh-hero-kicker { display: block; font-family: var(--gfh-font-mono); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; color: var(--gfh-orange-300); margin-bottom: 20px; }
-.gfh-hero-sub { font-size: clamp(15px, 2.1vw, 18px); color: rgba(255, 255, 255, .72); max-width: 580px; margin: 0 auto 32px; }
+.gfh-hero-sub { font-size: clamp(15px, 2.1vw, 18px); color: rgba(255, 255, 255, .72); max-width: 560px; margin: 24px auto 0; }
 .gfh-hero-tabs { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); border-radius: 999px; padding: 4px; margin-bottom: 14px; }
 .gfh-hero-tab { background: transparent; border: 0; color: rgba(255, 255, 255, .66); font-family: var(--gfh-font-body); font-weight: 600; font-size: 13.5px; padding: 8px 16px; border-radius: 999px; transition: background .15s ease, color .15s ease; }
 .gfh-hero-tab:hover { color: #fff; }
