@@ -940,15 +940,15 @@ function gfHomeHubsSection()
             'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore the hubs'),
         // Light up when the screenshots are vendored:
         array('key' => 'ai-assistant', 'tab' => 'AI Assistant', 'img' => 'gfunnel-ai-assistant.webp',
-            'title' => 'Your always-on AI operator.',
-            'alt' => 'The GFunnel AI Assistant answering questions across a business workspace.',
-            'bullets' => array('Answers across your whole workspace', 'Drafts, sends and follows up for you', 'Learns how your business runs'),
-            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Meet the assistant'),
+            'title' => 'Ask it to build anything.',
+            'alt' => 'The GFunnel AI Assistant — create, ask, automate and analyze across your business in plain language.',
+            'bullets' => array('Build websites, funnels, automations and dashboards', 'Spin up other AIs and agents on command', 'Create, ask, automate, analyze &mdash; in plain language'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Meet the AI Assistant'),
         array('key' => 'ai-agents', 'tab' => 'AI Agents', 'img' => 'gfunnel-ai-agents.webp',
-            'title' => 'Agents that run the work.',
-            'alt' => 'GFunnel AI Agents automating a business workflow.',
-            'bullets' => array('Automate whole workflows end to end', 'Trigger on events, run 24/7', 'Hand off between departments'),
-            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore agents'),
+            'title' => 'Agents that run the work for you.',
+            'alt' => 'A GFunnel AI Agent workflow — outbound calls, SMS, appointment booking and database reactivation, running 24/7.',
+            'bullets' => array('Outbound calls, SMS and appointment booking', 'Multi-step workflows that run 24/7', 'From reactivation to receptionist &mdash; a whole team of agents'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore AI Agents'),
     );
 
     // keep only hubs whose screenshot exists (no fake mockups)
