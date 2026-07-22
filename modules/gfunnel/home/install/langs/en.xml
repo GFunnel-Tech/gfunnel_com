@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_gfunnel_home"><![CDATA[GFunnel Home]]></string>
+    <string name="_gfunnel_home_block_hero"><![CDATA[GFunnel — Hero]]></string>
+    <string name="_gfunnel_home_block_catalogs"><![CDATA[GFunnel — Catalogs]]></string>
+    <string name="_gfunnel_home_block_business"><![CDATA[GFunnel — Business Database]]></string>
+    <string name="_gfunnel_home_block_services"><![CDATA[GFunnel — Services & Talent]]></string>
+    <string name="_gfunnel_home_block_departments"><![CDATA[GFunnel — Departments]]></string>
+    <string name="_gfunnel_home_block_featured"><![CDATA[GFunnel — Featured apps]]></string>
+    <string name="_gfunnel_home_block_resources"><![CDATA[GFunnel — Resources]]></string>
+    <string name="_gfunnel_home_block_marketplace"><![CDATA[GFunnel — Marketplace]]></string>
+    <string name="_gfunnel_home_block_community_news"><![CDATA[GFunnel — News & Community]]></string>
+    <string name="_gfunnel_home_block_cta"><![CDATA[GFunnel — Call to action]]></string>
+    <string name="_gfunnel_home_block_seasonal_html"><![CDATA[GFunnel — Seasonal HTML]]></string>
+</resources>

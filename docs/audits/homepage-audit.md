@@ -187,10 +187,31 @@ or the UNA write plane.
 | **Footer legal — DMCA / Terms / Privacy / Cookies** | UNA pages (`terms`, `privacy`) exist; **DMCA/Cookies** not confirmed | **BUILD NOW (Terms/Privacy) + add DMCA** | Add `/legal/dmca` link; create the page/route if missing and flag it. |
 | **SEO metadata + JSON-LD** | `home.php` already sets title/description/canonical + Organization/WebSite JSON-LD | **BUILD NOW** | Extend existing metadata; do not duplicate. |
 
+### Design direction (updated per stakeholder review)
+
+The first pass used the spec's light skin. On review, the stakeholder confirmed the
+intended look is the **dark Star-Head "hub"** (matching the reference and the repo's own
+dark directory page `gf_applications.php`), with the **GFunnel orange accent** (not
+cyan). The homepage was therefore re-skinned dark: dark hero with the GFunnel wordmark +
+a centered global search + a live-status badge, a Star-Head-style **catalogs row**
+(Departments / Marketplace / Integrations / Templates / Learn / Partners) **plus** the
+14-department grid, then News & Community, then footer. This intentionally overrides the
+spec's "light content only" rule (§1) at the stakeholder's direction; counts and feeds
+remain real-or-omitted exactly as below.
+
+### Final design synthesis (stakeholder-directed)
+
+After iterating, the agreed look combines both references: a **Star-Head-style immersive
+dark hero** (large GFunnel wordmark, "The Operating Hub" kicker, a centered global search
+with a ⌘K shortcut + live badge, layered dark scene) sitting on a **light, card-based
+content body** (white cards on a light background), with a dark nav shell and dark
+footer. This lands on the spec's original "dark shell + light content" rule while giving
+the hero the immersive Star-Head feel. All section renderers keep the same class names,
+so the GFunnel Home module's page-builder blocks re-skin automatically.
+
 ### Build outcome (what shipped in this branch)
 
-The homepage (`template/page_home.html` + `template/css/gf_home.css` + `home.php`) was
-reworked processes-first, in place, conforming to the existing design system:
+The homepage (`template/page_home.html` + `template/css/gf_home.css` + `home.php`):
 
 - **Nav/hero** reframed to the operating model; hero stat line uses the **real** app
   count (from `gf_directory_apps`, conservative "N,000+", omitted if empty) + the real
@@ -200,8 +221,13 @@ reworked processes-first, in place, conforming to the existing design system:
   static real snapshot. No process counts.
 - **Build / Buy / Earn band** — Build→join, Buy→`/applications`; **Earn is
   feature-flagged** (`gf_home_earn_enabled`, off by default → "coming soon").
+- **Featured apps & modules** — live section pulled from the synced `gf_directory_apps`
+  mirror (featured first, else most recent), deep-linking to `/application/<slug>`; the
+  section omits itself when the mirror is empty. This is the dynamic "workable modules"
+  surface — it updates automatically as the directory syncs.
 - **Community + News feeds** — real rows when a backing MySQL table exists
   (`gf_community_posts` / `gf_content_objects`), else designed **empty states**. No fake rows.
+  Add an article/highlight by inserting a row (DDL: `docs/sql/gf_home_content.mysql.sql`).
 - **Removed** every fabricated section (workspaces picker, modules split, stats band,
   case studies) and stripped invented counts ("1,000+", "100+", "5,000+ entrepreneurs")
   from kept illustrative sections.
