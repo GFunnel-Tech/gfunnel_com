@@ -929,15 +929,10 @@ function gfHomeHubsSection()
 {
     $aHubs = array(
         array('key' => 'apps', 'tab' => 'App Directory', 'img' => 'gfunnel-workspace-app-directory.webp',
-            'title' => 'Every tool you use, in one place.',
+            'title' => 'The software your business runs on.',
             'alt' => 'The GFunnel App Directory — Google Workspace, CRM, Ads, Ecommerce and more, integrated into one workspace.',
-            'bullets' => array('5,000+ apps and integrations, ready to connect', 'Add what you use &mdash; or request what you don&rsquo;t', 'Run your whole operation from one workspace'),
+            'bullets' => array('Find it &mdash; 5,000+ apps and integrations, ready to connect', 'Create it &mdash; build your own software with AI, no code', 'Customize it &mdash; or have our team build it for you'),
             'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Browse the App Directory'),
-        array('key' => 'sales', 'tab' => 'Sales Hub', 'img' => 'gfunnel-sales-hub-workspace.webp',
-            'title' => 'A hub for every function you run.',
-            'alt' => 'A GFunnel Sales Hub workspace — a 7-step sales process, objection playbook, scripts, training and a payouts dashboard.',
-            'bullets' => array('Sales, support, finance, delivery and more', 'Each workspace boots with the modules it needs', 'Proven processes, scripts and payouts built in'),
-            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore the hubs'),
         // Light up when the screenshots are vendored:
         array('key' => 'ai-assistant', 'tab' => 'AI Assistant', 'img' => 'gfunnel-ai-assistant.webp',
             'title' => 'Ask it to build anything.',
@@ -985,8 +980,8 @@ function gfHomeHubsSection()
     return '<section class="gfh-sec" id="tour"><div class="gfh-container">'
         . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Operations live here</span>'
         . '<h2 class="gfh-h2">One Platform. Every Tool.</h2>'
-        . '<p class="gfh-sub">Switch between the software your business runs on &mdash; each hub, live in your workspace.</p></div>'
-        . '<div class="gfh-hub-tabs gfh-reveal" role="tablist">' . $sTabs . '</div>'
+        . '<p class="gfh-sub">Find the software you need, create your own with AI, or have us build a custom one &mdash; all live in your workspace.</p></div>'
+        . (count($aLive) > 1 ? '<div class="gfh-hub-tabs gfh-reveal" role="tablist">' . $sTabs . '</div>' : '')
         . '<div class="gfh-hub-panels gfh-reveal">' . $sPanels . '</div>'
         . '</div></section>';
 }
