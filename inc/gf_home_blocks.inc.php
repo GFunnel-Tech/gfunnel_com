@@ -983,8 +983,8 @@ function gfHomeHubsSection()
     }
 
     return '<section class="gfh-sec" id="tour"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">See it in action</span>'
-        . '<h2 class="gfh-h2">One platform. Every hub.</h2>'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Operations live here</span>'
+        . '<h2 class="gfh-h2">One Platform. Every Tool.</h2>'
         . '<p class="gfh-sub">Switch between the software your business runs on &mdash; each hub, live in your workspace.</p></div>'
         . '<div class="gfh-hub-tabs gfh-reveal" role="tablist">' . $sTabs . '</div>'
         . '<div class="gfh-hub-panels gfh-reveal">' . $sPanels . '</div>'
