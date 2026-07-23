@@ -871,6 +871,127 @@ function gfHomeShowcaseSection($sEyebrow, $sTitle, $sSub, $sImg, $sAlt)
 }
 
 /**
+ * Modules showcase ("Modules for anything your business runs.") — the Sales Hub
+ * screenshot paired with a grid of business modules, matching the old marketing page.
+ * The screenshot only renders when the real image is vendored; the module grid always
+ * shows. Modules link into the app directory. Business-focused (no pet-care/recipe box).
+ */
+function gfHomeModulesSection()
+{
+    // Business modules: 2-letter badge, name, and a soft badge color (matches old style).
+    $aMods = array(
+        array('SP', 'Sales Pipeline', '#C2410C', '#FEF3EC'),
+        array('CR', 'CRM', '#2E5597', '#E0EAFF'),
+        array('IN', 'Email Inbox', '#2E5597', '#E0EAFF'),
+        array('CL', 'Calendar', '#7C3AED', '#F3E8FF'),
+        array('TK', 'Tasks', '#166534', '#DCFCE7'),
+        array('PR', 'Projects', '#C2410C', '#FEF3EC'),
+        array('ND', 'Notes &amp; Docs', '#BE185D', '#FCE7F3'),
+        array('FN', 'Finance', '#0F766E', '#CCFBF1'),
+        array('IV', 'Invoicing', '#166534', '#DCFCE7'),
+        array('CS', 'Content Studio', '#C2410C', '#FEF3EC'),
+        array('CM', 'Community', '#2E5597', '#E0EAFF'),
+        array('CB', 'Course Builder', '#7C3AED', '#F3E8FF'),
+        array('SD', 'Support Desk', '#0F766E', '#CCFBF1'),
+        array('RC', 'Recruiting', '#BE185D', '#FCE7F3'),
+        array('CT', 'Contracts', '#2E5597', '#E0EAFF'),
+    );
+    $sMarket = BX_DOL_URL_ROOT . 'applications';
+    $sCards = '';
+    foreach ($aMods as $a) {
+        list($sIni, $sName, $sColor, $sBg) = $a;
+        $sColor = preg_replace('/[^A-Za-z0-9#(),.%\s]/', '', $sColor);
+        $sBg = preg_replace('/[^A-Za-z0-9#(),.%\s]/', '', $sBg);
+        $sCards .= '<a class="gfh-mod" href="' . $sMarket . '"><span class="gfh-mod-ico" style="color:' . $sColor . ';background:' . $sBg . '">' . $sIni . '</span>'
+            . '<span class="gfh-mod-name">' . $sName . '</span></a>';
+    }
+    // Custom build (dashed)
+    $sCards .= '<a class="gfh-mod gfh-mod-custom" href="' . $sMarket . '"><span class="gfh-mod-ico">+</span><span class="gfh-mod-name">Custom Build</span></a>';
+
+    return '<section class="gfh-sec"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">The Platform</span>'
+        . '<h2 class="gfh-h2">Modules for anything your business runs.</h2>'
+        . '<p class="gfh-sub">Every workspace boots with the modules it needs &mdash; sales, support, finance, delivery &mdash; and adds more as you grow. 150+ in the catalog.</p></div>'
+        . '<div class="gfh-mod-grid gfh-mod-grid-wide gfh-reveal">' . $sCards . '</div>'
+        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">Browse all modules <span aria-hidden="true">&rarr;</span></a></div>'
+        . '</div></section>';
+}
+
+/**
+ * Tabbed product tour ("See it in action") — one section that switches between software
+ * hubs (App Directory, Sales Hub, AI Assistant, AI Agents, …). Each hub is a real product
+ * screenshot + a title + detail bullets + a CTA. A hub only appears when its screenshot is
+ * vendored (no fake mockups), so new hubs light up as their images arrive. JS switches
+ * tabs; without JS the panels stack (all visible). Add a hub by dropping its .webp in
+ * template/images/ and adding a row below.
+ */
+function gfHomeHubsSection()
+{
+    $aHubs = array(
+        array('key' => 'apps', 'tab' => 'App Directory', 'img' => 'gfunnel-workspace-app-directory.webp',
+            'title' => 'Every tool you use, in one place.',
+            'alt' => 'The GFunnel App Directory — Google Workspace, CRM, Ads, Ecommerce and more, integrated into one workspace.',
+            'bullets' => array('5,000+ apps and integrations, ready to connect', 'Add what you use &mdash; or request what you don&rsquo;t', 'Run your whole operation from one workspace'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Browse the App Directory'),
+        array('key' => 'sales', 'tab' => 'Sales Hub', 'img' => 'gfunnel-sales-hub-workspace.webp',
+            'title' => 'A hub for every function you run.',
+            'alt' => 'A GFunnel Sales Hub workspace — a 7-step sales process, objection playbook, scripts, training and a payouts dashboard.',
+            'bullets' => array('Sales, support, finance, delivery and more', 'Each workspace boots with the modules it needs', 'Proven processes, scripts and payouts built in'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore the hubs'),
+        // Light up when the screenshots are vendored:
+        array('key' => 'ai-assistant', 'tab' => 'AI Assistant', 'img' => 'gfunnel-ai-assistant.webp',
+            'title' => 'Ask it to build anything.',
+            'alt' => 'The GFunnel AI Assistant — create, ask, automate and analyze across your business in plain language.',
+            'bullets' => array('Build websites, funnels, automations and dashboards', 'Spin up other AIs and agents on command', 'Create, ask, automate, analyze &mdash; in plain language'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Meet the AI Assistant'),
+        array('key' => 'ai-agents', 'tab' => 'AI Agents', 'img' => 'gfunnel-ai-agents.webp',
+            'title' => 'Agents that run the work for you.',
+            'alt' => 'A GFunnel AI Agent workflow — outbound calls, SMS, appointment booking and database reactivation, running 24/7.',
+            'bullets' => array('Outbound calls, SMS and appointment booking', 'Multi-step workflows that run 24/7', 'From reactivation to receptionist &mdash; a whole team of agents'),
+            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore AI Agents'),
+    );
+
+    // keep only hubs whose screenshot exists (no fake mockups)
+    $aLive = array();
+    foreach ($aHubs as $aHub) {
+        $sPath = BX_DIRECTORY_PATH_ROOT . 'template/images/' . $aHub['img'];
+        if (is_file($sPath)) {
+            $aHub['url'] = BX_DOL_URL_ROOT . 'template/images/' . rawurlencode($aHub['img']) . '?v=' . (int)@filemtime($sPath);
+            $aLive[] = $aHub;
+        }
+    }
+    if (empty($aLive))
+        return '';
+
+    $sTabs = '';
+    $sPanels = '';
+    $bFirst = true;
+    foreach ($aLive as $aHub) {
+        $sOn = $bFirst ? ' gfh-on' : '';
+        $sKey = htmlspecialchars($aHub['key'], ENT_QUOTES, 'UTF-8');
+        $sTabs .= '<button type="button" class="gfh-hub-tab' . $sOn . '" data-hub="' . $sKey . '">' . gfHomeOut($aHub['tab']) . '</button>';
+        $sBul = '';
+        foreach ($aHub['bullets'] as $sB)
+            $sBul .= '<li>' . $sB . '</li>';
+        $sPanels .= '<div class="gfh-hub-panel' . $sOn . '" data-hub="' . $sKey . '">'
+            . '<div class="gfh-hub-text"><h3 class="gfh-hub-title">' . $aHub['title'] . '</h3>'
+            . '<ul class="gfh-hub-bullets">' . $sBul . '</ul>'
+            . '<a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="' . $aHub['cta'] . '">' . gfHomeOut($aHub['cta_label']) . ' <span aria-hidden="true">&rarr;</span></a></div>'
+            . '<div class="gfh-hub-shot"><img src="' . htmlspecialchars($aHub['url'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($aHub['alt'], ENT_QUOTES, 'UTF-8') . '" loading="lazy" /></div>'
+            . '</div>';
+        $bFirst = false;
+    }
+
+    return '<section class="gfh-sec" id="tour"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Operations live here</span>'
+        . '<h2 class="gfh-h2">One Platform. Every Tool.</h2>'
+        . '<p class="gfh-sub">Switch between the software your business runs on &mdash; each hub, live in your workspace.</p></div>'
+        . '<div class="gfh-hub-tabs gfh-reveal" role="tablist">' . $sTabs . '</div>'
+        . '<div class="gfh-hub-panels gfh-reveal">' . $sPanels . '</div>'
+        . '</div></section>';
+}
+
+/**
  * Integrations wall ("Your tools, already inside."). Prefers real brand names from
  * the directory mirror (gf_directory_apps); falls back to the known integration set
  * we ship. The "+N" chip and CTA use the real live app count.
