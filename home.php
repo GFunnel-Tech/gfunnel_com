@@ -83,7 +83,7 @@ function gfHomeMarkerArray($fnPageUrl)
 
         //--- Marketing / conversion sections (from the merged homepage; real copy + real data)
         'hubs_section' => gfHomeHubsSection(),
-        'modules_section' => gfHomeModulesSection(),
+        'ai_console' => gfHomeAiConsoleSection(),
         'three_paths' => gfHomeThreePaths(),
         'founder_quote' => gfHomeFounderQuote(),
         'case_studies' => gfHomeCaseStudies(),
