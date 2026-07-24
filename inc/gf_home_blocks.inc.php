@@ -986,50 +986,6 @@ function gfHomeHubsSection()
         . '</div></section>';
 }
 
-/**
- * Integrations wall ("Your tools, already inside."). Prefers real brand names from
- * the directory mirror (gf_directory_apps); falls back to the known integration set
- * we ship. The "+N" chip and CTA use the real live app count.
- */
-function gfHomeIntegrationsWall()
-{
-    $oDb = BxDolDb::getInstance();
-    $iTotal = gfHomeAppsCount(); // real count from the mirror, or 0
-    $aNames = array();
-    if ($iTotal > 0) {
-        $aRows = $oDb->getAll("SELECT `name` FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 11");
-        if (!is_array($aRows) || empty($aRows))
-            $aRows = $oDb->getAll("SELECT `name` FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 11");
-        if (is_array($aRows))
-            foreach ($aRows as $a) { $s = trim((string)$a['name']); if ($s !== '') $aNames[] = $s; }
-    }
-    if (empty($aNames)) // fallback to the real integration set we ship
-        $aNames = array('Stripe', 'OpenAI', 'Anthropic', 'Slack', 'Notion', 'Google', 'Mailgun', 'Supabase', 'GoHighLevel', 'Discord', 'n8n');
-
-    $sMarket = BX_DOL_URL_ROOT . 'applications';
-    $sChips = '';
-    foreach ($aNames as $sName)
-        $sChips .= '<div class="gfh-int-chip">' . gfHomeOut($sName) . '</div>';
-    // the "+N,000" more chip
-    $iMore = $iTotal > count($aNames) ? $iTotal - count($aNames) : 0;
-    $sMoreLabel = $iMore >= 1000 ? '+ ' . number_format((int)floor($iMore / 1000) * 1000) : ($iMore > 0 ? '+ ' . number_format($iMore) : 'Browse all');
-    $sChips .= '<a class="gfh-int-chip gfh-int-more" href="' . $sMarket . '">' . gfHomeOut($sMoreLabel) . '</a>';
-
-    $sCount = gfHomeCountPlus($iTotal);
-    $sSub = $sCount !== ''
-        ? gfHomeOut($sCount) . ' integrations live inside GFunnel &mdash; Stripe, Slack, Notion, Google, OpenAI, Anthropic and every other app you already use.'
-        : 'The apps you already use, connected inside GFunnel &mdash; Stripe, Slack, Notion, Google, OpenAI, Anthropic and more.';
-    $sMoreCta = $sCount !== '' ? 'Browse all ' . gfHomeOut($sCount) . ' integrations' : 'Browse all integrations';
-
-    return '<section class="gfh-sec gfh-sec-alt"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Integrations</span>'
-        . '<h2 class="gfh-h2">Your tools, already inside.</h2>'
-        . '<p class="gfh-sub">' . $sSub . '</p></div>'
-        . '<div class="gfh-int-wall gfh-reveal">' . $sChips . '</div>'
-        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">' . $sMoreCta . ' <span aria-hidden="true">&rarr;</span></a></div>'
-        . '</div></section>';
-}
-
 /** "Three paths to deploy" — no-code / templates / custom (business framing). */
 function gfHomeThreePaths()
 {
