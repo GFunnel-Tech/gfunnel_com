@@ -978,27 +978,6 @@ function gfHomeHubsSection()
         . '</div></section>';
 }
 
-/** "Three paths to deploy" — no-code / templates / custom (business framing). */
-function gfHomeThreePaths()
-{
-    $aPaths = array(
-        array('n' => '01', 'title' => 'Start without code.', 'desc' => 'AI-powered builders and drag-and-drop. Stand up a department in minutes.'),
-        array('n' => '02', 'title' => 'Use what&rsquo;s built.', 'desc' => 'Industry snapshots and templates for your business &mdash; pick one and go.'),
-        array('n' => '03', 'title' => 'Build custom.', 'desc' => 'Webhooks, n8n and custom modules. Engineer-grade control over your operation.'),
-    );
-    $sCards = '';
-    foreach ($aPaths as $a)
-        $sCards .= '<div class="gfh-path gfh-reveal"><span class="gfh-path-n">' . $a['n'] . '</span>'
-            . '<h3 class="gfh-path-title">' . $a['title'] . '</h3>'
-            . '<p class="gfh-path-desc">' . $a['desc'] . '</p></div>';
-    return '<section class="gfh-sec"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">How you build</span>'
-        . '<h2 class="gfh-h2">Three paths to deploy.</h2>'
-        . '<p class="gfh-sub">No code. Templates. Or build it exactly how your business needs.</p></div>'
-        . '<div class="gfh-paths">' . $sCards . '</div>'
-        . '</div></section>';
-}
-
 /** Founder quote (real, attributed). */
 function gfHomeFounderQuote()
 {
