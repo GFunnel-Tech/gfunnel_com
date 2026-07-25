@@ -876,44 +876,45 @@ function gfHomeShowcaseSection($sEyebrow, $sTitle, $sSub, $sImg, $sAlt)
  * The screenshot only renders when the real image is vendored; the module grid always
  * shows. Modules link into the app directory. Business-focused (no pet-care/recipe box).
  */
-function gfHomeModulesSection()
+/**
+ * AI console showcase ("Just ask. GFunnel builds it."). The product's real
+ * differentiator: a plain-English AI operator that creates, asks, automates and
+ * analyzes across the whole business. Starter prompts are verbatim from the live
+ * console UI. The framed screenshot only renders when vendored (no fake mockups);
+ * without it the section still stands on real copy + real prompts.
+ */
+function gfHomeAiConsoleSection()
 {
-    // Business modules: 2-letter badge, name, and a soft badge color (matches old style).
-    $aMods = array(
-        array('SP', 'Sales Pipeline', '#C2410C', '#FEF3EC'),
-        array('CR', 'CRM', '#2E5597', '#E0EAFF'),
-        array('IN', 'Email Inbox', '#2E5597', '#E0EAFF'),
-        array('CL', 'Calendar', '#7C3AED', '#F3E8FF'),
-        array('TK', 'Tasks', '#166534', '#DCFCE7'),
-        array('PR', 'Projects', '#C2410C', '#FEF3EC'),
-        array('ND', 'Notes &amp; Docs', '#BE185D', '#FCE7F3'),
-        array('FN', 'Finance', '#0F766E', '#CCFBF1'),
-        array('IV', 'Invoicing', '#166534', '#DCFCE7'),
-        array('CS', 'Content Studio', '#C2410C', '#FEF3EC'),
-        array('CM', 'Community', '#2E5597', '#E0EAFF'),
-        array('CB', 'Course Builder', '#7C3AED', '#F3E8FF'),
-        array('SD', 'Support Desk', '#0F766E', '#CCFBF1'),
-        array('RC', 'Recruiting', '#BE185D', '#FCE7F3'),
-        array('CT', 'Contracts', '#2E5597', '#E0EAFF'),
+    // Real starter prompts, verbatim from the AI console UI.
+    $aPrompts = array(
+        'Create a Facebook post in my brand style and generate an image for it',
+        'Build me a 3-step funnel for a self-liquidating offer',
+        'Make a 3-step automation for a weekly email blast',
+        'Build me an AI agent receptionist for a roofing company',
     );
-    $sMarket = BX_DOL_URL_ROOT . 'applications';
-    $sCards = '';
-    foreach ($aMods as $a) {
-        list($sIni, $sName, $sColor, $sBg) = $a;
-        $sColor = preg_replace('/[^A-Za-z0-9#(),.%\s]/', '', $sColor);
-        $sBg = preg_replace('/[^A-Za-z0-9#(),.%\s]/', '', $sBg);
-        $sCards .= '<a class="gfh-mod" href="' . $sMarket . '"><span class="gfh-mod-ico" style="color:' . $sColor . ';background:' . $sBg . '">' . $sIni . '</span>'
-            . '<span class="gfh-mod-name">' . $sName . '</span></a>';
-    }
-    // Custom build (dashed)
-    $sCards .= '<a class="gfh-mod gfh-mod-custom" href="' . $sMarket . '"><span class="gfh-mod-ico">+</span><span class="gfh-mod-name">Custom Build</span></a>';
+    $sJoin = BX_DOL_URL_ROOT . 'create-account';
 
-    return '<section class="gfh-sec"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">The Platform</span>'
-        . '<h2 class="gfh-h2">Modules for anything your business runs.</h2>'
-        . '<p class="gfh-sub">Every workspace boots with the modules it needs &mdash; sales, support, finance, delivery &mdash; and adds more as you grow. 150+ in the catalog.</p></div>'
-        . '<div class="gfh-mod-grid gfh-mod-grid-wide gfh-reveal">' . $sCards . '</div>'
-        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">Browse all modules <span aria-hidden="true">&rarr;</span></a></div>'
+    // Framed product screenshot — only when the asset is present.
+    $sShot = '';
+    $sImg = 'gfunnel-ai-console.webp';
+    $sPath = BX_DIRECTORY_PATH_ROOT . 'template/images/' . $sImg;
+    if (is_file($sPath)) {
+        $sUrl = BX_DOL_URL_ROOT . 'template/images/' . rawurlencode($sImg) . '?v=' . (int)@filemtime($sPath);
+        $sShot = '<div class="gfh-shot gfh-reveal"><img src="' . htmlspecialchars($sUrl, ENT_QUOTES, 'UTF-8')
+            . '" alt="The GFunnel AI console — ask anything about your business, or pick a starting point to create, ask, automate or analyze." loading="lazy" /></div>';
+    }
+
+    $sChips = '';
+    foreach ($aPrompts as $sP)
+        $sChips .= '<div class="gfh-ai-prompt"><span class="gfh-ai-prompt-ico" aria-hidden="true">&#10022;</span><span>' . gfHomeOut($sP) . '</span></div>';
+
+    return '<section class="gfh-sec gfh-sec-alt" id="ai"><div class="gfh-container">'
+        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Your AI operator</span>'
+        . '<h2 class="gfh-h2">Just ask. GFunnel builds it.</h2>'
+        . '<p class="gfh-sub">Describe what you need in plain English and your AI operator does the work &mdash; funnels, posts and images, automations, dashboards, even other AI agents. One assistant to create, ask, automate and analyze across your entire business.</p></div>'
+        . $sShot
+        . '<div class="gfh-ai-prompts gfh-reveal">' . $sChips . '</div>'
+        . '<div class="gfh-sec-foot"><a class="gfh-btn gfh-btn-orange" href="' . $sJoin . '">Start with AI <span aria-hidden="true">&rarr;</span></a></div>'
         . '</div></section>';
 }
 
@@ -933,17 +934,8 @@ function gfHomeHubsSection()
             'alt' => 'The GFunnel App Directory — Google Workspace, CRM, Ads, Ecommerce and more, integrated into one workspace.',
             'bullets' => array('Find it &mdash; 5,000+ apps and integrations, ready to connect', 'Create it &mdash; build your own software with AI, no code', 'Customize it &mdash; or have our team build it for you'),
             'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Browse the App Directory'),
-        // Light up when the screenshots are vendored:
-        array('key' => 'ai-assistant', 'tab' => 'AI Assistant', 'img' => 'gfunnel-ai-assistant.webp',
-            'title' => 'Ask it to build anything.',
-            'alt' => 'The GFunnel AI Assistant — create, ask, automate and analyze across your business in plain language.',
-            'bullets' => array('Build websites, funnels, automations and dashboards', 'Spin up other AIs and agents on command', 'Create, ask, automate, analyze &mdash; in plain language'),
-            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Meet the AI Assistant'),
-        array('key' => 'ai-agents', 'tab' => 'AI Agents', 'img' => 'gfunnel-ai-agents.webp',
-            'title' => 'Agents that run the work for you.',
-            'alt' => 'A GFunnel AI Agent workflow — outbound calls, SMS, appointment booking and database reactivation, running 24/7.',
-            'bullets' => array('Outbound calls, SMS and appointment booking', 'Multi-step workflows that run 24/7', 'From reactivation to receptionist &mdash; a whole team of agents'),
-            'cta' => BX_DOL_URL_ROOT . 'applications', 'cta_label' => 'Explore AI Agents'),
+        // Add more software hubs here by dropping a .webp in template/images/ and a row above.
+        // (The AI story lives in its own section — gfHomeAiConsoleSection().)
     );
 
     // keep only hubs whose screenshot exists (no fake mockups)
@@ -983,71 +975,6 @@ function gfHomeHubsSection()
         . '<p class="gfh-sub">Find the software you need, create your own with AI, or have us build a custom one &mdash; all live in your workspace.</p></div>'
         . (count($aLive) > 1 ? '<div class="gfh-hub-tabs gfh-reveal" role="tablist">' . $sTabs . '</div>' : '')
         . '<div class="gfh-hub-panels gfh-reveal">' . $sPanels . '</div>'
-        . '</div></section>';
-}
-
-/**
- * Integrations wall ("Your tools, already inside."). Prefers real brand names from
- * the directory mirror (gf_directory_apps); falls back to the known integration set
- * we ship. The "+N" chip and CTA use the real live app count.
- */
-function gfHomeIntegrationsWall()
-{
-    $oDb = BxDolDb::getInstance();
-    $iTotal = gfHomeAppsCount(); // real count from the mirror, or 0
-    $aNames = array();
-    if ($iTotal > 0) {
-        $aRows = $oDb->getAll("SELECT `name` FROM `gf_directory_apps` WHERE `is_featured` = 1 ORDER BY `name` LIMIT 11");
-        if (!is_array($aRows) || empty($aRows))
-            $aRows = $oDb->getAll("SELECT `name` FROM `gf_directory_apps` ORDER BY `created_at` DESC LIMIT 11");
-        if (is_array($aRows))
-            foreach ($aRows as $a) { $s = trim((string)$a['name']); if ($s !== '') $aNames[] = $s; }
-    }
-    if (empty($aNames)) // fallback to the real integration set we ship
-        $aNames = array('Stripe', 'OpenAI', 'Anthropic', 'Slack', 'Notion', 'Google', 'Mailgun', 'Supabase', 'GoHighLevel', 'Discord', 'n8n');
-
-    $sMarket = BX_DOL_URL_ROOT . 'applications';
-    $sChips = '';
-    foreach ($aNames as $sName)
-        $sChips .= '<div class="gfh-int-chip">' . gfHomeOut($sName) . '</div>';
-    // the "+N,000" more chip
-    $iMore = $iTotal > count($aNames) ? $iTotal - count($aNames) : 0;
-    $sMoreLabel = $iMore >= 1000 ? '+ ' . number_format((int)floor($iMore / 1000) * 1000) : ($iMore > 0 ? '+ ' . number_format($iMore) : 'Browse all');
-    $sChips .= '<a class="gfh-int-chip gfh-int-more" href="' . $sMarket . '">' . gfHomeOut($sMoreLabel) . '</a>';
-
-    $sCount = gfHomeCountPlus($iTotal);
-    $sSub = $sCount !== ''
-        ? gfHomeOut($sCount) . ' integrations live inside GFunnel &mdash; Stripe, Slack, Notion, Google, OpenAI, Anthropic and every other app you already use.'
-        : 'The apps you already use, connected inside GFunnel &mdash; Stripe, Slack, Notion, Google, OpenAI, Anthropic and more.';
-    $sMoreCta = $sCount !== '' ? 'Browse all ' . gfHomeOut($sCount) . ' integrations' : 'Browse all integrations';
-
-    return '<section class="gfh-sec gfh-sec-alt"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">Integrations</span>'
-        . '<h2 class="gfh-h2">Your tools, already inside.</h2>'
-        . '<p class="gfh-sub">' . $sSub . '</p></div>'
-        . '<div class="gfh-int-wall gfh-reveal">' . $sChips . '</div>'
-        . '<div class="gfh-sec-foot"><a class="gfh-link-more" href="' . $sMarket . '">' . $sMoreCta . ' <span aria-hidden="true">&rarr;</span></a></div>'
-        . '</div></section>';
-}
-
-/** "Three paths to deploy" — no-code / templates / custom (business framing). */
-function gfHomeThreePaths()
-{
-    $aPaths = array(
-        array('n' => '01', 'title' => 'Start without code.', 'desc' => 'AI-powered builders and drag-and-drop. Stand up a department in minutes.'),
-        array('n' => '02', 'title' => 'Use what&rsquo;s built.', 'desc' => 'Industry snapshots and templates for your business &mdash; pick one and go.'),
-        array('n' => '03', 'title' => 'Build custom.', 'desc' => 'Webhooks, n8n and custom modules. Engineer-grade control over your operation.'),
-    );
-    $sCards = '';
-    foreach ($aPaths as $a)
-        $sCards .= '<div class="gfh-path gfh-reveal"><span class="gfh-path-n">' . $a['n'] . '</span>'
-            . '<h3 class="gfh-path-title">' . $a['title'] . '</h3>'
-            . '<p class="gfh-path-desc">' . $a['desc'] . '</p></div>';
-    return '<section class="gfh-sec"><div class="gfh-container">'
-        . '<div class="gfh-sec-head gfh-reveal"><span class="gfh-eyebrow">How you build</span>'
-        . '<h2 class="gfh-h2">Three paths to deploy.</h2>'
-        . '<p class="gfh-sub">No code. Templates. Or build it exactly how your business needs.</p></div>'
-        . '<div class="gfh-paths">' . $sCards . '</div>'
         . '</div></section>';
 }
 

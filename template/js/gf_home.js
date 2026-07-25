@@ -16,9 +16,11 @@
 
         /* --- Sticky nav shadow + back-to-top visibility --- */
         var topBtn = document.getElementById('gfh-top-btn');
+        var navBar = document.getElementById('gfh-header');
         function onScroll() {
             var y = window.scrollY || window.pageYOffset;
             if (topBtn) topBtn.classList.toggle('gfh-show', y > 700);
+            if (navBar) navBar.classList.toggle('gfh-scrolled', y > 8);
         }
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();

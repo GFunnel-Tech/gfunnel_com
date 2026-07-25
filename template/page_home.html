@@ -27,11 +27,13 @@
                 <a href="__resources_url__">Resources</a>
             </nav>
 
+            <form class="gfh-nav-search" action="__search_url__" method="get" role="search">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" name="keyword" placeholder="Find a business, tool, or team&hellip;" autocomplete="off" aria-label="Search GFunnel" />
+            </form>
+
             <div class="gfh-nav-right">
                 __version_badge__
-                <a class="gfh-nav-search" href="__search_url__" aria-label="Search GFunnel">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </a>
                 <a class="gfh-signin" href="__login_url__">Sign in</a>
                 <a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="__join_url__">Create Workspace</a>
                 <button class="gfh-burger" id="gfh-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="gfh-mobile">
@@ -46,10 +48,6 @@
             <a href="__software_url__">Software</a>
             <a href="__marketplace_url__">Marketplace</a>
             <a href="__resources_url__">Resources</a>
-            <a href="#departments">Departments</a>
-            <a href="__learn_url__">Learn</a>
-            <a href="__partners_url__">Partners</a>
-            <a href="__pricing_url__">Pricing</a>
             <a href="__login_url__">Sign in</a>
             <a class="gfh-mobile-cta" href="__join_url__">Create Workspace</a>
         </div>
@@ -85,9 +83,9 @@
         __hubs_section__
 
         <!-- ======================================================== -->
-        <!-- Your tools, already inside (integrations wall)           -->
+        <!-- AI console — "Just ask. GFunnel builds it."              -->
         <!-- ======================================================== -->
-        __integrations_wall__
+        __ai_console__
 
         <!-- ======================================================== -->
         <!-- Explore the ecosystem (hub index — links to every route) -->
@@ -104,16 +102,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- ======================================================== -->
-        <!-- Three paths to deploy                                    -->
-        <!-- ======================================================== -->
-        __three_paths__
-
-        <!-- ======================================================== -->
-        <!-- Modules (Sales Hub screenshot + business module grid)    -->
-        <!-- ======================================================== -->
-        __modules_section__
 
         <!-- ======================================================== -->
         <!-- Services & Talent                                        -->
