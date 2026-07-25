@@ -58,14 +58,14 @@
             window.scrollTo({ top: top, behavior: 'smooth' });
         });
 
-        /* --- Cmd/Ctrl+K focuses the hero search --- */
-        var heroInput = document.getElementById('gfh-hero-input');
-        if (heroInput) {
+        /* --- Cmd/Ctrl+K focuses the nav search --- */
+        var navInput = document.getElementById('gfh-nav-input');
+        if (navInput) {
             document.addEventListener('keydown', function(e) {
                 if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
                     e.preventDefault();
-                    heroInput.focus();
-                    heroInput.select();
+                    navInput.focus();
+                    navInput.select();
                 }
             });
         }
