@@ -67,8 +67,7 @@ function gfHomeMarkerArray($fnPageUrl)
         'contact_url' => $fnPageUrl('contact'),
         'terms_url' => $fnPageUrl('terms'),
         'privacy_url' => $fnPageUrl('privacy'),
-        'dmca_url' => $fnPageUrl('dmca'),
-        'cookies_url' => $fnPageUrl('cookies'),
+        'dmca_url' => $fnPageUrl('intellectual-property'), // real page; no standalone /dmca exists
 
         //--- Real, computed content (no placeholders — see docs/audits/homepage-audit.md)
         'version_badge' => gfHomeVersionBadge(),
