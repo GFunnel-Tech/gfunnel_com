@@ -165,19 +165,19 @@ function gfHomeDepartmentsGrid()
 }
 
 /**
- * Platform status badge for the nav (Star-Head-style "LIVE" pill). Shows a real
- * version only if `gf_platform_version` (sys_options) is set — never a fabricated
- * number; otherwise just an honest live-status pill.
+ * Platform status badge for the nav: "Live V3.0". The version defaults to the
+ * current major release and is overridable without a code change by setting the
+ * `gf_platform_version` sys_option — bump it to 3.1, 3.2, … on each major update.
+ * A leading "v"/"V" in the option is tolerated so either "3.1" or "V3.1" works.
  */
 function gfHomeVersionBadge()
 {
-    $sVer = trim((string)getParam('gf_platform_version'));
-    $s = '<span class="gfh-live" title="Platform status">'
-        . '<span class="gfh-live-dot" aria-hidden="true"></span>';
-    if ($sVer !== '')
-        $s .= '<b>' . htmlspecialchars($sVer, ENT_QUOTES, 'UTF-8') . '</b>';
-    $s .= 'Live</span>';
-    return $s;
+    $sVer = ltrim(trim((string)getParam('gf_platform_version')), 'vV');
+    if ($sVer === '')
+        $sVer = '3.0'; // current major release — bump here (or via the sys_option) on each major update
+    return '<span class="gfh-live" title="Platform status">'
+        . '<span class="gfh-live-dot" aria-hidden="true"></span>'
+        . 'Live <b>V' . htmlspecialchars($sVer, ENT_QUOTES, 'UTF-8') . '</b></span>';
 }
 
 /** Inline SVG for a catalog-card icon. */
