@@ -27,10 +27,12 @@ function gfHomeMarkerArray($fnPageUrl)
 {
     $sCssFile = 'template/css/gf_home.css';
     $sJsFile = 'template/js/gf_home.js';
+    $sLogoFile = 'template/images/gf_logo.png';
 
     return [
         'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
         'js_url' => BX_DOL_URL_ROOT . $sJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sJsFile),
+        'logo_url' => BX_DOL_URL_ROOT . $sLogoFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sLogoFile),
         'site_url' => BX_DOL_URL_ROOT,
         'search_url' => BX_DOL_URL_ROOT . 'searchKeyword.php',
         'year' => date('Y'),
