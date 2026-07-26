@@ -68,6 +68,10 @@ body.bx-def-color-bg-page {
 /*--- Hero (full-bleed inside the boxed content area) ---*/
 .gf-ws-hero {
     position: relative;
+    /* box-sizing keeps the 24px side padding INSIDE the 100vw width; without it
+       content-box adds the padding on top of 100vw and overflows the viewport
+       (48px of horizontal scroll on mobile). */
+    box-sizing: border-box;
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: 72px 24px 96px;
@@ -257,10 +261,25 @@ body.bx-def-color-bg-page {
 @media (max-width: 900px) {
     .gf-ws-content {
         flex-direction: column;
+        /* Column children must fill the width. The desktop layout uses
+           align-items:flex-start so the sidebar doesn't stretch to the main
+           column's height; in a column that same rule shrinks children to their
+           intrinsic content width and overflows the viewport on mobile. */
+        align-items: stretch;
     }
-    .gf-ws-side {
+    .gf-ws-main {
         width: 100%;
     }
+    /* Flatten the sidebar so its cards become siblings of the main column, then
+       pull the personal workspace card to the top on mobile (owner header with
+       it, referral/Earn card stays at the bottom). */
+    .gf-ws-side {
+        display: contents;
+    }
+    .gf-ws-owner { order: 1; }
+    .gf-ws-personal { order: 2; }
+    .gf-ws-main { order: 3; }
+    .gf-ws-earn { order: 4; }
     .gf-ws-title {
         font-size: 32px;
     }
