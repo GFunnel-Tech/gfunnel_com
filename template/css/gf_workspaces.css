@@ -68,6 +68,10 @@ body.bx-def-color-bg-page {
 /*--- Hero (full-bleed inside the boxed content area) ---*/
 .gf-ws-hero {
     position: relative;
+    /* box-sizing keeps the 24px side padding INSIDE the 100vw width; without it
+       content-box adds the padding on top of 100vw and overflows the viewport
+       (48px of horizontal scroll on mobile). */
+    box-sizing: border-box;
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: 72px 24px 96px;
@@ -257,7 +261,13 @@ body.bx-def-color-bg-page {
 @media (max-width: 900px) {
     .gf-ws-content {
         flex-direction: column;
+        /* Column children must fill the width. The desktop layout uses
+           align-items:flex-start so the sidebar doesn't stretch to the main
+           column's height; in a column that same rule shrinks children to their
+           intrinsic content width and overflows the viewport on mobile. */
+        align-items: stretch;
     }
+    .gf-ws-main,
     .gf-ws-side {
         width: 100%;
     }
