@@ -267,10 +267,19 @@ body.bx-def-color-bg-page {
            intrinsic content width and overflows the viewport on mobile. */
         align-items: stretch;
     }
-    .gf-ws-main,
-    .gf-ws-side {
+    .gf-ws-main {
         width: 100%;
     }
+    /* Flatten the sidebar so its cards become siblings of the main column, then
+       pull the personal workspace card to the top on mobile (owner header with
+       it, referral/Earn card stays at the bottom). */
+    .gf-ws-side {
+        display: contents;
+    }
+    .gf-ws-owner { order: 1; }
+    .gf-ws-personal { order: 2; }
+    .gf-ws-main { order: 3; }
+    .gf-ws-earn { order: 4; }
     .gf-ws-title {
         font-size: 32px;
     }
