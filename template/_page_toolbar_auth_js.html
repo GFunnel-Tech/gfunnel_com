@@ -69,14 +69,48 @@
         gfMenuPost('reset');
     }
 
+    /* ---- Nav popover primitive -------------------------------------------
+       One shared behaviour for every anchored panel in the top nav - the
+       workspace selector (.gf-ws) and the icon panels (.gf-pop): exactly one
+       open at a time, click-outside closes, Escape closes and returns focus to
+       the trigger. Each control just carries the markup; this owns the logic. */
+
+    function gfNavPopCloseAll(eExcept) {
+        $('.gf-ws.gf-ws-open').each(function() {
+            if(this !== eExcept)
+                $(this).removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
+        });
+        $('.gf-pop.gf-pop-open').each(function() {
+            if(this !== eExcept)
+                $(this).removeClass('gf-pop-open').find('.gf-pop-trigger').attr('aria-expanded', 'false');
+        });
+    }
+
     /* Workspace selector dropdown (top nav, right of the logo). */
     function gfWsToggle(eButton) {
         var eWs = $(eButton).closest('.gf-ws'),
             bOpen = !eWs.hasClass('gf-ws-open');
-        $('.gf-ws').removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
+        gfNavPopCloseAll(eWs.get(0));
         if(bOpen) {
             eWs.addClass('gf-ws-open');
             $(eButton).attr('aria-expanded', 'true');
+        } else {
+            eWs.removeClass('gf-ws-open');
+            $(eButton).attr('aria-expanded', 'false');
+        }
+    }
+
+    /* Icon panels: What's New / AI / Messages (anchored popovers). */
+    function gfNavPopToggle(eButton) {
+        var ePop = $(eButton).closest('.gf-pop'),
+            bOpen = !ePop.hasClass('gf-pop-open');
+        gfNavPopCloseAll(ePop.get(0));
+        if(bOpen) {
+            ePop.addClass('gf-pop-open');
+            $(eButton).attr('aria-expanded', 'true');
+        } else {
+            ePop.removeClass('gf-pop-open');
+            $(eButton).attr('aria-expanded', 'false');
         }
     }
 
@@ -87,14 +121,19 @@
                 $('#gf-menu-panel').hide();
         });
 
-        //--- Workspace selector: click outside closes it; Escape closes it.
-        $(document).on('click.gf-ws', function(e) {
-            if(!$(e.target).closest('.gf-ws').length)
-                $('.gf-ws').removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
+        //--- Nav popovers: click outside closes everything.
+        $(document).on('click.gf-nav-pop', function(e) {
+            if(!$(e.target).closest('.gf-ws, .gf-pop').length)
+                gfNavPopCloseAll(null);
         });
-        $(document).on('keydown.gf-ws', function(e) {
-            if(e.key === 'Escape')
-                $('.gf-ws').removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
+        //--- Escape closes everything and returns focus to the open trigger.
+        $(document).on('keydown.gf-nav-pop', function(e) {
+            if(e.key === 'Escape') {
+                var eTrigger = $('.gf-pop.gf-pop-open .gf-pop-trigger, .gf-ws.gf-ws-open .gf-ws-btn').first();
+                gfNavPopCloseAll(null);
+                if(eTrigger.length)
+                    eTrigger.trigger('focus');
+            }
         });
 
         //--- Cmd+K / Ctrl+K opens the global search

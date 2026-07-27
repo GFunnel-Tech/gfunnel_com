@@ -1,18 +1,16 @@
-/* GFunnel - Person profile overview (structured header).
-   Scoped under .gfperson so it never leaks into the rest of the profile page.
-   Light theme, orange accent (#f97316), Sora headings / DM Sans body. */
+/* GFunnel - Workspace overview (structured header) for orgs / spaces / groups.
+   Scoped under .gfws. Light theme, orange accent (#f97316),
+   Sora headings / DM Sans body. Mirrors the person overview visual language. */
 
-.gfperson {
+.gfws {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: #11132a;
     max-width: 1160px;
     margin: 0 auto;
 }
+.gfws * { box-sizing: border-box; }
 
-.gfperson * { box-sizing: border-box; }
-
-/*--- Card shell ---*/
-.gfperson-card {
+.gfws-card {
     background: #ffffff;
     border: 1px solid #eceef2;
     border-radius: 16px;
@@ -21,7 +19,7 @@
 }
 
 /*--- Cover ---*/
-.gfperson-cover {
+.gfws-cover {
     position: relative;
     height: 190px;
     background-image:
@@ -29,14 +27,12 @@
         linear-gradient(160deg, #fdba74 0%, #f97316 55%, #ea580c 100%);
     background-size: 22px 22px, cover;
 }
-/* Real cover image (inline background-image): fill the strip, override the
-   gradient's dotted-pattern sizing. */
-.gfperson-cover[style*="url"] {
+.gfws-cover[style*="url"] {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
-.gfperson-cover-edit {
+.gfws-cover-edit {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -53,17 +49,17 @@
     backdrop-filter: blur(4px);
     transition: background 0.15s ease;
 }
-.gfperson-cover-edit:hover { background: rgba(17, 19, 42, 0.42); }
+.gfws-cover-edit:hover { background: rgba(17, 19, 42, 0.42); }
 
 /*--- Identity ---*/
-.gfperson-body {
+.gfws-body {
     position: relative;
     display: flex;
     align-items: flex-start;
     gap: 20px;
     padding: 0 28px 24px;
 }
-.gfperson-avatar {
+.gfws-avatar {
     flex: none;
     display: flex;
     align-items: center;
@@ -79,21 +75,24 @@
     box-shadow: 0 4px 12px rgba(17, 19, 42, 0.12);
     overflow: hidden;
 }
-.gfperson-avatar-letter {
+.gfws-avatar-letter {
     font-family: 'Sora', sans-serif;
     font-size: 40px;
     font-weight: 700;
     color: #ffffff;
 }
-/* Hide the letter once a real avatar image is set. */
-.gfperson-avatar[style*="url"] .gfperson-avatar-letter { display: none; }
+.gfws-avatar[style*="url"] .gfws-avatar-letter { display: none; }
 
-.gfperson-id {
+.gfws-id {
     flex: 1 1 auto;
     min-width: 0;
     padding-top: 18px;
 }
-.gfperson-name {
+.gfws-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
     font-family: 'Sora', sans-serif;
     font-size: 24px;
     font-weight: 700;
@@ -101,36 +100,48 @@
     margin: 0;
     color: #11132a;
 }
-.gfperson-bio {
+.gfws-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #f97316;
+    background: #fff2e8;
+}
+.gfws-bio {
     margin: 8px 0 0;
     font-size: 15px;
     line-height: 1.5;
     color: #4b5063;
     max-width: 620px;
 }
-.gfperson-meta {
+.gfws-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
     margin-top: 12px;
 }
-.gfperson-meta-item {
+.gfws-meta-item {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: 13px;
     color: #6b7280;
 }
-.gfperson-meta-item svg { color: #9ca3af; }
+.gfws-meta-item svg { color: #9ca3af; }
 
 /*--- Actions ---*/
-.gfperson-actions {
+.gfws-actions {
     flex: none;
     display: flex;
     gap: 10px;
     padding-top: 18px;
 }
-.gfperson-btn {
+.gfws-btn {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -144,71 +155,60 @@
     transition: background 0.15s ease, border-color 0.15s ease;
     white-space: nowrap;
 }
-.gfperson-btn-soft {
+.gfws-btn-soft {
     color: #11132a;
     background: #ffffff;
     border: 1px solid #e2e5ea;
 }
-.gfperson-btn-soft:hover { background: #f6f7f9; }
-.gfperson-btn-primary {
+.gfws-btn-soft:hover { background: #f6f7f9; }
+.gfws-btn-primary {
     color: #ffffff;
     background: #f97316;
     border: 1px solid #f97316;
 }
-.gfperson-btn-primary:hover { background: #ea580c; border-color: #ea580c; }
-/* Native platform actions menu (Connect / Message / Follow) for visitors. */
-.gfperson-native-actions { display: inline-flex; align-items: center; }
-.gfperson-native-actions .bx-menu-toolbar { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gfws-btn-primary:hover { background: #ea580c; border-color: #ea580c; }
+/* Native platform actions menu (Join / Message / Follow) for visitors. */
+.gfws-native-actions { display: inline-flex; align-items: center; }
+.gfws-native-actions .bx-menu-toolbar { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
 
 /*--- Stat strip ---*/
-.gfperson-stats {
+.gfws-stats {
     display: flex;
     gap: 40px;
     padding: 18px 28px;
     border-top: 1px solid #f1f2f5;
     background: linear-gradient(180deg, #ffffff, #fcfcfd);
 }
-.gfperson-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.gfperson-stat-n {
+.gfws-stat { display: flex; flex-direction: column; gap: 2px; }
+.gfws-stat-n {
     font-family: 'Sora', sans-serif;
     font-size: 20px;
     font-weight: 700;
     color: #11132a;
 }
-.gfperson-stat-l {
-    font-size: 12px;
-    color: #6b7280;
-}
+.gfws-stat-l { font-size: 12px; color: #6b7280; }
 
 /*--- Card grid ---*/
-.gfperson-grid {
+.gfws-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin-top: 16px;
 }
-.gfperson-tile {
+.gfws-tile {
     background: #ffffff;
     border: 1px solid #eceef2;
     border-radius: 14px;
     padding: 18px 20px;
 }
-.gfperson-tile-head {
+.gfws-tile-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 14px;
 }
-.gfperson-tile-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #4b5063;
-}
-.gfperson-tile-ico {
+.gfws-tile-label { font-size: 13px; font-weight: 600; color: #4b5063; }
+.gfws-tile-ico {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -218,26 +218,22 @@
     background: #fff2e8;
     color: #f97316;
 }
-.gfperson-tile-n {
+.gfws-tile-n {
     font-family: 'Sora', sans-serif;
     font-size: 30px;
     font-weight: 700;
     line-height: 1.1;
     color: #11132a;
 }
-.gfperson-tile-sub {
-    margin-top: 4px;
-    font-size: 12px;
-    color: #6b7280;
-}
+.gfws-tile-sub { margin-top: 4px; font-size: 12px; color: #6b7280; }
 
 /*--- Responsive ---*/
 @media (max-width: 900px) {
-    .gfperson-grid { grid-template-columns: repeat(2, 1fr); }
+    .gfws-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 680px) {
-    .gfperson-body { flex-wrap: wrap; }
-    .gfperson-actions { padding-top: 0; width: 100%; }
-    .gfperson-stats { flex-wrap: wrap; gap: 24px; }
-    .gfperson-grid { grid-template-columns: 1fr 1fr; }
+    .gfws-body { flex-wrap: wrap; }
+    .gfws-actions { padding-top: 0; width: 100%; }
+    .gfws-stats { flex-wrap: wrap; gap: 24px; }
+    .gfws-grid { grid-template-columns: 1fr 1fr; }
 }
