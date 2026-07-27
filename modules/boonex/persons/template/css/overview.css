@@ -156,6 +156,9 @@
     border: 1px solid #f97316;
 }
 .gfperson-btn-primary:hover { background: #ea580c; border-color: #ea580c; }
+/* Native platform actions menu (Connect / Message / Follow) for visitors. */
+.gfperson-native-actions { display: inline-flex; align-items: center; }
+.gfperson-native-actions .bx-menu-toolbar { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
 
 /*--- Stat strip ---*/
 .gfperson-stats {

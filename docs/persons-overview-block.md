@@ -59,10 +59,15 @@ uses the branded gradient — a real cover image is a noted follow-up, not a fak
 
 To roll back, delete that one block in the Page Builder.
 
+## Viewer-relative actions
+
+Owners see **Edit profile**; everyone else sees the platform's native profile
+actions (Connect / Message / Follow) rendered from
+`CNF['OBJECT_MENU_ACTIONS_VIEW_ENTRY_ALL']` (`bx_persons_view_actions_all`) via
+`setContentId()` — so the viewer relationship, permissions and AJAX are the
+platform's, not re-implemented here.
+
 ## Follow-ups (each isolated to `serviceOverview()` + `overview.html`)
 
-- **Viewer-relative actions** — for non-owners, swap Edit for Connect / Message
-  / Follow using the `sys_profiles_friends` / `sys_profiles_subscriptions`
-  connection actions.
 - **Pinned post** — wire to a real `bx_timeline` pinned item once that source is
   chosen.

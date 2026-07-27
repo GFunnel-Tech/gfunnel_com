@@ -64,6 +64,15 @@ class BxPersonsModule extends BxBaseModProfileModule
         // Owner / editor: only they see the edit affordances.
         $bEditable = ($this->checkAllowedEdit($aContentInfo) === CHECK_ACTION_RESULT_ALLOWED);
 
+        // Visitors get the platform's native profile actions (Connect / Message
+        // / Follow) - it already resolves the viewer relationship, permissions
+        // and AJAX. Owners keep the clean Edit button instead.
+        $sActions = '';
+        if(!$bEditable && !empty($CNF['OBJECT_MENU_ACTIONS_VIEW_ENTRY_ALL']) && ($oActionsMenu = BxTemplMenu::getObjectInstance($CNF['OBJECT_MENU_ACTIONS_VIEW_ENTRY_ALL']))) {
+            $oActionsMenu->setContentId((int)$iContentId);
+            $sActions = $oActionsMenu->getCode();
+        }
+
         // Bio, location, member-since - rendered only when the field is real.
         $sBio = isset($aContentInfo[$CNF['FIELD_TEXT']]) ? trim(strip_tags((string)$aContentInfo[$CNF['FIELD_TEXT']])) : '';
         $sLocation = isset($aContentInfo[$CNF['FIELD_LOCATION']]) ? trim((string)$aContentInfo[$CNF['FIELD_LOCATION']]) : '';
@@ -103,6 +112,10 @@ class BxPersonsModule extends BxBaseModProfileModule
                 'content' => array(
                     'edit_url' => bx_html_attribute($sEditUrl !== '' ? $sEditUrl : $sUrl)
                 )
+            ),
+            'bx_if:visitor_actions' => array(
+                'condition' => $sActions !== '',
+                'content' => array('actions_menu' => $sActions)
             ),
             'bx_if:bio' => array(
                 'condition' => $sBio !== '',

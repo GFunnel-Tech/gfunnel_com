@@ -57,9 +57,14 @@ For each of **Organizations**, **Spaces**, **Groups**:
 
 To roll back, delete that one block in the Page Builder.
 
+## Viewer-relative actions
+
+Owners see **Edit profile**; everyone else sees the platform's native workspace
+actions (Join / Message / Follow) rendered from
+`CNF['OBJECT_MENU_ACTIONS_VIEW_ENTRY_ALL']` (e.g. `bx_organizations_view_actions_all`)
+via `setContentId()` — membership, permissions and AJAX are the platform's.
+
 ## Follow-ups
 
-- **Viewer-relative actions** — Join / Leave / Message for non-members via the
-  fans connection actions.
 - **Real cover** already wired; a pinned announcement row could follow once a
   source is chosen.
