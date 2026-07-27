@@ -87,39 +87,39 @@ class BxPersonsModule extends BxBaseModProfileModule
         if(!empty($CNF['FIELD_COVER']) && !empty($aContentInfo[$CNF['FIELD_COVER']]) && !empty($CNF['OBJECT_IMAGES_TRANSCODER_COVER'])) {
             $oCoverTranscoder = BxDolTranscoderImage::getObjectInstance($CNF['OBJECT_IMAGES_TRANSCODER_COVER']);
             if($oCoverTranscoder && ($sCoverUrl = $oCoverTranscoder->getFileUrl((int)$aContentInfo[$CNF['FIELD_COVER']])))
-                $sCoverStyle = 'background-image:url(' . bx_html_specialchars($sCoverUrl) . ')';
+                $sCoverStyle = 'background-image:url(' . bx_html_attribute($sCoverUrl) . ')';
         }
 
         $this->_oTemplate->addCss(array('overview.css'));
 
         return $this->_oTemplate->parseHtmlByName('overview.html', array(
-            'title' => bx_html_specialchars($sTitle),
+            'title' => bx_html_attribute($sTitle),
             'cover_style' => $sCoverStyle,
             'initial' => mb_strtoupper(mb_substr($sTitle !== '' ? $sTitle : 'P', 0, 1)),
-            'thumb_style' => $sThumb !== '' ? 'background-image:url(' . bx_html_specialchars($sThumb) . ')' : '',
-            'profile_url' => bx_html_specialchars($sUrl),
+            'thumb_style' => $sThumb !== '' ? 'background-image:url(' . bx_html_attribute($sThumb) . ')' : '',
+            'profile_url' => bx_html_attribute($sUrl),
             'bx_if:editable' => array(
                 'condition' => $bEditable,
                 'content' => array(
-                    'edit_url' => bx_html_specialchars($sEditUrl !== '' ? $sEditUrl : $sUrl)
+                    'edit_url' => bx_html_attribute($sEditUrl !== '' ? $sEditUrl : $sUrl)
                 )
             ),
             'bx_if:bio' => array(
                 'condition' => $sBio !== '',
-                'content' => array('bio' => bx_html_specialchars($sBio))
+                'content' => array('bio' => bx_html_attribute($sBio))
             ),
             'bx_if:location' => array(
                 'condition' => $sLocation !== '',
-                'content' => array('location' => bx_html_specialchars($sLocation))
+                'content' => array('location' => bx_html_attribute($sLocation))
             ),
             'bx_if:member_since' => array(
                 'condition' => $sMemberSince !== '',
-                'content' => array('member_since' => bx_html_specialchars($sMemberSince))
+                'content' => array('member_since' => bx_html_attribute($sMemberSince))
             ),
             'connections' => number_format($iConnections),
             'followers' => number_format($iFollowers),
             'views' => number_format($iViews),
-            'member_since_card' => $sMemberSince !== '' ? bx_html_specialchars($sMemberSince) : '&mdash;'
+            'member_since_card' => $sMemberSince !== '' ? bx_html_attribute($sMemberSince) : '&mdash;'
         ));
     }
 

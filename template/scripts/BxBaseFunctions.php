@@ -329,17 +329,17 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $aRepeat = array();
         foreach($aItems as $aItem)
             $aRepeat[] = array(
-                'url' => bx_html_specialchars($aItem['url']),
-                'title' => bx_html_specialchars($aItem['title']),
+                'url' => bx_html_attribute($aItem['url']),
+                'title' => bx_html_attribute($aItem['title']),
                 'initial' => mb_strtoupper(mb_substr($aItem['title'] !== '' ? $aItem['title'] : 'W', 0, 1)),
-                'thumb_style' => $aItem['thumb'] !== '' ? 'background-image:url(' . bx_html_specialchars($aItem['thumb']) . ')' : '',
+                'thumb_style' => $aItem['thumb'] !== '' ? 'background-image:url(' . bx_html_attribute($aItem['thumb']) . ')' : '',
                 'class_active' => $aItem['id'] == $aActive['id'] ? 'gf-ws-item-active' : ''
             );
 
         return $this->_oTemplate->parseHtmlByName('_page_toolbar_ws.html', array(
-            'active_title' => bx_html_specialchars($aActive['title']),
+            'active_title' => bx_html_attribute($aActive['title']),
             'active_initial' => mb_strtoupper(mb_substr($aActive['title'] !== '' ? $aActive['title'] : 'W', 0, 1)),
-            'active_thumb_style' => $aActive['thumb'] !== '' ? 'background-image:url(' . bx_html_specialchars($aActive['thumb']) . ')' : '',
+            'active_thumb_style' => $aActive['thumb'] !== '' ? 'background-image:url(' . bx_html_attribute($aActive['thumb']) . ')' : '',
             'bx_repeat:items' => $aRepeat
         ));
     }
