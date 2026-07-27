@@ -96,7 +96,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 break;
 
             case 'gf_toolbar_app':
-                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed', true);
+                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed');
                 break;
         }
 
@@ -110,9 +110,8 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
      * @param string $sClassicTemplate per-template fallback markup shown to visitors
      * @param string $sChromeClass 'gf-fixed' for templates whose toolbar is fixed and
      *               compensated with content padding, 'gf-flow' for in-flow (sticky) toolbars
-     * @param boolean $bApp application (pt_application) layout: render the sidebar togglers
      */
-    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed', $bApp = false)
+    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed')
     {
         if(!isLogged())
             return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
@@ -166,10 +165,6 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             'timer_css_url' => BX_DOL_URL_ROOT . $sTimerCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerCssFile),
             'timer_js_url' => BX_DOL_URL_ROOT . $sTimerJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerJsFile),
             'timer_boot' => $this->getGfTimerBoot(),
-            'bx_if:app_togglers' => [
-                'condition' => $bApp,
-                'content' => ['app' => 1] // non-empty content required by the template compiler
-            ],
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
             'subheader' => $sSubheader,
