@@ -117,6 +117,36 @@
             });
         });
 
+        /* ---- Admin: pull directory from Supabase ------------------- */
+        var syncBtn = document.getElementById('gfa-sync');
+        var syncStatus = document.getElementById('gfa-sync-status');
+        if (syncBtn) {
+            syncBtn.addEventListener('click', function () {
+                if (syncBtn.disabled) return;
+                syncBtn.disabled = true;
+                if (syncStatus) syncStatus.textContent = 'Syncing… this can take ~30s.';
+                fetch((window.GFA && window.GFA.endpoint || '') + '?gfa_action=import',
+                      { method: 'POST', credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (j) {
+                        if (j && j.ok) {
+                            var n = j.synced || {};
+                            var apps = (n.directory_apps || 0);
+                            if (syncStatus) syncStatus.textContent = 'Synced ' + apps + ' apps. Reloading…';
+                            setTimeout(function () { location.reload(); }, 900);
+                        } else {
+                            var err = j && j.errors ? JSON.stringify(j.errors) : 'failed';
+                            if (syncStatus) syncStatus.textContent = 'Error: ' + err;
+                            syncBtn.disabled = false;
+                        }
+                    })
+                    .catch(function (e) {
+                        if (syncStatus) syncStatus.textContent = 'Error: ' + e;
+                        syncBtn.disabled = false;
+                    });
+            });
+        }
+
         /* ---- Video Chat popover ------------------------------------ */
         var vc = document.getElementById('gfa-videochat');
         var pop = document.getElementById('gfa-vc-pop');
