@@ -305,6 +305,7 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/directory-content-pipeline.md` | Monitors that enrich the directory (YouTube tutorials → `app_tutorials` → mirror) |
 | `docs/organization-overview-block.md` | org overview UI block |
 | `docs/persons-overview-block.md` | person profile overview block (`BxPersonsModule::serviceOverview()`) |
+| `docs/workspace-overview-block.md` | workspace overview block for orgs/spaces/groups (`BxBaseModGroupsModule::serviceOverviewStructured()`) |
 | `docs/audits/homepage-audit.md` | the home page |
 | `docs/gfunnel-home-blocks.md`, `docs/homepage-module-mapping.md` | homepage sections, the GFunnel Home service blocks, and the section→module/data-source mapping |
 | `docs/sql/*.sql` | DB schema (departments, directory apps, workspace invites) |

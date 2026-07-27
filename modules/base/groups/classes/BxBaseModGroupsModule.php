@@ -49,6 +49,104 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
     }
 
     /**
+     * GFunnel - structured workspace overview (service block).
+     *
+     * The org/space/group counterpart to BxPersonsModule::serviceOverview():
+     * a structured header (cover, avatar, name + type tag, description,
+     * location, founded, actions, live stat strip and a four-tile metric grid).
+     * Shared here so Organizations, Spaces and Groups all inherit it; placed on
+     * a workspace profile page via Studio Page Builder (Add block -> Service ->
+     * <module> -> overview_structured). Named distinctly from the legacy org
+     * 'overview' dashboard so both can coexist. Real data only; sections with
+     * no real source are omitted rather than faked.
+     *
+     * @param int $iContentId workspace content id (the profile page passes it in)
+     * @return string block HTML, or '' when the profile is missing
+     */
+    public function serviceOverviewStructured ($iContentId = 0)
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        if(empty($iContentId))
+            $iContentId = bx_process_input(bx_get('id'), BX_DATA_INT);
+
+        $aContentInfo = $iContentId ? $this->_oDb->getContentInfoById((int)$iContentId) : array();
+        $oProfile = BxDolProfile::getInstanceByContentAndType((int)$iContentId, $this->getName());
+        if(empty($aContentInfo) || !$oProfile)
+            return '';
+
+        $iProfileId = (int)$oProfile->id();
+        $sTitle = $oProfile->getDisplayName();
+        $sThumb = $oProfile->getThumb();
+        $sUrl = $oProfile->getUrl();
+        $sEditUrl = $oProfile->getEditUrl();
+
+        $bEditable = ($this->checkAllowedEdit($aContentInfo) === CHECK_ACTION_RESULT_ALLOWED);
+
+        // Type tag (Organization / Space / Group) from the module title.
+        $sTypeLabel = !empty($this->_aModule['title']) ? bx_process_output($this->_aModule['title']) : '';
+
+        // Description, location, founded - rendered only when the field is real.
+        $sBio = !empty($CNF['FIELD_TEXT']) && isset($aContentInfo[$CNF['FIELD_TEXT']]) ? trim(strip_tags((string)$aContentInfo[$CNF['FIELD_TEXT']])) : '';
+        $sLocation = !empty($CNF['FIELD_LOCATION']) && isset($aContentInfo[$CNF['FIELD_LOCATION']]) ? trim((string)$aContentInfo[$CNF['FIELD_LOCATION']]) : '';
+        $iAdded = !empty($CNF['FIELD_ADDED']) && isset($aContentInfo[$CNF['FIELD_ADDED']]) ? (int)$aContentInfo[$CNF['FIELD_ADDED']] : 0;
+        $sFounded = $iAdded > 0 ? date('Y', $iAdded) : '';
+
+        // Live counts: members (fans) and subscribers, plus views.
+        $iMembers = 0;
+        if(!empty($CNF['OBJECT_CONNECTIONS']) && ($oConnMembers = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])))
+            $iMembers = (int)$oConnMembers->getConnectedInitiatorsCount($iProfileId, false);
+
+        $iFollowers = 0;
+        if(($oConnSubs = BxDolConnection::getObjectInstance('sys_profiles_subscriptions')))
+            $iFollowers = (int)$oConnSubs->getConnectedInitiatorsCount($iProfileId);
+
+        $iViews = !empty($CNF['FIELD_VIEWS']) && isset($aContentInfo[$CNF['FIELD_VIEWS']]) ? (int)$aContentInfo[$CNF['FIELD_VIEWS']] : 0;
+
+        // Real cover image (transcoded); branded gradient fallback in CSS.
+        $sCoverStyle = '';
+        if(!empty($CNF['FIELD_COVER']) && !empty($aContentInfo[$CNF['FIELD_COVER']]) && !empty($CNF['OBJECT_IMAGES_TRANSCODER_COVER'])) {
+            $oCoverTranscoder = BxDolTranscoderImage::getObjectInstance($CNF['OBJECT_IMAGES_TRANSCODER_COVER']);
+            if($oCoverTranscoder && ($sCoverUrl = $oCoverTranscoder->getFileUrl((int)$aContentInfo[$CNF['FIELD_COVER']])))
+                $sCoverStyle = 'background-image:url(' . bx_html_attribute($sCoverUrl) . ')';
+        }
+
+        $this->_oTemplate->addCss(array('overview_structured.css'));
+
+        return $this->_oTemplate->parseHtmlByName('overview_structured.html', array(
+            'title' => bx_html_attribute($sTitle),
+            'cover_style' => $sCoverStyle,
+            'initial' => mb_strtoupper(mb_substr($sTitle !== '' ? $sTitle : 'W', 0, 1)),
+            'thumb_style' => $sThumb !== '' ? 'background-image:url(' . bx_html_attribute($sThumb) . ')' : '',
+            'profile_url' => bx_html_attribute($sUrl),
+            'bx_if:type' => array(
+                'condition' => $sTypeLabel !== '',
+                'content' => array('type_label' => $sTypeLabel)
+            ),
+            'bx_if:editable' => array(
+                'condition' => $bEditable,
+                'content' => array('edit_url' => bx_html_attribute($sEditUrl !== '' ? $sEditUrl : $sUrl))
+            ),
+            'bx_if:bio' => array(
+                'condition' => $sBio !== '',
+                'content' => array('bio' => bx_html_attribute($sBio))
+            ),
+            'bx_if:location' => array(
+                'condition' => $sLocation !== '',
+                'content' => array('location' => bx_html_attribute($sLocation))
+            ),
+            'bx_if:founded' => array(
+                'condition' => $sFounded !== '',
+                'content' => array('founded' => bx_html_attribute($sFounded))
+            ),
+            'members' => number_format($iMembers),
+            'followers' => number_format($iFollowers),
+            'views' => number_format($iViews),
+            'founded_card' => $sFounded !== '' ? bx_html_attribute($sFounded) : '&mdash;'
+        ));
+    }
+
+    /**
      * Get possible recipients for start conversation form
      */
     public function actionAjaxGetInitialMembers ()
