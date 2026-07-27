@@ -8,10 +8,11 @@
  *
  * Launching a workspace (?gf_switch=<profile_id>) switches the account's acting
  * profile context to it — the member "uses the site as" that workspace, UNA's
- * native profile switch — then lands on the workspace's page. Only workspaces
- * the account OWNS can be acted as; a joined workspace just opens its page.
- * Loading this picker itself (the site root) resets the context back to the
- * member's personal profile, so returning to gfunnel.com/ exits any workspace.
+ * native profile switch — then lands on the workspace's page. Both the OWNER of
+ * a workspace and its delegated ADMINS (e.g. a social media manager) may act as
+ * it; a plain member only visits the page (see gfWsSwitchContext). Loading this
+ * picker itself (the site root) resets the context back to the member's personal
+ * profile, so returning to gfunnel.com/ exits any workspace.
  *
  * Optional settings (sys_options):
  *  - gf_root_workspaces        'off' disables the whole page (root falls back to 'home')
@@ -118,26 +119,45 @@ function gfWsPersonalProfileId($oAccount)
 /**
  * Switch the account's acting profile context to $oProfile - i.e. actually
  * "use the site as" that workspace, the same operation as UNA's native profile
- * switcher (page.php?i=account-profile-switcher). Only profiles the account
- * OWNS can be acted as: the personal person profile and the organizations /
- * spaces / groups the account created. A JOINED workspace belongs to another
- * account, so it can only be visited, not switched into - this is a no-op there.
+ * switcher (page.php?i=account-profile-switcher).
+ *
+ * Who may act as a workspace:
+ *  - the OWNER: any profile the account created (personal person profile +
+ *    organizations it owns) - the account_id matches.
+ *  - a delegated ADMIN: a member who is an admin of the workspace (e.g. a
+ *    social media manager of GFunnel) may act as it too, even though it belongs
+ *    to another account. Membership/admin status is checked against the member's
+ *    personal profile via the module's native `is_admin` service.
+ *
+ * A plain member (non-admin) or a non-member is NOT permitted - for them this is
+ * a no-op and the workspace is only visited, never acted as. Note that only
+ * modules whose `act_as_profile` is true can ever be acted as (organizations and
+ * persons; spaces/groups return false), so this is inherently org-scoped.
  *
  * @return bool true when the context is (now) $oProfile, false when the switch
- *              is not permitted (e.g. a joined workspace).
+ *              is not permitted.
  */
 function gfWsSwitchContext($oProfile, $oAccount)
 {
     if(!$oProfile || !$oAccount)
         return false;
 
-    // ownership gate: acting-as is only ever allowed for the account's own
-    // profiles (mirrors BxBaseServiceAccount::serviceSwitchProfile's check).
-    if((int)$oProfile->getAccountId() !== (int)$oAccount->id())
+    // the target module must support being acted as (organizations + persons)
+    if(!BxDolService::call($oProfile->getModule(), 'act_as_profile'))
         return false;
 
-    // the target module must support being acted as (all workspace types do)
-    if(!BxDolService::call($oProfile->getModule(), 'act_as_profile'))
+    $bOwned = ((int)$oProfile->getAccountId() === (int)$oAccount->id());
+
+    // Delegated acting-as: an admin of the workspace (social media manager, etc.)
+    // may act as it even though the workspace is owned by another account. The
+    // admin relationship is on the member's PERSONAL profile, not whatever they
+    // are currently acting as, so resolve that explicitly. Regular members and
+    // non-members fall through and are only allowed to visit.
+    $bAdmin = false;
+    if(!$bOwned && ($iPersonalId = gfWsPersonalProfileId($oAccount)) > 0)
+        $bAdmin = (bool)BxDolService::call($oProfile->getModule(), 'is_admin', [$oProfile->id(), $iPersonalId]);
+
+    if(!$bOwned && !$bAdmin)
         return false;
 
     // already the active context - nothing to do
