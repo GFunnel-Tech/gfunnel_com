@@ -1,0 +1,22 @@
+<!--
+    GFunnel - workspace selector (top nav, right of the logo).
+    Rendered by BxBaseFunctions::getGfWorkspaceSelector(). Real data only:
+    the account's owned + joined workspaces, each launching with ?gf_ws=N.
+-->
+<div class="gf-ws" id="gf-ws">
+    <button type="button" class="gf-ws-btn" aria-haspopup="true" aria-expanded="false" onclick="gfWsToggle(this)">
+        <span class="gf-ws-thumb" style="__active_thumb_style__"><span class="gf-ws-thumb-letter">__active_initial__</span></span>
+        <span class="gf-ws-name">__active_title__</span>
+        <svg class="gf-ws-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="gf-ws-menu" role="menu">
+        <div class="gf-ws-menu-label">Switch workspace</div>
+        <bx_repeat:items>
+        <a class="gf-ws-item __class_active__" href="__url__" role="menuitem">
+            <span class="gf-ws-thumb" style="__thumb_style__"><span class="gf-ws-thumb-letter">__initial__</span></span>
+            <span class="gf-ws-item-name">__title__</span>
+            <svg class="gf-ws-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </a>
+        </bx_repeat:items>
+    </div>
+</div>

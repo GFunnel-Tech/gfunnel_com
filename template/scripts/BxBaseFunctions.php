@@ -165,6 +165,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             'timer_css_url' => BX_DOL_URL_ROOT . $sTimerCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerCssFile),
             'timer_js_url' => BX_DOL_URL_ROOT . $sTimerJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerJsFile),
             'timer_boot' => $this->getGfTimerBoot(),
+            'ws_selector' => $this->getGfWorkspaceSelector(),
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
             'subheader' => $sSubheader,
@@ -241,6 +242,106 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             $iWorkspace = (int)$oSession->getValue('gf_active_workspace');
 
         return $iWorkspace;
+    }
+
+    /**
+     * GFunnel workspace selector for the top nav (right of the logo).
+     *
+     * Lists the account's workspaces - owned profiles (personal + workspaces)
+     * plus workspaces joined through each group module's fans connections -
+     * exactly as the /workspaces picker enumerates them. Each entry links with
+     * ?gf_ws=<id> so launching from the top nav pins the workspace in the
+     * session just like the picker does. The active workspace is shown on the
+     * trigger. Returns '' for visitors or when there is nothing to switch to.
+     *
+     * @return string ready selector HTML (button + dropdown), or ''
+     */
+    public function getGfWorkspaceSelector()
+    {
+        if(!isLogged())
+            return '';
+
+        $oProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
+        if(!$oProfile || !($oAccount = $oProfile->getAccountObject()))
+            return '';
+
+        $iActive = $this->getGfActiveWorkspaceId();
+
+        $aItems = array();
+        $aOwnedIds = array();
+
+        //--- Owned profiles on this account (personal profile + owned workspaces).
+        foreach($oAccount->getProfiles() as $iProfileId => $aProfileInfo) {
+            if(empty($aProfileInfo['type']) || $aProfileInfo['type'] == 'system')
+                continue;
+
+            $oWs = BxDolProfile::getInstance((int)$iProfileId);
+            if(!$oWs)
+                continue;
+
+            $aOwnedIds[] = (int)$iProfileId;
+            $aItems[(int)$iProfileId] = array(
+                'id' => (int)$iProfileId,
+                'title' => $oWs->getDisplayName(),
+                'thumb' => $oWs->getThumb(),
+                'url' => bx_append_url_params($oWs->getUrl(), array('gf_ws' => (int)$iProfileId))
+            );
+        }
+
+        //--- Joined workspaces: membership lives in each group module's fans connections.
+        $sWorkspaceModules = trim((string)getParam('gf_workspace_modules'));
+        if(empty($sWorkspaceModules))
+            $sWorkspaceModules = 'bx_organizations,bx_spaces,bx_groups';
+
+        foreach(explode(',', $sWorkspaceModules) as $sWsModule) {
+            $sWsModule = trim($sWsModule);
+            if($sWsModule === '' || !($oWsModule = BxDolModule::getInstance($sWsModule)) || empty($oWsModule->_oConfig->CNF['OBJECT_CONNECTIONS']))
+                continue;
+
+            $oConnection = BxDolConnection::getObjectInstance($oWsModule->_oConfig->CNF['OBJECT_CONNECTIONS']);
+            if(!$oConnection || !is_array($aJoinedIds = $oConnection->getConnectedContent($oProfile->id())))
+                continue;
+
+            foreach($aJoinedIds as $iJoinedId) {
+                $iJoinedId = (int)$iJoinedId;
+                if($iJoinedId <= 0 || isset($aItems[$iJoinedId]) || in_array($iJoinedId, $aOwnedIds))
+                    continue;
+
+                $oJoined = BxDolProfile::getInstance($iJoinedId);
+                if(!$oJoined || $oJoined->getModule() != $sWsModule)
+                    continue;
+
+                $aItems[$iJoinedId] = array(
+                    'id' => $iJoinedId,
+                    'title' => $oJoined->getDisplayName(),
+                    'thumb' => $oJoined->getThumb(),
+                    'url' => bx_append_url_params($oJoined->getUrl(), array('gf_ws' => $iJoinedId))
+                );
+            }
+        }
+
+        if(empty($aItems))
+            return '';
+
+        //--- Current workspace shown on the trigger (falls back to the first).
+        $aActive = isset($aItems[$iActive]) ? $aItems[$iActive] : reset($aItems);
+
+        $aRepeat = array();
+        foreach($aItems as $aItem)
+            $aRepeat[] = array(
+                'url' => bx_html_specialchars($aItem['url']),
+                'title' => bx_html_specialchars($aItem['title']),
+                'initial' => mb_strtoupper(mb_substr($aItem['title'] !== '' ? $aItem['title'] : 'W', 0, 1)),
+                'thumb_style' => $aItem['thumb'] !== '' ? 'background-image:url(' . bx_html_specialchars($aItem['thumb']) . ')' : '',
+                'class_active' => $aItem['id'] == $aActive['id'] ? 'gf-ws-item-active' : ''
+            );
+
+        return $this->_oTemplate->parseHtmlByName('_page_toolbar_ws.html', array(
+            'active_title' => bx_html_specialchars($aActive['title']),
+            'active_initial' => mb_strtoupper(mb_substr($aActive['title'] !== '' ? $aActive['title'] : 'W', 0, 1)),
+            'active_thumb_style' => $aActive['thumb'] !== '' ? 'background-image:url(' . bx_html_specialchars($aActive['thumb']) . ')' : '',
+            'bx_repeat:items' => $aRepeat
+        ));
     }
 
     /**
