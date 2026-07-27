@@ -89,6 +89,7 @@
 .gfa-icon-add:hover .gfa-icon-tile { border-color: var(--gfh-orange); background: var(--gfh-orange-soft); color: var(--gfh-orange-600); }
 .gfa-icon-badge { position: absolute; top: -6px; right: 50%; transform: translateX(30px); font-family: var(--gfh-font-mono); font-size: 8.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--gfh-orange-600); background: var(--gfh-orange-soft); border: 1px solid rgba(249,115,22,.3); border-radius: 999px; padding: 1px 6px; }
 .gfa-showmore { display: block; margin: 26px auto 0; }
+.gfa-core-empty { margin: 18px 0 0; font-size: 14px; color: var(--gfh-slate); }
 
 /* ------------------------------------------------------------------ */
 /* Hub cards (Learning / Software / Help)                              */
