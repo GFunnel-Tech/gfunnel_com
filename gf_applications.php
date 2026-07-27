@@ -667,23 +667,6 @@ function gfAppTabBar($sTab, $sAppsUrl, $sMktUrl)
         . '</div>';
 }
 
-/** Signed-in context chip — shows which workspace's apps are in view. */
-function gfAppContextBar($aMember)
-{
-    if (!$aMember['logged']) return '';
-    $bWs = $aMember['ws'] > 0;
-    $sLabel = $bWs ? $aMember['ws_name'] : ($aMember['name'] !== '' ? $aMember['name'] : 'Personal');
-    $sAv = gfDirOut(gfDirInitial($sLabel));
-    $sMeta = $bWs ? 'workspace' : 'personal';
-    return '<div class="gfa-context">'
-        . '<span class="gfa-chip"><span class="gfa-chip-av">' . $sAv . '</span>'
-        .   '<span><span class="gfa-chip-name">' . gfDirOut($sLabel) . '</span><br><span class="gfa-chip-role">' . $sMeta . '</span></span></span>'
-        . '<div class="gfa-context-actions">'
-        .   '<a class="gfa-ghost" href="' . BX_DOL_URL_ROOT . 'workspaces.php"><span>Switch workspace</span></a>'
-        .   '<a class="gfa-ghost" href="' . BX_DOL_URL_ROOT . 'marketplace/applications"><span>Browse Apps</span></a>'
-        . '</div></div>';
-}
-
 /** Admin-only toolbar: one-click "pull the directory from Supabase". */
 function gfAppAdminBar($aMember)
 {
@@ -798,7 +781,6 @@ function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
     $sCore .= '<div class="gfa-scroll"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg><span>Scroll to discover more</span></div>';
 
     return '<section class="gfa-main"><div class="gfh-container">'
-        . gfAppContextBar($aMember)
         . gfAppAdminBar($aMember)
         . $sHero
         . $sTabBar
@@ -967,7 +949,6 @@ function gfAppMarketplaceTab($oDb, $sTabBar, $aMember, $aMineSet = array())
     $searchSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
 
     return '<section class="gfa-main"><div class="gfh-container">'
-        . gfAppContextBar($aMember)
         . gfAppAdminBar($aMember)
         . $sTabBar
         . '<div class="gfa-sec" style="margin-bottom:0">'
