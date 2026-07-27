@@ -6,6 +6,13 @@
  * account's workspace profiles (organizations, spaces, groups — any
  * non-person profile), with the single personal profile in its own card.
  *
+ * Launching a workspace (?gf_switch=<profile_id>) switches the account's acting
+ * profile context to it — the member "uses the site as" that workspace, UNA's
+ * native profile switch — then lands on the workspace's page. Only workspaces
+ * the account OWNS can be acted as; a joined workspace just opens its page.
+ * Loading this picker itself (the site root) resets the context back to the
+ * member's personal profile, so returning to gfunnel.com/ exits any workspace.
+ *
  * Optional settings (sys_options):
  *  - gf_root_workspaces        'off' disables the whole page (root falls back to 'home')
  *  - gf_workspaces_create_url  create-workspace target, default page.php?i=create-organization
@@ -90,6 +97,57 @@ function gfWsOwnedWorkspaceIds($oAccount)
             $aIds[] = (int)$iProfileId;
 
     return $aIds;
+}
+
+/**
+ * The account's personal (person) profile id - the "home" workspace the member
+ * always falls back to. 0 if the account has no person profile.
+ */
+function gfWsPersonalProfileId($oAccount)
+{
+    if(!$oAccount)
+        return 0;
+
+    foreach($oAccount->getProfiles() as $iProfileId => $aProfileInfo)
+        if(!empty($aProfileInfo['type']) && $aProfileInfo['type'] == 'bx_persons')
+            return (int)$iProfileId;
+
+    return 0;
+}
+
+/**
+ * Switch the account's acting profile context to $oProfile - i.e. actually
+ * "use the site as" that workspace, the same operation as UNA's native profile
+ * switcher (page.php?i=account-profile-switcher). Only profiles the account
+ * OWNS can be acted as: the personal person profile and the organizations /
+ * spaces / groups the account created. A JOINED workspace belongs to another
+ * account, so it can only be visited, not switched into - this is a no-op there.
+ *
+ * @return bool true when the context is (now) $oProfile, false when the switch
+ *              is not permitted (e.g. a joined workspace).
+ */
+function gfWsSwitchContext($oProfile, $oAccount)
+{
+    if(!$oProfile || !$oAccount)
+        return false;
+
+    // ownership gate: acting-as is only ever allowed for the account's own
+    // profiles (mirrors BxBaseServiceAccount::serviceSwitchProfile's check).
+    if((int)$oProfile->getAccountId() !== (int)$oAccount->id())
+        return false;
+
+    // the target module must support being acted as (all workspace types do)
+    if(!BxDolService::call($oProfile->getModule(), 'act_as_profile'))
+        return false;
+
+    // already the active context - nothing to do
+    if((int)$oProfile->id() === (int)bx_get_logged_profile_id())
+        return true;
+
+    // updateProfileContext clears the cached "current profile" for the account,
+    // so bx_get_logged_profile_id() reflects the new context later in this same
+    // request (fires the before_switch_context / switch_context hooks too).
+    return (bool)$oAccount->updateProfileContext($oProfile->id());
 }
 
 /**
@@ -362,10 +420,11 @@ function getGfWorkspacesPageCode()
         }
 
         $aUnit = [
-            // gf_ws pins the launched workspace in the session, so the member's
-            // per-workspace menu (gf_user_menu) follows them (see
-            // BxBaseFunctions::getGfActiveWorkspaceId)
-            'url' => bx_append_url_params($oWsProfile->getUrl(), ['gf_ws' => $iProfileId]),
+            // Launching a workspace switches the acting profile context to it
+            // (gfWsSwitchContext, handled by the gf_switch redirect below) and
+            // then lands on its page with gf_ws set, which pins the member's
+            // per-workspace menu (see BxBaseFunctions::getGfActiveWorkspaceId).
+            'url' => BX_DOL_URL_ROOT . 'workspaces.php?gf_switch=' . (int)$iProfileId,
             'title' => bx_process_output($oWsProfile->getDisplayName()),
             'thumb' => $oWsProfile->getThumb()
         ];
@@ -426,7 +485,10 @@ function getGfWorkspacesPageCode()
             $bAdmin = $oAdmins && ($oAdmins->isConnected($iJoinedId, $oProfile->id()) || $oAdmins->isConnected($oProfile->id(), $iJoinedId));
 
             $aTmplVarsWorkspaces[] = [
-                'url' => bx_append_url_params($oJoined->getUrl(), ['gf_ws' => $iJoinedId]),
+                // joined workspaces belong to another account, so gfWsSwitchContext
+                // is a no-op for them - the gf_switch handler just opens the page
+                // with gf_ws (menu pin), which is the correct "visit as member".
+                'url' => BX_DOL_URL_ROOT . 'workspaces.php?gf_switch=' . (int)$iJoinedId,
                 'title' => bx_process_output($oJoined->getDisplayName()),
                 'thumb' => $oJoined->getThumb(),
                 'meta' => bx_process_output($aModuleTitles[$sWsModule]) . ' &#183; ' . ($bAdmin ? 'admin' : 'member'),
@@ -610,6 +672,40 @@ $GLOBALS['gfWsInviteCard'] = [];
 
 $oGfAccount = BxDolAccount::getInstance();
 $oGfProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
+
+//--- Launch a workspace: switch the acting profile context (for owned
+//--- workspaces) and open the workspace's page with gf_ws set. Joined
+//--- workspaces can't be acted as, so this just opens their page.
+if(($iGfSwitch = (int)bx_get('gf_switch')) > 0 && $oGfAccount) {
+    $oGfSwitchProfile = BxDolProfile::getInstance($iGfSwitch);
+    if($oGfSwitchProfile) {
+        gfWsSwitchContext($oGfSwitchProfile, $oGfAccount);
+        header('Location: ' . bx_append_url_params($oGfSwitchProfile->getUrl(), ['gf_ws' => $oGfSwitchProfile->id()]));
+        exit;
+    }
+    // invalid target id: fall through and render the picker
+}
+
+//--- Coming home: any plain load of the picker (the site root for logged-in
+//--- members) resets the acting profile context back to the member's personal
+//--- profile. This is what "go to gfunnel.com/ to get out of a workspace" does
+//--- - a member who was acting as a workspace is dropped back to themselves,
+//--- while the picker still renders here as the front door. (Workspace launches
+//--- redirect away above, so they never reach this reset.) Everything below -
+//--- invite actions and the render - then runs as the personal profile.
+if($oGfAccount) {
+    $iGfPersonalId = gfWsPersonalProfileId($oGfAccount);
+    if($iGfPersonalId > 0) {
+        if(($oGfPersonal = BxDolProfile::getInstance($iGfPersonalId)))
+            gfWsSwitchContext($oGfPersonal, $oGfAccount);
+
+        // keep the per-workspace menu context aligned with the personal profile
+        BxDolSession::getInstance()->setValue('gf_active_workspace', $iGfPersonalId);
+
+        // re-resolve to the (now personal) context for the actions/render below
+        $oGfProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
+    }
+}
 
 if(gfWsInvitesEnabled() && $oGfAccount && $oGfProfile) {
     $sGfEmail = strtolower(trim((string)$oGfAccount->getEmail()));
