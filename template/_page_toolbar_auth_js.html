@@ -76,14 +76,6 @@
                 $('#gf-menu-panel').hide();
         });
 
-        //--- Exactly one collapse control. App-layout pages have a #sidebar and
-        //--- their own togglers, so the site-menu hamburger is redundant there;
-        //--- other pages have no sidebar, so hide the togglers instead.
-        if(document.getElementById('sidebar'))
-            $('.gf-chrome .gf-hamburger').hide();
-        else
-            $('.gf-chrome .gf-sidebar-toggler').hide();
-
         //--- Cmd+K / Ctrl+K opens the global search
         $(document).on('keydown.gf-header', function(e) {
             if((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() == 'k' && !e.altKey && !e.shiftKey) {

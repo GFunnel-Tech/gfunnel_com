@@ -57,48 +57,9 @@
     padding-top: 3rem;
 }
 
-/*--- Application layout: sidebar togglers ---*/
-/* Hidden by default; the two ID rules below reveal exactly one per breakpoint.
-   Box/hover match the .gf-icon-btn recipe so the toggler looks like every other
-   header icon. These carry the full 36px square themselves (they intentionally
-   do NOT use .gf-icon-btn, to keep their display governed solely by the rules
-   here rather than fighting .gf-icon-btn's display:flex). */
-.gf-chrome .gf-sidebar-toggler {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    box-sizing: border-box;
-    border: 0;
-    border-radius: 8px;
-    background-color: transparent;
-    color: #6b7280;
-    cursor: pointer;
-}
-.gf-chrome .gf-sidebar-toggler:hover {
-    background-color: #f3f4f7;
-    color: #11132a;
-}
-/* desktop toggler at >=1280px, mobile toggler below (mirrors xl: breakpoint).
-   ID specificity beats the base rule, so exactly one is shown. */
-@media (min-width: 1280px) {
-    .gf-chrome #toggleSidebar.gf-sidebar-toggler {
-        display: flex;
-    }
-}
-@media (max-width: 1279px) {
-    .gf-chrome #toggleSidebarMobile.gf-sidebar-toggler {
-        display: flex;
-    }
-}
-.gf-chrome .gf-sidebar-toggler .gf-toggler-ico {
-    display: block;
-}
-.gf-chrome .gf-sidebar-toggler .gf-toggler-ico.hidden {
-    display: none;
-}
+/* Sidebar collapse togglers and the mobile site-menu hamburger were removed
+   from the top nav (PR152 D1): the sidebar is fixed-width and always expanded,
+   so the nav carries no collapse control. */
 
 /*=== 1. Header (top bar, 48px) ==============================================*/
 .gf-chrome .gf-header {
@@ -110,23 +71,6 @@
     background-color: #ffffff;
     border-bottom: 1px solid #e6e8ec;
     box-sizing: border-box;
-}
-
-/*--- Hamburger (mobile site menu) ---*/
-.gf-chrome .gf-hamburger {
-    flex: none;
-}
-.gf-chrome .gf-hamburger .bx-menu-toolbar {
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-@media (min-width: 1024px) {
-    .gf-chrome .gf-hamburger {
-        display: none;
-    }
 }
 
 /*--- Brand ---*/
@@ -161,6 +105,16 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #f97316;
+}
+
+/*--- Vertical divider (between the Timer / What's New group and the icon
+      cluster in the right-side actions). ---*/
+.gf-chrome .gf-divider {
+    flex: none;
+    width: 1px;
+    height: 22px;
+    background-color: #e6e8ec;
+    margin: 0 4px;
 }
 
 /*--- Global search pill ---*/
@@ -448,8 +402,7 @@
     padding: 0;
     list-style: none;
 }
-.gf-chrome .gf-member .bx-menu-toolbar-item,
-.gf-chrome .gf-hamburger .bx-menu-toolbar-item {
+.gf-chrome .gf-member .bx-menu-toolbar-item {
     position: relative;
     display: flex;
     list-style: none;
@@ -457,8 +410,7 @@
     padding: 0;
     background-color: transparent;
 }
-.gf-chrome .gf-member .bx-menu-toolbar-item > a,
-.gf-chrome .gf-hamburger .bx-menu-toolbar-item > a {
+.gf-chrome .gf-member .bx-menu-toolbar-item > a {
     /* Fixed square so EVERY member icon has an identical hover box, no matter
        what its icon's intrinsic size is (the notifications bell used to render a
        larger box than its neighbours). */
@@ -473,8 +425,7 @@
     color: #6b7280;
     text-decoration: none;
 }
-.gf-chrome .gf-member .bx-menu-toolbar-item > a:hover,
-.gf-chrome .gf-hamburger .bx-menu-toolbar-item > a:hover {
+.gf-chrome .gf-member .bx-menu-toolbar-item > a:hover {
     background-color: #f3f4f7;
     color: #11132a;
 }
@@ -507,13 +458,6 @@
 }
 .gf-chrome .bx-menu-toolbar-item-title {
     display: none;
-}
-
-/* App layout (pt_application): the sidebar collapse toggler is the ONLY
-   collapse control here, so never render the site-menu hamburger - deterministic
-   CSS, independent of the JS that also hides it. Kills the duplicate icon. */
-.bx-main.bx-pt-application .gf-chrome .gf-hamburger {
-    display: none !important;
 }
 
 /* Items hidden in the spec header: add-content (+), the apps grid and the
