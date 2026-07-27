@@ -27,6 +27,16 @@
 .gfa-ghost { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--gfh-slate); background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 10px; padding: 8px 13px; transition: all .15s ease; }
 .gfa-ghost:hover { border-color: var(--gfh-orange); color: var(--gfh-orange-600); }
 
+/* ------------------------------------------------------------------ */
+/* Boxed hub (module block inside the workspace shell)                 */
+/* ------------------------------------------------------------------ */
+
+.gfa-box { background: var(--gfh-card); border: 1px solid var(--gfh-line); border-radius: 18px; box-shadow: var(--gfh-shadow); padding: 22px 24px 28px; max-width: 1240px; margin: 0 auto; }
+.gfa-box .gfa-tabbar { margin-top: 4px; }
+.gfa-panel { display: none; }
+.gfa-panel.gfa-on { display: block; }
+@media (max-width: 560px) { .gfa-box { padding: 16px 14px 20px; border-radius: 14px; } }
+
 /* Admin toolbar (sync directory from Supabase) */
 .gfa-adminbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; padding: 10px 14px; border: 1px solid rgba(249,115,22,.3); background: var(--gfh-orange-soft); border-radius: 12px; }
 .gfa-adminbar-label { font-family: var(--gfh-font-mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gfh-orange-600); }

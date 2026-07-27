@@ -31,6 +31,23 @@
         var root = document.getElementById('gfa');
         if (!root) return;
 
+        // Config: window.GFA (standalone) or data-attrs on #gfa (module block).
+        var GFA = window.GFA;
+        if (!GFA) GFA = { logged: root.getAttribute('data-gfa-logged') === '1', endpoint: root.getAttribute('data-gfa-endpoint') || '' };
+
+        /* ---- Block mode: client-side Apps/Marketplace tab toggle --- */
+        var tabBtns = [].slice.call(root.querySelectorAll('.gfa-tab[data-gfa-tab]'));
+        var panels = [].slice.call(root.querySelectorAll('[data-gfa-panel]'));
+        if (tabBtns.length && panels.length) {
+            tabBtns.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var which = btn.getAttribute('data-gfa-tab');
+                    tabBtns.forEach(function (b) { b.classList.toggle('gfa-on', b === btn); });
+                    panels.forEach(function (p) { p.classList.toggle('gfa-on', p.getAttribute('data-gfa-panel') === which); });
+                });
+            });
+        }
+
         /* ---- Welcome hero: rotating banners + dots ------------------ */
         var hero = document.getElementById('gfa-hero');
         if (hero) {
@@ -82,7 +99,6 @@
         /* ---- Add to My Apps ---------------------------------------- */
         /* Signed-in members persist to the server (survives across devices);   */
         /* guests fall back to localStorage.                                    */
-        var GFA = window.GFA || { logged: false, endpoint: '' };
         var mine = readSet(LS_APPS);
         function paint(btn, on) {
             var card = btn.closest('.gfa-appd-card');
@@ -125,7 +141,7 @@
                 if (syncBtn.disabled) return;
                 syncBtn.disabled = true;
                 if (syncStatus) syncStatus.textContent = 'Syncing… this can take ~30s.';
-                fetch((window.GFA && window.GFA.endpoint || '') + '?gfa_action=import',
+                fetch((GFA.endpoint || '') + '?gfa_action=import',
                       { method: 'POST', credentials: 'same-origin' })
                     .then(function (r) { return r.json(); })
                     .then(function (j) {

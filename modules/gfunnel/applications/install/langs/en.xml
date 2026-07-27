@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="en" flag="gb" title="English">
+    <string name="_gfunnel_applications"><![CDATA[GFunnel Applications]]></string>
+    <string name="_gfunnel_applications_block_hub"><![CDATA[GFunnel — Application Hub]]></string>
+    <string name="_gfunnel_applications_block_apps"><![CDATA[GFunnel — App Launcher]]></string>
+    <string name="_gfunnel_applications_block_directory"><![CDATA[GFunnel — App Directory]]></string>
+</resources>
