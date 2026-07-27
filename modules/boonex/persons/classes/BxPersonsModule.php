@@ -75,7 +75,7 @@ class BxPersonsModule extends BxBaseModProfileModule
 
         // Bio, location, member-since - rendered only when the field is real.
         $sBio = isset($aContentInfo[$CNF['FIELD_TEXT']]) ? trim(strip_tags((string)$aContentInfo[$CNF['FIELD_TEXT']])) : '';
-        $sLocation = isset($aContentInfo[$CNF['FIELD_LOCATION']]) ? trim((string)$aContentInfo[$CNF['FIELD_LOCATION']]) : '';
+        $sLocation = !empty($CNF['FIELD_LOCATION']) && isset($aContentInfo[$CNF['FIELD_LOCATION']]) ? $this->_gfFormatLocation($aContentInfo[$CNF['FIELD_LOCATION']]) : '';
         $iAdded = isset($aContentInfo[$CNF['FIELD_ADDED']]) ? (int)$aContentInfo[$CNF['FIELD_ADDED']] : 0;
         $sMemberSince = $iAdded > 0 ? date('Y', $iAdded) : '';
 
@@ -134,6 +134,28 @@ class BxPersonsModule extends BxBaseModProfileModule
             'views' => number_format($iViews),
             'member_since_card' => $sMemberSince !== '' ? bx_html_attribute($sMemberSince) : '&mdash;'
         ));
+    }
+
+    /**
+     * Format a profile location field for display. Location fields store a
+     * serialized array (lat/lng/country/state/city/zip/street); reduce it to a
+     * readable "City, State, Country". Plain-string values pass through.
+     */
+    protected function _gfFormatLocation($mValue)
+    {
+        if(empty($mValue))
+            return '';
+
+        $aLoc = @unserialize((string)$mValue);
+        if(!is_array($aLoc))
+            return trim((string)$mValue);
+
+        $aParts = array();
+        foreach(array('city', 'state', 'country') as $sKey)
+            if(!empty($aLoc[$sKey]))
+                $aParts[] = trim((string)$aLoc[$sKey]);
+
+        return implode(', ', $aParts);
     }
 
     /**
