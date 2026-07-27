@@ -761,6 +761,14 @@ if(($iGfManageWs = (int)bx_get('manage_ws')) > 0 && $oGfAccount && $oGfProfile) 
             exit;
         }
 
+        // Transfer ownership (owner-only) to another member. Same PRG + flash.
+        if($bGfManageOwner && ($iGfTransferTo = (int)bx_get('transfer_to')) > 0) {
+            $sGfTransferErr = gfWsTransferOwnership($oGfManageWs, $oGfManageMod, $iGfTransferTo);
+            $oGfSes->setValue('gf_ws_flash', $sGfTransferErr !== '' ? $sGfTransferErr : 'Ownership transferred.');
+            header('Location: ' . BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iGfManageWs);
+            exit;
+        }
+
         // Owner-only: (re)generate the workspace's permanent invite code.
         $aGfInviteRow = null;
         $sGfJoinUrl = '';
@@ -774,7 +782,7 @@ if(($iGfManageWs = (int)bx_get('manage_ws')) > 0 && $oGfAccount && $oGfProfile) 
         if($sGfFlash !== '')
             $oGfSes->setValue('gf_ws_flash', '');
 
-        $GLOBALS['gfWsManageCard'] = gfWsBuildManageCard($oGfManageWs, $oGfManageMod, $sGfFlash, $aGfInviteRow, $sGfJoinUrl);
+        $GLOBALS['gfWsManageCard'] = gfWsBuildManageCard($oGfManageWs, $oGfManageMod, $sGfFlash, $aGfInviteRow, $sGfJoinUrl, $bGfManageOwner);
     }
 }
 

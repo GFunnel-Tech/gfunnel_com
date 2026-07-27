@@ -191,6 +191,65 @@ function gfWsSetMemberRole($oWsProfile, $oModule, $aRoles, $iMemberPid, $iRole)
 }
 
 /**
+ * Transfer ownership of a workspace to one of its members ($iNewOwnerPid, a
+ * person profile). Reproduces the writes UNA makes at creation, for the new
+ * owner, and steps the previous owner down to admin (non-destructive):
+ *   1) sys_profiles.account_id -> new owner's account (the authoritative owner)
+ *   2) content author (CNF FIELD_AUTHOR) -> new owner (implicit-admin + is-author)
+ *   3) new owner made a fan + administrator (via setRole)
+ *   4) previous owner kept as an administrator, not removed
+ * Guards: target must be an existing member with an account under the profile
+ * limit. Owner-only — the caller checks that.
+ *
+ * @return string '' on success, otherwise a human-readable error notice.
+ */
+function gfWsTransferOwnership($oWsProfile, $oModule, $iNewOwnerPid)
+{
+    $iNewOwnerPid = (int)$iNewOwnerPid;
+
+    $oNewOwner = BxDolProfile::getInstance($iNewOwnerPid);
+    if(!$oNewOwner || $oNewOwner->getModule() != 'bx_persons')
+        return 'Choose a member to transfer ownership to.';
+
+    $iOldOwnerPid = gfWsOwnerProfileId($oWsProfile);
+    if($iNewOwnerPid === $iOldOwnerPid)
+        return 'That member already owns this workspace.';
+
+    if(!(bool)BxDolService::call($oWsProfile->getModule(), 'is_fan', [$oWsProfile->id(), $iNewOwnerPid]))
+        return 'Ownership can only be transferred to a member of the workspace.';
+
+    $iNewAccountId = (int)$oNewOwner->getAccountId();
+    if($iNewAccountId <= 0)
+        return 'That member cannot take ownership.';
+
+    // profile-count guard on the receiving account (org/space/group profiles count)
+    $oNewAccount = BxDolAccount::getInstance($iNewAccountId);
+    if($oNewAccount && $oNewAccount->isProfilesLimitReached())
+        return 'That member has reached their workspace limit and cannot take ownership.';
+
+    // 1) move the profile to the new owner's account - the ownership gate
+    if(!$oWsProfile->move($iNewAccountId))
+        return 'Could not transfer ownership.';
+
+    // 2) keep the content author in sync (implicit admin + is-entry-author)
+    $CNF = $oModule->_oConfig->CNF;
+    if(!empty($CNF['TABLE_ENTRIES']) && !empty($CNF['FIELD_AUTHOR']) && !empty($CNF['FIELD_ID']))
+        BxDolDb::getInstance()->query(
+            "UPDATE `" . $CNF['TABLE_ENTRIES'] . "` SET `" . $CNF['FIELD_AUTHOR'] . "` = :author WHERE `" . $CNF['FIELD_ID'] . "` = :id",
+            ['author' => $iNewOwnerPid, 'id' => (int)$oWsProfile->getContentId()]
+        );
+
+    // 3) new owner becomes a fan + administrator
+    $oModule->setRole($oWsProfile->id(), $iNewOwnerPid, GF_WS_ROLE_ADMINISTRATOR);
+
+    // 4) previous owner steps down but keeps admin access (non-destructive)
+    if($iOldOwnerPid > 0)
+        $oModule->setRole($oWsProfile->id(), $iOldOwnerPid, GF_WS_ROLE_ADMINISTRATOR);
+
+    return '';
+}
+
+/**
  * Build the <option> list for a role <select>, with the member's current role
  * pre-selected. Always offers "Member" (0, the demote target) plus every
  * assignable role.
@@ -210,7 +269,7 @@ function gfWsRoleOptions($aRoles, $iCurrentRole)
  * (the picker injects it via bx_if:manage_card). $aInviteRow is the permanent
  * invite row (code) or null to hide the invite section.
  */
-function gfWsBuildManageCard($oWsProfile, $oModule, $sNotice, $aInviteRow, $sJoinUrl)
+function gfWsBuildManageCard($oWsProfile, $oModule, $sNotice, $aInviteRow, $sJoinUrl, $bOwnerView = false)
 {
     $oTemplate = BxDolTemplate::getInstance();
 
@@ -238,6 +297,15 @@ function gfWsBuildManageCard($oWsProfile, $oModule, $sNotice, $aInviteRow, $sJoi
                     'ws_id' => (int)$oWsProfile->id(),
                     'member_id' => (int)$aMember['id'],
                     'role_options' => gfWsRoleOptions($aRoles, (int)$aMember['role'])
+                ]
+            ],
+            // "Make owner" is offered only to the current owner, and only for
+            // other members (transfer hands the workspace to another account).
+            'bx_if:transfer' => [
+                'condition' => $bOwnerView && $bEditable,
+                'content' => [
+                    'transfer_url' => $sManageUrl . '?manage_ws=' . (int)$oWsProfile->id() . '&transfer_to=' . (int)$aMember['id'],
+                    'member_name' => bx_html_attribute($aMember['name'])
                 ]
             ]
         ]);

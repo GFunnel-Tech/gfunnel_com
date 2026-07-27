@@ -886,3 +886,16 @@ body.bx-def-color-bg-page {
 .gf-ws-member-select:hover {
     border-color: #b9bdd4;
 }
+.gf-ws-member-transfer {
+    flex: none;
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b4f6b;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.gf-ws-member-transfer:hover {
+    color: #11132a;
+    text-decoration: underline;
+}
