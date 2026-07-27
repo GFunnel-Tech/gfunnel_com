@@ -330,7 +330,9 @@ function gfAppImportPage($oDb, $aDef, $aRows)
         foreach ($aDef['cols'] as $sMy => $aSpec) {
             $mV = isset($r[$aSpec[0]]) ? $r[$aSpec[0]] : null;
             $mC = gfAppCoerce($mV, $aSpec[1]);
-            $aVals[] = ($mC === null) ? 'NULL' : "'" . $oDb->escape((string)$mC) . "'";
+            // BxDolDb::escape() uses PDO::quote() — it RETURNS the value already
+            // wrapped in quotes, so we must not add our own around it.
+            $aVals[] = ($mC === null) ? 'NULL' : $oDb->escape((string)$mC);
         }
         $aVals[] = 'NOW()';
         $aTuples[] = '(' . implode(',', $aVals) . ')';
@@ -364,13 +366,19 @@ function gfAppRunImport($oDb)
     foreach ($aReg as $sTable => $aDef) {
         if ($sOnly !== '' && $sOnly !== 'all' && $sOnly !== $sTable) continue;
         $iOffset = 0; $iCount = 0;
-        while (true) {
-            $aPage = gfAppSbFetch($aCfg['url'], $aCfg['key'], $sTable, $iOffset, $iLimit);
-            if ($aPage['rows'] === null) { $aErrors[$sTable] = $aPage['err']; break; }
-            if (empty($aPage['rows'])) break;
-            $iCount += gfAppImportPage($oDb, $aDef, $aPage['rows']);
-            if (count($aPage['rows']) < $iLimit) break;
-            $iOffset += $iLimit;
+        try {
+            while (true) {
+                $aPage = gfAppSbFetch($aCfg['url'], $aCfg['key'], $sTable, $iOffset, $iLimit);
+                if ($aPage['rows'] === null) { $aErrors[$sTable] = $aPage['err']; break; }
+                if (empty($aPage['rows'])) break;
+                $iCount += gfAppImportPage($oDb, $aDef, $aPage['rows']);
+                if (count($aPage['rows']) < $iLimit) break;
+                $iOffset += $iLimit;
+            }
+        } catch (Exception $e) {
+            $aErrors[$sTable] = $e->getMessage();
+        } catch (Throwable $e) {
+            $aErrors[$sTable] = $e->getMessage();
         }
         $aResult[$sTable] = $iCount;
     }

@@ -9,6 +9,9 @@
  *    (URI_VIEW_ENTRY + TABLE_ENTRIES in the module config) — posts, events,
  *    products, discussions, courses, profiles, listings, goals, jobs, etc.
  *    New modules are picked up automatically, no code change needed;
+ *  - the GFunnel Application Hub: the /applications + /marketplace/applications
+ *    landing pages and one /application/<slug> page per app in the
+ *    gf_directory_apps mirror (every synced app is indexable automatically);
  *  - extra hand-maintained URLs from the `gf_sitemap_extra_urls` setting.
  *
  * Only public content is listed: entry `status`/`status_admin` must be
@@ -261,9 +264,11 @@ class GfSiteMapGenerator
         // 1. site root (marketing home page)
         $this->emitUrl(['loc' => BX_DOL_URL_ROOT, 'changefreq' => 'daily', 'priority' => '1.0']);
 
-        // 2. system/builder pages, 3. module content, 4. hand-maintained extras
+        // 2. system/builder pages, 3. module content, 4. app directory,
+        //    5. hand-maintained extras
         $this->collectSystemPages();
         $this->collectModuleEntries();
+        $this->collectDirectoryApps();
         $this->collectExtraUrls();
 
         $aStream = $this->streamFinish();
@@ -555,6 +560,47 @@ class GfSiteMapGenerator
         );
 
         return is_array($aRows) ? $aRows : [];
+    }
+
+    /**
+     * GFunnel Application Hub: the directory landing pages plus one indexable
+     * page per app (/application/<slug>), read from the gf_directory_apps
+     * mirror. Because pages are routed by slug, every synced app already has a
+     * live page — this just advertises them to crawlers. Emits nothing if the
+     * feature is off (gf_applications='off') or the mirror table is absent.
+     */
+    protected function collectDirectoryApps()
+    {
+        if (getParam('gf_applications') == 'off')
+            return;
+
+        $oDb = BxDolDb::getInstance();
+        if (!$oDb->getOne("SHOW TABLES LIKE 'gf_directory_apps'"))
+            return;
+
+        // Landing pages.
+        $this->emitUrl(['loc' => BX_DOL_URL_ROOT . 'applications', 'changefreq' => 'daily', 'priority' => '0.9']);
+        $this->emitUrl(['loc' => BX_DOL_URL_ROOT . 'marketplace/applications', 'changefreq' => 'daily', 'priority' => '0.8']);
+
+        // One URL per app, paged so a large catalog never sits in memory at once.
+        $iFrom = 0;
+        while (true) {
+            $aRows = $oDb->getAll("SELECT `slug`, `id`, `synced_at` FROM `gf_directory_apps` ORDER BY `is_featured` DESC, `name` LIMIT " . (int)$iFrom . ", " . self::QUERY_PAGE_SIZE);
+            if (!is_array($aRows) || empty($aRows))
+                break;
+            foreach ($aRows as $a) {
+                $sSlug = trim((string)$a['slug']);
+                if ($sSlug === '') $sSlug = trim((string)$a['id']);
+                if ($sSlug === '') continue;
+                $aUrl = ['loc' => BX_DOL_URL_ROOT . 'application/' . rawurlencode($sSlug), 'changefreq' => 'weekly', 'priority' => '0.6'];
+                if (!empty($a['synced_at']) && ($iT = strtotime((string)$a['synced_at'])))
+                    $aUrl['lastmod'] = date('Y-m-d', $iT);
+                $this->emitUrl($aUrl);
+            }
+            if (count($aRows) < self::QUERY_PAGE_SIZE)
+                break;
+            $iFrom += self::QUERY_PAGE_SIZE;
+        }
     }
 
     /**
