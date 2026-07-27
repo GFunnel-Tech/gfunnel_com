@@ -81,10 +81,20 @@ class BxPersonsModule extends BxBaseModProfileModule
 
         $iViews = isset($aContentInfo[$CNF['FIELD_VIEWS']]) ? (int)$aContentInfo[$CNF['FIELD_VIEWS']] : 0;
 
+        // Real cover image (transcoded). Falls back to the branded gradient
+        // (in overview.css) when no cover file is set.
+        $sCoverStyle = '';
+        if(!empty($CNF['FIELD_COVER']) && !empty($aContentInfo[$CNF['FIELD_COVER']]) && !empty($CNF['OBJECT_IMAGES_TRANSCODER_COVER'])) {
+            $oCoverTranscoder = BxDolTranscoderImage::getObjectInstance($CNF['OBJECT_IMAGES_TRANSCODER_COVER']);
+            if($oCoverTranscoder && ($sCoverUrl = $oCoverTranscoder->getFileUrl((int)$aContentInfo[$CNF['FIELD_COVER']])))
+                $sCoverStyle = 'background-image:url(' . bx_html_specialchars($sCoverUrl) . ')';
+        }
+
         $this->_oTemplate->addCss(array('overview.css'));
 
         return $this->_oTemplate->parseHtmlByName('overview.html', array(
             'title' => bx_html_specialchars($sTitle),
+            'cover_style' => $sCoverStyle,
             'initial' => mb_strtoupper(mb_substr($sTitle !== '' ? $sTitle : 'P', 0, 1)),
             'thumb_style' => $sThumb !== '' ? 'background-image:url(' . bx_html_specialchars($sThumb) . ')' : '',
             'profile_url' => bx_html_specialchars($sUrl),

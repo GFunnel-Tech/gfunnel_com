@@ -29,6 +29,13 @@
         linear-gradient(160deg, #fdba74 0%, #f97316 55%, #ea580c 100%);
     background-size: 22px 22px, cover;
 }
+/* Real cover image (inline background-image): fill the strip, override the
+   gradient's dotted-pattern sizing. */
+.gfperson-cover[style*="url"] {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
 .gfperson-cover-edit {
     position: absolute;
     top: 16px;

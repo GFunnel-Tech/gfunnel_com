@@ -26,6 +26,7 @@ automatically.
 | Bio | `bx_persons_data.description` (`CNF['FIELD_TEXT']`) — rendered only if set |
 | Location | `bx_persons_data.location` (`CNF['FIELD_LOCATION']`) — rendered only if set |
 | Member since | `bx_persons_data.added` (`CNF['FIELD_ADDED']`), year |
+| Cover image | `bx_persons_data.cover` via `OBJECT_IMAGES_TRANSCODER_COVER` — branded gradient fallback |
 | Connections | `sys_profiles_friends` mutual count |
 | Followers | `sys_profiles_subscriptions` count |
 | Profile views | `bx_persons_data.views` (`CNF['FIELD_VIEWS']`) |
@@ -60,8 +61,6 @@ To roll back, delete that one block in the Page Builder.
 
 ## Follow-ups (each isolated to `serviceOverview()` + `overview.html`)
 
-- **Real cover image** — read `CNF['FIELD_COVER']` via the cover storage /
-  transcoder and pass a `background-image` into `.gfperson-cover`.
 - **Viewer-relative actions** — for non-owners, swap Edit for Connect / Message
   / Follow using the `sys_profiles_friends` / `sys_profiles_subscriptions`
   connection actions.
