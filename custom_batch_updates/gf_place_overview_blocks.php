@@ -74,6 +74,7 @@ foreach($aTargets as $aTarget) {
 
     $aRow = array(
         'object'       => $sObject,
+        'module'       => $sModule,   // owning module (NOT NULL, no default)
         'cell_id'      => 1,
         'order'        => 0,          // sort first in the cell
         'active'       => 1,
@@ -83,6 +84,17 @@ foreach($aTargets as $aTarget) {
         'title'        => $aTarget['title'],
         'content'      => $sContent,
     );
+
+    // Schema-safe: fill any other NOT-NULL column that has no default and isn't
+    // auto-increment, so the INSERT can't fail on a required column we didn't
+    // name (numeric -> 0, everything else -> '').
+    foreach($oDb->getAll("SHOW COLUMNS FROM `sys_pages_blocks`") as $aCol) {
+        $sField = $aCol['Field'];
+        if(isset($aRow[$sField]) || $aCol['Null'] === 'YES' || $aCol['Default'] !== null || strpos($aCol['Extra'], 'auto_increment') !== false)
+            continue;
+        $aRow[$sField] = (stripos($aCol['Type'], 'int') !== false || stripos($aCol['Type'], 'decimal') !== false) ? 0 : '';
+    }
+
     $bOk = $oDb->query("INSERT INTO `sys_pages_blocks` SET " . $oDb->arrayToSQL($aRow));
     gfLine($bOk ? ('  + inserted block id ' . $oDb->lastId() . ' (cell 1, order 0)') : '  ! INSERT failed');
 }
