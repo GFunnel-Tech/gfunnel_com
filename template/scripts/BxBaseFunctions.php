@@ -96,7 +96,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 break;
 
             case 'gf_toolbar_app':
-                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed');
+                // The application layout is the org/workspace experience (it is
+                // the only layout with the left sidebar). The workspace selector
+                // shows here, not on the gfunnel.com main-site layouts.
+                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed', true);
                 break;
         }
 
@@ -110,8 +113,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
      * @param string $sClassicTemplate per-template fallback markup shown to visitors
      * @param string $sChromeClass 'gf-fixed' for templates whose toolbar is fixed and
      *               compensated with content padding, 'gf-flow' for in-flow (sticky) toolbars
+     * @param boolean $bWorkspaceCtx workspace/app layout: render the workspace
+     *               selector (hidden on the gfunnel.com main-site layouts)
      */
-    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed')
+    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed', $bWorkspaceCtx = false)
     {
         if(!isLogged())
             return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
@@ -165,7 +170,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             'timer_css_url' => BX_DOL_URL_ROOT . $sTimerCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerCssFile),
             'timer_js_url' => BX_DOL_URL_ROOT . $sTimerJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerJsFile),
             'timer_boot' => $this->getGfTimerBoot(),
-            'ws_selector' => $this->getGfWorkspaceSelector(),
+            'ws_selector' => $bWorkspaceCtx ? $this->getGfWorkspaceSelector() : '',
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
             'subheader' => $sSubheader,
