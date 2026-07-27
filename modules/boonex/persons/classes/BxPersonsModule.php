@@ -62,7 +62,7 @@ class BxPersonsModule extends BxBaseModProfileModule
         $sEditUrl = $oProfile->getEditUrl();
 
         // Owner / editor: only they see the edit affordances.
-        $bEditable = $oProfile->isAllowedEdit();
+        $bEditable = ($this->checkAllowedEdit($aContentInfo) === CHECK_ACTION_RESULT_ALLOWED);
 
         // Bio, location, member-since - rendered only when the field is real.
         $sBio = isset($aContentInfo[$CNF['FIELD_TEXT']]) ? trim(strip_tags((string)$aContentInfo[$CNF['FIELD_TEXT']])) : '';
