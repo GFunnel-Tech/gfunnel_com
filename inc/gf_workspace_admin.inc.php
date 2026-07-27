@@ -191,15 +191,39 @@ function gfWsSetMemberRole($oWsProfile, $oModule, $aRoles, $iMemberPid, $iRole)
 }
 
 /**
- * Transfer ownership of a workspace to one of its members ($iNewOwnerPid, a
- * person profile). Reproduces the writes UNA makes at creation, for the new
- * owner, and steps the previous owner down to admin (non-destructive):
+ * Apply ownership of a workspace to $iNewOwnerPid (a person profile) whose
+ * account is $iNewAccountId. Reproduces the writes UNA makes at creation, for
+ * the new owner:
  *   1) sys_profiles.account_id -> new owner's account (the authoritative owner)
  *   2) content author (CNF FIELD_AUTHOR) -> new owner (implicit-admin + is-author)
  *   3) new owner made a fan + administrator (via setRole)
- *   4) previous owner kept as an administrator, not removed
- * Guards: target must be an existing member with an account under the profile
- * limit. Owner-only — the caller checks that.
+ * Shared by transfer and claim. Returns true on success.
+ */
+function gfWsApplyOwnership($oWsProfile, $oModule, $iNewAccountId, $iNewOwnerPid)
+{
+    // 1) move the profile to the new owner's account - the ownership gate
+    if(!$oWsProfile->move((int)$iNewAccountId))
+        return false;
+
+    // 2) keep the content author in sync (implicit admin + is-entry-author)
+    $CNF = $oModule->_oConfig->CNF;
+    if(!empty($CNF['TABLE_ENTRIES']) && !empty($CNF['FIELD_AUTHOR']) && !empty($CNF['FIELD_ID']))
+        BxDolDb::getInstance()->query(
+            "UPDATE `" . $CNF['TABLE_ENTRIES'] . "` SET `" . $CNF['FIELD_AUTHOR'] . "` = :author WHERE `" . $CNF['FIELD_ID'] . "` = :id",
+            ['author' => (int)$iNewOwnerPid, 'id' => (int)$oWsProfile->getContentId()]
+        );
+
+    // 3) new owner becomes a fan + administrator
+    $oModule->setRole($oWsProfile->id(), (int)$iNewOwnerPid, GF_WS_ROLE_ADMINISTRATOR);
+
+    return true;
+}
+
+/**
+ * Transfer ownership of a workspace to one of its members ($iNewOwnerPid, a
+ * person profile). Applies ownership to the new owner and steps the previous
+ * owner down to admin (non-destructive). Guards: target must be an existing
+ * member with an account under the profile limit. Owner-only — caller checks.
  *
  * @return string '' on success, otherwise a human-readable error notice.
  */
@@ -227,24 +251,67 @@ function gfWsTransferOwnership($oWsProfile, $oModule, $iNewOwnerPid)
     if($oNewAccount && $oNewAccount->isProfilesLimitReached())
         return 'That member has reached their workspace limit and cannot take ownership.';
 
-    // 1) move the profile to the new owner's account - the ownership gate
-    if(!$oWsProfile->move($iNewAccountId))
+    if(!gfWsApplyOwnership($oWsProfile, $oModule, $iNewAccountId, $iNewOwnerPid))
         return 'Could not transfer ownership.';
 
-    // 2) keep the content author in sync (implicit admin + is-entry-author)
-    $CNF = $oModule->_oConfig->CNF;
-    if(!empty($CNF['TABLE_ENTRIES']) && !empty($CNF['FIELD_AUTHOR']) && !empty($CNF['FIELD_ID']))
-        BxDolDb::getInstance()->query(
-            "UPDATE `" . $CNF['TABLE_ENTRIES'] . "` SET `" . $CNF['FIELD_AUTHOR'] . "` = :author WHERE `" . $CNF['FIELD_ID'] . "` = :id",
-            ['author' => $iNewOwnerPid, 'id' => (int)$oWsProfile->getContentId()]
-        );
-
-    // 3) new owner becomes a fan + administrator
-    $oModule->setRole($oWsProfile->id(), $iNewOwnerPid, GF_WS_ROLE_ADMINISTRATOR);
-
-    // 4) previous owner steps down but keeps admin access (non-destructive)
+    // previous owner steps down but keeps admin access (non-destructive)
     if($iOldOwnerPid > 0)
         $oModule->setRole($oWsProfile->id(), $iOldOwnerPid, GF_WS_ROLE_ADMINISTRATOR);
+
+    return '';
+}
+
+/**
+ * The configured GFunnel placeholder account that holds unclaimed workspaces
+ * (sys_option gf_workspace_placeholder_account). 0 when unset — claim is then
+ * dormant: nothing is claimable until imported/placeholder workspaces are
+ * provisioned under such an account. See docs/directory-provisioning-target-model.md.
+ */
+function gfWsPlaceholderAccountId()
+{
+    return (int)getParam('gf_workspace_placeholder_account');
+}
+
+/**
+ * Is $oWsProfile claimable? True only when a placeholder account is configured
+ * and this workspace is currently owned by it (i.e. unclaimed) and is a
+ * manageable group type. Type-aware and safe-by-default (no placeholder = never).
+ */
+function gfWsIsClaimable($oWsProfile)
+{
+    $iPlaceholder = gfWsPlaceholderAccountId();
+    if($iPlaceholder <= 0 || !gfWsGroupModule($oWsProfile))
+        return false;
+
+    return (int)$oWsProfile->getAccountId() === $iPlaceholder;
+}
+
+/**
+ * Claim an unclaimed (placeholder-owned) workspace for the claimer. Applies
+ * ownership to the claimer's account. Instant claim by default; a verification
+ * gate (email-domain match, admin approval) can be layered in here later.
+ * Guards: workspace must be claimable and the claimer under their profile limit.
+ *
+ * @return string '' on success, otherwise a human-readable error notice.
+ */
+function gfWsClaimWorkspace($oWsProfile, $oModule, $oClaimerAccount, $iClaimerPid)
+{
+    if(!gfWsIsClaimable($oWsProfile))
+        return 'This workspace is not available to claim.';
+
+    $iClaimerPid = (int)$iClaimerPid;
+    $oClaimer = BxDolProfile::getInstance($iClaimerPid);
+    if(!$oClaimer || $oClaimer->getModule() != 'bx_persons' || !$oClaimerAccount)
+        return 'You cannot claim this workspace.';
+
+    if((int)$oClaimerAccount->id() === gfWsPlaceholderAccountId())
+        return 'This workspace is not available to claim.';
+
+    if($oClaimerAccount->isProfilesLimitReached())
+        return 'You have reached your workspace limit and cannot claim another.';
+
+    if(!gfWsApplyOwnership($oWsProfile, $oModule, (int)$oClaimerAccount->id(), $iClaimerPid))
+        return 'Could not claim this workspace.';
 
     return '';
 }

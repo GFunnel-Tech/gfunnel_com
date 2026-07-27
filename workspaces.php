@@ -517,7 +517,10 @@ function getGfWorkspacesPageCode()
                 'title' => bx_process_output($oJoined->getDisplayName()),
                 'thumb' => $oJoined->getThumb(),
                 'meta' => bx_process_output($aModuleTitles[$sWsModule]) . ' &#183; ' . ($bAdmin ? 'admin' : 'member'),
-                'manage_id' => $bCanManageJoined ? $iJoinedId : 0
+                'manage_id' => $bCanManageJoined ? $iJoinedId : 0,
+                // claimable when the workspace is still held by the placeholder
+                // account (unclaimed) - dormant unless one is configured.
+                'claim_id' => gfWsIsClaimable($oJoined) ? $iJoinedId : 0
             ];
         }
     }
@@ -529,7 +532,8 @@ function getGfWorkspacesPageCode()
     $sWorkspacesList = '';
     foreach($aTmplVarsWorkspaces as $aTmplVarsWorkspace) {
         $iManageId = (int)$aTmplVarsWorkspace['manage_id'];
-        unset($aTmplVarsWorkspace['manage_id']);
+        $iClaimId = (int)($aTmplVarsWorkspace['claim_id'] ?? 0);
+        unset($aTmplVarsWorkspace['manage_id'], $aTmplVarsWorkspace['claim_id']);
 
         $sWorkspacesList .= $oTemplate->parseHtmlByName('page_workspaces_item.html', array_merge($aTmplVarsWorkspace, [
             // Manage (members, roles, invite code) is available to a workspace's
@@ -538,6 +542,12 @@ function getGfWorkspacesPageCode()
             'bx_if:manage' => [
                 'condition' => $iManageId > 0,
                 'content' => ['manage_url' => BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iManageId]
+            ],
+            // Claim shows on unclaimed (placeholder-owned) workspaces the member
+            // is part of - dormant unless a placeholder account is configured.
+            'bx_if:claim' => [
+                'condition' => $iClaimId > 0,
+                'content' => ['claim_url' => BX_DOL_URL_ROOT . 'workspaces.php?claim_ws=' . $iClaimId]
             ]
         ]));
     }
@@ -783,6 +793,29 @@ if(($iGfManageWs = (int)bx_get('manage_ws')) > 0 && $oGfAccount && $oGfProfile) 
             $oGfSes->setValue('gf_ws_flash', '');
 
         $GLOBALS['gfWsManageCard'] = gfWsBuildManageCard($oGfManageWs, $oGfManageMod, $sGfFlash, $aGfInviteRow, $sGfJoinUrl, $bGfManageOwner);
+    }
+}
+
+//--- Claim an unclaimed (placeholder-owned) workspace. Dormant unless a
+//--- placeholder account is configured (gfWsIsClaimable). On success the member
+//--- owns it, so switch into it and open it; on failure show the reason.
+if(($iGfClaimWs = (int)bx_get('claim_ws')) > 0 && $oGfAccount && $oGfProfile) {
+    $oGfClaimWs = BxDolProfile::getInstance($iGfClaimWs);
+    $oGfClaimMod = $oGfClaimWs ? gfWsGroupModule($oGfClaimWs) : null;
+
+    if($oGfClaimWs && $oGfClaimMod) {
+        $sGfClaimErr = gfWsClaimWorkspace($oGfClaimWs, $oGfClaimMod, $oGfAccount, $oGfProfile->id());
+        if($sGfClaimErr === '') {
+            // Ownership was just established, so act as the workspace directly
+            // when its type supports it (orgs) - the cached profile still shows
+            // the old owner, so gfWsSwitchContext's ownership check can't be used.
+            if(BxDolService::call($oGfClaimWs->getModule(), 'act_as_profile'))
+                $oGfAccount->updateProfileContext($oGfClaimWs->id());
+            header('Location: ' . bx_append_url_params($oGfClaimWs->getUrl(), ['gf_ws' => $oGfClaimWs->id()]));
+            exit;
+        }
+
+        $GLOBALS['gfWsNotice'] = $sGfClaimErr;
     }
 }
 

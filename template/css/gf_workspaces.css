@@ -899,3 +899,19 @@ body.bx-def-color-bg-page {
     color: #11132a;
     text-decoration: underline;
 }
+
+/*--- Claim (unclaimed workspace) button ---*/
+.gf-ws-item-claim {
+    flex: none;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #11132a;
+    background-color: #ffd54a;
+    border: 1px solid #f0c400;
+    border-radius: 8px;
+    text-decoration: none;
+}
+.gf-ws-item-claim:hover {
+    background-color: #ffcf2e;
+}

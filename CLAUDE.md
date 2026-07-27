@@ -48,6 +48,7 @@ names — to your new module's. A half-renamed clone collides with its source.
 | I want to… | Go to | Notes |
 |---|---|---|
 | Change a **public root page** (home, splash, workspace picker) | Root `home.php`, `splash.php`, `workspaces.php`, `default.php` | GFunnel-authored standalone pages. `index.php` routes `/` → `home.php` (logged-out) / `workspaces.php` (logged-in). |
+| Change **workspace administration** (member roles, ownership transfer/claim, launching/switching into a workspace) | `inc/gf_workspace_admin.inc.php` (logic) + `workspaces.php` (handlers) | Roles/ownership are UNA-native (group-profile admins overlay + `sys_profiles.account_id`). See `docs/workspace-administration.md`. |
 | Modify a **GFunnel feature endpoint** (auth, onboarding, timer, bug, directory, menu) | Root `gf_*.php` — see §2C | Each is one GFunnel domain script. |
 | Add a **self-contained feature** (data type, pages, its own tables) | **A module** under `modules/gfunnel/` | The right way to add real functionality. Check §2A first for a fit; else clone (§3). |
 | Extend an **existing UNA feature** (persons, groups, market, events, timeline…) | That module in `modules/boonex/*` — see §2B | **Upstream** — prefer a subclass/alert hook over editing in place (§7). |
@@ -305,6 +306,7 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/directory-sync-runbook.md`, `docs/directory-provisioning-target-model.md` | Supabase↔MySQL directory sync |
 | `docs/directory-content-pipeline.md` | Monitors that enrich the directory (YouTube tutorials → `app_tutorials` → mirror) |
 | `docs/organization-overview-block.md` | org overview UI block |
+| `docs/workspace-administration.md` | workspace roles, ownership transfer/claim, the picker's manage panel |
 | `docs/audits/homepage-audit.md` | the home page |
 | `docs/gfunnel-home-blocks.md`, `docs/homepage-module-mapping.md` | homepage sections, the GFunnel Home service blocks, and the section→module/data-source mapping |
 | `docs/sql/*.sql` | DB schema (departments, directory apps, workspace invites) |
