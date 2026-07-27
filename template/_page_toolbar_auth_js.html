@@ -69,11 +69,32 @@
         gfMenuPost('reset');
     }
 
+    /* Workspace selector dropdown (top nav, right of the logo). */
+    function gfWsToggle(eButton) {
+        var eWs = $(eButton).closest('.gf-ws'),
+            bOpen = !eWs.hasClass('gf-ws-open');
+        $('.gf-ws').removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
+        if(bOpen) {
+            eWs.addClass('gf-ws-open');
+            $(eButton).attr('aria-expanded', 'true');
+        }
+    }
+
     $(document).ready(function() {
         //--- Customize-menu panel closes on any click outside the subheader
         $(document).on('click.gf-menu', function(e) {
             if(!$(e.target).closest('.gf-subheader').length)
                 $('#gf-menu-panel').hide();
+        });
+
+        //--- Workspace selector: click outside closes it; Escape closes it.
+        $(document).on('click.gf-ws', function(e) {
+            if(!$(e.target).closest('.gf-ws').length)
+                $('.gf-ws').removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
+        });
+        $(document).on('keydown.gf-ws', function(e) {
+            if(e.key === 'Escape')
+                $('.gf-ws').removeClass('gf-ws-open').find('.gf-ws-btn').attr('aria-expanded', 'false');
         });
 
         //--- Cmd+K / Ctrl+K opens the global search
