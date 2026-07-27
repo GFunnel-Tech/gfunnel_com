@@ -46,7 +46,7 @@ if (getParam('gf_applications') == 'off') {
 
 $oDb = BxDolDb::getInstance();
 gfDirEnsureTables($oDb);
-gfUserAppsEnsureTable($oDb);
+gfWsAppsEnsureTable($oDb);
 
 // JSON endpoints (POST ?gfa_action=...):
 //   import            -> pull the directory from Supabase into the MySQL mirror
@@ -200,13 +200,22 @@ function gfDirImg($sLogo, $sClass = '')
         . '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.classList.add(\'gfa-noimg\');">';
 }
 
-/** Info about the current logged-in member (id/name/initial), or empty. */
+/**
+ * Info about the current member + the workspace they're operating in.
+ *   logged/id/name/initial/admin — the signed-in person profile
+ *   acc                          — account id (getLoggedId)
+ *   ws                           — active workspace profile id (0 = personal)
+ *   ws_name                      — active workspace display name (or 'Personal')
+ * The active workspace is pinned in the session by the workspace picker
+ * (?gf_ws=N); see BxBaseFunctions::getGfActiveWorkspaceId.
+ */
 function gfAppMember()
 {
-    $a = array('logged' => false, 'id' => 0, 'name' => '', 'initial' => '', 'admin' => false);
+    $a = array('logged' => false, 'id' => 0, 'acc' => 0, 'name' => '', 'initial' => '', 'admin' => false, 'ws' => 0, 'ws_name' => 'Personal');
     if (!function_exists('isLogged') || !isLogged()) return $a;
     $a['logged'] = true;
     $a['admin'] = function_exists('isAdmin') && isAdmin();
+    $a['acc'] = function_exists('getLoggedId') ? (int)getLoggedId() : 0;
     if (class_exists('BxDolProfile')) {
         $o = BxDolProfile::getInstance();
         if ($o) {
@@ -216,7 +225,31 @@ function gfAppMember()
             $a['initial'] = gfDirInitial($sName);
         }
     }
+    // Active workspace (a workspace is itself a profile: org/space/group).
+    if (class_exists('BxTemplFunctions') && method_exists('BxTemplFunctions', 'getInstance')) {
+        $oFn = BxTemplFunctions::getInstance();
+        if ($oFn && method_exists($oFn, 'getGfActiveWorkspaceId'))
+            $a['ws'] = (int)$oFn->getGfActiveWorkspaceId();
+    }
+    if ($a['ws'] > 0 && class_exists('BxDolProfile')) {
+        $oWs = BxDolProfile::getInstance($a['ws']);
+        if ($oWs) $a['ws_name'] = strip_tags((string)$oWs->getDisplayName());
+        else $a['ws'] = 0;
+    }
     return $a;
+}
+
+/**
+ * Storage scope for the current app collection:
+ *   a real workspace (org/space/group) → shared list keyed by workspace_id
+ *   personal (ws = 0)                  → private list keyed by account_id
+ * Returns [workspace_id, account_id] where exactly one is non-zero.
+ */
+function gfAppScope($aMember)
+{
+    if (!empty($aMember['ws']) && (int)$aMember['ws'] > 0)
+        return array((int)$aMember['ws'], 0);
+    return array(0, (int)$aMember['acc']);
 }
 
 // ============================================================================
@@ -386,27 +419,31 @@ function gfAppRunImport($oDb)
     echo json_encode(array('ok' => empty($aErrors), 'synced' => $aResult, 'errors' => $aErrors));
 }
 
-/** Platform-owned table for each member's personal app collection (NOT synced). */
-function gfUserAppsEnsureTable($oDb)
+/** Platform-owned table for each workspace's app collection (NOT synced). */
+function gfWsAppsEnsureTable($oDb)
 {
-    $oDb->query("CREATE TABLE IF NOT EXISTS `gf_user_apps` (
-        `member_id` int(11) NOT NULL,
+    $oDb->query("CREATE TABLE IF NOT EXISTS `gf_workspace_apps` (
+        `workspace_id` int(11) NOT NULL DEFAULT 0,
+        `account_id` int(11) NOT NULL DEFAULT 0,
         `app_id` char(36) NOT NULL,
         `display_order` int(11) NOT NULL DEFAULT 0,
         `added_at` datetime DEFAULT NULL,
-        PRIMARY KEY (`member_id`, `app_id`), KEY `member` (`member_id`)
+        PRIMARY KEY (`workspace_id`, `account_id`, `app_id`), KEY `scope` (`workspace_id`, `account_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-/** IDs of the apps a member has added, in their chosen order. */
-function gfUserAppIds($oDb, $iMember)
+/** App ids in this scope, in the chosen order. $aScope = [workspace_id, account_id]. */
+function gfWsAppIds($oDb, $aScope)
 {
-    if ((int)$iMember <= 0) return array();
-    $a = $oDb->getColumn($oDb->prepare("SELECT `app_id` FROM `gf_user_apps` WHERE `member_id` = ? ORDER BY `display_order`, `added_at`", (int)$iMember));
+    list($iWs, $iAcc) = $aScope;
+    if ($iWs <= 0 && $iAcc <= 0) return array();
+    $a = $oDb->getColumn($oDb->prepare(
+        "SELECT `app_id` FROM `gf_workspace_apps` WHERE `workspace_id` = ? AND `account_id` = ? ORDER BY `display_order`, `added_at`",
+        $iWs, $iAcc));
     return is_array($a) ? $a : array();
 }
 
-/** Handle the add/remove/list JSON endpoint (members only). */
+/** Handle the add/remove/list JSON endpoint (members only, workspace-scoped). */
 function gfAppHandleUserAction($oDb)
 {
     header('Content-Type: application/json; charset=utf-8');
@@ -418,17 +455,18 @@ function gfAppHandleUserAction($oDb)
         return;
     }
     $aMember = gfAppMember();
-    if (!$aMember['logged'] || $aMember['id'] <= 0) {
+    if (!$aMember['logged'] || ($aMember['acc'] <= 0 && $aMember['id'] <= 0)) {
         http_response_code(401);
         echo json_encode(array('ok' => false, 'error' => 'auth', 'guest' => true));
         return;
     }
-    $iMember = (int)$aMember['id'];
+    $aScope = gfAppScope($aMember);
+    list($iWs, $iAcc) = $aScope;
     $sAction = strtolower((string)bx_get('gfa_action'));
     $sApp = trim((string)bx_get('app'));
 
     if ($sAction === 'list') {
-        echo json_encode(array('ok' => true, 'apps' => array_values(gfUserAppIds($oDb, $iMember))));
+        echo json_encode(array('ok' => true, 'ws' => $iWs, 'apps' => array_values(gfWsAppIds($oDb, $aScope))));
         return;
     }
     // add / remove require a valid app id that exists in the directory mirror.
@@ -437,14 +475,14 @@ function gfAppHandleUserAction($oDb)
     if (!$bExists) { http_response_code(404); echo json_encode(array('ok' => false, 'error' => 'unknown')); return; }
 
     if ($sAction === 'add') {
-        $iOrder = (int)$oDb->getOne($oDb->prepare("SELECT COALESCE(MAX(`display_order`),0)+1 FROM `gf_user_apps` WHERE `member_id` = ?", $iMember));
-        $oDb->query($oDb->prepare("INSERT INTO `gf_user_apps` (`member_id`,`app_id`,`display_order`,`added_at`) VALUES (?,?,?,NOW()) ON DUPLICATE KEY UPDATE `added_at` = `added_at`", $iMember, $sApp, $iOrder));
-        echo json_encode(array('ok' => true, 'added' => true, 'app' => $sApp));
+        $iOrder = (int)$oDb->getOne($oDb->prepare("SELECT COALESCE(MAX(`display_order`),0)+1 FROM `gf_workspace_apps` WHERE `workspace_id` = ? AND `account_id` = ?", $iWs, $iAcc));
+        $oDb->query($oDb->prepare("INSERT INTO `gf_workspace_apps` (`workspace_id`,`account_id`,`app_id`,`display_order`,`added_at`) VALUES (?,?,?,?,NOW()) ON DUPLICATE KEY UPDATE `added_at` = `added_at`", $iWs, $iAcc, $sApp, $iOrder));
+        echo json_encode(array('ok' => true, 'added' => true, 'app' => $sApp, 'ws' => $iWs));
         return;
     }
     if ($sAction === 'remove') {
-        $oDb->query($oDb->prepare("DELETE FROM `gf_user_apps` WHERE `member_id` = ? AND `app_id` = ?", $iMember, $sApp));
-        echo json_encode(array('ok' => true, 'added' => false, 'app' => $sApp));
+        $oDb->query($oDb->prepare("DELETE FROM `gf_workspace_apps` WHERE `workspace_id` = ? AND `account_id` = ? AND `app_id` = ?", $iWs, $iAcc, $sApp));
+        echo json_encode(array('ok' => true, 'added' => false, 'app' => $sApp, 'ws' => $iWs));
         return;
     }
     http_response_code(400);
@@ -573,8 +611,8 @@ function gfAppRenderHub($oDb, $sTab)
     $sAppsUrl = BX_DOL_URL_ROOT . 'applications';
     $sMktUrl = BX_DOL_URL_ROOT . 'marketplace/applications';
 
-    // Member's saved app collection (empty for guests → client uses localStorage).
-    $aMine = $aMember['logged'] ? gfUserAppIds($oDb, $aMember['id']) : array();
+    // The active workspace's app collection (empty for guests → localStorage).
+    $aMine = $aMember['logged'] ? gfWsAppIds($oDb, gfAppScope($aMember)) : array();
     $aMineSet = array_flip($aMine);
 
     // --- tab bar (shared) ----------------------------------------------------
@@ -629,17 +667,19 @@ function gfAppTabBar($sTab, $sAppsUrl, $sMktUrl)
         . '</div>';
 }
 
-/** Optional signed-in context chip. */
+/** Signed-in context chip — shows which workspace's apps are in view. */
 function gfAppContextBar($aMember)
 {
     if (!$aMember['logged']) return '';
-    $sAv = $aMember['initial'] !== '' ? gfDirOut($aMember['initial']) : 'G';
-    $sName = $aMember['name'] !== '' ? gfDirOut($aMember['name']) : 'My Workspace';
+    $bWs = $aMember['ws'] > 0;
+    $sLabel = $bWs ? $aMember['ws_name'] : ($aMember['name'] !== '' ? $aMember['name'] : 'Personal');
+    $sAv = gfDirOut(gfDirInitial($sLabel));
+    $sMeta = $bWs ? 'workspace' : 'personal';
     return '<div class="gfa-context">'
         . '<span class="gfa-chip"><span class="gfa-chip-av">' . $sAv . '</span>'
-        .   '<span><span class="gfa-chip-name">' . $sName . '</span><br><span class="gfa-chip-role">owner</span></span></span>'
+        .   '<span><span class="gfa-chip-name">' . gfDirOut($sLabel) . '</span><br><span class="gfa-chip-role">' . $sMeta . '</span></span></span>'
         . '<div class="gfa-context-actions">'
-        .   '<a class="gfa-ghost" href="' . BX_DOL_URL_ROOT . 'applications#gfa-core"><span>My Software</span></a>'
+        .   '<a class="gfa-ghost" href="' . BX_DOL_URL_ROOT . 'workspaces.php"><span>Switch workspace</span></a>'
         .   '<a class="gfa-ghost" href="' . BX_DOL_URL_ROOT . 'marketplace/applications"><span>Browse Apps</span></a>'
         . '</div></div>';
 }
@@ -659,26 +699,29 @@ function gfAppAdminBar($aMember)
 /** Apps tab: welcome hero + Core Applications icon grid + hub cards. */
 function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
 {
-    // Icons: a member's own saved apps (in their order) come first; otherwise
-    // the featured set. Cap for a tidy launcher.
-    $bMine = false;
+    // Core Applications is the workspace's launcher:
+    //  - signed in  → ONLY the active workspace's added apps (empty if none);
+    //  - signed out → the featured set, so the marketing page isn't blank.
     $aApps = array();
-    if (!empty($aMine)) {
-        $aIds = array_slice($aMine, 0, 40);
-        $aPh = implode(',', array_fill(0, count($aIds), '?'));
-        $aRows = $oDb->getAll($oDb->prepare("SELECT `id`,`name`,`slug`,`logo_url` FROM `gf_directory_apps` WHERE `id` IN ($aPh)", ...$aIds));
-        if (is_array($aRows) && $aRows) {
-            $aById = array();
-            foreach ($aRows as $r) $aById[(string)$r['id']] = $r;
-            foreach ($aMine as $sId) if (isset($aById[$sId])) $aApps[] = $aById[$sId]; // preserve member order
-            $bMine = true;
+    if ($aMember['logged']) {
+        if (!empty($aMine)) {
+            $aIds = array_slice($aMine, 0, 60);
+            $aPh = implode(',', array_fill(0, count($aIds), '?'));
+            $aRows = $oDb->getAll($oDb->prepare("SELECT `id`,`name`,`slug`,`logo_url`,`app_url` FROM `gf_directory_apps` WHERE `id` IN ($aPh)", ...$aIds));
+            if (is_array($aRows) && $aRows) {
+                $aById = array();
+                foreach ($aRows as $r) $aById[(string)$r['id']] = $r;
+                foreach ($aMine as $sId) if (isset($aById[$sId])) $aApps[] = $aById[$sId]; // preserve chosen order
+            }
         }
-    }
-    if (empty($aApps)) {
-        $aApps = $oDb->getAll("SELECT `id`,`name`,`slug`,`logo_url` FROM `gf_directory_apps` ORDER BY `is_featured` DESC, `name` LIMIT 23");
+    } else {
+        $aApps = $oDb->getAll("SELECT `id`,`name`,`slug`,`logo_url`,`app_url` FROM `gf_directory_apps` ORDER BY `is_featured` DESC, `name` LIMIT 23");
         if (!is_array($aApps)) $aApps = array();
     }
-    $sCoreSub = $bMine ? 'Your apps — launch, add, or manage them anytime.' : 'Quick Access to Your Ecosystem Tools and Applications.';
+    $sWsLabel = ($aMember['logged'] && $aMember['ws'] > 0) ? $aMember['ws_name'] : '';
+    $sCoreSub = $aMember['logged']
+        ? ($sWsLabel !== '' ? ($sWsLabel . ' — your workspace apps.') : 'Your apps — add from the marketplace anytime.')
+        : 'Quick Access to Your Ecosystem Tools and Applications.';
 
     // --- welcome hero --------------------------------------------------------
     $sGetStarted = $aMember['logged'] ? (BX_DOL_URL_ROOT . 'welcome') : (BX_DOL_URL_ROOT . 'create-account');
@@ -712,20 +755,32 @@ function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
     // --- Core Applications ---------------------------------------------------
     $sGridIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>';
 
-    $sIcons = '<a class="gfa-icon gfa-icon-add" href="' . BX_DOL_URL_ROOT . 'marketplace/applications">'
+    $sIcons = '<a class="gfa-icon gfa-icon-add" href="' . BX_DOL_URL_ROOT . 'marketplace/applications" title="Add an app to this workspace">'
         . '<span class="gfa-icon-tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>'
         . '<span class="gfa-icon-label">Add App</span></a>';
     foreach ($aApps as $a) {
         $sIni = gfDirInitial($a['name']);
         $sImg = gfDirImg($a['logo_url']);
         $sInner = $sImg !== '' ? $sImg : '<span class="gfa-icon-ini">' . gfDirOut($sIni) . '</span>';
-        $sIcons .= '<a class="gfa-icon" href="' . bx_html_attribute(gfDirUrl($a)) . '" title="' . bx_html_attribute($a['name']) . '">'
+        // Clicking an icon LAUNCHES the app (its login/app URL, new tab); if the
+        // directory has no URL for it, fall back to the internal detail page.
+        $sAppUrl = trim((string)(isset($a['app_url']) ? $a['app_url'] : ''));
+        if ($sAppUrl !== '' && preg_match('#^https?://#i', $sAppUrl)) {
+            $sHref = bx_html_attribute($sAppUrl); $sAttr = ' target="_blank" rel="noopener"';
+        } else {
+            $sHref = bx_html_attribute(gfDirUrl($a)); $sAttr = '';
+        }
+        $sIcons .= '<a class="gfa-icon" href="' . $sHref . '"' . $sAttr . ' title="Launch ' . bx_html_attribute($a['name']) . '">'
             . '<span class="gfa-icon-tile gfa-noimg-fallback" data-initial="' . bx_html_attribute($sIni) . '">' . $sInner . '</span>'
             . '<span class="gfa-icon-label">' . gfDirOut($a['name']) . '</span></a>';
     }
-    if (empty($aApps)) {
-        // Empty mirror: still show the Add tile + a hint.
-        $sIcons .= '<div style="grid-column:2/-1;align-self:center;color:var(--gfh-muted);font-size:13.5px;">Your apps will appear here once the directory sync runs. <a class="gfh-link-more" href="' . BX_DOL_URL_ROOT . 'marketplace/applications">Browse the directory →</a></div>';
+
+    // Empty state (signed-in workspace with no apps): keep the Add tile, add a hint.
+    $sCoreEmpty = '';
+    if (empty($aApps) && $aMember['logged']) {
+        $sWhere = $sWsLabel !== '' ? gfDirOut($sWsLabel) : 'this workspace';
+        $sCoreEmpty = '<p class="gfa-core-empty">No apps in ' . $sWhere . ' yet — '
+            . '<a class="gfh-link-more" href="' . BX_DOL_URL_ROOT . 'marketplace/applications">add your first from the App Directory →</a></p>';
     }
 
     $sCore = '<section class="gfa-sec" id="gfa-core">'
@@ -733,6 +788,7 @@ function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
         .   '<div><div class="gfa-sec-title">Core Applications</div>'
         .   '<div class="gfa-sec-sub">' . gfDirOut($sCoreSub) . '</div></div></div>'
         . '<div class="gfa-grid">' . $sIcons . '</div>'
+        . $sCoreEmpty
         . '</section>';
 
     // --- hub cards -----------------------------------------------------------
