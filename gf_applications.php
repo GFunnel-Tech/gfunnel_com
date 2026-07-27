@@ -48,11 +48,15 @@ $oDb = BxDolDb::getInstance();
 gfDirEnsureTables($oDb);
 gfUserAppsEnsureTable($oDb);
 
-// JSON endpoint: add/remove an app from the signed-in member's collection.
-// POST ?gfa_action=add|remove|list&app=<id>. Anonymous callers get a 401 so the
-// client falls back to localStorage. Keeps personalization server-side + synced
-// across devices for members.
+// JSON endpoints (POST ?gfa_action=...):
+//   import            -> pull the directory from Supabase into the MySQL mirror
+//                        (admin session, or ?key=<gf_dir_import_token> for cron)
+//   add|remove|list   -> the signed-in member's personal app collection
 if (bx_get('gfa_action') !== false) {
+    if (strtolower((string)bx_get('gfa_action')) === 'import') {
+        gfAppRunImport($oDb);
+        exit;
+    }
     gfAppHandleUserAction($oDb);
     exit;
 }
@@ -199,9 +203,10 @@ function gfDirImg($sLogo, $sClass = '')
 /** Info about the current logged-in member (id/name/initial), or empty. */
 function gfAppMember()
 {
-    $a = array('logged' => false, 'id' => 0, 'name' => '', 'initial' => '');
+    $a = array('logged' => false, 'id' => 0, 'name' => '', 'initial' => '', 'admin' => false);
     if (!function_exists('isLogged') || !isLogged()) return $a;
     $a['logged'] = true;
+    $a['admin'] = function_exists('isAdmin') && isAdmin();
     if (class_exists('BxDolProfile')) {
         $o = BxDolProfile::getInstance();
         if ($o) {
@@ -212,6 +217,165 @@ function gfAppMember()
         }
     }
     return $a;
+}
+
+// ============================================================================
+// Directory import: pull Supabase -> local MySQL mirror (server-side "pull",
+// the Hostinger-friendly counterpart to the edge-function "push"). Runs on the
+// site's own server so it reaches MySQL over localhost; only needs outbound
+// HTTPS to Supabase's public REST API (tables are public-read).
+// ============================================================================
+
+/** Supabase REST config. Public anon key + URL; override via sys_options. */
+function gfAppImportConfig()
+{
+    $sUrl = trim((string)getParam('gf_supabase_url'));
+    if ($sUrl === '') $sUrl = 'https://yjneucgsaayyzoyxrlnb.supabase.co';
+    $sKey = trim((string)getParam('gf_supabase_anon_key'));
+    if ($sKey === '') $sKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqbmV1Y2dzYWF5eXpveXhybG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzODg1MjMsImV4cCI6MjA4ODk2NDUyM30.sRRYcRV7BE3i5upSqDdlmhC9Lf_uEw3Trqni0uEn03w';
+    return array('url' => rtrim($sUrl, '/'), 'key' => $sKey);
+}
+
+/** GET a page of rows from a Supabase table via PostgREST. */
+function gfAppSbFetch($sBase, $sKey, $sTable, $iOffset, $iLimit)
+{
+    $sUrl = $sBase . '/rest/v1/' . rawurlencode($sTable) . '?select=*&order=id.asc&limit=' . (int)$iLimit . '&offset=' . (int)$iOffset;
+    $rCh = curl_init($sUrl);
+    curl_setopt_array($rCh, array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTPHEADER => array('apikey: ' . $sKey, 'Authorization: Bearer ' . $sKey, 'Accept: application/json'),
+    ));
+    $sBody = curl_exec($rCh);
+    $iCode = (int)curl_getinfo($rCh, CURLINFO_HTTP_CODE);
+    $sErr = curl_error($rCh);
+    curl_close($rCh);
+    if ($sBody === false || $iCode >= 400) return array('err' => ($sErr ?: ('HTTP ' . $iCode)), 'rows' => null);
+    $a = json_decode($sBody, true);
+    return array('err' => is_array($a) ? '' : 'bad json', 'rows' => is_array($a) ? $a : null);
+}
+
+/** Import registry: mirror table -> [ mysqlCol => [srcKey, type] ]. */
+function gfAppImportRegistry()
+{
+    return array(
+        'directory_apps' => array('mirror' => 'gf_directory_apps', 'cols' => array(
+            'id' => array('id', 't'), 'platform_app_id' => array('platform_app_id', 't'),
+            'name' => array('name', 't0'), 'slug' => array('slug', 't'), 'description' => array('description', 't'),
+            'logo_url' => array('logo_url', 't'), 'app_url' => array('app_url', 't'), 'category' => array('category', 't'),
+            'access_type' => array('access_type', 'tfree'), 'is_featured' => array('is_featured', 'b'),
+            'is_gfunnel_native' => array('is_gfunnel_native', 'b'), 'created_at' => array('created_at', 'ts'),
+        )),
+        'platform_apps' => array('mirror' => 'gf_platform_apps', 'cols' => array(
+            'id' => array('id', 't'), 'zapier_key' => array('zapier_key', 't'), 'name' => array('name', 't0'),
+            'slug' => array('slug', 't'), 'app_url' => array('app_url', 't'), 'logo_url' => array('logo_url', 't'),
+            'tagline' => array('tagline', 't'), 'description' => array('description', 't'),
+            'gfunnel_description' => array('gfunnel_description', 't'), 'categories' => array('categories', 'j'),
+            'departments' => array('departments', 'j'), 'gfunnel_use_cases' => array('gfunnel_use_cases', 'j'),
+            'automation_ideas' => array('automation_ideas', 'j'), 'related_app_slugs' => array('related_app_slugs', 'j'),
+            'popularity_rank' => array('popularity_rank', 'n'), 'is_featured' => array('is_featured', 'b'),
+            'seo_title' => array('seo_title', 't'), 'seo_description' => array('seo_description', 't'),
+            'created_at' => array('created_at', 'ts'), 'updated_at' => array('updated_at', 'ts'),
+        )),
+        'app_tutorials' => array('mirror' => 'gf_app_tutorials', 'cols' => array(
+            'id' => array('id', 't'), 'platform_app_id' => array('platform_app_id', 't'),
+            'youtube_video_id' => array('youtube_video_id', 't'), 'title' => array('title', 't'),
+            'channel_name' => array('channel_name', 't'), 'duration_seconds' => array('duration_seconds', 'n'),
+            'thumbnail_url' => array('thumbnail_url', 't'), 'published_at' => array('published_at', 'ts'),
+            'view_count' => array('view_count', 'n'),
+        )),
+        'app_docs' => array('mirror' => 'gf_app_docs', 'cols' => array(
+            'id' => array('id', 't'), 'platform_app_id' => array('platform_app_id', 't'),
+            'title' => array('title', 't'), 'url' => array('url', 't'), 'doc_type' => array('doc_type', 't'),
+        )),
+        'app_help_articles' => array('mirror' => 'gf_app_help_articles', 'cols' => array(
+            'id' => array('id', 't'), 'platform_app_id' => array('platform_app_id', 't'),
+            'title' => array('title', 't'), 'content' => array('content', 't'),
+            'url' => array('url', 't'), 'category' => array('category', 't'),
+        )),
+    );
+}
+
+/** Coerce a source value to its MySQL-bound form. */
+function gfAppCoerce($mVal, $sType)
+{
+    switch ($sType) {
+        case 'b':   return $mVal ? 1 : 0;
+        case 'n':   return ($mVal === null || $mVal === '') ? null : 0 + $mVal;
+        case 'ts':
+            if (!$mVal) return null;
+            $iT = strtotime((string)$mVal);
+            return $iT ? date('Y-m-d H:i:s', $iT) : null;
+        case 'j':   return ($mVal === null) ? null : (is_string($mVal) ? $mVal : json_encode($mVal));
+        case 't0':  return ($mVal === null) ? '' : (string)$mVal;
+        case 'tfree': $s = ($mVal === null || $mVal === '') ? 'free' : (string)$mVal; return $s;
+        default:    return ($mVal === null) ? null : (string)$mVal; // 't'
+    }
+}
+
+/** Upsert one page of rows into a mirror table. Returns count written. */
+function gfAppImportPage($oDb, $aDef, $aRows)
+{
+    if (empty($aRows)) return 0;
+    $aCols = array_keys($aDef['cols']);
+    $sColList = '`' . implode('`,`', $aCols) . '`,`synced_at`';
+    $sUpd = array();
+    foreach ($aCols as $c) if ($c !== 'id') $sUpd[] = "`$c`=VALUES(`$c`)";
+    $sUpd[] = '`synced_at`=NOW()';
+
+    $aTuples = array();
+    foreach ($aRows as $r) {
+        if (!isset($r['id'])) continue;
+        $aVals = array();
+        foreach ($aDef['cols'] as $sMy => $aSpec) {
+            $mV = isset($r[$aSpec[0]]) ? $r[$aSpec[0]] : null;
+            $mC = gfAppCoerce($mV, $aSpec[1]);
+            $aVals[] = ($mC === null) ? 'NULL' : "'" . $oDb->escape((string)$mC) . "'";
+        }
+        $aVals[] = 'NOW()';
+        $aTuples[] = '(' . implode(',', $aVals) . ')';
+    }
+    if (empty($aTuples)) return 0;
+    $sSql = "INSERT INTO `{$aDef['mirror']}` ($sColList) VALUES " . implode(',', $aTuples)
+        . ' ON DUPLICATE KEY UPDATE ' . implode(', ', $sUpd);
+    $oDb->query($sSql);
+    return count($aTuples);
+}
+
+/** Run the full import (admin session OR matching cron token). Emits JSON. */
+function gfAppRunImport($oDb)
+{
+    header('Content-Type: application/json; charset=utf-8');
+    // Auth: admin session, or ?key=<gf_dir_import_token> (for cron / curl).
+    $aMember = gfAppMember();
+    $sToken = trim((string)getParam('gf_dir_import_token'));
+    $sGiven = trim((string)bx_get('key'));
+    $bOk = ($aMember['admin']) || ($sToken !== '' && hash_equals($sToken, $sGiven));
+    if (!$bOk) { http_response_code(403); echo json_encode(array('ok' => false, 'error' => 'forbidden')); return; }
+
+    @set_time_limit(0);
+    $aCfg = gfAppImportConfig();
+    $aReg = gfAppImportRegistry();
+    $sOnly = trim((string)bx_get('table')); // optional single-table import
+    $iLimit = 200; // rows per fetch + per multi-row upsert (safe for max_allowed_packet)
+    $aResult = array();
+    $aErrors = array();
+
+    foreach ($aReg as $sTable => $aDef) {
+        if ($sOnly !== '' && $sOnly !== 'all' && $sOnly !== $sTable) continue;
+        $iOffset = 0; $iCount = 0;
+        while (true) {
+            $aPage = gfAppSbFetch($aCfg['url'], $aCfg['key'], $sTable, $iOffset, $iLimit);
+            if ($aPage['rows'] === null) { $aErrors[$sTable] = $aPage['err']; break; }
+            if (empty($aPage['rows'])) break;
+            $iCount += gfAppImportPage($oDb, $aDef, $aPage['rows']);
+            if (count($aPage['rows']) < $iLimit) break;
+            $iOffset += $iLimit;
+        }
+        $aResult[$sTable] = $iCount;
+    }
+
+    echo json_encode(array('ok' => empty($aErrors), 'synced' => $aResult, 'errors' => $aErrors));
 }
 
 /** Platform-owned table for each member's personal app collection (NOT synced). */
@@ -472,6 +636,18 @@ function gfAppContextBar($aMember)
         . '</div></div>';
 }
 
+/** Admin-only toolbar: one-click "pull the directory from Supabase". */
+function gfAppAdminBar($aMember)
+{
+    if (empty($aMember['admin'])) return '';
+    $sSync = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
+    return '<div class="gfa-adminbar">'
+        . '<span class="gfa-adminbar-label">Admin</span>'
+        . '<button type="button" class="gfa-ghost" id="gfa-sync">' . $sSync . '<span>Sync directory from Supabase</span></button>'
+        . '<span class="gfa-adminbar-status" id="gfa-sync-status"></span>'
+        . '</div>';
+}
+
 /** Apps tab: welcome hero + Core Applications icon grid + hub cards. */
 function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
 {
@@ -559,6 +735,7 @@ function gfAppAppsTab($oDb, $sTabBar, $aMember, $aMine = array())
 
     return '<section class="gfa-main"><div class="gfh-container">'
         . gfAppContextBar($aMember)
+        . gfAppAdminBar($aMember)
         . $sHero
         . $sTabBar
         . $sCore
@@ -727,6 +904,7 @@ function gfAppMarketplaceTab($oDb, $sTabBar, $aMember, $aMineSet = array())
 
     return '<section class="gfa-main"><div class="gfh-container">'
         . gfAppContextBar($aMember)
+        . gfAppAdminBar($aMember)
         . $sTabBar
         . '<div class="gfa-sec" style="margin-bottom:0">'
         .   '<div class="gfh-appd-bar">'
