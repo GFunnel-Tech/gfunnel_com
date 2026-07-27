@@ -56,24 +56,17 @@ class BxBaseServiceProfiles extends BxDol
 
         $oTemplate = BxDolTemplate::getInstance();
 
-        $sSwitcher = '';
-        $aSwitcher = bx_srv('system', 'account_profile_switcher', array(false, null, '', true), 'TemplServiceProfiles');
-        if($aSwitcher !== false)
-            $sSwitcher = BxTemplFunctions::getInstance()->popupBox('bx-profile-switcher', _t('_sys_txt_switch_profiles'), $oTemplate->parseHtmlByName('profile_avatar_switcher.html', array(
-                'profile_switcher' => $aSwitcher['content'],
-                'bx_if:multiple_profiles_mode' => array(
-                    'condition' => empty($aSwitcher['content']) || BxDolAccount::isAllowedCreateMultiple($oProfile->id()),
-                    'content' => array(
-                        'url_switch_profile' => BxDolPermalinks::getInstance()->permalink('page.php?i=account-profile-switcher')
-                    )
-                )
-            )), true);
-        $bSwitcher = !empty($sSwitcher);        
-        $sSwitcherUrl = $bSwitcher ? 'javascript:void(0)' : $sUrl;
-        $sSwitcherOnclick = $bSwitcher ? "javascript:$('#bx-profile-switcher').dolPopup({});" : "";
-
         $sDisplayName = $oProfile->getDisplayName();
         $sUrl = $oProfile->getUrl();
+
+        // GFunnel: the workspace switcher moved to the top nav (right of the
+        // logo, workspace/app layout only). Suppress the left-nav avatar switch
+        // popup so the sidebar avatar simply links to the profile - a single
+        // switch surface across the shell.
+        $sSwitcher = '';
+        $bSwitcher = false;
+        $sSwitcherUrl = $sUrl;
+        $sSwitcherOnclick = '';
 
         $oAcl = BxDolAcl::getInstance();
         $aAcl = $oAcl->getMemberMembershipInfo($iProfileId);
