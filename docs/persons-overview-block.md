@@ -44,6 +44,19 @@ uses the branded gradient — a real cover image is a noted follow-up, not a fak
 - **Org-only metrics** (Team / Partners / Customers / rating) — those are
   organization concepts; the person block uses real person metrics instead.
 
+## Placing it automatically (one-time)
+
+Run the migration to add the block to the profile page without touching Studio:
+
+```
+php custom_batch_updates/gf_place_overview_blocks.php
+```
+
+It resolves the page object, inserts the block at the top of the main column
+(content-only, idempotent), and prints every block already on the page so the
+native cover/header can be hidden precisely. Raw SQL equivalent:
+`docs/sql/gf_overview_blocks.sql`.
+
 ## Placing it on the profile page (one-time, in Studio)
 
 1. **Studio → Pages** → open **Persons → View persons profile**
