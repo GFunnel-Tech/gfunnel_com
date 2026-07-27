@@ -47,7 +47,19 @@
             </div>
 
             <bx_if:whats_new>
-                <a class="gf-whatsnew" href="__whats_new_url__">__whats_new_title__</a>
+            <div class="gf-pop gf-pop-whatsnew">
+                <button type="button" class="gf-whatsnew gf-pop-trigger" aria-haspopup="dialog" aria-expanded="false" onclick="gfNavPopToggle(this)">__whats_new_title__</button>
+                <div class="gf-pop-panel" role="dialog" aria-label="__whats_new_title__">
+                    <div class="gf-pop-head"><span class="gf-pop-title">__whats_new_title__</span></div>
+                    <div class="gf-pop-body">
+                        <div class="gf-pop-empty">No new updates right now.<br>See everything that's shipped on the updates page.</div>
+                    </div>
+                    <a class="gf-pop-foot" href="__whats_new_url__">
+                        Open updates
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                </div>
+            </div>
             </bx_if:whats_new>
 
             <!-- Vertical divider between the Timer / What's New group and the
@@ -63,16 +75,50 @@
             </bx_if:bug>
 
             <bx_if:ai>
-                <a class="gf-icon-btn gf-ai" href="__ai_url__" title="__ai_title__" aria-label="__ai_title__">
+            <div class="gf-pop gf-pop-ai">
+                <button type="button" class="gf-icon-btn gf-ai gf-pop-trigger" aria-haspopup="dialog" aria-expanded="false" title="__ai_title__" aria-label="__ai_title__" onclick="gfNavPopToggle(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg>
-                </a>
+                </button>
+                <div class="gf-pop-panel" role="dialog" aria-label="__ai_title__">
+                    <div class="gf-pop-head"><span class="gf-pop-title">GFunnel AI</span></div>
+                    <div class="gf-pop-body">
+                        <a class="gf-ai-ask" href="__ai_url__">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                            Ask anything&hellip;
+                        </a>
+                        <div class="gf-ai-chips">
+                            <a class="gf-ai-chip" href="__ai_url__">Summarize my day</a>
+                            <a class="gf-ai-chip" href="__ai_url__">Draft a follow-up</a>
+                            <a class="gf-ai-chip" href="__ai_url__">Create a task</a>
+                        </div>
+                        <div class="gf-pop-group">Recent sessions</div>
+                        <div class="gf-pop-empty">No recent sessions yet.</div>
+                    </div>
+                    <a class="gf-pop-foot" href="__ai_url__">
+                        Open GFunnel AI
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                </div>
+            </div>
             </bx_if:ai>
 
             <bx_if:messages>
-                <a class="gf-icon-btn gf-messages" href="__messages_url__" title="Messages" aria-label="Messages">
+            <div class="gf-pop gf-pop-messages">
+                <button type="button" class="gf-icon-btn gf-messages gf-pop-trigger" aria-haspopup="dialog" aria-expanded="false" title="Messages" aria-label="Messages" onclick="gfNavPopToggle(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     __messages_badge__
-                </a>
+                </button>
+                <div class="gf-pop-panel" role="dialog" aria-label="Messages">
+                    <div class="gf-pop-head"><span class="gf-pop-title">Messages</span></div>
+                    <div class="gf-pop-body">
+                        <div class="gf-pop-empty">__messages_panel_empty__</div>
+                    </div>
+                    <a class="gf-pop-foot" href="__messages_url__">
+                        Open messages
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                </div>
+            </div>
             </bx_if:messages>
 
             <!-- Members toolbar (notifications, account, etc.) -->

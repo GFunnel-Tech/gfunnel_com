@@ -202,7 +202,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 'condition' => !empty($sMessagesUrl),
                 'content' => [
                     'messages_url' => $sMessagesUrl,
-                    'messages_badge' => $iUnreadMessages > 0 ? '<span class="gf-hdr-badge">' . ($iUnreadMessages > 99 ? '99+' : $iUnreadMessages) . '</span>' : ''
+                    'messages_badge' => $iUnreadMessages > 0 ? '<span class="gf-hdr-badge">' . ($iUnreadMessages > 99 ? '99+' : $iUnreadMessages) . '</span>' : '',
+                    'messages_panel_empty' => $iUnreadMessages > 0
+                        ? ('You have ' . (int)$iUnreadMessages . ' unread conversation' . ($iUnreadMessages == 1 ? '' : 's') . '.')
+                        : "You're all caught up."
                 ]
             ]
         ]);
