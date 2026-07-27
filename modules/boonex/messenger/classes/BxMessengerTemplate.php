@@ -90,6 +90,11 @@ class BxMessengerTemplate extends BxBaseModGeneralTemplate
             array_push($aJs, 'quill.mention.min.js');
         }
 
+        // GFunnel: Facebook-Messenger skin. Appended last so it overrides the
+        // stock component styles by cascade order as well as specificity
+        // (all rules are scoped under the `.bx-page-messenger` body class).
+        array_push($aCss, 'gf-facebook-skin.css');
+
         $this->initFilesUploader();
 
         $this->addCss($aCss);

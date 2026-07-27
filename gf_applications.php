@@ -54,8 +54,13 @@ gfWsAppsEnsureTable($oDb);
 //                        (admin session, or ?key=<gf_dir_import_token> for cron)
 //   add|remove|list   -> the signed-in member's personal app collection
 if (bx_get('gfa_action') !== false) {
-    if (strtolower((string)bx_get('gfa_action')) === 'import') {
+    $sGfAction = strtolower((string)bx_get('gfa_action'));
+    if ($sGfAction === 'import') {
         gfAppRunImport($oDb);
+        exit;
+    }
+    if ($sGfAction === 'admin') {
+        gfAppRunAdmin($oDb);
         exit;
     }
     gfAppHandleUserAction($oDb);

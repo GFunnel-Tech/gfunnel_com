@@ -198,7 +198,7 @@ what you `grep` for to find a module's code.
 
 | File | Does | | File | Does |
 |---|---|---|---|---|
-| `gf_auth.php` | login + create-account pages (renderer) | | `gf_applications.php` | **Application Hub**: `/applications` (Apps: welcome hero + Core Applications icon grid + hub cards), `/marketplace/applications` (App Directory), `/application/<slug>` (detail). Own skin: `template/css/gf_applications.css` + `template/js/gf_applications.js` (+ `gf_app_banner_{1-4}.jpg`) |
+| `gf_auth.php` | login + create-account pages (renderer) | | `gf_applications.php` | **Application Hub** (thin dispatcher over `inc/gf_app_blocks.inc.php`): `/applications` (Apps), `/marketplace/applications` (Directory), `/application/<slug>` (detail), `?gfa_action=import\|admin` (admin sync + Manage-Apps settings, writes back to Supabase via `gf_app_config` secret). Skin: `template/css/gf_applications.css` + `template/js/gf_applications.js`. Also rendered in-shell by the `gfunnel_applications` module (§2A) |
 | `gf_login.php` | `/login` → renders via `gf_auth.php` | | `gf_business.php` | Business **Directory** over `mz_listing`, `/business` |
 | `gf_create_account.php` | `/create-account` → via `gf_auth.php` | | `gf_services.php` | **Services & Talent** hub (VAs/vendors), `/services` |
 | `gf_onboarding.php` | post-signup onboarding (step 2) | | `gf_marketplace.php` | **Marketplace** over `bx_market`, `/marketplace` |
@@ -307,6 +307,8 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/directory-content-pipeline.md` | Monitors that enrich the directory (YouTube tutorials → `app_tutorials` → mirror) |
 | `docs/organization-overview-block.md` | org overview UI block |
 | `docs/workspace-administration.md` | workspace roles, ownership transfer/claim, the picker's manage panel |
+| `docs/persons-overview-block.md` | person profile overview block (`BxPersonsModule::serviceOverview()`) |
+| `docs/workspace-overview-block.md` | workspace overview block for orgs/spaces/groups (`BxBaseModGroupsModule::serviceOverviewStructured()`) |
 | `docs/audits/homepage-audit.md` | the home page |
 | `docs/gfunnel-home-blocks.md`, `docs/homepage-module-mapping.md` | homepage sections, the GFunnel Home service blocks, and the section→module/data-source mapping |
 | `docs/sql/*.sql` | DB schema (departments, directory apps, workspace invites) |

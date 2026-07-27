@@ -1,0 +1,409 @@
+/**
+ * GFunnel — Facebook-Messenger skin for the /messenger page.
+ * -----------------------------------------------------------------------------
+ * This is an OVERRIDE layer, not a fork. The Messenger module ships its own
+ * (minified) stock UNA skin in the sibling component files (main.css,
+ * talks-list.css, message.css, text-area.css, history-header.css, …). This file
+ * is appended LAST by BxMessengerTemplate::loadCssJs() and re-skins that markup
+ * to match Facebook Messenger:
+ *
+ *   • conversation list  — round avatars, green presence dots, hover/active rows
+ *   • message thread     — own messages right-aligned in solid FB-blue bubbles,
+ *                          others left-aligned in grey bubbles (stock left-aligns
+ *                          everything with pale tints — the main visual mismatch)
+ *   • composer           — a rounded pill input with a blue send glyph
+ *
+ * Everything is scoped under `.bx-page-messenger` (the body class UNA sets on the
+ * Messenger page). That keeps the rules off the rest of the site AND raises their
+ * specificity one class above the module's own selectors, so the override wins by
+ * both cascade order and specificity without a single !important on layout.
+ *
+ * The templates/markup are untouched; only presentation changes here.
+ */
+
+/* ========================================================================== */
+/*  Palette                                                                    */
+/* ========================================================================== */
+
+.bx-page-messenger {
+	--gf-fb-blue:        #0084ff;   /* own bubble, send glyph, accents        */
+	--gf-fb-blue-hover:  #0072e0;
+	--gf-fb-bubble-in:   #f0f0f0;   /* incoming (others') bubble              */
+	--gf-fb-text:        #050505;   /* primary text                          */
+	--gf-fb-text-soft:   #65676b;   /* secondary / timestamps                */
+	--gf-fb-surface:     #ffffff;   /* column backgrounds                     */
+	--gf-fb-hover:       #f2f2f2;   /* row hover                              */
+	--gf-fb-active:      #ebf5ff;   /* selected conversation                  */
+	--gf-fb-border:      #e4e6eb;   /* hairline separators                    */
+	--gf-fb-online:      #31a24c;   /* presence dot                          */
+	--gf-fb-chip:        #f0f2f5;   /* search + composer pill                 */
+	--gf-fb-radius:      18px;      /* message bubble radius                  */
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ========================================================================== */
+/*  Overall shell — flat white columns, hairline dividers                      */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-columns,
+.bx-page-messenger .bx-messenger-talks-list-area,
+.bx-page-messenger .bx-messenger-menu-block,
+.bx-page-messenger .bx-messenger-history-column {
+	background-color: var(--gf-fb-surface);
+}
+
+.bx-page-messenger .bx-messenger-columns > :not([hidden]) ~ :not([hidden]) {
+	border-left: 1px solid var(--gf-fb-border);
+}
+
+.bx-page-messenger .bx-messenger-items-list {
+	border-top: 1px solid var(--gf-fb-border);
+}
+
+/* ========================================================================== */
+/*  Conversation list header ("Chats") + tools                                 */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-talks-list-header-title {
+	font-size: 1.5rem;
+	font-weight: 800;
+	color: var(--gf-fb-text);
+}
+
+/* Round, quiet icon buttons (new message / search / filter / starred) */
+.bx-page-messenger .bx-messenger-talks-list-header-menu-item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 2.25rem;
+	width: 2.25rem;
+	padding: 0;
+	border: 0;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-chip);
+	color: var(--gf-fb-text);
+}
+.bx-page-messenger .bx-messenger-talks-list-header-menu-item:hover {
+	background-color: #e4e6eb;
+	color: var(--gf-fb-blue);
+}
+
+/* Search field as a pill */
+.bx-page-messenger .bx-messenger-talks-list-header-search-area input,
+.bx-page-messenger #bx-messenger-filter-talks {
+	width: 100%;
+	border: 0;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-chip);
+	padding: 0.55rem 0.9rem;
+	font-size: 0.95rem;
+	color: var(--gf-fb-text);
+	box-shadow: none;
+}
+
+/* ========================================================================== */
+/*  Conversation list rows                                                     */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-jots-snip {
+	border-radius: 10px;
+	margin: 0 0.5rem;
+}
+.bx-page-messenger .bx-messenger-items-list ul > :not([hidden]) ~ :not([hidden]) {
+	border-top: 0;   /* Facebook rows are separated by whitespace, not lines */
+}
+.bx-page-messenger .bx-messenger-jots-snip > a > div {
+	padding: 0.5rem 0.75rem;
+}
+
+/* Hover + selected states */
+.bx-page-messenger .bx-messenger-jots-snip:hover {
+	background-color: var(--gf-fb-hover);
+}
+.bx-page-messenger .bx-messenger-jots-snip.active,
+.bx-page-messenger .bx-messenger-jots-snip.active:hover {
+	background-color: var(--gf-fb-active);
+}
+.bx-page-messenger .bx-messenger-jots-snip.active .bx-messenger-jots-snip-title .title,
+.bx-page-messenger .bx-messenger-jots-snip.active .bx-messenger-jots-snip-info {
+	color: var(--gf-fb-text);
+}
+.bx-page-messenger .bx-messenger-jots-snip.active .bx-messenger-preview-lot {
+	color: var(--gf-fb-text-soft);
+}
+
+/* Avatars — larger, round, with room for a presence dot */
+.bx-page-messenger .bx-messenger-jots-snip-avatars-list {
+	height: 3.5rem;
+	width: 3.5rem;
+	background-color: #e4e6eb;
+	box-shadow: none;
+}
+.bx-page-messenger .bx-messenger-jots-snip-avatars-list img,
+.bx-page-messenger .bx-messenger-jots-snip-avatars-list p {
+	height: 3.5rem;
+	width: 3.5rem;
+	object-fit: cover;
+}
+
+/* Row typography */
+.bx-page-messenger .bx-messenger-jots-snip-title .title {
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: var(--gf-fb-text);
+}
+.bx-page-messenger .bx-messenger-jots-snip-info {
+	font-size: 0.8125rem;
+	color: var(--gf-fb-text-soft);
+	gap: 0.35rem;
+}
+/* Neutralise the stock reverse space-x hack so the snippet/time don't collide */
+.bx-page-messenger .bx-messenger-jots-snip .bx-messenger-jots-snip-info > * + * {
+	margin-left: 0;
+	margin-right: 0;
+}
+.bx-page-messenger .bx-messenger-jots-snip.unread-lot .bx-messenger-jots-snip-title .title,
+.bx-page-messenger .bx-messenger-jots-snip.unread-lot .bx-messenger-jots-snip-info {
+	font-weight: 700;
+	color: var(--gf-fb-text);
+}
+
+/* Unread marker + presence dot */
+.bx-page-messenger .bx-messenger-jots-snip .bx-messenger-jots-snip-info-bubble {
+	background-color: var(--gf-fb-blue);
+}
+.bx-page-messenger .bx-messenger-status.online {
+	background-color: var(--gf-fb-online);
+	height: 0.85rem;
+	width: 0.85rem;
+	box-shadow: 0 0 0 2.5px var(--gf-fb-surface);
+}
+
+/* ========================================================================== */
+/*  Thread header — name + call / video / info actions                         */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-history-block-header {
+	border-bottom: 1px solid var(--gf-fb-border);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.bx-page-messenger .bx-messenger-history-block-header .bx-db-title {
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--gf-fb-text);
+}
+
+/* Action buttons: blue glyphs on a hover halo (Messenger style) */
+.bx-page-messenger .bx-messenger-block-menu-align-right .bx-menu-item a {
+	background-color: transparent;
+	border: 0;
+	color: var(--gf-fb-blue);
+}
+.bx-page-messenger .bx-messenger-block-menu-align-right .bx-menu-item a:hover {
+	background-color: var(--gf-fb-active);
+	color: var(--gf-fb-blue-hover);
+}
+.bx-page-messenger .bx-messenger-block-menu-align-right .bx-menu-item {
+	color: var(--gf-fb-blue);
+}
+
+/* ========================================================================== */
+/*  Message thread                                                             */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-conversation-block,
+.bx-page-messenger .bx-messenger-history-column {
+	background-color: var(--gf-fb-surface);
+}
+
+.bx-page-messenger .bx-messenger-jots {
+	margin-top: 0.125rem;
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+}
+
+/* Bubble — the core Facebook look: pill-shaped, solid fill, comfortable padding */
+.bx-page-messenger .bx-messenger-jots-message-bg {
+	margin-left: 0;
+	border-radius: var(--gf-fb-radius);
+	background-color: var(--gf-fb-bubble-in);
+	padding: 0.5rem 0.75rem;
+	max-width: 100%;
+}
+.bx-page-messenger .bx-messenger-jots-message {
+	font-size: 0.9375rem;
+	line-height: 1.3125rem;
+	color: var(--gf-fb-text);
+}
+.bx-page-messenger .bx-messenger-jots-message-body {
+	max-width: 75%;
+}
+
+/* Keep media/file attachments free of a bubble fill (they carry their own UI) */
+.bx-page-messenger .bx-messenger-jots-message-body.message-attachment,
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message-body.message-attachment {
+	background-color: transparent;
+	padding: 0;
+}
+
+/* Incoming avatar — small, aligned to the bubble baseline */
+.bx-page-messenger .bx-messenger-jots-avatars {
+	width: 2.75rem;
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+	display: flex;
+	align-items: flex-end;
+}
+.bx-page-messenger .bx-messenger-jots-avatars img,
+.bx-page-messenger .bx-messenger-jots-avatars p {
+	height: 1.75rem !important;
+	width: 1.75rem !important;
+	box-shadow: none !important;
+}
+
+/* Author name above grouped incoming messages */
+.bx-page-messenger .bx-messenger-jots-title {
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: var(--gf-fb-text-soft);
+	padding-left: 0.25rem;
+}
+
+/* --- OWN messages: right-aligned, solid blue, no avatar/name --------------- */
+.bx-page-messenger .bx-messenger-jots[data-my="1"] {
+	flex-direction: row-reverse;
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-avatars {
+	display: none;
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-title {
+	display: none;
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message-wrapper {
+	justify-content: flex-end;
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message-bg {
+	background-color: var(--gf-fb-blue);
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message,
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message p,
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message a {
+	color: #ffffff;
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jots-message a {
+	text-decoration: underline;
+}
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-message-icons {
+	justify-content: flex-end;
+}
+
+/* Read receipts / timing under own messages align right */
+.bx-page-messenger .bx-messenger-jots[data-my="1"] .bx-messenger-jot-reactions {
+	justify-content: flex-end;
+}
+
+/* ========================================================================== */
+/*  Date separators                                                            */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-date-time {
+	text-align: center;
+	color: var(--gf-fb-text-soft);
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin: 1rem 0 0.5rem;
+}
+
+/* ========================================================================== */
+/*  Composer — rounded pill input + blue send glyph                            */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-post-box {
+	border-top: 1px solid var(--gf-fb-border);
+}
+.bx-page-messenger .bx-messenger-post-box > div {
+	border: 0;
+	box-shadow: none;
+	background-color: transparent;
+	display: flex;
+	align-items: center;
+}
+.bx-page-messenger .bx-messenger-message-box-input-area {
+	background-color: var(--gf-fb-chip);
+	border-radius: 20px;
+	padding: 0.6rem 1rem;
+	color: var(--gf-fb-text);
+}
+.bx-page-messenger .bx-messenger-message-box-input-area:focus {
+	background-color: var(--gf-fb-chip);
+}
+
+/* Action row: transparent, blue-tinted glyphs */
+.bx-page-messenger .bx-messenger-post-box-send-actions {
+	background-color: transparent;
+	box-shadow: none;
+	margin-top: 0;
+	padding: 0.25rem 0.25rem 0.25rem 0;
+}
+.bx-page-messenger .bx-messenger-post-box-send-actions-items > button {
+	color: var(--gf-fb-blue);
+}
+.bx-page-messenger .bx-messenger-post-box-send-actions-items > button > svg {
+	opacity: 1;
+	color: var(--gf-fb-blue);
+}
+
+/* Send button: glyph-only, no filled rectangle */
+.bx-page-messenger .bx-messenger-post-box-send-button > button {
+	background-color: transparent;
+	border: 0;
+	box-shadow: none;
+	color: var(--gf-fb-blue);
+	padding: 0.4rem 0.5rem;
+}
+.bx-page-messenger .bx-messenger-post-box-send-button > button:hover {
+	background-color: var(--gf-fb-active);
+	color: var(--gf-fb-blue-hover);
+	transform: none;
+}
+.bx-page-messenger .bx-messenger-post-box-send-button > button:active {
+	background-color: #d9ebff;
+	transform: none;
+}
+.bx-page-messenger .bx-messenger-post-box-send-button > button > svg {
+	height: 1.6rem;
+	width: 1.6rem;
+}
+
+/* ========================================================================== */
+/*  "New message" always-on-top row                                            */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-always-top a {
+	background-color: transparent;
+	border-radius: 10px;
+	margin: 0 0.5rem;
+}
+.bx-page-messenger .bx-messenger-always-top a:hover {
+	background-color: var(--gf-fb-hover);
+}
+.bx-page-messenger .bx-messenger-always-top-create-new {
+	background-color: var(--gf-fb-blue);
+	color: #ffffff;
+}
+
+/* ========================================================================== */
+/*  Dark mode — keep the FB feel without the harsh stock greys                  */
+/* ========================================================================== */
+
+.dark .bx-page-messenger,
+.bx-page-messenger.dark {
+	--gf-fb-bubble-in: #303030;
+	--gf-fb-text:      #e4e6eb;
+	--gf-fb-text-soft: #b0b3b8;
+	--gf-fb-surface:   #242526;
+	--gf-fb-hover:     #3a3b3c;
+	--gf-fb-active:    #263951;
+	--gf-fb-border:    #393a3b;
+	--gf-fb-chip:      #3a3b3c;
+}

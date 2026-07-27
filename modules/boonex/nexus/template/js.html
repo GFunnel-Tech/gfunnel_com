@@ -38,7 +38,10 @@
     }
 
     function bx_mobile_apps_show_messenger_menu () {
-        document.location = sUrlRoot + 'page.php?i=messenger';
+        // GFunnel: navigate straight to the friendly /messenger URL. Using the raw
+        // page.php?i=messenger caused a visible 301 redirect hop (the raw URL flashed
+        // before the browser landed on /messenger).
+        document.location = sUrlRoot + 'messenger';
     }
 
     function bx_mobile_apps_home () {

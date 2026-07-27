@@ -190,14 +190,45 @@ function gfAppScope($aMember)
 // HTTPS to Supabase's public REST API (tables are public-read).
 // ============================================================================
 
-/** Supabase REST config. Public anon key + URL; override via sys_options. */
+/** Platform-owned key/value store for Application Hub settings (NOT synced). */
+function gfAppCfgEnsureTable($oDb)
+{
+    $oDb->query("CREATE TABLE IF NOT EXISTS `gf_app_config` (
+        `k` varchar(64) NOT NULL,
+        `v` text,
+        PRIMARY KEY (`k`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+/** Read a config value: gf_app_config → sys_option ($k) → $default. */
+function gfAppCfg($k, $default = '')
+{
+    static $aCache = null;
+    if ($aCache === null) {
+        $oDb = BxDolDb::getInstance();
+        gfAppCfgEnsureTable($oDb);
+        $aRows = $oDb->getAll("SELECT `k`,`v` FROM `gf_app_config`");
+        $aCache = array();
+        if (is_array($aRows)) foreach ($aRows as $r) $aCache[$r['k']] = $r['v'];
+    }
+    if (isset($aCache[$k]) && $aCache[$k] !== '' && $aCache[$k] !== null) return $aCache[$k];
+    $sOpt = function_exists('getParam') ? trim((string)getParam($k)) : '';
+    return $sOpt !== '' ? $sOpt : $default;
+}
+
+/** Write a config value. */
+function gfAppCfgSet($oDb, $k, $v)
+{
+    gfAppCfgEnsureTable($oDb);
+    $oDb->query($oDb->prepare("INSERT INTO `gf_app_config` (`k`,`v`) VALUES (?,?) ON DUPLICATE KEY UPDATE `v` = VALUES(`v`)", (string)$k, (string)$v));
+}
+
+/** Supabase REST config: URL + anon (read) key. Defaults keep the site working. */
 function gfAppImportConfig()
 {
-    $sUrl = trim((string)getParam('gf_supabase_url'));
-    if ($sUrl === '') $sUrl = 'https://yjneucgsaayyzoyxrlnb.supabase.co';
-    $sKey = trim((string)getParam('gf_supabase_anon_key'));
-    if ($sKey === '') $sKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqbmV1Y2dzYWF5eXpveXhybG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzODg1MjMsImV4cCI6MjA4ODk2NDUyM30.sRRYcRV7BE3i5upSqDdlmhC9Lf_uEw3Trqni0uEn03w';
-    return array('url' => rtrim($sUrl, '/'), 'key' => $sKey);
+    $sUrl = gfAppCfg('gf_supabase_url', 'https://yjneucgsaayyzoyxrlnb.supabase.co');
+    $sKey = gfAppCfg('gf_supabase_anon_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqbmV1Y2dzYWF5eXpveXhybG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzODg1MjMsImV4cCI6MjA4ODk2NDUyM30.sRRYcRV7BE3i5upSqDdlmhC9Lf_uEw3Trqni0uEn03w');
+    return array('url' => rtrim($sUrl, '/'), 'key' => $sKey, 'secret' => gfAppCfg('gf_supabase_secret_key', ''));
 }
 
 /** GET a page of rows from a Supabase table via PostgREST. */
@@ -348,6 +379,195 @@ function gfAppRunImport($oDb)
     }
 
     echo json_encode(array('ok' => empty($aErrors), 'synced' => $aResult, 'errors' => $aErrors));
+}
+
+// ============================================================================
+// Admin: settings + Manage Apps (write-back to Supabase, source of truth).
+// ============================================================================
+
+/**
+ * Write to a Supabase table via PostgREST using the stored SECRET key.
+ * $sMethod PATCH|POST; $sQuery e.g. "id=eq.<uuid>"; $aBody assoc row.
+ * Returns ['ok'=>bool,'err'=>string,'rows'=>array|null].
+ */
+function gfAppSbWrite($aCfg, $sMethod, $sTable, $sQuery, $aBody)
+{
+    $sKey = trim((string)(isset($aCfg['secret']) ? $aCfg['secret'] : ''));
+    if ($sKey === '') return array('ok' => false, 'err' => 'No Supabase secret key set (Admin → Settings).', 'rows' => null);
+    $sUrl = $aCfg['url'] . '/rest/v1/' . rawurlencode($sTable) . ($sQuery !== '' ? ('?' . $sQuery) : '');
+    $rCh = curl_init($sUrl);
+    curl_setopt_array($rCh, array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => $sMethod,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_POSTFIELDS => json_encode($aBody),
+        CURLOPT_HTTPHEADER => array(
+            'apikey: ' . $sKey, 'Authorization: Bearer ' . $sKey,
+            'Content-Type: application/json', 'Prefer: return=representation',
+        ),
+    ));
+    $sBody = curl_exec($rCh);
+    $iCode = (int)curl_getinfo($rCh, CURLINFO_HTTP_CODE);
+    $sErr = curl_error($rCh);
+    curl_close($rCh);
+    if ($sBody === false) return array('ok' => false, 'err' => ($sErr ?: 'request failed'), 'rows' => null);
+    $a = json_decode($sBody, true);
+    if ($iCode >= 400) return array('ok' => false, 'err' => 'HTTP ' . $iCode . ': ' . (is_array($a) && isset($a['message']) ? $a['message'] : substr((string)$sBody, 0, 180)), 'rows' => null);
+    return array('ok' => true, 'err' => '', 'rows' => is_array($a) ? $a : array());
+}
+
+/** Admin page: settings + Manage Apps. Admin-only; handles POST then renders. */
+function gfAppRunAdmin($oDb)
+{
+    $aMember = gfAppMember();
+    if (empty($aMember['admin'])) { BxDolTemplate::getInstance()->displayPageNotFound(); return; }
+
+    $sSelf = BX_DOL_URL_ROOT . 'applications?gfa_action=admin';
+    $aCfg = gfAppImportConfig();
+
+    // --- POST actions (Post/Redirect/Get) ------------------------------------
+    if (!empty($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'POST') {
+        $P = function ($k) { return isset($_POST[$k]) ? trim((string)$_POST[$k]) : ''; };
+        $sDo = strtolower($P('do'));
+        $sMsg = '';
+
+        if ($sDo === 'save_settings') {
+            gfAppCfgSet($oDb, 'gf_supabase_url', $P('supabase_url'));
+            gfAppCfgSet($oDb, 'gf_supabase_anon_key', $P('anon_key'));
+            $sSecret = $P('secret_key');
+            if ($sSecret !== '' && $sSecret !== '********') gfAppCfgSet($oDb, 'gf_supabase_secret_key', $sSecret);
+            gfAppCfgSet($oDb, 'gf_dir_import_token', $P('import_token'));
+            $sMsg = 'Settings saved.';
+        } elseif ($sDo === 'save_app') {
+            $sId = $P('id');
+            if ($sId !== '') {
+                $aBody = array(
+                    'name' => $P('name'), 'app_url' => $P('app_url'), 'logo_url' => $P('logo_url'),
+                    'category' => $P('category'), 'is_featured' => isset($_POST['is_featured']),
+                );
+                $aR = gfAppSbWrite($aCfg, 'PATCH', 'directory_apps', 'id=eq.' . rawurlencode($sId), $aBody);
+                if ($aR['ok']) {
+                    $aReg = gfAppImportRegistry();
+                    if (!empty($aR['rows'])) gfAppImportPage($oDb, $aReg['directory_apps'], $aR['rows']);
+                    $sMsg = 'Saved “' . $P('name') . '”.';
+                } else $sMsg = 'Save failed: ' . $aR['err'];
+            }
+        } elseif ($sDo === 'add_app') {
+            if ($P('name') !== '') {
+                $aBody = array(
+                    'name' => $P('name'), 'slug' => ($P('slug') !== '' ? $P('slug') : null),
+                    'app_url' => $P('app_url'), 'category' => $P('category'),
+                    'is_featured' => isset($_POST['is_featured']),
+                );
+                $aR = gfAppSbWrite($aCfg, 'POST', 'directory_apps', '', $aBody);
+                if ($aR['ok']) {
+                    $aReg = gfAppImportRegistry();
+                    if (!empty($aR['rows'])) gfAppImportPage($oDb, $aReg['directory_apps'], $aR['rows']);
+                    $sMsg = 'Added “' . $P('name') . '”.';
+                } else $sMsg = 'Add failed: ' . $aR['err'];
+            } else $sMsg = 'Name is required.';
+        }
+
+        $sQ = $P('q');
+        header('Location: ' . $sSelf . '&msg=' . rawurlencode($sMsg) . ($sQ !== '' ? '&q=' . rawurlencode($sQ) : ''));
+        exit;
+    }
+
+    gfAppShell(gfAppAdminRender($oDb, $aCfg), array(
+        'title' => 'Application Hub — Admin | ' . gfHomeOut(getParam('site_title')),
+        'desc' => 'Manage the Application Hub directory, launch URLs and sync.',
+        'member' => $aMember,
+    ));
+}
+
+/** The admin page markup (settings + sync + manage apps + add app). */
+function gfAppAdminRender($oDb, $aCfg)
+{
+    $sSelf = BX_DOL_URL_ROOT . 'applications?gfa_action=admin';
+    $sMsg = trim((string)bx_get('msg'));
+    $sQ = trim((string)bx_get('q'));
+    if (strlen($sQ) > 100) $sQ = substr($sQ, 0, 100);
+    $bSecret = trim((string)gfAppCfg('gf_supabase_secret_key', '')) !== '';
+
+    $sNotice = $sMsg !== '' ? '<div class="gfa-admin-notice">' . gfDirOut($sMsg) . '</div>' : '';
+
+    // --- settings ------------------------------------------------------------
+    $sSettings = '<form method="post" action="' . $sSelf . '" class="gfa-admin-card">'
+        . '<input type="hidden" name="do" value="save_settings" />'
+        . '<h2 class="gfa-admin-h2">Supabase connection</h2>'
+        . '<label class="gfa-fld">Supabase URL<input name="supabase_url" value="' . bx_html_attribute($aCfg['url']) . '" /></label>'
+        . '<label class="gfa-fld">Anon (read) key<input name="anon_key" value="' . bx_html_attribute($aCfg['key']) . '" /></label>'
+        . '<label class="gfa-fld">Secret (write) key ' . ($bSecret ? '<span class="gfa-ok">✓ set</span>' : '<span class="gfa-warn">needed to edit apps</span>') . '<input type="password" name="secret_key" value="' . ($bSecret ? '********' : '') . '" placeholder="sb_secret_… or service_role key" autocomplete="off" /></label>'
+        . '<label class="gfa-fld">Import token (for cron sync)<input name="import_token" value="' . bx_html_attribute(gfAppCfg('gf_dir_import_token', '')) . '" /></label>'
+        . '<button class="gfh-btn gfh-btn-orange gfh-btn-sm" type="submit">Save settings</button>'
+        . '</form>';
+
+    // --- sync ----------------------------------------------------------------
+    $sSync = '<div class="gfa-admin-card"><h2 class="gfa-admin-h2">Directory sync</h2>'
+        . '<p class="gfh-sub" style="margin-bottom:12px">Pull the latest apps from Supabase into the site.</p>'
+        . '<button type="button" class="gfa-ghost" id="gfa-sync"><span>Sync now</span></button> <span class="gfa-adminbar-status" id="gfa-sync-status"></span>'
+        . '</div>';
+
+    // --- manage apps ---------------------------------------------------------
+    $sResults = '';
+    if ($sQ !== '') {
+        $sLike = '%' . $sQ . '%';
+        $aRows = $oDb->getAll($oDb->prepare("SELECT `id`,`name`,`slug`,`app_url`,`logo_url`,`category`,`is_featured` FROM `gf_directory_apps` WHERE `name` LIKE ? OR `slug` LIKE ? ORDER BY `is_featured` DESC, `name` LIMIT 40", $sLike, $sLike));
+        if (!is_array($aRows)) $aRows = array();
+        if (empty($aRows)) {
+            $sResults = '<p class="gfh-sub">No apps match “' . gfDirOut($sQ) . '”.</p>';
+        } else {
+            foreach ($aRows as $a) {
+                $sIni = gfDirInitial($a['name']);
+                $sImg = gfDirImg($a['logo_url']);
+                $sLogo = $sImg !== '' ? $sImg : '<span class="gfa-icon-ini" style="font-size:15px">' . gfDirOut($sIni) . '</span>';
+                $sResults .= '<form method="post" action="' . $sSelf . '" class="gfa-edit-row">'
+                    . '<input type="hidden" name="do" value="save_app" /><input type="hidden" name="id" value="' . bx_html_attribute($a['id']) . '" /><input type="hidden" name="q" value="' . bx_html_attribute($sQ) . '" />'
+                    . '<span class="gfa-edit-logo gfa-noimg-fallback" data-initial="' . bx_html_attribute($sIni) . '">' . $sLogo . '</span>'
+                    . '<input class="gfa-edit-name" name="name" value="' . bx_html_attribute($a['name']) . '" />'
+                    . '<input name="app_url" value="' . bx_html_attribute($a['app_url']) . '" placeholder="Launch URL" />'
+                    . '<input name="logo_url" value="' . bx_html_attribute($a['logo_url']) . '" placeholder="Logo URL" />'
+                    . '<input class="gfa-edit-cat" name="category" value="' . bx_html_attribute($a['category']) . '" placeholder="Category" />'
+                    . '<label class="gfa-edit-feat"><input type="checkbox" name="is_featured"' . ((int)$a['is_featured'] === 1 ? ' checked' : '') . ' /> Featured</label>'
+                    . '<button class="gfh-btn gfh-btn-orange gfh-btn-sm" type="submit">Save</button>'
+                    . '</form>';
+            }
+        }
+    } else {
+        $sResults = '<p class="gfh-sub">Search for an app above to edit its launch URL, logo, category or featured flag.</p>';
+    }
+
+    $sManage = '<div class="gfa-admin-card"><h2 class="gfa-admin-h2">Manage apps</h2>'
+        . '<form method="get" action="' . BX_DOL_URL_ROOT . 'applications" class="gfa-admin-search">'
+        .   '<input type="hidden" name="gfa_action" value="admin" />'
+        .   '<input name="q" value="' . bx_html_attribute($sQ) . '" placeholder="Search apps to edit…" autocomplete="off" />'
+        .   '<button class="gfh-btn gfh-btn-orange gfh-btn-sm" type="submit">Search</button>'
+        . '</form>'
+        . '<div class="gfa-edit-list">' . $sResults . '</div>'
+        . '</div>';
+
+    // --- add app -------------------------------------------------------------
+    $sAdd = '<form method="post" action="' . $sSelf . '" class="gfa-admin-card">'
+        . '<input type="hidden" name="do" value="add_app" />'
+        . '<h2 class="gfa-admin-h2">Add a new app</h2>'
+        . '<div class="gfa-add-grid">'
+        .   '<label class="gfa-fld">Name<input name="name" required /></label>'
+        .   '<label class="gfa-fld">Slug (optional)<input name="slug" placeholder="auto if blank" /></label>'
+        .   '<label class="gfa-fld">Launch URL<input name="app_url" placeholder="https://…" /></label>'
+        .   '<label class="gfa-fld">Category<input name="category" /></label>'
+        . '</div>'
+        . '<label class="gfa-edit-feat" style="margin:6px 0 14px"><input type="checkbox" name="is_featured" /> Featured</label><br>'
+        . '<button class="gfh-btn gfh-btn-orange gfh-btn-sm" type="submit">Add app</button>'
+        . '</form>';
+
+    return '<section class="gfa-main"><div class="gfh-container" style="max-width:1000px">'
+        . '<a class="gfh-link-more" style="margin-bottom:16px" href="' . BX_DOL_URL_ROOT . 'applications">&larr; Back to the hub</a>'
+        . '<span class="gfh-eyebrow">Application Hub</span>'
+        . '<h1 class="gfh-appd-title" style="font-size:28px;margin:8px 0 4px">Admin &amp; Settings</h1>'
+        . '<p class="gfh-sub" style="margin-bottom:22px">Edit the app directory, launch URLs and sync — changes write back to Supabase.</p>'
+        . $sNotice
+        . $sSettings . $sSync . $sManage . $sAdd
+        . '</div></section>';
 }
 
 /** Platform-owned table for each workspace's app collection (NOT synced). */
@@ -635,10 +855,12 @@ function gfAppAdminBar($aMember)
 {
     if (empty($aMember['admin'])) return '';
     $sSync = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
+    $sGear = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
     return '<div class="gfa-adminbar">'
         . '<span class="gfa-adminbar-label">Admin</span>'
         . '<button type="button" class="gfa-ghost" id="gfa-sync">' . $sSync . '<span>Sync directory from Supabase</span></button>'
         . '<span class="gfa-adminbar-status" id="gfa-sync-status"></span>'
+        . '<a class="gfa-ghost" style="margin-left:auto" href="' . BX_DOL_URL_ROOT . 'applications?gfa_action=admin">' . $sGear . '<span>Manage &amp; settings</span></a>'
         . '</div>';
 }
 
