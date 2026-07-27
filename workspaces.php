@@ -8,10 +8,11 @@
  *
  * Launching a workspace (?gf_switch=<profile_id>) switches the account's acting
  * profile context to it — the member "uses the site as" that workspace, UNA's
- * native profile switch — then lands on the workspace's page. Only workspaces
- * the account OWNS can be acted as; a joined workspace just opens its page.
- * Loading this picker itself (the site root) resets the context back to the
- * member's personal profile, so returning to gfunnel.com/ exits any workspace.
+ * native profile switch — then lands on the workspace's page. Both the OWNER of
+ * a workspace and its delegated ADMINS (e.g. a social media manager) may act as
+ * it; a plain member only visits the page (see gfWsSwitchContext). Loading this
+ * picker itself (the site root) resets the context back to the member's personal
+ * profile, so returning to gfunnel.com/ exits any workspace.
  *
  * Optional settings (sys_options):
  *  - gf_root_workspaces        'off' disables the whole page (root falls back to 'home')
@@ -28,6 +29,7 @@
 
 require_once('./inc/header.inc.php');
 require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
+require_once(BX_DIRECTORY_PATH_INC . "gf_workspace_admin.inc.php");
 
 bx_import('BxDolLanguages');
 
@@ -118,26 +120,45 @@ function gfWsPersonalProfileId($oAccount)
 /**
  * Switch the account's acting profile context to $oProfile - i.e. actually
  * "use the site as" that workspace, the same operation as UNA's native profile
- * switcher (page.php?i=account-profile-switcher). Only profiles the account
- * OWNS can be acted as: the personal person profile and the organizations /
- * spaces / groups the account created. A JOINED workspace belongs to another
- * account, so it can only be visited, not switched into - this is a no-op there.
+ * switcher (page.php?i=account-profile-switcher).
+ *
+ * Who may act as a workspace:
+ *  - the OWNER: any profile the account created (personal person profile +
+ *    organizations it owns) - the account_id matches.
+ *  - a delegated ADMIN: a member who is an admin of the workspace (e.g. a
+ *    social media manager of GFunnel) may act as it too, even though it belongs
+ *    to another account. Membership/admin status is checked against the member's
+ *    personal profile via the module's native `is_admin` service.
+ *
+ * A plain member (non-admin) or a non-member is NOT permitted - for them this is
+ * a no-op and the workspace is only visited, never acted as. Note that only
+ * modules whose `act_as_profile` is true can ever be acted as (organizations and
+ * persons; spaces/groups return false), so this is inherently org-scoped.
  *
  * @return bool true when the context is (now) $oProfile, false when the switch
- *              is not permitted (e.g. a joined workspace).
+ *              is not permitted.
  */
 function gfWsSwitchContext($oProfile, $oAccount)
 {
     if(!$oProfile || !$oAccount)
         return false;
 
-    // ownership gate: acting-as is only ever allowed for the account's own
-    // profiles (mirrors BxBaseServiceAccount::serviceSwitchProfile's check).
-    if((int)$oProfile->getAccountId() !== (int)$oAccount->id())
+    // the target module must support being acted as (organizations + persons)
+    if(!BxDolService::call($oProfile->getModule(), 'act_as_profile'))
         return false;
 
-    // the target module must support being acted as (all workspace types do)
-    if(!BxDolService::call($oProfile->getModule(), 'act_as_profile'))
+    $bOwned = ((int)$oProfile->getAccountId() === (int)$oAccount->id());
+
+    // Delegated acting-as: an admin of the workspace (social media manager, etc.)
+    // may act as it even though the workspace is owned by another account. The
+    // admin relationship is on the member's PERSONAL profile, not whatever they
+    // are currently acting as, so resolve that explicitly. Regular members and
+    // non-members fall through and are only allowed to visit.
+    $bAdmin = false;
+    if(!$bOwned && ($iPersonalId = gfWsPersonalProfileId($oAccount)) > 0)
+        $bAdmin = (bool)BxDolService::call($oProfile->getModule(), 'is_admin', [$oProfile->id(), $iPersonalId]);
+
+    if(!$bOwned && !$bAdmin)
         return false;
 
     // already the active context - nothing to do
@@ -484,6 +505,10 @@ function getGfWorkspacesPageCode()
 
             $bAdmin = $oAdmins && ($oAdmins->isConnected($iJoinedId, $oProfile->id()) || $oAdmins->isConnected($oProfile->id(), $iJoinedId));
 
+            // Admins of a joined workspace can manage it (members/roles) even
+            // though they don't own it - use the canonical is_admin check.
+            $bCanManageJoined = (bool)BxDolService::call($sWsModule, 'is_admin', [$iJoinedId, $oProfile->id()]);
+
             $aTmplVarsWorkspaces[] = [
                 // joined workspaces belong to another account, so gfWsSwitchContext
                 // is a no-op for them - the gf_switch handler just opens the page
@@ -492,7 +517,10 @@ function getGfWorkspacesPageCode()
                 'title' => bx_process_output($oJoined->getDisplayName()),
                 'thumb' => $oJoined->getThumb(),
                 'meta' => bx_process_output($aModuleTitles[$sWsModule]) . ' &#183; ' . ($bAdmin ? 'admin' : 'member'),
-                'manage_id' => 0
+                'manage_id' => $bCanManageJoined ? $iJoinedId : 0,
+                // claimable when the workspace is still held by the placeholder
+                // account (unclaimed) - dormant unless one is configured.
+                'claim_id' => gfWsIsClaimable($oJoined) ? $iJoinedId : 0
             ];
         }
     }
@@ -504,12 +532,22 @@ function getGfWorkspacesPageCode()
     $sWorkspacesList = '';
     foreach($aTmplVarsWorkspaces as $aTmplVarsWorkspace) {
         $iManageId = (int)$aTmplVarsWorkspace['manage_id'];
-        unset($aTmplVarsWorkspace['manage_id']);
+        $iClaimId = (int)($aTmplVarsWorkspace['claim_id'] ?? 0);
+        unset($aTmplVarsWorkspace['manage_id'], $aTmplVarsWorkspace['claim_id']);
 
         $sWorkspacesList .= $oTemplate->parseHtmlByName('page_workspaces_item.html', array_merge($aTmplVarsWorkspace, [
+            // Manage (members, roles, invite code) is available to a workspace's
+            // owner and its admins - $iManageId is set for owned workspaces and
+            // for joined ones where the member is an admin (see above).
             'bx_if:manage' => [
-                'condition' => $bInvites && $iManageId > 0,
-                'content' => ['manage_url' => BX_DOL_URL_ROOT . 'workspaces.php?invite_ws=' . $iManageId]
+                'condition' => $iManageId > 0,
+                'content' => ['manage_url' => BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iManageId]
+            ],
+            // Claim shows on unclaimed (placeholder-owned) workspaces the member
+            // is part of - dormant unless a placeholder account is configured.
+            'bx_if:claim' => [
+                'condition' => $iClaimId > 0,
+                'content' => ['claim_url' => BX_DOL_URL_ROOT . 'workspaces.php?claim_ws=' . $iClaimId]
             ]
         ]));
     }
@@ -595,6 +633,11 @@ function getGfWorkspacesPageCode()
         'bx_if:invite_card' => [
             'condition' => !empty($GLOBALS['gfWsInviteCard']),
             'content' => !empty($GLOBALS['gfWsInviteCard']) ? $GLOBALS['gfWsInviteCard'] : ['ws_title' => '', 'code' => '', 'join_url' => '', 'reset_url' => '', 'close_url' => '']
+        ],
+        // Manage card (members & roles) - pre-rendered HTML from gfWsBuildManageCard.
+        'bx_if:manage_card' => [
+            'condition' => !empty($GLOBALS['gfWsManageCard']),
+            'content' => ['manage_html' => !empty($GLOBALS['gfWsManageCard']) ? $GLOBALS['gfWsManageCard'] : '']
         ],
         // The invites tab label and the invites pane are two separate template
         // blocks; they MUST use distinct bx_if names. The template engine matches
@@ -704,6 +747,75 @@ if($oGfAccount) {
 
         // re-resolve to the (now personal) context for the actions/render below
         $oGfProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
+    }
+}
+
+//--- Manage a workspace: members & roles (+ invite code for owners). Available
+//--- to a workspace's owner and its admins (gfWsCanManage). Renders a card at
+//--- the top of the picker (bx_if:manage_card).
+$GLOBALS['gfWsManageCard'] = '';
+if(($iGfManageWs = (int)bx_get('manage_ws')) > 0 && $oGfAccount && $oGfProfile) {
+    $oGfManageWs = BxDolProfile::getInstance($iGfManageWs);
+    $oGfManageMod = $oGfManageWs ? gfWsGroupModule($oGfManageWs) : null;
+
+    if($oGfManageWs && $oGfManageMod && gfWsCanManage($oGfManageWs, $oGfAccount, $oGfProfile->id())) {
+        $oGfSes = BxDolSession::getInstance();
+        $bGfManageOwner = in_array($iGfManageWs, gfWsOwnedWorkspaceIds($oGfAccount));
+
+        // Role change (POST-redirect-GET so a refresh doesn't re-submit). The
+        // outcome is stashed in a session flash and shown on the reloaded card.
+        if(($iGfSetRole = (int)bx_get('set_role')) > 0 && bx_get('role') !== false) {
+            $sGfRoleErr = gfWsSetMemberRole($oGfManageWs, $oGfManageMod, gfWsAvailableRoles($oGfManageMod), $iGfSetRole, (int)bx_get('role'));
+            $oGfSes->setValue('gf_ws_flash', $sGfRoleErr);
+            header('Location: ' . BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iGfManageWs);
+            exit;
+        }
+
+        // Transfer ownership (owner-only) to another member. Same PRG + flash.
+        if($bGfManageOwner && ($iGfTransferTo = (int)bx_get('transfer_to')) > 0) {
+            $sGfTransferErr = gfWsTransferOwnership($oGfManageWs, $oGfManageMod, $iGfTransferTo);
+            $oGfSes->setValue('gf_ws_flash', $sGfTransferErr !== '' ? $sGfTransferErr : 'Ownership transferred.');
+            header('Location: ' . BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iGfManageWs);
+            exit;
+        }
+
+        // Owner-only: (re)generate the workspace's permanent invite code.
+        $aGfInviteRow = null;
+        $sGfJoinUrl = '';
+        if($bGfManageOwner && gfWsInvitesEnabled()) {
+            $aGfInviteRow = gfWsPermanentInvite($iGfManageWs, $oGfProfile->id(), bx_get('invite_reset') == '1');
+            if($aGfInviteRow)
+                $sGfJoinUrl = bx_append_url_params(BX_DOL_URL_ROOT . '?code=' . $aGfInviteRow['code'], gfWsAffiliateParams((int)$aGfInviteRow['created_by'] ?: $oGfProfile->id()));
+        }
+
+        $sGfFlash = (string)$oGfSes->getValue('gf_ws_flash');
+        if($sGfFlash !== '')
+            $oGfSes->setValue('gf_ws_flash', '');
+
+        $GLOBALS['gfWsManageCard'] = gfWsBuildManageCard($oGfManageWs, $oGfManageMod, $sGfFlash, $aGfInviteRow, $sGfJoinUrl, $bGfManageOwner);
+    }
+}
+
+//--- Claim an unclaimed (placeholder-owned) workspace. Dormant unless a
+//--- placeholder account is configured (gfWsIsClaimable). On success the member
+//--- owns it, so switch into it and open it; on failure show the reason.
+if(($iGfClaimWs = (int)bx_get('claim_ws')) > 0 && $oGfAccount && $oGfProfile) {
+    $oGfClaimWs = BxDolProfile::getInstance($iGfClaimWs);
+    $oGfClaimMod = $oGfClaimWs ? gfWsGroupModule($oGfClaimWs) : null;
+
+    if($oGfClaimWs && $oGfClaimMod) {
+        $sGfClaimErr = gfWsClaimWorkspace($oGfClaimWs, $oGfClaimMod, $oGfAccount, $oGfProfile->id());
+        if($sGfClaimErr === '') {
+            // Ownership was just established, so act as the workspace directly
+            // when its type supports it (orgs) - the cached profile still shows
+            // the old owner, so gfWsSwitchContext's ownership check can't be used.
+            if(BxDolService::call($oGfClaimWs->getModule(), 'act_as_profile'))
+                $oGfAccount->updateProfileContext($oGfClaimWs->id());
+            header('Location: ' . bx_append_url_params($oGfClaimWs->getUrl(), ['gf_ws' => $oGfClaimWs->id()]));
+            exit;
+        }
+
+        $GLOBALS['gfWsNotice'] = $sGfClaimErr;
     }
 }
 

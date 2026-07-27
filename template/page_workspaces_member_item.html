@@ -1,0 +1,17 @@
+<div class="gf-ws-member">
+    <span class="gf-ws-member-thumb"><img src="__thumb__" alt="" loading="lazy" /></span>
+    <span class="gf-ws-member-info">
+        <a class="gf-ws-member-name" href="__url__">__name__</a>
+        <span class="gf-ws-member-role">__role_title__</span>
+    </span>
+    <bx_if:owner><span class="gf-ws-member-badge">Owner</span></bx_if:owner>
+    <bx_if:editable>
+    <form class="gf-ws-member-form" method="get" action="__action__">
+        <input type="hidden" name="manage_ws" value="__ws_id__" />
+        <input type="hidden" name="set_role" value="__member_id__" />
+        <select class="gf-ws-member-select" name="role" onchange="this.form.submit()">__role_options__</select>
+        <noscript><button type="submit">Save</button></noscript>
+    </form>
+    </bx_if:editable>
+    <bx_if:transfer><a class="gf-ws-member-transfer" href="__transfer_url__" onclick="return confirm('Make __member_name__ the owner of this workspace? You will remain an admin.');" title="Transfer ownership to this member">Make owner</a></bx_if:transfer>
+</div>

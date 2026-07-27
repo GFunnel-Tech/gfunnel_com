@@ -777,3 +777,141 @@ body.bx-def-color-bg-page {
     display: inline-block;
     -webkit-text-fill-color: initial;
 }
+
+/*--- Manage card: members & roles ---*/
+.gf-ws-manage-card {
+    margin-bottom: 18px;
+}
+.gf-ws-manage-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.gf-ws-manage-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #11132a;
+}
+.gf-ws-manage-close {
+    flex: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b4f6b;
+    text-decoration: none;
+}
+.gf-ws-manage-close:hover {
+    color: #11132a;
+}
+.gf-ws-manage-section-label {
+    margin: 18px 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8a8fad;
+}
+.gf-ws-members {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.gf-ws-member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    background-color: #f6f7fb;
+    border-radius: 10px;
+}
+.gf-ws-member-thumb {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #e6e8f2;
+}
+.gf-ws-member-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.gf-ws-member-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.gf-ws-member-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #11132a;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gf-ws-member-name:hover {
+    text-decoration: underline;
+}
+.gf-ws-member-role {
+    font-size: 12px;
+    color: #8a8fad;
+}
+.gf-ws-member-badge {
+    flex: none;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #11132a;
+    background-color: #e6e8f2;
+    border-radius: 999px;
+}
+.gf-ws-member-form {
+    flex: none;
+    margin: 0;
+}
+.gf-ws-member-select {
+    font-family: inherit;
+    font-size: 13px;
+    color: #11132a;
+    padding: 6px 28px 6px 10px;
+    background-color: #ffffff;
+    border: 1px solid #d7dae8;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.gf-ws-member-select:hover {
+    border-color: #b9bdd4;
+}
+.gf-ws-member-transfer {
+    flex: none;
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b4f6b;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.gf-ws-member-transfer:hover {
+    color: #11132a;
+    text-decoration: underline;
+}
+
+/*--- Claim (unclaimed workspace) button ---*/
+.gf-ws-item-claim {
+    flex: none;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #11132a;
+    background-color: #ffd54a;
+    border: 1px solid #f0c400;
+    border-radius: 8px;
+    text-decoration: none;
+}
+.gf-ws-item-claim:hover {
+    background-color: #ffcf2e;
+}
