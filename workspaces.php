@@ -29,6 +29,7 @@
 
 require_once('./inc/header.inc.php');
 require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
+require_once(BX_DIRECTORY_PATH_INC . "gf_workspace_admin.inc.php");
 
 bx_import('BxDolLanguages');
 
@@ -504,6 +505,10 @@ function getGfWorkspacesPageCode()
 
             $bAdmin = $oAdmins && ($oAdmins->isConnected($iJoinedId, $oProfile->id()) || $oAdmins->isConnected($oProfile->id(), $iJoinedId));
 
+            // Admins of a joined workspace can manage it (members/roles) even
+            // though they don't own it - use the canonical is_admin check.
+            $bCanManageJoined = (bool)BxDolService::call($sWsModule, 'is_admin', [$iJoinedId, $oProfile->id()]);
+
             $aTmplVarsWorkspaces[] = [
                 // joined workspaces belong to another account, so gfWsSwitchContext
                 // is a no-op for them - the gf_switch handler just opens the page
@@ -512,7 +517,7 @@ function getGfWorkspacesPageCode()
                 'title' => bx_process_output($oJoined->getDisplayName()),
                 'thumb' => $oJoined->getThumb(),
                 'meta' => bx_process_output($aModuleTitles[$sWsModule]) . ' &#183; ' . ($bAdmin ? 'admin' : 'member'),
-                'manage_id' => 0
+                'manage_id' => $bCanManageJoined ? $iJoinedId : 0
             ];
         }
     }
@@ -527,9 +532,12 @@ function getGfWorkspacesPageCode()
         unset($aTmplVarsWorkspace['manage_id']);
 
         $sWorkspacesList .= $oTemplate->parseHtmlByName('page_workspaces_item.html', array_merge($aTmplVarsWorkspace, [
+            // Manage (members, roles, invite code) is available to a workspace's
+            // owner and its admins - $iManageId is set for owned workspaces and
+            // for joined ones where the member is an admin (see above).
             'bx_if:manage' => [
-                'condition' => $bInvites && $iManageId > 0,
-                'content' => ['manage_url' => BX_DOL_URL_ROOT . 'workspaces.php?invite_ws=' . $iManageId]
+                'condition' => $iManageId > 0,
+                'content' => ['manage_url' => BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iManageId]
             ]
         ]));
     }
@@ -615,6 +623,11 @@ function getGfWorkspacesPageCode()
         'bx_if:invite_card' => [
             'condition' => !empty($GLOBALS['gfWsInviteCard']),
             'content' => !empty($GLOBALS['gfWsInviteCard']) ? $GLOBALS['gfWsInviteCard'] : ['ws_title' => '', 'code' => '', 'join_url' => '', 'reset_url' => '', 'close_url' => '']
+        ],
+        // Manage card (members & roles) - pre-rendered HTML from gfWsBuildManageCard.
+        'bx_if:manage_card' => [
+            'condition' => !empty($GLOBALS['gfWsManageCard']),
+            'content' => ['manage_html' => !empty($GLOBALS['gfWsManageCard']) ? $GLOBALS['gfWsManageCard'] : '']
         ],
         // The invites tab label and the invites pane are two separate template
         // blocks; they MUST use distinct bx_if names. The template engine matches
@@ -724,6 +737,44 @@ if($oGfAccount) {
 
         // re-resolve to the (now personal) context for the actions/render below
         $oGfProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
+    }
+}
+
+//--- Manage a workspace: members & roles (+ invite code for owners). Available
+//--- to a workspace's owner and its admins (gfWsCanManage). Renders a card at
+//--- the top of the picker (bx_if:manage_card).
+$GLOBALS['gfWsManageCard'] = '';
+if(($iGfManageWs = (int)bx_get('manage_ws')) > 0 && $oGfAccount && $oGfProfile) {
+    $oGfManageWs = BxDolProfile::getInstance($iGfManageWs);
+    $oGfManageMod = $oGfManageWs ? gfWsGroupModule($oGfManageWs) : null;
+
+    if($oGfManageWs && $oGfManageMod && gfWsCanManage($oGfManageWs, $oGfAccount, $oGfProfile->id())) {
+        $oGfSes = BxDolSession::getInstance();
+        $bGfManageOwner = in_array($iGfManageWs, gfWsOwnedWorkspaceIds($oGfAccount));
+
+        // Role change (POST-redirect-GET so a refresh doesn't re-submit). The
+        // outcome is stashed in a session flash and shown on the reloaded card.
+        if(($iGfSetRole = (int)bx_get('set_role')) > 0 && bx_get('role') !== false) {
+            $sGfRoleErr = gfWsSetMemberRole($oGfManageWs, $oGfManageMod, gfWsAvailableRoles($oGfManageMod), $iGfSetRole, (int)bx_get('role'));
+            $oGfSes->setValue('gf_ws_flash', $sGfRoleErr);
+            header('Location: ' . BX_DOL_URL_ROOT . 'workspaces.php?manage_ws=' . $iGfManageWs);
+            exit;
+        }
+
+        // Owner-only: (re)generate the workspace's permanent invite code.
+        $aGfInviteRow = null;
+        $sGfJoinUrl = '';
+        if($bGfManageOwner && gfWsInvitesEnabled()) {
+            $aGfInviteRow = gfWsPermanentInvite($iGfManageWs, $oGfProfile->id(), bx_get('invite_reset') == '1');
+            if($aGfInviteRow)
+                $sGfJoinUrl = bx_append_url_params(BX_DOL_URL_ROOT . '?code=' . $aGfInviteRow['code'], gfWsAffiliateParams((int)$aGfInviteRow['created_by'] ?: $oGfProfile->id()));
+        }
+
+        $sGfFlash = (string)$oGfSes->getValue('gf_ws_flash');
+        if($sGfFlash !== '')
+            $oGfSes->setValue('gf_ws_flash', '');
+
+        $GLOBALS['gfWsManageCard'] = gfWsBuildManageCard($oGfManageWs, $oGfManageMod, $sGfFlash, $aGfInviteRow, $sGfJoinUrl);
     }
 }
 

@@ -1,0 +1,23 @@
+<div class="gf-ws-card gf-ws-manage-card">
+    <div class="gf-ws-manage-head">
+        <div class="gf-ws-manage-title">Manage __ws_title__</div>
+        <a class="gf-ws-manage-close" href="__close_url__">Done</a>
+    </div>
+    <bx_if:notice>
+    <div class="gf-ws-notice">__notice__</div>
+    </bx_if:notice>
+    <div class="gf-ws-manage-section-label">Members &amp; roles</div>
+    <div class="gf-ws-members">__members_list__</div>
+    <bx_if:invite>
+    <div class="gf-ws-manage-section-label">Invite people</div>
+    <div class="gf-ws-invite-card-text">Anyone with this code can join as a member. Share the code or the link below.</div>
+    <div class="gf-ws-invite-card-code">__code__</div>
+    <div class="gf-ws-earn-link">
+        <input type="text" id="gf-ws-manage-join-url" value="__join_url__" readonly />
+        <button type="button" onclick="gfWsCopyInput('gf-ws-manage-join-url', this)">Copy</button>
+    </div>
+    <div class="gf-ws-invite-card-actions">
+        <a href="__reset_url__" onclick="return confirm('Reset the code? The old code stops working immediately.');">Reset code</a>
+    </div>
+    </bx_if:invite>
+</div>
