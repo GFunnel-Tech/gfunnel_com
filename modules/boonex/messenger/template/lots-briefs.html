@@ -24,6 +24,17 @@
 						__title__
 					</p>
 				</div>
+				<bx_if:gf_ws_origin>
+					<div class="bx-messenger-gf-origin bx-messenger-gf-origin-ws" title="__gf_ws_kind__ &middot; __gf_ws_name__">
+						<span class="bx-messenger-gf-origin-dot"></span>
+						<span class="bx-messenger-gf-origin-label">via __gf_ws_name__</span>
+					</div>
+				</bx_if:gf_ws_origin>
+				<bx_if:gf_dm_origin>
+					<div class="bx-messenger-gf-origin bx-messenger-gf-origin-dm">
+						<span class="bx-messenger-gf-origin-label">Direct message</span>
+					</div>
+				</bx_if:gf_dm_origin>
 				<div class="bx-messenger-jots-snip-info">
 					<div class="__bubble_class__ inline-block bx-messenger-jots-snip-info-bubble"></div>
 					<bx_if:timer>

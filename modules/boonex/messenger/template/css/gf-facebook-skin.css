@@ -393,6 +393,52 @@
 }
 
 /* ========================================================================== */
+/*  Conversation provenance badge — "Direct message" vs "via {Workspace}"      */
+/* ========================================================================== */
+
+.bx-page-messenger .bx-messenger-gf-origin {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.6875rem;
+	line-height: 1.1;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+/* Workspace-origin: a quiet blue pill with a presence-style dot */
+.bx-page-messenger .bx-messenger-gf-origin-ws {
+	color: var(--gf-fb-blue);
+	background-color: var(--gf-fb-active);
+	border-radius: 9999px;
+	padding: 0.1rem 0.5rem;
+}
+.bx-page-messenger .bx-messenger-gf-origin-ws .bx-messenger-gf-origin-dot {
+	height: 0.4rem;
+	width: 0.4rem;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-blue);
+	flex: 0 0 auto;
+}
+
+/* Plain DM: muted, unobtrusive — presence conveys "not a workspace" */
+.bx-page-messenger .bx-messenger-gf-origin-dm {
+	color: var(--gf-fb-text-soft);
+	font-weight: 500;
+}
+
+/* In the thread header the badge sits inline beside the title */
+.bx-page-messenger .bx-messenger-history-block-header .bx-messenger-gf-origin {
+	margin-left: 0.5rem;
+	vertical-align: middle;
+}
+
+/* In the list row keep it tight under the conversation title */
+.bx-page-messenger .bx-messenger-jots-snip .bx-messenger-gf-origin {
+	margin-top: 0.05rem;
+}
+
+/* ========================================================================== */
 /*  Dark mode — keep the FB feel without the harsh stock greys                  */
 /* ========================================================================== */
 
