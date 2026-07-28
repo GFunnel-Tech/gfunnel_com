@@ -1,0 +1,90 @@
+<!--
+    GFunnel - customizable LEFT SIDEBAR (application/workspace layout only).
+    Rendered by BxBaseFunctions::getGfSidebar(); replaces <bx_menu:sys_site_panel/>
+    in artificer/pt_application.html. Items are personalized per member+workspace
+    from gf_sidebar_menu; the pencil opens the customize panel and gf_sidebar.php
+    re-renders this whole rail in place after each edit. Home + Applications are
+    pinned (reorder only). Custom links open in-shell, in a new tab, or embedded
+    as an iframe (gfSidebarFrame).
+
+    NOTE: bx_repeat must not be nested inside bx_if (compiled-template limit), so
+    bx_if:editor wraps only the pencil button; the panel and modal are always
+    emitted (hidden) and just have no opener without the button.
+-->
+<link rel="stylesheet" href="__css_url__" />
+<nav class="gf-sidebar" id="gf-sidebar">
+    <div class="gf-sb-items">
+        <bx_repeat:items>
+        <a class="gf-sb-item __class_add__" href="__link__" title="__title_attr__" __attrs__ <bx_if:onclick>onclick="__onclick__"</bx_if:onclick>>
+            <span class="gf-sb-icon">
+                <bx_if:icon><i class="sys-icon __icon__"></i></bx_if:icon>
+                <bx_if:image><img src="__icon_url__" alt="" /></bx_if:image>
+                <bx_if:icon-html>__icon__</bx_if:icon-html>
+            </span>
+            <bx_if:title><span class="gf-sb-title">__title__</span></bx_if:title>
+        </a>
+        </bx_repeat:items>
+    </div>
+
+    <bx_if:editor>
+    <button type="button" class="gf-sb-edit" title="Customize navigation" onclick="gfSidebarPanelToggle()">
+        <span class="gf-sb-icon"><i class="sys-icon pencil"></i></span>
+        <span class="gf-sb-title">Customize</span>
+    </button>
+    </bx_if:editor>
+
+    <div id="gf-sb-panel" class="gf-sb-panel" style="display:none;">
+        <div class="gf-sb-panel-head">Customize navigation <span>&#183; this workspace</span></div>
+        <div class="gf-sb-panel-rows">
+            <bx_repeat:edit_items>
+            <div class="gf-mrow __class_off__" data-key="__key__">
+                <span class="gf-mrow-title">__title__</span>
+                <span class="gf-mrow-actions">
+                    <button type="button" class="gf-mrow-btn" title="Move up" onclick="gfSidebarMove(this, -1)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+                    <button type="button" class="gf-mrow-btn" title="Move down" onclick="gfSidebarMove(this, 1)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+                    <bx_if:hideable><button type="button" class="gf-mrow-btn gf-mrow-eye" title="Show or hide" onclick="gfSidebarToggle(this)"><svg class="gf-eye-on" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><svg class="gf-eye-off" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></button></bx_if:hideable>
+                    <bx_if:custom><button type="button" class="gf-mrow-btn gf-mrow-del" title="Remove" onclick="gfSidebarDelete(this)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></bx_if:custom>
+                    <bx_if:pinned><span class="gf-mrow-pin" title="Pinned - reorder only"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></bx_if:pinned>
+                </span>
+            </div>
+            </bx_repeat:edit_items>
+        </div>
+        <div class="gf-sb-panel-foot">
+            <button type="button" class="gf-sb-addlink" onclick="gfSidebarModalOpen()">+ Add custom link</button>
+            <a href="javascript:void(0);" onclick="gfSidebarReset()">Reset</a>
+        </div>
+    </div>
+
+    <div id="gf-sb-modal" class="gf-sb-modal" style="display:none;">
+        <div class="gf-sb-modal-backdrop" onclick="gfSidebarModalClose()"></div>
+        <div class="gf-sb-modal-card" role="dialog" aria-modal="true" aria-label="Create a custom menu link">
+            <div class="gf-sb-modal-head">
+                <div class="gf-sb-modal-title">Create a custom menu link</div>
+                <button type="button" class="gf-sb-modal-x" title="Close" onclick="gfSidebarModalClose()">&times;</button>
+            </div>
+            <div class="gf-sb-modal-body">
+                <label class="gf-sb-field-label">Icon</label>
+                <div class="gf-sb-icons" id="gf-sb-icons">
+                    <bx_repeat:icons>
+                    <button type="button" class="gf-sb-iconopt" data-icon="__icon__" onclick="gfSidebarIconPick(this)"><i class="sys-icon __icon__"></i></button>
+                    </bx_repeat:icons>
+                </div>
+                <label class="gf-sb-field-label">Link title</label>
+                <input type="text" id="gf-sb-f-title" class="gf-sb-input" maxlength="64" placeholder="Link name" />
+                <label class="gf-sb-field-label">URL</label>
+                <input type="text" id="gf-sb-f-url" class="gf-sb-input" maxlength="2048" placeholder="https://&hellip; or /page" />
+                <label class="gf-sb-field-label">When clicked</label>
+                <label class="gf-sb-radio"><input type="radio" name="gf-sb-mode" value="iframe" checked /> <span>Embed in the current window (iFrame)</span></label>
+                <label class="gf-sb-radio"><input type="radio" name="gf-sb-mode" value="blank" /> <span>Open in a new tab</span></label>
+                <label class="gf-sb-radio"><input type="radio" name="gf-sb-mode" value="self" /> <span>Open in the current window</span></label>
+                <div class="gf-sb-modal-err" id="gf-sb-err" style="display:none;"></div>
+            </div>
+            <div class="gf-sb-modal-foot">
+                <button type="button" class="gf-sb-btn-cancel" onclick="gfSidebarModalClose()">Cancel</button>
+                <button type="button" class="gf-sb-btn-save" onclick="gfSidebarAdd(this)">Save</button>
+            </div>
+        </div>
+    </div>
+</nav>
+<script>window.gfSidebarEndpoint = '__endpoint__';</script>
+<script src="__js_url__"></script>

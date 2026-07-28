@@ -101,6 +101,11 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 // shows here, not on the gfunnel.com main-site layouts.
                 $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed', true);
                 break;
+
+            case 'gf_sidebar':
+                // The customizable left navigation rail (application layout only).
+                $mixedResult = $this->getGfSidebar();
+                break;
         }
 
         return $mixedResult;
@@ -526,6 +531,186 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             'bx_if:icon-html' => ['condition' => false, 'content' => ['icon' => '']],
             'bx_if:title' => ['condition' => true, 'content' => ['title' => $sTitle, 'title_attr' => $sTitleAttr]],
             'bx_if:onclick' => ['condition' => false, 'content' => ['onclick' => '']]
+        ];
+    }
+
+    /**
+     * GFunnel LEFT SIDEBAR: the vertical nav (from menu object sys_site_panel),
+     * personalized per member and per workspace from gf_sidebar_menu (hidden
+     * items, custom order, member's own links with an open mode), plus the
+     * customize panel and the "add custom link" modal. Reused by gf_sidebar.php
+     * to re-render the rail in place after every edit. Mirrors getGfSubheader().
+     *
+     * Home and Applications are pinned (gf_sidebar_pinned): always visible, never
+     * removable - they can only be reordered.
+     */
+    public function getGfSidebar()
+    {
+        //--- Stock items come from the sidebar menu object (default sys_site_panel).
+        $sSidebarMenu = getParam('gf_sidebar_menu_object');
+        if(empty($sSidebarMenu))
+            $sSidebarMenu = 'sys_site_panel';
+
+        $aStock = [];
+        $oSidebarMenu = BxDolMenu::getObjectInstance($sSidebarMenu);
+        if($oSidebarMenu && is_array($aItems = $oSidebarMenu->getMenuItems()))
+            foreach($aItems as $aItem) {
+                if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
+                    continue;
+
+                $aStock[] = $aItem;
+            }
+
+        //--- Pinned items (always visible, never removable).
+        $aPinned = array_filter(array_map('trim', explode(',', strtolower((string)getParam('gf_sidebar_pinned')))));
+        if(empty($aPinned))
+            $aPinned = ['home', 'applications'];
+
+        //--- The member's saved choices for the active workspace. Degrades to the
+        //--- stock items until the gf_sidebar_menu table exists.
+        $oDb = BxDolDb::getInstance();
+        $bPrefs = (bool)$oDb->getOne("SHOW TABLES LIKE 'gf_sidebar_menu'");
+
+        $aPrefs = [];
+        $aCustom = [];
+        if($bPrefs) {
+            $aRows = $oDb->getAll(
+                "SELECT * FROM `gf_sidebar_menu` WHERE `account_id` = :account AND `workspace_id` = :workspace",
+                ['account' => getLoggedId(), 'workspace' => $this->getGfActiveWorkspaceId()]
+            );
+            if(is_array($aRows))
+                foreach($aRows as $aRow)
+                    if((int)$aRow['custom'])
+                        $aCustom[] = $aRow;
+                    else
+                        $aPrefs[$aRow['item']] = $aRow;
+        }
+
+        //--- Merge: stock items with per-member overrides, then the member's links.
+        $aAll = [];
+        foreach($aStock as $iIndex => $aStockItem) {
+            $sName = !empty($aStockItem['name']) ? $aStockItem['name'] : 'item' . $iIndex;
+            $aPref = isset($aPrefs[$sName]) ? $aPrefs[$sName] : false;
+            $bPinnedItem = in_array(strtolower($sName), $aPinned, true);
+
+            $aAll[] = [
+                'key' => $sName,
+                'item' => $aStockItem,
+                'title' => isset($aStockItem['title']) ? $aStockItem['title'] : $sName,
+                'hidden' => $bPinnedItem ? 0 : ($aPref ? (int)$aPref['hidden'] : 0),
+                'order' => $aPref && (int)$aPref['order'] > 0 ? (int)$aPref['order'] : 10000 + $iIndex,
+                'custom' => 0,
+                'pinned' => $bPinnedItem
+            ];
+        }
+
+        foreach($aCustom as $iIndex => $aRow)
+            $aAll[] = [
+                'key' => 'c' . $aRow['id'],
+                'item' => $this->_getGfSidebarCustomItem($aRow),
+                'title' => bx_process_output($aRow['title']),
+                'hidden' => (int)$aRow['hidden'],
+                'order' => (int)$aRow['order'] > 0 ? (int)$aRow['order'] : 20000 + $iIndex,
+                'custom' => 1,
+                'pinned' => false
+            ];
+
+        usort($aAll, function($a, $b) {
+            return $a['order'] - $b['order'];
+        });
+
+        $aVisible = [];
+        $aEditItems = [];
+        foreach($aAll as $aItem) {
+            if(!$aItem['hidden'])
+                $aVisible[] = $aItem['item'];
+
+            $aEditItems[] = [
+                'key' => bx_html_attribute($aItem['key']),
+                'title' => $aItem['title'],
+                'class_off' => $aItem['hidden'] ? 'gf-mrow-off' : '',
+                // flat conditions (the compiled-template engine won't nest bx_if):
+                // hideable = not pinned; custom = member's own link (deletable);
+                // pinned = Home/Applications (reorder only).
+                'bx_if:hideable' => [
+                    'condition' => !$aItem['pinned'],
+                    'content' => ['key' => bx_html_attribute($aItem['key'])]
+                ],
+                'bx_if:custom' => [
+                    'condition' => (bool)$aItem['custom'],
+                    'content' => ['key' => bx_html_attribute($aItem['key'])]
+                ],
+                'bx_if:pinned' => [
+                    'condition' => (bool)$aItem['pinned'],
+                    'content' => ['pinned' => 1]
+                ]
+            ];
+        }
+
+        $sCssFile = 'template/css/gf_sidebar.css';
+        $sJsFile = 'template/js/gf_sidebar.js';
+
+        //--- Curated icon choices for custom links (FontAwesome, sys-icon set).
+        $aIconChoices = ['link', 'external-link-alt', 'chart-line', 'chart-bar', 'table', 'folder', 'file-alt', 'calendar', 'envelope', 'comments', 'cog', 'bell', 'star', 'bookmark', 'globe', 'rocket', 'briefcase', 'users', 'credit-card', 'life-ring'];
+        $aIcons = [];
+        foreach($aIconChoices as $sIcon)
+            $aIcons[] = ['icon' => $sIcon];
+
+        return $this->_oTemplate->parseHtmlByName('_gf_sidebar.html', [
+            'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
+            'js_url' => BX_DOL_URL_ROOT . $sJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sJsFile),
+            'endpoint' => BX_DOL_URL_ROOT . 'gf_sidebar.php',
+            'bx_repeat:items' => $aVisible,
+            'bx_repeat:edit_items' => $aEditItems,
+            'bx_repeat:icons' => $aIcons,
+            'bx_if:editor' => [
+                'condition' => $bPrefs,
+                'content' => ['editor' => 1] // non-empty content required by the template compiler
+            ]
+        ]);
+    }
+
+    /**
+     * Build a member's own sidebar link (gf_sidebar_menu row) as an item with the
+     * same variable shape stock items use, honouring its open mode:
+     *   self   - normal in-shell navigation
+     *   blank  - new browser tab (target=_blank)
+     *   iframe - embedded in-shell page (gfSidebarFrame loader, see gf_sidebar.js)
+     */
+    protected function _getGfSidebarCustomItem($aRow)
+    {
+        $sTitle = bx_process_output($aRow['title']);
+        $sTitleAttr = bx_html_attribute($aRow['title']);
+
+        $sUrl = trim((string)$aRow['url']);
+        if(!preg_match('/^https?:\/\//i', $sUrl))
+            $sUrl = BX_DOL_URL_ROOT . ltrim($sUrl, '/');
+
+        $sMode = isset($aRow['open_mode']) ? (string)$aRow['open_mode'] : 'self';
+        $sIcon = !empty($aRow['icon']) ? $aRow['icon'] : 'link';
+
+        $sAttrs = '';
+        $bOnclick = false;
+        $sOnclick = '';
+        if($sMode == 'blank')
+            $sAttrs = 'target="_blank" rel="noopener"';
+        else if($sMode == 'iframe') {
+            $bOnclick = true;
+            $sOnclick = "return gfSidebarFrame('" . bx_html_attribute($sUrl) . "', '" . bx_html_attribute($aRow['title']) . "');";
+        }
+
+        return [
+            'name' => 'c' . $aRow['id'],
+            'link' => bx_html_attribute($sUrl),
+            'title' => $sTitle,
+            'title_attr' => $sTitleAttr,
+            'class_add' => 'gf-sb-custom',
+            'attrs' => $sAttrs,
+            'bx_if:icon' => ['condition' => true, 'content' => ['icon' => bx_html_attribute($sIcon)]],
+            'bx_if:image' => ['condition' => false, 'content' => ['icon_url' => '']],
+            'bx_if:icon-html' => ['condition' => false, 'content' => ['icon' => '']],
+            'bx_if:title' => ['condition' => true, 'content' => ['title' => $sTitle, 'title_attr' => $sTitleAttr]],
+            'bx_if:onclick' => ['condition' => $bOnclick, 'content' => ['onclick' => $sOnclick]]
         ];
     }
 
