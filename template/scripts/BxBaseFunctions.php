@@ -171,6 +171,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             'timer_js_url' => BX_DOL_URL_ROOT . $sTimerJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerJsFile),
             'timer_boot' => $this->getGfTimerBoot(),
             'ws_selector' => $bWorkspaceCtx ? $this->getGfWorkspaceSelector() : '',
+            'chatdock' => $this->getGfChatDock(),
             'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
             'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
             'subheader' => $sSubheader,
@@ -209,6 +210,47 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 ]
             ]
         ]);
+    }
+
+    /**
+     * GFunnel Chats dock: a Facebook-style right-rail conversation panel shown
+     * site-wide to logged-in members. It server-renders the member's real
+     * conversations from the Messenger module (briefs carry the DM-vs-Workspace
+     * provenance badge) with no websocket bootstrap - the dock is a launcher
+     * that lists conversations and opens them in the full Messenger. Disabled
+     * with gf_chat_dock = 'off'. Never allowed to break the toolbar.
+     */
+    public function getGfChatDock()
+    {
+        if(getParam('gf_chat_dock') == 'off')
+            return '';
+
+        try {
+            if(!BxDolRequest::serviceExists('bx_messenger', 'get_inbox_briefs'))
+                return '';
+
+            $sList = (string)BxDolService::call('bx_messenger', 'get_inbox_briefs');
+
+            $sCss = 'template/css/gf_chatdock.css';
+            $sJs  = 'template/js/gf_chatdock.js';
+
+            return $this->_oTemplate->parseHtmlByName('_page_chatdock.html', [
+                'chatdock_css_url' => BX_DOL_URL_ROOT . $sCss . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCss),
+                'chatdock_js_url'  => BX_DOL_URL_ROOT . $sJs . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sJs),
+                'messenger_url'    => BX_DOL_URL_ROOT . 'messenger',
+                'bx_if:list' => [
+                    'condition' => $sList !== '',
+                    'content' => ['list' => $sList],
+                ],
+                'bx_if:empty' => [
+                    'condition' => $sList === '',
+                    'content' => [],
+                ],
+            ]);
+        }
+        catch(\Throwable $e) {
+            return '';
+        }
     }
 
     protected function _getGfHeaderUrl($sUrl, $sDefault = '')

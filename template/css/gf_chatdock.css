@@ -1,0 +1,308 @@
+/**
+ * GFunnel — site-wide "Chats" dock (Facebook Messenger right-rail style).
+ * -----------------------------------------------------------------------------
+ * Rendered into the authorized toolbar (BxBaseFunctions::getGfChatDock) on every
+ * page for logged-in members. It server-renders the member's real conversations
+ * as Messenger "briefs" (the same markup the /messenger list uses, incl. the
+ * DM-vs-Workspace provenance badge). That markup depends on the Messenger
+ * module's own CSS, which is NOT loaded site-wide — so this file is fully
+ * self-contained: it restyles the brief classes and bundles the handful of
+ * utility classes the brief template relies on, all scoped under .gf-chatdock.
+ */
+
+/* ========================================================================== */
+/*  Palette                                                                    */
+/* ========================================================================== */
+.gf-chatdock {
+	--gf-fb-blue:       #0084ff;
+	--gf-fb-blue-hover: #0072e0;
+	--gf-fb-text:       #050505;
+	--gf-fb-text-soft:  #65676b;
+	--gf-fb-surface:    #ffffff;
+	--gf-fb-hover:      #f2f2f2;
+	--gf-fb-active:     #ebf5ff;
+	--gf-fb-border:     #e4e6eb;
+	--gf-fb-chip:       #f0f2f5;
+	--gf-fb-online:     #31a24c;
+	--gf-chatdock-w:    360px;
+
+	position: fixed;
+	right: 18px;
+	bottom: 18px;
+	z-index: 1200;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ========================================================================== */
+/*  Collapsed launcher                                                          */
+/* ========================================================================== */
+.gf-chatdock-launcher {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	height: 3rem;
+	padding: 0 1.1rem;
+	border: 0;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-blue);
+	color: #fff;
+	font-size: 0.95rem;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+	transition: background-color 0.15s ease, transform 0.05s ease;
+}
+.gf-chatdock-launcher:hover { background-color: var(--gf-fb-blue-hover); }
+.gf-chatdock-launcher:active { transform: translateY(1px); }
+.gf-chatdock-launcher-label { line-height: 1; }
+
+/* Unread pill on the launcher (populated by JS) */
+.gf-chatdock-launcher .gf-chatdock-unread {
+	display: none;
+	min-width: 1.15rem;
+	height: 1.15rem;
+	padding: 0 0.3rem;
+	border-radius: 9999px;
+	background: #fa383e;
+	color: #fff;
+	font-size: 0.7rem;
+	line-height: 1.15rem;
+	text-align: center;
+}
+.gf-chatdock.has-unread .gf-chatdock-launcher .gf-chatdock-unread { display: inline-block; }
+
+/* ========================================================================== */
+/*  Expanded panel                                                             */
+/* ========================================================================== */
+.gf-chatdock-panel {
+	display: none;
+	flex-direction: column;
+	width: var(--gf-chatdock-w);
+	max-width: calc(100vw - 36px);
+	height: 32rem;
+	max-height: calc(100vh - 120px);
+	background-color: var(--gf-fb-surface);
+	border: 1px solid var(--gf-fb-border);
+	border-radius: 12px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+	overflow: hidden;
+}
+.gf-chatdock.is-open .gf-chatdock-panel { display: flex; }
+.gf-chatdock.is-open .gf-chatdock-launcher { display: none; }
+
+.gf-chatdock-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem 0.85rem 0.5rem;
+	flex: 0 0 auto;
+}
+.gf-chatdock-title { font-size: 1.35rem; font-weight: 800; color: var(--gf-fb-text); }
+.gf-chatdock-head-actions { display: inline-flex; gap: 0.25rem; }
+.gf-chatdock-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 2rem;
+	width: 2rem;
+	border: 0;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-chip);
+	color: var(--gf-fb-text);
+	cursor: pointer;
+	text-decoration: none;
+}
+.gf-chatdock-btn:hover { background-color: #e4e6eb; color: var(--gf-fb-blue); }
+
+.gf-chatdock-search {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+	margin: 0 0.75rem 0.4rem;
+	padding: 0 0.75rem;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-chip);
+	color: var(--gf-fb-text-soft);
+	flex: 0 0 auto;
+}
+.gf-chatdock-search-input {
+	width: 100%;
+	border: 0;
+	outline: none;
+	background: transparent;
+	padding: 0.5rem 0;
+	font-size: 0.9rem;
+	color: var(--gf-fb-text);
+}
+
+.gf-chatdock-scroll { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; }
+
+.gf-chatdock-seeall {
+	flex: 0 0 auto;
+	display: block;
+	text-align: center;
+	padding: 0.6rem;
+	border-top: 1px solid var(--gf-fb-border);
+	color: var(--gf-fb-blue);
+	font-weight: 600;
+	font-size: 0.85rem;
+	text-decoration: none;
+}
+.gf-chatdock-seeall:hover { background-color: var(--gf-fb-hover); }
+
+.gf-chatdock-empty { padding: 2.5rem 1.25rem; text-align: center; }
+.gf-chatdock-empty-title { font-weight: 700; color: var(--gf-fb-text); }
+.gf-chatdock-empty-sub { margin-top: 0.35rem; font-size: 0.85rem; color: var(--gf-fb-text-soft); }
+.gf-chatdock-noresults { padding: 1.5rem 1.25rem; text-align: center; color: var(--gf-fb-text-soft); font-size: 0.85rem; }
+
+/* ========================================================================== */
+/*  Conversation rows (reused Messenger "briefs" markup)                        */
+/* ========================================================================== */
+.gf-chatdock-list { list-style: none; margin: 0; padding: 0.25rem 0.4rem; }
+
+.gf-chatdock .bx-messenger-jots-snip { display: block; border-radius: 10px; cursor: pointer; }
+.gf-chatdock .bx-messenger-jots-snip > a { display: block; text-decoration: none; color: inherit; }
+.gf-chatdock .bx-messenger-jots-snip:hover { background-color: var(--gf-fb-hover); }
+.gf-chatdock .bx-messenger-jots-snip.active { background-color: var(--gf-fb-active); }
+
+/* Avatar */
+.gf-chatdock .bx-messenger-jots-snip-avatars { position: relative; flex: 0 0 auto; }
+.gf-chatdock .bx-messenger-jots-snip-avatars-list,
+.gf-chatdock .bx-messenger-jots-snip-avatars-list img,
+.gf-chatdock .bx-messenger-jots-snip-avatars-list p {
+	height: 3rem;
+	width: 3rem;
+	border-radius: 9999px;
+	object-fit: cover;
+	margin: 0;
+}
+.gf-chatdock .bx-messenger-jots-snip-avatars-list {
+	overflow: hidden;
+	background-color: #e4e6eb;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.gf-chatdock .bx-messenger-jots-snip-avatars-list p { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; }
+
+/* Online presence dot (from __status__) */
+.gf-chatdock .bx-messenger-status.online {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	height: 0.8rem;
+	width: 0.8rem;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-online);
+	box-shadow: 0 0 0 2.5px var(--gf-fb-surface);
+}
+
+/* Title + preview */
+.gf-chatdock .bx-messenger-jots-snip-title .title {
+	font-size: 0.92rem;
+	font-weight: 600;
+	color: var(--gf-fb-text);
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.gf-chatdock .bx-messenger-jots-snip-info {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.8125rem;
+	color: var(--gf-fb-text-soft);
+	min-width: 0;
+}
+.gf-chatdock .bx-messenger-jots-snip-info img { height: 1rem; width: 1rem; border-radius: 9999px; flex: 0 0 auto; }
+.gf-chatdock .bx-messenger-jots-snip-info > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Unread: bold + blue dot */
+.gf-chatdock .bx-messenger-jots-snip.unread-lot .bx-messenger-jots-snip-title .title,
+.gf-chatdock .bx-messenger-jots-snip.unread-lot .bx-messenger-jots-snip-info { font-weight: 700; color: var(--gf-fb-text); }
+.gf-chatdock .bx-messenger-jots-snip-info-bubble {
+	height: 0.55rem;
+	width: 0.55rem;
+	border-radius: 9999px;
+	background-color: var(--gf-fb-blue);
+	flex: 0 0 auto;
+}
+
+/* The stacked "last answered participants" avatars — hide in the compact rail */
+.gf-chatdock .bx-messenger-jots-snip .-space-x-4 { display: none; }
+
+/* ========================================================================== */
+/*  Provenance badge (self-contained copy; skin CSS isn't loaded off-page)      */
+/* ========================================================================== */
+.gf-chatdock .bx-messenger-gf-origin {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.6875rem;
+	line-height: 1.1;
+	font-weight: 600;
+	white-space: nowrap;
+	margin-top: 0.1rem;
+}
+.gf-chatdock .bx-messenger-gf-origin-ws {
+	color: var(--gf-fb-blue);
+	background-color: var(--gf-fb-active);
+	border-radius: 9999px;
+	padding: 0.1rem 0.5rem;
+}
+.gf-chatdock .bx-messenger-gf-origin-ws .bx-messenger-gf-origin-dot {
+	height: 0.4rem; width: 0.4rem; border-radius: 9999px; background-color: var(--gf-fb-blue); flex: 0 0 auto;
+}
+.gf-chatdock .bx-messenger-gf-origin-dm { color: var(--gf-fb-text-soft); font-weight: 500; }
+
+/* ========================================================================== */
+/*  Utility bundle the brief template relies on (scoped to the dock only)       */
+/* ========================================================================== */
+.gf-chatdock .flex { display: flex; }
+.gf-chatdock .flex-col { flex-direction: column; }
+.gf-chatdock .flex-grow { flex-grow: 1; }
+.gf-chatdock .flex-nowrap { flex-wrap: nowrap; }
+.gf-chatdock .items-start { align-items: flex-start; }
+.gf-chatdock .items-center { align-items: center; }
+.gf-chatdock .self-center { align-self: center; }
+.gf-chatdock .justify-between { justify-content: space-between; }
+.gf-chatdock .w-full { width: 100%; }
+.gf-chatdock .min-w-0 { min-width: 0; }
+.gf-chatdock .min-w-max { min-width: max-content; }
+.gf-chatdock .gap-3 { gap: 0.6rem; }
+.gf-chatdock .p-4 { padding: 0.55rem 0.6rem; }
+.gf-chatdock .my-auto { margin-top: auto; margin-bottom: auto; }
+.gf-chatdock .ml-0 { margin-left: 0; }
+.gf-chatdock .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gf-chatdock .text-ellipsis { text-overflow: ellipsis; }
+.gf-chatdock .overflow-hidden { overflow: hidden; }
+.gf-chatdock .inline-block { display: inline-block; }
+.gf-chatdock .block { display: block; }
+.gf-chatdock .rounded-full { border-radius: 9999px; }
+.gf-chatdock .font-semibold { font-weight: 600; }
+.gf-chatdock .space-y-1 > * + * { margin-top: 0.15rem; }
+.gf-chatdock .hidden { display: none; }
+
+/* ========================================================================== */
+/*  Small screens — full-width sheet                                            */
+/* ========================================================================== */
+@media (max-width: 480px) {
+	.gf-chatdock { right: 10px; bottom: 10px; }
+	.gf-chatdock-panel { width: calc(100vw - 20px); height: calc(100vh - 90px); }
+}
+
+/* ========================================================================== */
+/*  Dark mode                                                                   */
+/* ========================================================================== */
+.dark .gf-chatdock {
+	--gf-fb-text:      #e4e6eb;
+	--gf-fb-text-soft: #b0b3b8;
+	--gf-fb-surface:   #242526;
+	--gf-fb-hover:     #3a3b3c;
+	--gf-fb-active:    #263951;
+	--gf-fb-border:    #393a3b;
+	--gf-fb-chip:      #3a3b3c;
+}
+.dark .gf-chatdock-btn:hover { background-color: #4e4f50; }
