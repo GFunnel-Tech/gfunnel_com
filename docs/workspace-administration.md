@@ -10,6 +10,29 @@ edits. A workspace that is not a manageable group type (a person profile, or any
 module without an admins/roles overlay) makes every helper below a no-op:
 `gfWsGroupModule()` returns `null`.
 
+## Acting identity — the personal account is always present
+
+Entering a workspace does **not** change who you are. Launching a workspace
+(`workspaces.php?gf_switch=<id>`, or the top-nav workspace selector's
+`?gf_ws=<id>`) keeps the member's **personal profile as the acting identity**
+and merely *scopes* the site to that workspace — `gf_ws` pins the per-workspace
+menu, timer and context (`BxBaseFunctions::getGfActiveWorkspaceId`), which is
+independent of the acting profile. The `gf_switch` handler proactively resets
+the acting context to the personal profile on entry, so any lingering act-as
+(e.g. from UNA's native profile switcher) is dropped — the personal account is
+always present.
+
+Two workspace capabilities remain, both **deliberate and role-gated**, never
+assumed on entry:
+
+- **Edit / manage the workspace** (members, roles, settings, invite code) —
+  gated by owner/admin via `gfWsCanManage`, evaluated against the member's role
+  regardless of acting context. This is the "Manage" panel in the picker.
+- **Act as the workspace** (post/comment *as* the org, etc.) — the explicit
+  identity switch, still performed via `gfWsSwitchContext` / UNA's native
+  profile switcher, and still limited to the owner and delegated admins of a
+  type that supports `act_as_profile` (organizations, persons).
+
 ## Concepts (UNA-native)
 
 - **Owner** = `sys_profiles.account_id` — the authoritative edit/delete gate.

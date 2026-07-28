@@ -6,13 +6,15 @@
  * account's workspace profiles (organizations, spaces, groups — any
  * non-person profile), with the single personal profile in its own card.
  *
- * Launching a workspace (?gf_switch=<profile_id>) switches the account's acting
- * profile context to it — the member "uses the site as" that workspace, UNA's
- * native profile switch — then lands on the workspace's page. Both the OWNER of
- * a workspace and its delegated ADMINS (e.g. a social media manager) may act as
- * it; a plain member only visits the page (see gfWsSwitchContext). Loading this
- * picker itself (the site root) resets the context back to the member's personal
- * profile, so returning to gfunnel.com/ exits any workspace.
+ * Launching a workspace (?gf_switch=<profile_id>) enters it AS the member's
+ * personal account — never as the workspace. The personal profile is always the
+ * acting identity; launching merely scopes the site to the chosen workspace
+ * (gf_ws pins the menu/timer/context) and lands on its page. Acting AS the
+ * workspace (posting as it, etc.) and editing it are deliberate, role-gated
+ * capabilities exercised from inside — not something entry silently assumes;
+ * gfWsSwitchContext is the primitive for that deliberate act-as. Loading this
+ * picker itself (the site root) keeps/returns the acting context to the member's
+ * personal profile, so returning to gfunnel.com/ leaves any workspace scope.
  *
  * Optional settings (sys_options):
  *  - gf_root_workspaces        'off' disables the whole page (root falls back to 'home')
@@ -119,8 +121,14 @@ function gfWsPersonalProfileId($oAccount)
 
 /**
  * Switch the account's acting profile context to $oProfile - i.e. actually
- * "use the site as" that workspace, the same operation as UNA's native profile
+ * "use the site as" that profile, the same operation as UNA's native profile
  * switcher (page.php?i=account-profile-switcher).
+ *
+ * This is the DELIBERATE act-as primitive, no longer fired on workspace entry.
+ * Entering a workspace keeps the personal account as the acting identity (see
+ * the gf_switch handler, which uses this to hold/return to the personal
+ * profile); acting AS a workspace is an explicit, role-gated action a member
+ * takes from inside. The permitted-acter rules below still govern that action.
  *
  * Who may act as a workspace:
  *  - the OWNER: any profile the account created (personal person profile +
@@ -716,13 +724,18 @@ $GLOBALS['gfWsInviteCard'] = [];
 $oGfAccount = BxDolAccount::getInstance();
 $oGfProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
 
-//--- Launch a workspace: switch the acting profile context (for owned
-//--- workspaces) and open the workspace's page with gf_ws set. Joined
-//--- workspaces can't be acted as, so this just opens their page.
+//--- Launch a workspace: enter it AS the personal account, never as the
+//--- workspace. The member keeps their personal identity and merely scopes the
+//--- site to this workspace (gf_ws pins the menu/timer/context). We proactively
+//--- reset the acting context to the personal profile so any lingering act-as
+//--- (e.g. from UNA's native profile switcher) is dropped on entry — "the
+//--- personal account is always present". Acting AS the workspace is a
+//--- deliberate, role-gated action taken from inside, not an entry side effect.
 if(($iGfSwitch = (int)bx_get('gf_switch')) > 0 && $oGfAccount) {
     $oGfSwitchProfile = BxDolProfile::getInstance($iGfSwitch);
     if($oGfSwitchProfile) {
-        gfWsSwitchContext($oGfSwitchProfile, $oGfAccount);
+        if(($iGfPersonalId = gfWsPersonalProfileId($oGfAccount)) > 0 && ($oGfPersonal = BxDolProfile::getInstance($iGfPersonalId)))
+            gfWsSwitchContext($oGfPersonal, $oGfAccount);
         header('Location: ' . bx_append_url_params($oGfSwitchProfile->getUrl(), ['gf_ws' => $oGfSwitchProfile->id()]));
         exit;
     }
@@ -806,11 +819,10 @@ if(($iGfClaimWs = (int)bx_get('claim_ws')) > 0 && $oGfAccount && $oGfProfile) {
     if($oGfClaimWs && $oGfClaimMod) {
         $sGfClaimErr = gfWsClaimWorkspace($oGfClaimWs, $oGfClaimMod, $oGfAccount, $oGfProfile->id());
         if($sGfClaimErr === '') {
-            // Ownership was just established, so act as the workspace directly
-            // when its type supports it (orgs) - the cached profile still shows
-            // the old owner, so gfWsSwitchContext's ownership check can't be used.
-            if(BxDolService::call($oGfClaimWs->getModule(), 'act_as_profile'))
-                $oGfAccount->updateProfileContext($oGfClaimWs->id());
+            // Ownership is now established, but entry follows the same rule as a
+            // normal launch: stay the personal account and just scope into the
+            // claimed workspace (gf_ws). The member can act AS it deliberately
+            // afterwards; claiming does not silently assume its identity.
             header('Location: ' . bx_append_url_params($oGfClaimWs->getUrl(), ['gf_ws' => $oGfClaimWs->id()]));
             exit;
         }
