@@ -1,28 +1,15 @@
 <!--
-    GFunnel - Person profile overview (structured header).
+    GFunnel - Person profile overview (identity card).
 
-    Rendered by BxPersonsModule::serviceOverview(). Real data only:
-      · Cover      - branded gradient (real cover image is a follow-up)
-      · Identity   - avatar / name / bio / location / member-since (real)
-      · Actions    - Share (profile url), Edit profile (owner only)
+    Rendered by BxPersonsModule::serviceOverview(). Designed to sit in the
+    profile cover section (above the tabs), UNDER the native page cover - so it
+    renders no cover of its own and no metric-card grid. Real data only:
+      · Identity   - avatar / name / bio / location / member-since
+      · Actions    - Share, Edit (owner) or Connect/Message/Follow (visitor)
       · Stat strip - live Connections / Followers / Views
-      · Card grid  - the same four figures, echoing the reference layout
-    A pinned-post banner and org-only metrics are intentionally omitted until a
-    real source exists - no placeholder rows, counts or ratings.
 -->
 <div class="gfperson">
     <section class="gfperson-card">
-        <!-- Cover (real image when set, branded gradient otherwise) -->
-        <div class="gfperson-cover" style="__cover_style__">
-            <bx_if:editable>
-            <a class="gfperson-cover-edit" href="__edit_url__">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-                Edit cover
-            </a>
-            </bx_if:editable>
-        </div>
-
-        <!-- Identity -->
         <div class="gfperson-body">
             <span class="gfperson-avatar" style="__thumb_style__"><span class="gfperson-avatar-letter">__initial__</span></span>
 
@@ -66,35 +53,10 @@
             </div>
         </div>
 
-        <!-- Stat strip -->
         <div class="gfperson-stats">
             <div class="gfperson-stat"><span class="gfperson-stat-n">__connections__</span><span class="gfperson-stat-l">Connections</span></div>
             <div class="gfperson-stat"><span class="gfperson-stat-n">__followers__</span><span class="gfperson-stat-l">Followers</span></div>
             <div class="gfperson-stat"><span class="gfperson-stat-n">__views__</span><span class="gfperson-stat-l">Profile views</span></div>
         </div>
     </section>
-
-    <!-- Card grid: same live figures, echoing the reference layout -->
-    <div class="gfperson-grid">
-        <div class="gfperson-tile">
-            <div class="gfperson-tile-head"><span class="gfperson-tile-label">Connections</span><span class="gfperson-tile-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span></div>
-            <div class="gfperson-tile-n">__connections__</div>
-            <div class="gfperson-tile-sub">mutual connections</div>
-        </div>
-        <div class="gfperson-tile">
-            <div class="gfperson-tile-head"><span class="gfperson-tile-label">Followers</span><span class="gfperson-tile-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/></svg></span></div>
-            <div class="gfperson-tile-n">__followers__</div>
-            <div class="gfperson-tile-sub">subscribed to updates</div>
-        </div>
-        <div class="gfperson-tile">
-            <div class="gfperson-tile-head"><span class="gfperson-tile-label">Profile views</span><span class="gfperson-tile-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span></div>
-            <div class="gfperson-tile-n">__views__</div>
-            <div class="gfperson-tile-sub">all time</div>
-        </div>
-        <div class="gfperson-tile">
-            <div class="gfperson-tile-head"><span class="gfperson-tile-label">Member since</span><span class="gfperson-tile-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span></div>
-            <div class="gfperson-tile-n">__member_since_card__</div>
-            <div class="gfperson-tile-sub">on GFunnel</div>
-        </div>
-    </div>
 </div>
