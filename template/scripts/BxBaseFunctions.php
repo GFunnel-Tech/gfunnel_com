@@ -283,6 +283,12 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $aItems = array();
         $aOwnedIds = array();
 
+        //--- The personal (person) profile is shown as "Personal workspace"
+        //--- rather than the member's own name, matching the /workspaces picker.
+        $sPersonalLabel = trim((string)getParam('gf_personal_workspace_label'));
+        if($sPersonalLabel === '')
+            $sPersonalLabel = 'Personal workspace';
+
         //--- Owned profiles on this account (personal profile + owned workspaces).
         foreach($oAccount->getProfiles() as $iProfileId => $aProfileInfo) {
             if(empty($aProfileInfo['type']) || $aProfileInfo['type'] == 'system')
@@ -295,7 +301,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
             $aOwnedIds[] = (int)$iProfileId;
             $aItems[(int)$iProfileId] = array(
                 'id' => (int)$iProfileId,
-                'title' => $oWs->getDisplayName(),
+                'title' => $aProfileInfo['type'] == 'bx_persons' ? $sPersonalLabel : $oWs->getDisplayName(),
                 'thumb' => $oWs->getThumb(),
                 'url' => bx_append_url_params($oWs->getUrl(), array('gf_ws' => (int)$iProfileId))
             );
