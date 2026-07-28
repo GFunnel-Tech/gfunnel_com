@@ -97,7 +97,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
 
         // Description, location, founded - rendered only when the field is real.
         $sBio = !empty($CNF['FIELD_TEXT']) && isset($aContentInfo[$CNF['FIELD_TEXT']]) ? trim(strip_tags((string)$aContentInfo[$CNF['FIELD_TEXT']])) : '';
-        $sLocation = !empty($CNF['FIELD_LOCATION']) && isset($aContentInfo[$CNF['FIELD_LOCATION']]) ? trim((string)$aContentInfo[$CNF['FIELD_LOCATION']]) : '';
+        $sLocation = !empty($CNF['FIELD_LOCATION']) && isset($aContentInfo[$CNF['FIELD_LOCATION']]) ? $this->_gfFormatLocation($aContentInfo[$CNF['FIELD_LOCATION']]) : '';
         $iAdded = !empty($CNF['FIELD_ADDED']) && isset($aContentInfo[$CNF['FIELD_ADDED']]) ? (int)$aContentInfo[$CNF['FIELD_ADDED']] : 0;
         $sFounded = $iAdded > 0 ? date('Y', $iAdded) : '';
 
@@ -157,6 +157,28 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             'views' => number_format($iViews),
             'founded_card' => $sFounded !== '' ? bx_html_attribute($sFounded) : '&mdash;'
         ));
+    }
+
+    /**
+     * Format a workspace location field for display. Location fields store a
+     * serialized array (lat/lng/country/state/city/zip/street); reduce it to a
+     * readable "City, State, Country". Plain-string values pass through.
+     */
+    protected function _gfFormatLocation($mValue)
+    {
+        if(empty($mValue))
+            return '';
+
+        $aLoc = @unserialize((string)$mValue);
+        if(!is_array($aLoc))
+            return trim((string)$mValue);
+
+        $aParts = array();
+        foreach(array('city', 'state', 'country') as $sKey)
+            if(!empty($aLoc[$sKey]))
+                $aParts[] = trim((string)$aLoc[$sKey]);
+
+        return implode(', ', $aParts);
     }
 
     /**

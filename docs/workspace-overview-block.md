@@ -42,6 +42,18 @@ No new module, install step, or SQL migration is required.
 figures from the reference mockup (Partners / Customers / rating / activity) are
 replaced with real workspace metrics.
 
+## Placing it automatically (one-time)
+
+Run the migration to add the block to the orgs/spaces/groups profile pages
+without touching Studio:
+
+```
+php custom_batch_updates/gf_place_overview_blocks.php
+```
+
+Idempotent; resolves each page object and prints existing blocks. Raw SQL:
+`docs/sql/gf_overview_blocks.sql`.
+
 ## Placing it (one-time per module, in Studio)
 
 For each of **Organizations**, **Spaces**, **Groups**:
