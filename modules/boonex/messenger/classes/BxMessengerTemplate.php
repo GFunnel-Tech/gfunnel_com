@@ -452,6 +452,9 @@ class BxMessengerTemplate extends BxBaseModGeneralTemplate
                   'menu_button' => !$bIsBlockVersion ? $this->parseHtmlByName('mobile-menu-button.html', []) : ''
                 ];
 
+        // GFunnel: DM vs Workspace-origin badge in the open conversation header.
+        $aVars = array_merge($aVars, $this->gfGetOriginVars($aLotInfo, $iProfileId));
+
         return $isArray || bx_is_api() ? $aVars : $this -> parseHtmlByName('talk-header.html', $aVars);
     }
 
@@ -712,6 +715,91 @@ class BxMessengerTemplate extends BxBaseModGeneralTemplate
 
         return $this -> parseHtmlByName('profiles-list.html', ['bx_repeat:profiles' => $aItems]);
     }
+
+	/* ====================================================================== */
+	/*  GFunnel: conversation provenance ("DM" vs "from a Workspace")          */
+	/* ---------------------------------------------------------------------- */
+	/*  A Workspace is any non-person, non-system profile (organization /      */
+	/*  space / group) - the same definition workspaces.php uses for the       */
+	/*  account's owned workspaces. A conversation "comes from a Workspace"     */
+	/*  when it is attached to a workspace context (group talk) OR the 1:1      */
+	/*  counterpart is acting as a workspace profile. Used to render a small    */
+	/*  origin badge on the conversation list rows and the thread header.       */
+	/* ====================================================================== */
+
+	/**
+	 * Resolve the workspace a conversation came from, if any.
+	 * @return array|null null for a plain person-to-person DM; otherwise
+	 *                    ['name' => ..., 'kind' => ..., 'url' => ...]
+	 */
+	protected function gfGetWorkspaceOrigin($aLot, $iProfileId)
+	{
+		$CNF = &$this->_oConfig->CNF;
+
+		if (empty($aLot[$CNF['FIELD_ID']]))
+			return null;
+
+		// (a) Context talk tied to a workspace (organization / space / group).
+		if (!empty($aLot[$CNF['FMGL_GROUP_ID']])) {
+			$aGroupInfo = $this->_oDb->getGroup((int)$aLot[$CNF['FMGL_GROUP_ID']]);
+			if (!empty($aGroupInfo)
+				&& $aGroupInfo[$CNF['FMG_MODULE']] !== BX_MSG_TALK_TYPE_PAGES
+				&& !empty($aGroupInfo[$CNF['FMG_PROFILE_ID']])) {
+				$oWsProfile = BxDolProfile::getInstance((int)$aGroupInfo[$CNF['FMG_PROFILE_ID']]);
+				if ($oWsProfile && $this->gfIsWorkspaceProfile($oWsProfile))
+					return $this->gfWorkspaceOriginData($oWsProfile);
+			}
+		}
+
+		// (b) 1:1 DM where the counterpart is acting as a workspace profile.
+		$aParticipants = $this->_oDb->getParticipantsList($aLot[$CNF['FIELD_ID']], true, $iProfileId);
+		foreach ($aParticipants as $iParticipant) {
+			$oProfile = BxDolProfile::getInstance((int)$iParticipant);
+			if ($oProfile && $this->gfIsWorkspaceProfile($oProfile))
+				return $this->gfWorkspaceOriginData($oProfile);
+		}
+
+		return null;
+	}
+
+	protected function gfIsWorkspaceProfile($oProfile)
+	{
+		$sModule = $oProfile->getModule();
+		return $sModule && !in_array($sModule, array('system', 'bx_persons'));
+	}
+
+	protected function gfWorkspaceOriginData($oProfile)
+	{
+		return array(
+			'name' => $oProfile->getDisplayName(),
+			'kind' => _t('_' . $oProfile->getModule()),   // e.g. "Organizations"
+			'url'  => $oProfile->getUrl(),
+		);
+	}
+
+	/**
+	 * Template vars for the provenance badge: exactly one of the two if-blocks
+	 * is active. Merge into a lot-row or thread-header var set.
+	 */
+	protected function gfGetOriginVars($aLot, $iProfileId)
+	{
+		$aOrigin = $this->gfGetWorkspaceOrigin($aLot, $iProfileId);
+		return array(
+			'bx_if:gf_ws_origin' => array(
+				'condition' => (bool)$aOrigin,
+				'content' => $aOrigin ? array(
+					'gf_ws_name' => $aOrigin['name'],
+					'gf_ws_kind' => $aOrigin['kind'],
+					'gf_ws_url'  => $aOrigin['url'],
+				) : array(),
+			),
+			'bx_if:gf_dm_origin' => array(
+				'condition' => !$aOrigin,
+				'content' => array(),
+			),
+		);
+	}
+
 	/**
 	*  List of Lots (left side block content)
 	*@param int $iProfileId logged member id
@@ -943,6 +1031,10 @@ class BxMessengerTemplate extends BxBaseModGeneralTemplate
             ];
 
 	        $aVars['bx_if:timer'] = ['condition' => $bShowTime, 'content' => [ 'time' => $iTime ]];
+
+	        // GFunnel: DM vs Workspace-origin badge on each conversation row.
+	        $aVars = array_merge($aVars, $this->gfGetOriginVars($aLot, $iProfileId));
+
 	        $oTemplate = &$this;
             bx_alert($this->_oConfig->getObject('alert'), 'talk_preview_data', $aLot[$CNF['FIELD_ID']], $aLot[$CNF['FIELD_ID']], [
                'vars' => &$aVars,

@@ -118,6 +118,30 @@ class BxMessengerModule extends BxBaseModGeneralModule
     }
 
     /**
+     * GFunnel: bootstrap-free conversation briefs for the site-wide Chats dock.
+     * Returns ONLY the logged-in member's own inbox briefs HTML (no websocket /
+     * config bootstrap, which is tied to the /messenger page). Takes no profile
+     * argument on purpose - it always uses the current member, so it can never
+     * be used to read another member's conversations.
+     * @return string briefs HTML, or '' when logged out / no conversations
+     */
+    public function serviceGetInboxBriefs()
+    {
+        if (!$this->isLogged())
+            return '';
+
+        $iProfileId = (int)bx_get_logged_profile_id();
+        if (!$iProfileId)
+            return '';
+
+        $aLots = $this->_oDb->getMyLots($iProfileId, ['inbox' => true]);
+        if (empty($aLots))
+            return '';
+
+        return $this->_oTemplate->getLotsPreview($iProfileId, $aLots);
+    }
+
+    /**
      * Returns left side block for messenger page and loads config data
      */
     public function serviceGetBlockInbox()
