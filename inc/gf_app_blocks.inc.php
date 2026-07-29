@@ -162,12 +162,74 @@ function gfAppMember()
         if ($oFn && method_exists($oFn, 'getGfActiveWorkspaceId'))
             $a['ws'] = (int)$oFn->getGfActiveWorkspaceId();
     }
+    // SECURITY: getGfActiveWorkspaceId() trusts ?gf_ws=N from the request without
+    // a membership check, so we must verify the member actually belongs to that
+    // workspace before scoping a (shared) app collection to it — otherwise it's a
+    // cross-tenant IDOR. Fall back to personal (ws=0) when not a member.
+    if ($a['ws'] > 0 && !gfAppWorkspaceAllowed($a['ws']))
+        $a['ws'] = 0;
     if ($a['ws'] > 0 && class_exists('BxDolProfile')) {
         $oWs = BxDolProfile::getInstance($a['ws']);
         if ($oWs) $a['ws_name'] = strip_tags((string)$oWs->getDisplayName());
         else $a['ws'] = 0;
     }
     return $a;
+}
+
+/**
+ * Is the signed-in member allowed to act in workspace profile $iWs? True when
+ * they own it (it's one of the account's own profiles) or have joined it (the
+ * group module's 'fans' connection). Fail-safe: any error/uncertainty → false.
+ */
+function gfAppWorkspaceAllowed($iWs)
+{
+    $iWs = (int)$iWs;
+    if ($iWs <= 0 || !function_exists('isLogged') || !isLogged()) return false;
+    if (!class_exists('BxDolProfile') || !class_exists('BxDolAccount')) return false;
+
+    $oAccount = BxDolAccount::getInstance();
+    $oProfile = BxDolProfile::getInstance();
+    if (!$oAccount || !$oProfile) return false;
+
+    // Owned: one of the account's own profiles (org/space/group/person).
+    if (method_exists($oAccount, 'getProfiles')) {
+        $aProfiles = $oAccount->getProfiles();
+        if (is_array($aProfiles) && isset($aProfiles[$iWs])) return true;
+    }
+
+    // Joined: mutual 'fans' connection of the workspace's group module.
+    $oWs = BxDolProfile::getInstance($iWs);
+    if (!$oWs) return false;
+    if (!class_exists('BxDolModule') || !class_exists('BxDolConnection')) return false;
+    $oModule = BxDolModule::getInstance($oWs->getModule());
+    if (!$oModule || empty($oModule->_oConfig->CNF['OBJECT_CONNECTIONS'])) return false;
+    $oConn = BxDolConnection::getObjectInstance($oModule->_oConfig->CNF['OBJECT_CONNECTIONS']);
+    if (!$oConn) return false;
+    $iPid = (int)$oProfile->id();
+    return $oConn->isConnected($iPid, $iWs, true) || $oConn->isConnected($iWs, $iPid, true);
+}
+
+/** Same-origin guard for state-changing endpoints (blocks cross-site POST/CSRF). */
+function gfAppSameOrigin()
+{
+    $sHost = (string)parse_url(BX_DOL_URL_ROOT, PHP_URL_HOST);
+    $sSrc = !empty($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN']
+        : (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+    if ($sSrc === '' || $sHost === '') return false; // no Origin/Referer → reject
+    return strcasecmp((string)parse_url($sSrc, PHP_URL_HOST), $sHost) === 0;
+}
+
+/** Per-session CSRF token for admin forms. */
+function gfAppCsrfToken()
+{
+    if (!class_exists('BxDolSession')) return '';
+    $oSession = BxDolSession::getInstance();
+    $sTok = (string)$oSession->getValue('gf_app_csrf');
+    if ($sTok === '') {
+        $sTok = function_exists('random_bytes') ? bin2hex(random_bytes(16)) : md5(uniqid('gfa', true));
+        $oSession->setValue('gf_app_csrf', $sTok);
+    }
+    return $sTok;
 }
 
 /**
@@ -200,27 +262,36 @@ function gfAppCfgEnsureTable($oDb)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
-/** Read a config value: gf_app_config → sys_option ($k) → $default. */
-function gfAppCfg($k, $default = '')
+/** Shared, request-lifetime config cache (by reference so set() can update it). */
+function &gfAppCfgCache()
 {
     static $aCache = null;
     if ($aCache === null) {
+        $aCache = array();
         $oDb = BxDolDb::getInstance();
         gfAppCfgEnsureTable($oDb);
         $aRows = $oDb->getAll("SELECT `k`,`v` FROM `gf_app_config`");
-        $aCache = array();
         if (is_array($aRows)) foreach ($aRows as $r) $aCache[$r['k']] = $r['v'];
     }
+    return $aCache;
+}
+
+/** Read a config value: gf_app_config → sys_option ($k) → $default. */
+function gfAppCfg($k, $default = '')
+{
+    $aCache = &gfAppCfgCache();
     if (isset($aCache[$k]) && $aCache[$k] !== '' && $aCache[$k] !== null) return $aCache[$k];
     $sOpt = function_exists('getParam') ? trim((string)getParam($k)) : '';
     return $sOpt !== '' ? $sOpt : $default;
 }
 
-/** Write a config value. */
+/** Write a config value (and keep the request cache fresh). */
 function gfAppCfgSet($oDb, $k, $v)
 {
     gfAppCfgEnsureTable($oDb);
     $oDb->query($oDb->prepare("INSERT INTO `gf_app_config` (`k`,`v`) VALUES (?,?) ON DUPLICATE KEY UPDATE `v` = VALUES(`v`)", (string)$k, (string)$v));
+    $aCache = &gfAppCfgCache();
+    $aCache[(string)$k] = (string)$v;
 }
 
 /** Supabase REST config: URL + anon (read) key. Defaults keep the site working. */
@@ -343,13 +414,18 @@ function gfAppImportPage($oDb, $aDef, $aRows)
 function gfAppRunImport($oDb)
 {
     header('Content-Type: application/json; charset=utf-8');
-    // Auth: admin session, or ?key=<gf_dir_import_token> (for cron / curl).
+    // Auth: admin session (same-origin), or ?key=<gf_dir_import_token> (cron/curl).
+    // Token lives in gf_app_config (set in Admin → Settings), same store the UI reads.
     $aMember = gfAppMember();
-    $sToken = trim((string)getParam('gf_dir_import_token'));
+    $sToken = trim((string)gfAppCfg('gf_dir_import_token', ''));
     $sGiven = trim((string)bx_get('key'));
-    $bOk = ($aMember['admin']) || ($sToken !== '' && hash_equals($sToken, $sGiven));
-    if (!$bOk) { http_response_code(403); echo json_encode(array('ok' => false, 'error' => 'forbidden')); return; }
+    $bToken = ($sToken !== '' && hash_equals($sToken, $sGiven));
+    $bAdmin = !empty($aMember['admin']) && gfAppSameOrigin();
+    if (!$bAdmin && !$bToken) { http_response_code(403); echo json_encode(array('ok' => false, 'error' => 'forbidden')); return; }
 
+    // Swallow any stray DB-layer HTML/warnings so the response is always clean JSON.
+    while (ob_get_level() > 0) { @ob_end_clean(); }
+    ob_start();
     @set_time_limit(0);
     $aCfg = gfAppImportConfig();
     $aReg = gfAppImportRegistry();
@@ -378,6 +454,7 @@ function gfAppRunImport($oDb)
         $aResult[$sTable] = $iCount;
     }
 
+    while (ob_get_level() > 0) { @ob_end_clean(); } // drop any stray output
     echo json_encode(array('ok' => empty($aErrors), 'synced' => $aResult, 'errors' => $aErrors));
 }
 
@@ -428,6 +505,11 @@ function gfAppRunAdmin($oDb)
     // --- POST actions (Post/Redirect/Get) ------------------------------------
     if (!empty($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'POST') {
         $P = function ($k) { return isset($_POST[$k]) ? trim((string)$_POST[$k]) : ''; };
+        // CSRF: same-origin + per-session token must match.
+        if (!gfAppSameOrigin() || $P('csrf') === '' || !hash_equals(gfAppCsrfToken(), $P('csrf'))) {
+            header('Location: ' . $sSelf . '&msg=' . rawurlencode('Security check failed — please try again.'));
+            exit;
+        }
         $sDo = strtolower($P('do'));
         $sMsg = '';
 
@@ -437,6 +519,9 @@ function gfAppRunAdmin($oDb)
             $sSecret = $P('secret_key');
             if ($sSecret !== '' && $sSecret !== '********') gfAppCfgSet($oDb, 'gf_supabase_secret_key', $sSecret);
             gfAppCfgSet($oDb, 'gf_dir_import_token', $P('import_token'));
+            gfAppCfgSet($oDb, 'gf_hub_learning_url', $P('hub_learning_url'));
+            gfAppCfgSet($oDb, 'gf_hub_software_url', $P('hub_software_url'));
+            gfAppCfgSet($oDb, 'gf_hub_help_url', $P('hub_help_url'));
             $sMsg = 'Settings saved.';
         } elseif ($sDo === 'save_app') {
             $sId = $P('id');
@@ -455,10 +540,10 @@ function gfAppRunAdmin($oDb)
         } elseif ($sDo === 'add_app') {
             if ($P('name') !== '') {
                 $aBody = array(
-                    'name' => $P('name'), 'slug' => ($P('slug') !== '' ? $P('slug') : null),
-                    'app_url' => $P('app_url'), 'category' => $P('category'),
+                    'name' => $P('name'), 'app_url' => $P('app_url'), 'category' => $P('category'),
                     'is_featured' => isset($_POST['is_featured']),
                 );
+                if ($P('slug') !== '') $aBody['slug'] = $P('slug'); // else let Postgres default/trigger set it
                 $aR = gfAppSbWrite($aCfg, 'POST', 'directory_apps', '', $aBody);
                 if ($aR['ok']) {
                     $aReg = gfAppImportRegistry();
@@ -488,17 +573,23 @@ function gfAppAdminRender($oDb, $aCfg)
     $sQ = trim((string)bx_get('q'));
     if (strlen($sQ) > 100) $sQ = substr($sQ, 0, 100);
     $bSecret = trim((string)gfAppCfg('gf_supabase_secret_key', '')) !== '';
+    $sCsrf = '<input type="hidden" name="csrf" value="' . bx_html_attribute(gfAppCsrfToken()) . '" />';
 
     $sNotice = $sMsg !== '' ? '<div class="gfa-admin-notice">' . gfDirOut($sMsg) . '</div>' : '';
 
     // --- settings ------------------------------------------------------------
     $sSettings = '<form method="post" action="' . $sSelf . '" class="gfa-admin-card">'
+        . $sCsrf
         . '<input type="hidden" name="do" value="save_settings" />'
         . '<h2 class="gfa-admin-h2">Supabase connection</h2>'
         . '<label class="gfa-fld">Supabase URL<input name="supabase_url" value="' . bx_html_attribute($aCfg['url']) . '" /></label>'
         . '<label class="gfa-fld">Anon (read) key<input name="anon_key" value="' . bx_html_attribute($aCfg['key']) . '" /></label>'
         . '<label class="gfa-fld">Secret (write) key ' . ($bSecret ? '<span class="gfa-ok">✓ set</span>' : '<span class="gfa-warn">needed to edit apps</span>') . '<input type="password" name="secret_key" value="' . ($bSecret ? '********' : '') . '" placeholder="sb_secret_… or service_role key" autocomplete="off" /></label>'
         . '<label class="gfa-fld">Import token (for cron sync)<input name="import_token" value="' . bx_html_attribute(gfAppCfg('gf_dir_import_token', '')) . '" /></label>'
+        . '<h2 class="gfa-admin-h2" style="margin-top:18px">Hub card links</h2>'
+        . '<label class="gfa-fld">Learning Hub →<input name="hub_learning_url" value="' . bx_html_attribute(gfAppCfg('gf_hub_learning_url', BX_DOL_URL_ROOT . 'resources')) . '" /></label>'
+        . '<label class="gfa-fld">Software Hub →<input name="hub_software_url" value="' . bx_html_attribute(gfAppCfg('gf_hub_software_url', BX_DOL_URL_ROOT . 'services')) . '" /></label>'
+        . '<label class="gfa-fld">Help Center →<input name="hub_help_url" value="' . bx_html_attribute(gfAppCfg('gf_hub_help_url', BX_DOL_URL_ROOT . 'resources')) . '" /></label>'
         . '<button class="gfh-btn gfh-btn-orange gfh-btn-sm" type="submit">Save settings</button>'
         . '</form>';
 
@@ -522,7 +613,7 @@ function gfAppAdminRender($oDb, $aCfg)
                 $sImg = gfDirImg($a['logo_url']);
                 $sLogo = $sImg !== '' ? $sImg : '<span class="gfa-icon-ini" style="font-size:15px">' . gfDirOut($sIni) . '</span>';
                 $sResults .= '<form method="post" action="' . $sSelf . '" class="gfa-edit-row">'
-                    . '<input type="hidden" name="do" value="save_app" /><input type="hidden" name="id" value="' . bx_html_attribute($a['id']) . '" /><input type="hidden" name="q" value="' . bx_html_attribute($sQ) . '" />'
+                    . $sCsrf . '<input type="hidden" name="do" value="save_app" /><input type="hidden" name="id" value="' . bx_html_attribute($a['id']) . '" /><input type="hidden" name="q" value="' . bx_html_attribute($sQ) . '" />'
                     . '<span class="gfa-edit-logo gfa-noimg-fallback" data-initial="' . bx_html_attribute($sIni) . '">' . $sLogo . '</span>'
                     . '<input class="gfa-edit-name" name="name" value="' . bx_html_attribute($a['name']) . '" />'
                     . '<input name="app_url" value="' . bx_html_attribute($a['app_url']) . '" placeholder="Launch URL" />'
@@ -548,6 +639,7 @@ function gfAppAdminRender($oDb, $aCfg)
 
     // --- add app -------------------------------------------------------------
     $sAdd = '<form method="post" action="' . $sSelf . '" class="gfa-admin-card">'
+        . $sCsrf
         . '<input type="hidden" name="do" value="add_app" />'
         . '<h2 class="gfa-admin-h2">Add a new app</h2>'
         . '<div class="gfa-add-grid">'
@@ -620,6 +712,9 @@ function gfAppHandleUserAction($oDb)
         echo json_encode(array('ok' => true, 'ws' => $iWs, 'apps' => array_values(gfWsAppIds($oDb, $aScope))));
         return;
     }
+    // Writes: same-origin only (CSRF) and a real scope to write into.
+    if (!gfAppSameOrigin()) { http_response_code(403); echo json_encode(array('ok' => false, 'error' => 'origin')); return; }
+    if ($iWs <= 0 && $iAcc <= 0) { http_response_code(400); echo json_encode(array('ok' => false, 'error' => 'scope')); return; }
     // add / remove require a valid app id that exists in the directory mirror.
     if ($sApp === '' || strlen($sApp) > 36) { http_response_code(400); echo json_encode(array('ok' => false, 'error' => 'app')); return; }
     $bExists = (int)$oDb->getOne($oDb->prepare("SELECT COUNT(*) FROM `gf_directory_apps` WHERE `id` = ?", $sApp)) > 0;
@@ -798,8 +893,8 @@ function gfAppHubInner($oDb, $aMember, $sTab = 'apps', $bBlock = false)
     $sTabBar = gfAppTabBar($sTab, $bBlock);
 
     if ($bBlock) {
-        $sApps = '<div class="gfa-panel' . ($sTab !== 'marketplace' ? ' gfa-on' : '') . '" data-gfa-panel="apps">' . gfAppAppsPanel($oDb, $aMember, $aMine) . '</div>';
-        $sMkt  = '<div class="gfa-panel' . ($sTab === 'marketplace' ? ' gfa-on' : '') . '" data-gfa-panel="marketplace">' . gfAppMarketplacePanel($oDb, $aMember, $aMineSet) . '</div>';
+        $sApps = '<div class="gfa-panel' . ($sTab !== 'marketplace' ? ' gfa-on' : '') . '" id="gfa-panel-apps" role="tabpanel" data-gfa-panel="apps">' . gfAppAppsPanel($oDb, $aMember, $aMine) . '</div>';
+        $sMkt  = '<div class="gfa-panel' . ($sTab === 'marketplace' ? ' gfa-on' : '') . '" id="gfa-panel-marketplace" role="tabpanel" data-gfa-panel="marketplace">' . gfAppMarketplacePanel($oDb, $aMember, $aMineSet) . '</div>';
         // Config via data-attrs (robust inside CMS blocks that strip <script>).
         return '<div class="gfh gfh-js gfa-box" id="gfa" data-gfa-logged="' . ($aMember['logged'] ? '1' : '0') . '" data-gfa-endpoint="' . bx_html_attribute(BX_DOL_URL_ROOT . 'applications') . '">'
             . $sAdmin . $sTabBar . $sApps . $sMkt
@@ -825,18 +920,19 @@ function gfAppTabBar($sTab, $bBlock = false)
     $svgGear = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
 
     if ($bBlock) {
-        $sTabs = '<button class="gfa-tab' . ($sTab !== 'marketplace' ? ' gfa-on' : '') . '" type="button" data-gfa-tab="apps">' . $svgGrid . 'Apps</button>'
-            . '<button class="gfa-tab' . ($sTab === 'marketplace' ? ' gfa-on' : '') . '" type="button" data-gfa-tab="marketplace">' . $svgStore . 'Marketplace</button>';
+        $bApps = $sTab !== 'marketplace';
+        $sTabs = '<button class="gfa-tab' . ($bApps ? ' gfa-on' : '') . '" type="button" role="tab" aria-selected="' . ($bApps ? 'true' : 'false') . '" aria-controls="gfa-panel-apps" data-gfa-tab="apps">' . $svgGrid . 'Apps</button>'
+            . '<button class="gfa-tab' . (!$bApps ? ' gfa-on' : '') . '" type="button" role="tab" aria-selected="' . (!$bApps ? 'true' : 'false') . '" aria-controls="gfa-panel-marketplace" data-gfa-tab="marketplace">' . $svgStore . 'Marketplace</button>';
     } else {
-        $sTabs = '<a class="gfa-tab' . ($sTab === 'apps' ? ' gfa-on' : '') . '" href="' . BX_DOL_URL_ROOT . 'applications">' . $svgGrid . 'Apps</a>'
-            . '<a class="gfa-tab' . ($sTab === 'marketplace' ? ' gfa-on' : '') . '" href="' . BX_DOL_URL_ROOT . 'marketplace/applications">' . $svgStore . 'Marketplace</a>';
+        $sTabs = '<a class="gfa-tab' . ($sTab === 'apps' ? ' gfa-on' : '') . '"' . ($sTab === 'apps' ? ' aria-current="page"' : '') . ' href="' . BX_DOL_URL_ROOT . 'applications">' . $svgGrid . 'Apps</a>'
+            . '<a class="gfa-tab' . ($sTab === 'marketplace' ? ' gfa-on' : '') . '"' . ($sTab === 'marketplace' ? ' aria-current="page"' : '') . ' href="' . BX_DOL_URL_ROOT . 'marketplace/applications">' . $svgStore . 'Marketplace</a>';
     }
 
     return '<div class="gfa-tabbar">'
         . '<div class="gfa-tabs">' . $sTabs . '</div>'
         . '<div class="gfa-tabbar-actions">'
         .   '<div style="position:relative;">'
-        .     '<button class="gfa-videochat" id="gfa-videochat" type="button">' . $svgVideo . '<span>Video Chat</span></button>'
+        .     '<button class="gfa-videochat" id="gfa-videochat" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="gfa-vc-pop">' . $svgVideo . '<span>Video Chat</span></button>'
         .     '<div class="gfa-vc-pop gfa-hidden" id="gfa-vc-pop" style="position:absolute;right:0;top:46px;width:266px;background:#fff;border:1px solid var(--gfh-line);border-radius:14px;box-shadow:var(--gfh-shadow-lg);padding:14px;z-index:60;">'
         .       '<div style="font-family:var(--gfh-font-head);font-weight:700;font-size:14px;color:var(--gfh-ink);">Video Chat</div>'
         .       '<div style="font-size:12px;color:var(--gfh-muted);margin-bottom:12px;">Start a meeting instantly</div>'
@@ -984,10 +1080,17 @@ function gfAppHubCards()
             . '<span class="gfa-hub-cta">' . $sCta . '</span></a>';
     };
 
+    // Destinations are admin-configurable (Admin → Settings). Defaults match the
+    // card copy: Learning→Resources library, Software (custom build/discovery)→
+    // Services, Help (support/answers)→Resources.
+    $sLearn = gfAppCfg('gf_hub_learning_url', BX_DOL_URL_ROOT . 'resources');
+    $sSoft  = gfAppCfg('gf_hub_software_url', BX_DOL_URL_ROOT . 'services');
+    $sHelp  = gfAppCfg('gf_hub_help_url',     BX_DOL_URL_ROOT . 'resources');
+
     return '<section class="gfa-sec"><div class="gfa-hubs">'
-        . $card('learn', $icoBook, 'Learning Hub', 'Boost your skills with curated courses and expert-led tutorials.', 'Start Learning ' . $arrow, BX_DOL_URL_ROOT . 'resources')
-        . $card('soft', $icoBrief, 'Software Hub', 'Build your own software, request a custom build, or schedule a discovery call.', 'Explore ' . $arrow, BX_DOL_URL_ROOT . 'marketplace')
-        . $card('help', $icoUsers, 'Help Center', 'Get support, find answers, and connect with our team.', 'Get Help ' . $arrow, BX_DOL_URL_ROOT . 'services')
+        . $card('learn', $icoBook, 'Learning Hub', 'Boost your skills with curated courses and expert-led tutorials.', 'Start Learning ' . $arrow, bx_html_attribute($sLearn))
+        . $card('soft', $icoBrief, 'Software Hub', 'Build your own software, request a custom build, or schedule a discovery call.', 'Explore ' . $arrow, bx_html_attribute($sSoft))
+        . $card('help', $icoUsers, 'Help Center', 'Get support, find answers, and connect with our team.', 'Get Help ' . $arrow, bx_html_attribute($sHelp))
         . '</div></section>';
 }
 
@@ -1047,7 +1150,11 @@ function gfAppMarketplacePanel($oDb, $aMember, $aMineSet = array())
     $plusSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
 
     // "Add New App" dashed card (first cell)
-    $sAddHref = $aMember['logged'] ? (BX_DOL_URL_ROOT . 'services') : gfHomeUrl('create-account');
+    // Admins → the Manage Apps admin (add a real app); members → request a build
+    // (Services); guests → sign up.
+    $sAddHref = !empty($aMember['admin'])
+        ? (BX_DOL_URL_ROOT . 'applications?gfa_action=admin')
+        : ($aMember['logged'] ? (BX_DOL_URL_ROOT . 'services') : gfHomeUrl('create-account'));
     $sCards = '<a class="gfh-appd-card gfh-appd-add" href="' . $sAddHref . '">'
         . '<div class="gfh-appd-head"><span class="gfh-appd-logo gfh-appd-plus">+</span>'
         .   '<span class="gfh-appd-name">Add New App</span></div>'

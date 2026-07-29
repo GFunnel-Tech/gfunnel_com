@@ -42,7 +42,7 @@
             tabBtns.forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var which = btn.getAttribute('data-gfa-tab');
-                    tabBtns.forEach(function (b) { b.classList.toggle('gfa-on', b === btn); });
+                    tabBtns.forEach(function (b) { var on = b === btn; b.classList.toggle('gfa-on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
                     panels.forEach(function (p) { p.classList.toggle('gfa-on', p.getAttribute('data-gfa-panel') === which); });
                 });
             });
@@ -67,15 +67,19 @@
             show(0); start();
         }
 
-        /* ---- Live date under "Welcome!" ---------------------------- */
+        /* ---- Live date under "Welcome!" (ticks every 30s) ---------- */
         var dateEl = document.getElementById('gfa-hero-date');
         if (dateEl) {
-            try {
-                var now = new Date();
-                var d = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                var t = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-                dateEl.textContent = d + ' • ' + t;
-            } catch (e) {}
+            var tick = function () {
+                try {
+                    var now = new Date();
+                    var d = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    var t = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+                    dateEl.textContent = d + ' • ' + t;
+                } catch (e) {}
+            };
+            tick();
+            setInterval(tick, 30000);
         }
 
         /* ---- App Directory: instant search filter ------------------ */
@@ -167,23 +171,34 @@
         var vc = document.getElementById('gfa-videochat');
         var pop = document.getElementById('gfa-vc-pop');
         if (vc && pop) {
+            var setPop = function (open) {
+                pop.classList.toggle('gfa-hidden', !open);
+                vc.setAttribute('aria-expanded', open ? 'true' : 'false');
+            };
             vc.addEventListener('click', function (e) {
                 e.stopPropagation();
-                pop.classList.toggle('gfa-hidden');
-                var saved = localStorage.getItem(LS_MEET) || '';
-                var input = pop.querySelector('#gfa-vc-input');
-                if (input) input.value = saved;
+                var open = pop.classList.contains('gfa-hidden');
+                setPop(open);
+                if (open) {
+                    var input = pop.querySelector('#gfa-vc-input');
+                    if (input) input.value = localStorage.getItem(LS_MEET) || '';
+                }
             });
             document.addEventListener('click', function (e) {
-                if (!pop.classList.contains('gfa-hidden') && !pop.contains(e.target) && e.target !== vc)
-                    pop.classList.add('gfa-hidden');
+                if (!pop.classList.contains('gfa-hidden') && !pop.contains(e.target) && e.target !== vc) setPop(false);
             });
+            // Google Meet link: close the popover after launching.
+            var meet = pop.querySelector('a[href*="meet.google.com"]');
+            if (meet) meet.addEventListener('click', function () { setPop(false); });
             var saveBtn = pop.querySelector('#gfa-vc-save');
             if (saveBtn) saveBtn.addEventListener('click', function () {
                 var input = pop.querySelector('#gfa-vc-input');
                 var v = (input && input.value || '').trim();
-                if (v) { localStorage.setItem(LS_MEET, v); window.open(v, '_blank', 'noopener'); }
-                pop.classList.add('gfa-hidden');
+                if (!v) { if (input) { input.focus(); input.placeholder = 'Paste a Zoom/Teams link first…'; } return; }
+                if (!/^https?:\/\//i.test(v)) { if (input) { input.value = ''; input.placeholder = 'Enter a full https:// link'; input.focus(); } return; }
+                localStorage.setItem(LS_MEET, v);
+                window.open(v, '_blank', 'noopener');
+                setPop(false);
             });
         }
     });
