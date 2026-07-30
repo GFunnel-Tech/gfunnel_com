@@ -53,18 +53,14 @@ gfWsAppsEnsureTable($oDb);
 //   import            -> pull the directory from Supabase into the MySQL mirror
 //                        (admin session, or ?key=<gf_dir_import_token> for cron)
 //   add|remove|list   -> the signed-in member's personal app collection
-if (bx_get('gfa_action') !== false) {
-    $sGfAction = strtolower((string)bx_get('gfa_action'));
-    if ($sGfAction === 'import') {
-        gfAppRunImport($oDb);
-        exit;
-    }
-    if ($sGfAction === 'admin') {
-        gfAppRunAdmin($oDb);
-        exit;
-    }
-    gfAppHandleUserAction($oDb);
-    exit;
+// Only divert to a handler for a real action verb; an empty/unknown gfa_action
+// (e.g. a stray "?gfa_action=") must still render the page, not 405.
+$sGfAction = strtolower(trim((string)bx_get('gfa_action')));
+if ($sGfAction !== '') {
+    if ($sGfAction === 'import') { gfAppRunImport($oDb); exit; }
+    if ($sGfAction === 'admin')  { gfAppRunAdmin($oDb);  exit; }
+    if (in_array($sGfAction, array('add', 'remove', 'list'), true)) { gfAppHandleUserAction($oDb); exit; }
+    // anything else: ignore and fall through to normal page rendering
 }
 
 $sSlug = isset($GLOBALS['gf_app_slug']) ? trim((string)$GLOBALS['gf_app_slug'], '/') : '';
