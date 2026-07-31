@@ -453,3 +453,65 @@
 	--gf-fb-border:    #393a3b;
 	--gf-fb-chip:      #3a3b3c;
 }
+
+/* ========================================================================== */
+/*  Two-pane layout — deterministic flex, independent of the module's purged   */
+/*  Tailwind build.                                                             */
+/* ---------------------------------------------------------------------------*/
+/*  The stock page lays out list + thread with responsive col-span / show-hide */
+/*  utilities, but the shipped tailwind-messenger.css is a purged build that is */
+/*  MISSING `md:block` (it has md:hidden, lg:block, xl:block only). So the      */
+/*  thread pane's `hidden` never clears and the grid col-spans never resolve —  */
+/*  the page collapses to a single narrow pane with dead space (the reported    */
+/*  bug). At tablet+ we lay the columns out explicitly with flexbox:            */
+/*  [nav rail?] · conversation list · thread. Mobile (< 768px) keeps the stock  */
+/*  single-pane switching untouched.                                           */
+/* ========================================================================== */
+
+@media (min-width: 768px) {
+	.bx-page-messenger .bx-messenger-main-columns-block {
+		height: 100%;
+		min-height: calc(100vh - 9rem);
+	}
+
+	/* Neutralise the 10-col grid; flow the columns as a flex row instead. */
+	.bx-page-messenger .bx-messenger-columns {
+		display: flex !important;
+		flex-wrap: nowrap;
+		width: 100%;
+		height: 100%;
+		grid-template-columns: none !important;
+	}
+
+	/* Conversation list — fixed, comfortable width; always visible. */
+	.bx-page-messenger #bx-messenger-list-block {
+		display: block !important;
+		flex: 0 0 22rem;
+		max-width: 22rem;
+		min-width: 0;
+	}
+
+	/* Thread — fills the remaining width. `display:flex` overrides the stock
+	   `hidden` class that the missing `md:block` never clears. */
+	.bx-page-messenger #bx-messenger-history-block {
+		display: flex !important;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.bx-page-messenger #bx-messenger-history-block > * {
+		min-height: 0;
+	}
+
+	/* Optional left nav rail (only rendered at xl) stays a narrow column. */
+	.bx-page-messenger #bx-messenger-menu-block {
+		flex: 0 0 auto;
+	}
+
+	/* Info side panel docks on the right when the member opens it. */
+	.bx-page-messenger #bx-messenger-info-section-block {
+		flex: 0 0 22rem;
+		max-width: 22rem;
+		min-width: 0;
+	}
+}
