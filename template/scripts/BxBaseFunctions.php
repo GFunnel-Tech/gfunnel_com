@@ -87,6 +87,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 $mixedResult = $this->getGfToolbar();
                 break;
 
+            case 'gf_sidebar':
+                $mixedResult = $this->getGfSidebar();
+                break;
+
             case 'gf_toolbar_protean':
                 $mixedResult = $this->getGfToolbar('_page_toolbar_classic_protean.html', 'gf-flow');
                 break;
@@ -209,6 +213,86 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                 ]
             ]
         ]);
+    }
+
+    /**
+     * GFunnel left navigation (the workspace/app sidebar).
+     *
+     * GFunnel-owned, exactly like the top nav (getGfToolbar): our own markup +
+     * our own item config, rendered into the app layout in place of the stock
+     * sys_site_panel menu - so it is not tied to a DB-configured menu or the
+     * upstream design template. Dark rail, icon+label rows, orange active state,
+     * Settings + footer pinned at the bottom.
+     *
+     * Edit $aItems below to change the nav. Each item: key, title, url, icon
+     * (inline SVG). `match` is the URL substring that marks the item active.
+     */
+    public function getGfSidebar()
+    {
+        if(!isLogged())
+            return '';
+
+        $sRoot = BX_DOL_URL_ROOT;
+
+        // --- Nav items (our config - edit here to change the sidebar). ---
+        $aItems = array(
+            array('key' => 'home',           'title' => 'Home',           'match' => '',                'url' => $sRoot,
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>'),
+            array('key' => 'communications', 'title' => 'Communications', 'match' => 'communications',   'url' => $this->_getGfHeaderUrl(getParam('gf_nav_communications_url'), 'page.php?i=messenger'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'),
+            array('key' => 'sales',          'title' => 'Sales',          'match' => 'sales',            'url' => $this->_getGfHeaderUrl(getParam('gf_nav_sales_url'), 'sales'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>'),
+            array('key' => 'memory',         'title' => 'Memory',         'match' => 'memory',           'url' => $this->_getGfHeaderUrl(getParam('gf_nav_memory_url'), 'agents.php'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>'),
+            array('key' => 'applications',   'title' => 'Applications',   'match' => 'applications',     'url' => $sRoot . 'applications',
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>'),
+            array('key' => 'social',         'title' => 'Social',         'match' => 'social',           'url' => $this->_getGfHeaderUrl(getParam('gf_nav_social_url'), 'page.php?i=timeline'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>'),
+            array('key' => 'explore',        'title' => 'Explore',        'match' => 'explore',          'url' => $sRoot . 'explore',
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>'),
+            array('key' => 'communities',    'title' => 'Communities',    'match' => 'communities',      'url' => $sRoot . 'communities',
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'),
+            array('key' => 'marketplace',    'title' => 'Marketplace',    'match' => 'marketplace',      'url' => $sRoot . 'marketplace',
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18l-1 11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M3 9l2-5h14l2 5"/><path d="M9 13a3 3 0 0 0 6 0"/></svg>'),
+            array('key' => 'events',         'title' => 'Events',         'match' => 'events',           'url' => $this->_getGfHeaderUrl(getParam('gf_nav_events_url'), 'page.php?i=events-home'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'),
+            array('key' => 'learning',       'title' => 'Learning',       'match' => 'learning',         'url' => $this->_getGfHeaderUrl(getParam('gf_nav_learning_url'), 'page.php?i=courses-home'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>'),
+            array('key' => 'partners',       'title' => 'Partners',       'match' => 'partners',         'url' => $sRoot . 'partners',
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3-9.24 9.24"/></svg>'),
+        );
+
+        // --- Active item: match the current request path. ---
+        $sReq = (string)($_SERVER['REQUEST_URI'] ?? '');
+        $sReqPath = (string)parse_url($sReq, PHP_URL_PATH);
+        $aRepeat = array();
+        foreach($aItems as $aItem) {
+            $bActive = false;
+            if($aItem['match'] === '')
+                $bActive = ($sReqPath === '/' || $sReqPath === '' || $sReqPath === '/home');
+            elseif(strpos($sReqPath, '/' . $aItem['match']) !== false || strpos($sReq, 'i=' . $aItem['match']) !== false)
+                $bActive = true;
+
+            $aRepeat[] = array(
+                'title' => bx_html_attribute($aItem['title']),
+                'url' => bx_html_attribute($aItem['url']),
+                'icon' => $aItem['icon'],
+                'class_active' => $bActive ? 'gf-side-item-active' : ''
+            );
+        }
+
+        // --- Footer links (edit here). ---
+        $sSettingsUrl = $this->_getGfHeaderUrl(getParam('gf_nav_settings_url'), 'page.php?i=settings');
+        $iYear = (int)date('Y');
+
+        return $this->_oTemplate->parseHtmlByName('_page_sidebar.html', array(
+            'bx_repeat:items' => $aRepeat,
+            'settings_url' => bx_html_attribute($sSettingsUrl),
+            'rules_url' => bx_html_attribute($this->_getGfHeaderUrl(getParam('gf_nav_rules_url'), 'page.php?i=rules')),
+            'privacy_url' => bx_html_attribute($this->_getGfHeaderUrl(getParam('gf_nav_privacy_url'), 'page.php?i=privacy')),
+            'terms_url' => bx_html_attribute($this->_getGfHeaderUrl(getParam('gf_nav_terms_url'), 'page.php?i=terms-of-service')),
+            'year' => $iYear
+        ));
     }
 
     protected function _getGfHeaderUrl($sUrl, $sDefault = '')

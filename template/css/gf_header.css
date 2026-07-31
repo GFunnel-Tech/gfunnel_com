@@ -1010,3 +1010,107 @@
         display: none;
     }
 }
+
+/*=== GFunnel left navigation (getGfSidebar -> _page_sidebar.html) ===========
+      Dark rail, icon+label rows, orange active state, Settings + footer pinned
+      at the bottom. Fills the #sidebar aside (w-64) below the 64px top nav. */
+.gf-side {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 12px 0 0;
+    background-color: #141a27;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-sizing: border-box;
+}
+.gf-side * { box-sizing: border-box; }
+
+.gf-side-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.gf-side-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    color: #9aa4b5;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color .12s ease, color .12s ease;
+}
+.gf-side-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #e6e9ef;
+}
+.gf-side-ico {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+.gf-side-ico svg { width: 20px; height: 20px; display: block; }
+.gf-side-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Active: orange text/icon + subtle orange wash + orange left indicator. */
+.gf-side-item-active {
+    color: #f97316;
+    background-color: rgba(249, 115, 22, 0.12);
+}
+.gf-side-item-active:hover {
+    color: #f97316;
+    background-color: rgba(249, 115, 22, 0.16);
+}
+.gf-side-item-active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background-color: #f97316;
+}
+
+/* Footer: Settings + legal links + copyright, pinned at the bottom. */
+.gf-side-foot {
+    flex: none;
+    padding: 8px 12px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 8px;
+}
+.gf-side-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding: 12px 12px 4px;
+}
+.gf-side-legal a {
+    font-size: 12px;
+    color: #6b7688;
+    text-decoration: none;
+}
+.gf-side-legal a:hover { color: #9aa4b5; }
+.gf-side-copy {
+    padding: 4px 12px 0;
+    font-size: 12px;
+    color: #5a6475;
+}
