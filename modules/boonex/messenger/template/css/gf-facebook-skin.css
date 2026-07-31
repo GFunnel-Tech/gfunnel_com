@@ -453,3 +453,33 @@
 	--gf-fb-border:    #393a3b;
 	--gf-fb-chip:      #3a3b3c;
 }
+
+/* ==========================================================================
+   Page composition fix — full-width Messenger.
+   --------------------------------------------------------------------------
+   The /messenger page (Studio page bx_messenger_main) is composed with a
+   "top area, 2 columns" layout, and the Messenger block is placed in the RIGHT
+   half (.bx-layout-2-columns-column2, md:w-1/2) while the left half is empty.
+   That is what strands the panel in the right ~half of the screen with dead
+   space beside it. Collapse the layout to a single full-width column so the
+   panel fills the content area.
+
+   NOTE: the true two-pane list + thread experience is a separate, block-level
+   change - this page renders the compact single-conversation Messenger block,
+   which has no conversation-list pane. Swapping that is a Studio page change,
+   not a CSS one.
+   ========================================================================== */
+
+.bx-page-messenger .bx-layout-top-area-2-columns .bx-layout-2-columns-column1 {
+	display: none !important;
+}
+.bx-page-messenger .bx-layout-top-area-2-columns .bx-layout-2-columns-column2 {
+	width: 100% !important;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+/* Give the Messenger panel a comfortable, app-like height. */
+.bx-page-messenger .bx-messenger-block-messenger {
+	min-height: 72vh;
+}
