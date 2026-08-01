@@ -27,23 +27,29 @@ class BxBaseMenuDashboardReportsManage extends BxTemplMenuCustom
         $this->_bDisplayAddons = true;
     }
 
-    
     protected function getMenuItemsRaw ()
     {
-        $aResult = array();
         $aUrl = bx_get_base_url_inline();
         
         $aSystems = BxDolReport::getSystems();
-        
-        $sSelected = bx_get('object');
-        
-        if ($sSelected == ''){
+
+        $sSelected = '';
+        if(($_sSelected = bx_get('object')) !== false)
+            $sSelected = bx_process_input($_sSelected);
+        if(!$sSelected)
             $sSelected = reset($aSystems)['name'];
-        }
-       
-        foreach($aSystems as $aSystem){
+
+        $aResult = [];
+        foreach($aSystems as $aSystem) {
             $sName = $aSystem['name'];
-            $aResult[$sName] = array(
+
+            if(!empty($aSystem['class_name'])) {
+                $oReport = BxDolReport::getObjectInstance($sName, 0, false);
+                if(!$oReport->isProcessible())
+                    continue;
+            }
+
+            $aResult[$sName] = [
                 'name' => $sName,
                 'title' => _t('_' . $sName),
                 'link' => bx_append_url_params($aUrl[0], array_merge($aUrl[1], array('object' => $sName))),
@@ -58,11 +64,11 @@ class BxBaseMenuDashboardReportsManage extends BxTemplMenuCustom
                     'class' => 'TemplDashboardServices'
                     ]),
                 'selected' => $sSelected == $sName ? true : false
-            );   
+            ];
     	}
         
         if(!empty($aResult) && is_array($aResult)){
-            $aResult['more-auto'] = array(
+            $aResult['more-auto'] = [
                 'module' => 'system', 
                 'id' => 'more-auto', 
                 'name' => 'more-auto',
@@ -70,17 +76,15 @@ class BxBaseMenuDashboardReportsManage extends BxTemplMenuCustom
                 'title' => '_sys_menu_item_title_va_more_auto', 
                 'href' => 'javascript:void(0)', 
                 'icon' => 'ellipsis-v',
-            );
+            ];
         }
-        
+
         return $aResult;
     }
-    
+
     protected function _isSelected ($a)
     {
-        if (isset($a['selected']))
-            return $a['selected'];
-        return false;
+        return isset($a['selected']) ? $a['selected'] : false;
     }
 }
 

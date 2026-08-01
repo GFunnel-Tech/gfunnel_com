@@ -69,8 +69,9 @@ define('BX_PAYMENT_TYPE_RECURRING', 'recurring');
 define('BX_PAYMENT_EMPTY_ID', 0);
 
 //--- Studio settings ---//
-define('BX_DOL_STUDIO_FOLDER', 'studio');
-
+if (!defined('BX_DOL_STUDIO_FOLDER')) {
+    define('BX_DOL_STUDIO_FOLDER', 'studio');
+}
 define('BX_DOL_URL_STUDIO', BX_DOL_URL_ROOT . BX_DOL_STUDIO_FOLDER . '/');
 define('BX_DOL_URL_STUDIO_BASE', BX_DOL_URL_STUDIO . 'template/');
 
@@ -128,7 +129,11 @@ BxDolDb::getInstance()->cacheParams();
 
 require_once(BX_DIRECTORY_PATH_INC . 'profiles.inc.php');
 
+bx_check_maintenance_mode_soft();
+
 $o = new BxDolAlerts('system', 'begin', 0);
 $o->alert();
+
+check_logged();
 
 /** @} */

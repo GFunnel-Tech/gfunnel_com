@@ -62,15 +62,15 @@ class BxBaseStudioModule extends BxDolStudioModule
             'js_code' => $this->getPageJsCode()
         ));
     }
-/*
+
     function getPageAttributes()
     {
-        if((int)$this->aModule['enabled'] == 0)
+        if($this->_bShowHeaderBreadcrumb && (int)$this->aModule['enabled'] == 0)
             return 'style="display:none"';
 
         return parent::getPageAttributes();
     }
-*/
+
     function getPageMenu($aMenu = array(), $aMarkers = array())
     {
         $sJsObject = $this->getPageJsObject();

@@ -13,28 +13,75 @@
  */
 class BxDolEmbedQuery extends BxDolFactoryObjectQuery
 {
+    protected $_sTableData;
+
     static public function getObject($sObject)
     {
-        return parent::getObjectFromTable($sObject, 'sys_objects_embeds');
+        return parent::getObjectFromTable($sObject, 'sys_objects_embeds', true);
     }
 
     static public function getObjects ()
     {
         return parent::getObjectsFromTable('sys_objects_embeds');
     }
-    
-    static public function getLocal ($sUrl, $sTheme, $sTableName)
+
+    public function setParams($aParams)
     {
-        $oDb = BxDolDb::getInstance();
-        $sQuery = $oDb->prepare("SELECT `data` FROM `" . $sTableName . "` WHERE `url` = ? AND  `theme` = ?", $sUrl, $sTheme);
-        return $oDb->getOne($sQuery);
+        $this->_sTableData = $aParams['table_data'] ?? '';
+    }
+
+    public function getLocal ($sUrl, $sTheme)
+    {
+        return $this->getOne("SELECT `data` FROM `" . $this->_sTableData . "` WHERE `url` = :url AND  `theme` = :theme", [
+            'url' => $sUrl, 
+            'theme' => $sTheme
+        ]);
+    }
+
+    public function getLocalInfo ($sUrl, $sTheme)
+    {
+        return $this->getRow("SELECT * FROM `" . $this->_sTableData . "` WHERE `url` = :url AND  `theme` = :theme", [
+            'url' => $sUrl, 
+            'theme' => $sTheme
+        ]);
+    }
+
+    public function getLocalInfoById ($iId)
+    {
+        return $this->getRow("SELECT * FROM `" . $this->_sTableData . "` WHERE `id` = :id", [
+            'id' => $iId
+        ]);
+    }
+
+    public function getLocalUnprocessed ()
+    {
+        return $this->getAll("SELECT * FROM `" . $this->_sTableData . "` WHERE `data` = ''");
+    }
+
+    public function insertLocal ($sUrl, $sTheme, $sData = '')
+    {
+        return (int)$this->query("INSERT INTO `" . $this->_sTableData . "` (`url`, `theme`, `data`, `added`) VALUES (:url, :theme, :data, :added)", [
+            'url' => $sUrl,
+            'theme' => $sTheme,
+            'data' => $sData,
+            'added' => time(),
+        ]) > 0 ? $this->lastId() : false;
+    }
+
+    public function updateLocal($aParamsSet, $aParamsWhere)
+    {
+        if(empty($aParamsSet) || empty($aParamsWhere))
+            return false;
+
+        return $this->query("UPDATE `{$this->_sTableData}` SET " . $this->arrayToSQL($aParamsSet) . " WHERE " . $this->arrayToSQL($aParamsWhere, " AND "));
     }
     
-    static public function setLocal ($sUrl, $sTheme, $sTableName, $sData)
+    public function deleteLocal($aParamsWhere)
     {
-        $oDb = BxDolDb::getInstance();
-        $sQuery = $oDb->prepare("INSERT INTO `" . $sTableName . "` (`url`, `theme`, `data`, `added`) VALUES (?, ?, ?, ?)", $sUrl, $sTheme, $sData, time());
-        $oDb->query($sQuery);
+        if(empty($aParamsWhere))
+            return false;
+
+        return $this->query("DELETE FROM `{$this->_sTableData}` WHERE " . $this->arrayToSQL($aParamsWhere, " AND "));
     }
 }
 

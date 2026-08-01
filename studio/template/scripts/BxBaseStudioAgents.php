@@ -15,6 +15,8 @@ class BxBaseStudioAgents extends BxDolStudioAgents
     protected $aMenuItems;
     protected $aGridObjects;
 
+    protected $sSessionKeyAgentsView;
+
     public function __construct($sPage = '')
     {
         parent::__construct($sPage);
@@ -32,26 +34,52 @@ class BxBaseStudioAgents extends BxDolStudioAgents
         ];
 
         $this->aMenuItems = [
+            BX_DOL_STUDIO_AGENTS_TYPE_AGENTS => ['icon' => 'mi-agt-assistants.svg'],
+            BX_DOL_STUDIO_AGENTS_TYPE_AI_PROVIDERS => ['icon' => 'mi-agt-providers.svg'],
+            BX_DOL_STUDIO_AGENTS_TYPE_TOOLS => ['icon' => 'mi-agt-tools.svg'],
+            BX_DOL_STUDIO_AGENTS_TYPE_VECTOR_STORE => ['icon' => 'mi-agt-vector-store.svg'],
             BX_DOL_STUDIO_AGENTS_TYPE_SETTINGS => ['icon' => 'mi-agt-settings.svg'],
+
+            /*
+             * Hidden for now. Most probably they will be removed.
+             * 
             BX_DOL_STUDIO_AGENTS_TYPE_PROVIDERS => ['icon' => 'mi-agt-providers.svg'],
             BX_DOL_STUDIO_AGENTS_TYPE_HELPERS => ['icon' => 'mi-agt-helpers.svg'],
-            BX_DOL_STUDIO_AGENTS_TYPE_ASSISTANTS => ['icon' => 'mi-agt-assistants.svg'],
             BX_DOL_STUDIO_AGENTS_TYPE_AUTOMATORS => ['icon' => 'mi-agt-automators.svg'],
+             */
         ];
 
         $this->aGridObjects = [
-            BX_DOL_STUDIO_AGENTS_TYPE_AUTOMATORS => 'sys_studio_agents_automators',
-            BX_DOL_STUDIO_AGENTS_TYPE_PROVIDERS => 'sys_studio_agents_providers',
+            BX_DOL_STUDIO_AGENTS_TYPE_AI_PROVIDERS => 'sys_studio_agents_models',
+            BX_DOL_STUDIO_AGENTS_TYPE_VECTOR_STORE => 'sys_studio_agents_vector_store',
+            BX_DOL_STUDIO_AGENTS_TYPE_TOOLS => 'sys_studio_agents_tools',
+
             BX_DOL_STUDIO_AGENTS_TYPE_ASSISTANTS => 'sys_studio_agents_assistants',
             BX_DOL_STUDIO_AGENTS_TYPE_ASSISTANTS . '_chats' => 'sys_studio_agents_assistants_chats',
             BX_DOL_STUDIO_AGENTS_TYPE_ASSISTANTS . '_files' => 'sys_studio_agents_assistants_files',
+            BX_DOL_STUDIO_AGENTS_TYPE_AGENTS => 'sys_studio_agents_agents',
+
+            /*
+             * Hidden for now. Most probably they will be removed.
+             * 
+            BX_DOL_STUDIO_AGENTS_TYPE_AUTOMATORS => 'sys_studio_agents_automators',
+            BX_DOL_STUDIO_AGENTS_TYPE_PROVIDERS => 'sys_studio_agents_providers',
             BX_DOL_STUDIO_AGENTS_TYPE_HELPERS => 'sys_studio_agents_helpers',
+             * 
+             */
         ];
+
+        $this->sSessionKeyAgentsView = 'bx_std_agents_view';
     }
 
     public function getPageJsCode($aOptions = [], $bWrap = true)
     {
         return parent::getPageJsCode(array_merge($aOptions, $this->aPageJsOptions), $bWrap);
+    }
+
+    public function getPageCaption()
+    {
+        return parent::getPageCaption() . $this->getPageJsCode();
     }
 
     public function getPageMenu($aMenu = [], $aMarkers = [])
@@ -85,59 +113,30 @@ class BxBaseStudioAgents extends BxDolStudioAgents
         return $oOptions->getCode();
     }
 
-    protected function getAutomators()
+    protected function getAiProviders()
     {
-        $oTemplate = BxDolStudioTemplate::getInstance();
+        $this->aPageJsOptions = array_merge($this->aPageJsOptions, [
+            'sPageUrl' => $this->sSubpageUrl . 'providers',
+            'sActionUrlGrid' => bx_append_url_params(BX_DOL_URL_ROOT . 'grid.php', [
+                'o' => 'sys_studio_agents_providers'
+            ])
+        ]);
 
-        $this->aPageJsOptions['sPageUrl'] .= 'automators';
-
-        if(($iId = bx_get('id')) !== false) {
-            if(($oCmts = BxDolAI::getInstance()->getAutomatorCmtsObject($iId, $oTemplate)) !== false) {
-                $this->aPageJsOptions = array_merge($this->aPageJsOptions, [
-                    'sPageUrl' => $this->sSubpageUrl . 'automators&id=' . $iId,
-                    'sActionUrlCmts' => bx_append_url_params(BX_DOL_URL_ROOT . 'cmts.php', [
-                        'sys' => $oCmts->getSystemName(),
-                        'id' => $iId
-                    ])
-                ]);
-
-                return $oCmts->getCommentsBlock();
-            }
-            else
-                return MsgBox(_t('_error occured'));
-        }
-
-        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_AUTOMATORS]);
+        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_AI_PROVIDERS]);
     }
-    
-    protected function getHelpers()
+
+    protected function getTools()
     {
-        $oTemplate = BxDolStudioTemplate::getInstance();
-        
-        $this->aPageJsOptions['sPageUrl'] .= 'helpers';
+        $this->aPageJsOptions['sPageUrl'] .= 'tools';
 
-        if(($iId = bx_get('id')) !== false) {
-            $this->aPageJsOptions = array_merge($this->aPageJsOptions, [
-                'sPageUrl' => $this->sSubpageUrl . 'helpers&id=' . $iId,
-            ]);
-            
-            $aHelper = BxDolAI::getInstance()->getHelperById($iId);
+        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_TOOLS]);
+    }
 
-            $aForm = $this->_getHelpersForm('tune', $aHelper);
-            $oForm = new BxTemplFormView($aForm);
-            $oForm->initChecker();
+    protected function getVectorstore()
+    {
+        $this->aPageJsOptions['sPageUrl'] .= 'vector_store';
 
-            if($oForm->isSubmittedAndValid()) {
-                if($oForm->update($iId) !== false) {
-                    $sMessage = $oForm->getCleanValue('message');
-                    $oForm->aInputs['result']['value'] = BxDolAI::callHelper($iId, $sMessage);
-                }
-            }
-
-            return $oForm->getCode();
-        }
-
-        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_HELPERS]);
+        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_VECTOR_STORE]);
     }
 
     protected function getAssistants()
@@ -231,6 +230,195 @@ class BxBaseStudioAgents extends BxDolStudioAgents
         return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_ASSISTANTS]);
     }
 
+    protected function _setView($sView)
+    {
+        return BxDolSession::getInstance()->setValue($this->{'sSessionKey' . ucfirst($this->sPage) . 'View'}, $sView);
+    }
+
+    protected function _getView()
+    {
+        return BxDolSession::getInstance()->getValue($this->{'sSessionKey' . ucfirst($this->sPage) . 'View'});
+    }
+
+    protected function getAgents()
+    {
+        $aTs = ['list' => 'grid', 'grid' => 'list'];
+        $aT2i = ['list' => 'ui-list.svg', 'grid' => 'ui-layout-grid.svg'];
+
+        $sType = 'list';
+        if(($sTypeGt = bx_get('view')) !== false && in_array($sTypeGt, $aTs)) {
+            $sType = $sTypeGt;
+            $this->_setView($sTypeGt);
+        }
+        else if(($sTypeSn = $this->_getView()) && in_array($sTypeSn, $aTs))
+            $sType = $sTypeSn;
+
+        $sTypeNew = $aTs[$sType];
+
+        return [
+            'type' => BX_DB_DEF,
+            'actions' => [[
+                'name' => $sTypeNew,
+                'caption' => _t('_sys_agents_builder_view_' . $sTypeNew),
+                'title_only' => true,
+                'url' => $this->sSubpageUrl . $this->sPage . '&view=' . $sTypeNew,
+                'icon' => $aT2i[$sTypeNew]
+            ]],
+            'content' => ($sMethod = 'getAgents' . bx_gen_method_name($sType)) && method_exists($this, $sMethod) ? $this->$sMethod() : ''
+        ];
+    }
+
+    protected function getAgentsList()
+    {
+        $sJsObject = $this->getPageJsObject();
+        $oTemplate = BxDolStudioTemplate::getInstance();
+
+        $oAi = BxDolAI::getInstance();
+        $aAgents = $oAi->getAgentsBy(['sample' => 'all']);
+
+        $oForm = new BxTemplFormView([]);
+        $aInput = [
+            'type' => 'switcher',
+            'name' => 'tabs',
+            'caption' => '',
+            'info' => '',
+            'value' => '1',
+            'checked' => '',
+            'attrs' => [
+                'onchange' => $sJsObject . '.agentActivate(this)'
+            ],
+            'db' => []
+        ];
+        
+        $aTmplVarsAgents = [];
+        foreach($aAgents as $aAgent) {
+
+            $sIcon = '';
+            if(($sIcon = $aAgent['icon'])) {
+                list($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $oTemplate->getTemplateFunctions()->getIcon($sIcon);
+
+                if($sIcon)
+                    $sIcon = $oTemplate->parseIcon(BxDolIconset::getObjectInstance()->getIcon($sIcon));
+                else if($sIconHtml)
+                    $sIcon = $sIconHtml;
+            }
+            
+            $aTmplVarsTrigger = [];
+            if(($sTrigger = $aAgent['trigger']))
+                $aTmplVarsTrigger = [
+                    'trigger_title' => bx_html_attribute(_t('_sys_agents_field_trigger_' . str_replace(['-', ' '], '_', $sTrigger))),
+                    'trigger_icon_src' => $oTemplate->getIconUrl('agt-trg-' . $sTrigger . '.svg')
+                ];
+
+            $aTmplVarsModel = [];
+            if(($iModelId = (int)$aAgent['model_id'])) {
+                $aModel = $this->oDbAi->getModelsBy(['sample' => 'id', 'id' => $iModelId]);
+                if(($sModelTitle = $aModel['title'] ?? false))
+                    $aTmplVarsModel['model_title'] = bx_html_attribute($sModelTitle);
+                if(($sModelIcon = $aModel['icon'] ?? false))
+                    $aTmplVarsModel['model_icon_src'] = $oTemplate->getIconUrl($sModelIcon);
+            }
+
+            $sProfile = '';
+            if(($iProfileId = (int)$aAgent['profile_id']) && ($oProfile = BxDolProfile::getInstance($iProfileId)) !== false)
+                $sProfile = $oProfile->getUnit(0, ['template' => 'unit_wo_info']);
+
+            $aInput['checked'] = (int)$aAgent['active'] != 0;
+
+            $aTmplVarsAgents[] = [
+                'id' => $aAgent['id'],
+                'icon' => $sIcon,
+                'bx_if:show_trigger' => [
+                    'condition' => !empty($aTmplVarsTrigger),
+                    'content' => $aTmplVarsTrigger
+                ],
+                'bx_if:show_model' => [
+                    'condition' => !empty($aTmplVarsModel),
+                    'content' => $aTmplVarsModel
+                ],
+                'bx_if:show_profile' => [
+                    'condition' => (bool)$sProfile,
+                    'content' => [
+                        'unit' => $sProfile
+                    ]
+                ],
+                'title' => $aAgent['title'],
+                'switcher' => $oForm->genInput($aInput),
+                'description' => bx_process_output($aAgent['description'])
+            ];
+        }
+
+        return $oTemplate->parseHtmlByName('agents.html', [
+            'content' => $oTemplate->parseHtmlByName('agents_agents.html', [
+                'bx_repeat:agents' => $aTmplVarsAgents,
+            ]),
+            'js_content' => $this->getPageJsCode()
+        ]);
+    }
+
+    protected function getAgentsGrid()
+    {
+        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_AGENTS]);
+    }
+
+    /*
+     * Isn't used for now. Most probably they will be removed.
+     * 
+    protected function getAutomators()
+    {
+        $oTemplate = BxDolStudioTemplate::getInstance();
+
+        $this->aPageJsOptions['sPageUrl'] .= 'automators';
+
+        if(($iId = bx_get('id')) !== false) {
+            if(($oCmts = BxDolAI::getInstance()->getAutomatorCmtsObject($iId, $oTemplate)) !== false) {
+                $this->aPageJsOptions = array_merge($this->aPageJsOptions, [
+                    'sPageUrl' => $this->sSubpageUrl . 'automators&id=' . $iId,
+                    'sActionUrlCmts' => bx_append_url_params(BX_DOL_URL_ROOT . 'cmts.php', [
+                        'sys' => $oCmts->getSystemName(),
+                        'id' => $iId
+                    ])
+                ]);
+
+                return $oCmts->getCommentsBlock();
+            }
+            else
+                return MsgBox(_t('_error occured'));
+        }
+
+        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_AUTOMATORS]);
+    }
+    
+    protected function getHelpers()
+    {
+        $oTemplate = BxDolStudioTemplate::getInstance();
+        
+        $this->aPageJsOptions['sPageUrl'] .= 'helpers';
+
+        if(($iId = bx_get('id')) !== false) {
+            $this->aPageJsOptions = array_merge($this->aPageJsOptions, [
+                'sPageUrl' => $this->sSubpageUrl . 'helpers&id=' . $iId,
+            ]);
+            
+            $aHelper = BxDolAI::getInstance()->getHelperById($iId);
+
+            $aForm = $this->_getHelpersForm('tune', $aHelper);
+            $oForm = new BxTemplFormView($aForm);
+            $oForm->initChecker();
+
+            if($oForm->isSubmittedAndValid()) {
+                if($oForm->update($iId) !== false) {
+                    $sMessage = $oForm->getCleanValue('message');
+                    $oForm->aInputs['result']['value'] = BxDolAI::callHelper($iId, $sMessage);
+                }
+            }
+
+            return $oForm->getCode();
+        }
+
+        return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_HELPERS]);
+    }
+
     protected function getProviders()
     {
         $this->aPageJsOptions = array_merge($this->aPageJsOptions, [
@@ -242,6 +430,8 @@ class BxBaseStudioAgents extends BxDolStudioAgents
 
         return $this->getGrid($this->aGridObjects[BX_DOL_STUDIO_AGENTS_TYPE_PROVIDERS]);
     }
+     * 
+     */
 
     protected function getGrid($sObjectName, $bObject = false)
     {

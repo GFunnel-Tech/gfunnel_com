@@ -28,7 +28,7 @@
     <string name="_bx_timeline_option_events_per_preload"><![CDATA[Бесконечная прокрутка: Количество элементов, получаемых при авто-подгрузке]]></string>
     <string name="_bx_timeline_option_auto_preloads"><![CDATA[Бесконечная прокрутка: Количество авто-подгрузок]]></string>
     <string name="_bx_timeline_option_rss_length"><![CDATA[Количество элементов в RSS-ленте]]></string>
-    <string name="_bx_timeline_option_live_updates_length"><![CDATA[Количество элементов в выборке авто обновления]]></string>
+    <string name="_bx_timeline_option_live_updates_length"><![CDATA[Длина выборки "Aвто обновления" (оставьте 0 для автоматического значения)]]></string>
     <string name="_bx_timeline_option_events_hide"><![CDATA[Показывать события]]></string>
     <string name="_bx_timeline_option_searchable_fields"><![CDATA[Поля для поиска по ключевому слову]]></string>
     <string name="_bx_timeline_option_enable_brief_cards"><![CDATA[Включить лаконичные карточки]]></string>
@@ -57,7 +57,8 @@
     <string name="_bx_timeline_option_hot_threshold_age"><![CDATA[Максимальный возраст поста, получившего комментарии/голоса, который включается в 'горячую' хронику (в днях, 0 - без ограничений)]]></string>
     <string name="_bx_timeline_option_hot_threshold_comment"><![CDATA[Минимальное количество комментариев, необходимое для появления контента в 'горячей' хронике]]></string>
     <string name="_bx_timeline_option_hot_threshold_vote"><![CDATA[Минимальное количество голосов, необходимое для появления контента в 'горячей' хронике]]></string>
-    <string name="_bx_timeline_option_hot_interval"><![CDATA[Интервал времени (в часах) для получения 'горячих' событий]]></string>
+    <string name="_bx_timeline_option_hot_interval"><![CDATA[Интервал времени (в часах) для получения 'горячих' событий (0 – без ограничений)]]></string>
+    <string name="_bx_timeline_option_hot_content_age_mux"><![CDATA[Коэффициент корректировки, связанный с возрастом контента (0 – без корректировки)]]></string>
     <string name="_bx_timeline_option_enable_cache_item"><![CDATA[Включить кэш элемента]]></string>
     <string name="_bx_timeline_option_cache_item_engine"><![CDATA[Механизм кэширования элемента (отличный от FileHtml может потребовать дополнительную настройку сервера)]]></string>
     <string name="_bx_timeline_option_cache_item_lifetime"><![CDATA[Время жизни кэша элемента]]></string>
@@ -77,9 +78,16 @@
     <string name="_bx_timeline_option_extenals_every_feed_preload"><![CDATA[Показывать внешнее событие как каждое N-е в ленте контекст (профиль) + подписки при включенной 'Бесконечной прокрутке']]></string>
     <string name="_bx_timeline_option_extenals_every_hot_preload"><![CDATA[Показывать внешнее событие как каждое N-е в hot timeline при включенной 'Бесконечной прокрутке']]></string>
     <string name="_bx_timeline_option_extenals_every_feed_and_hot_preload"><![CDATA[Показывать внешнее событие как каждое N-е в ленте 'Для тебя' при включенной 'Бесконечной прокрутке']]></string>
+    <string name="_bx_timeline_option_filters_style_display"><![CDATA[Фильтры: Стиль]]></string>
+    <string name="_bx_timeline_option_filters_style_default"><![CDATA[По умолчанию]]></string>
+    <string name="_bx_timeline_option_filters_style_display"><![CDATA[Отображение]]></string>
+    <string name="_bx_timeline_option_filters_contexts_hide"><![CDATA[Фильтры: По контекстам]]></string>
+    <string name="_bx_timeline_option_filters_media_hide"><![CDATA[Фильтры: По прикрепленному медиа]]></string>
     <string name="_bx_timeline_option_for_you_sources"><![CDATA[Лента 'Для Вас' состоит из]]></string>
     <string name="_bx_timeline_option_for_you_sources_err"><![CDATA[Для фида должен быть включен хотя бы один источник.]]></string>
+    <string name="_bx_timeline_option_for_you_sources_public"><![CDATA[Публичная лента]]></string>
     <string name="_bx_timeline_option_for_you_sources_feed"><![CDATA[Лента контекст (профиль) + подписки]]></string>
+    <string name="_bx_timeline_option_for_you_sources_channels"><![CDATA[Каналы]]></string>
     <string name="_bx_timeline_option_for_you_sources_hot"><![CDATA['Горячая' хроника]]></string>
     <string name="_bx_timeline_option_for_you_sources_recom_friends"><![CDATA[Ленты пользователей из списка 'Предложения друзей']]></string>
     <string name="_bx_timeline_option_for_you_sources_recom_subscriptions"><![CDATA[Ленты пользователей из списка 'На кого подписываться']]></string>
@@ -117,6 +125,7 @@
     <string name="_bx_timeline_form_post_input_sys_video"><![CDATA[Видео]]></string>
     <string name="_bx_timeline_form_post_input_video"><![CDATA[]]></string>
     <string name="_bx_timeline_form_post_input_video_alt"><![CDATA[Добавить видео]]></string>
+    <string name="_bx_timeline_form_post_input_sys_polls"><![CDATA[Голосования]]></string>
     <string name="_bx_timeline_form_post_input_sys_attachments"><![CDATA[Прикрепления]]></string>
     <string name="_bx_timeline_form_post_input_sys_do_submit"><![CDATA[Создать]]></string>
     <string name="_bx_timeline_form_post_input_do_submit"><![CDATA[Создать]]></string>
@@ -132,6 +141,19 @@
     <string name="_bx_timeline_form_attach_link_input_sys_do_submit"><![CDATA[Добавить]]></string>
     <string name="_bx_timeline_form_attach_link_input_do_submit"><![CDATA[Добавить]]></string>
     <string name="_bx_timeline_form_attach_link_input_do_cancel"><![CDATA[Закрыть]]></string>
+
+    <string name="_bx_timeline_form_poll"><![CDATA[Голосования]]></string>
+    <string name="_bx_timeline_form_poll_display_add"><![CDATA[Добавить голосование]]></string>
+    <string name="_bx_timeline_form_poll_input_sys_text"><![CDATA[Вопрос]]></string>
+    <string name="_bx_timeline_form_poll_input_text"><![CDATA[Вопрос]]></string>
+    <string name="_bx_timeline_form_poll_input_text_err"><![CDATA[Вопрос обязателен. Пожалуйста, заполните это поле]]></string>
+    <string name="_bx_timeline_form_poll_input_sys_answers"><![CDATA[Ответы]]></string>
+    <string name="_bx_timeline_form_poll_input_answers"><![CDATA[Ответы]]></string>
+    <string name="_bx_timeline_form_poll_input_answers_err"><![CDATA[Голосование должно иметь как минимум 2 не пустых ответа.]]></string>
+    <string name="_bx_timeline_form_poll_input_answers_add"><![CDATA[Добавить ещё]]></string>    
+    <string name="_bx_timeline_form_poll_input_sys_do_submit"><![CDATA[Создать]]></string>
+    <string name="_bx_timeline_form_poll_input_do_submit"><![CDATA[Создать опрос]]></string>
+    <string name="_bx_timeline_form_poll_input_do_cancel"><![CDATA[Закрыть]]></string>
 
     <string name="_bx_timeline_form_reposto"><![CDATA[Сделать репост]]></string>
     <string name="_bx_timeline_form_repost_display_with"><![CDATA[Cделать репост с текстом]]></string>
@@ -153,6 +175,24 @@
     <string name="_bx_timeline_form_repost_input_do_submit"><![CDATA[Репост]]></string>
     <string name="_bx_timeline_form_repost_input_sys_do_cancel"><![CDATA[Отмена]]></string>
     <string name="_bx_timeline_form_repost_input_do_cancel"><![CDATA[Отмена]]></string>
+
+    <string name="_bx_timeline_form_filters_input_by_contexts"><![CDATA[Контексты:]]></string>
+    <string name="_bx_timeline_form_filters_input_by_contexts_any"><![CDATA[Любой]]></string>
+    <string name="_bx_timeline_form_filters_input_by_modules"><![CDATA[Содержимое:]]></string>
+    <string name="_bx_timeline_form_filters_input_by_modules_all"><![CDATA[Всё]]></string>
+    <string name="_bx_timeline_form_filters_input_by_modules_selected"><![CDATA[Выборочно]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media"><![CDATA[Прикрепленные медиа:]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_all"><![CDATA[Все]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_selected"><![CDATA[Выборочно]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_text"><![CDATA[текст]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_links"><![CDATA[ссылки]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_images"><![CDATA[изображения]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_videos"><![CDATA[видео]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_files"><![CDATA[файлы]]></string>
+    <string name="_bx_timeline_form_filters_input_by_media_polls"><![CDATA[голосования]]></string>
+    <string name="_bx_timeline_form_filters_input_do_apply"><![CDATA[Применить]]></string>
+    <string name="_bx_timeline_form_filters_input_modules_timeline_common_post"><![CDATA[Сообщение в ленте]]></string>
+    <string name="_bx_timeline_form_filters_input_modules_timeline_common_repost"><![CDATA[Репост в ленте]]></string>
 
     <string name="_bx_timeline_privacy_view"><![CDATA[Просматривать события]]></string>
 
@@ -190,6 +230,8 @@
     <string name="_bx_timeline_page_block_title_item"><![CDATA[Элемент]]></string>
     <string name="_bx_timeline_page_block_title_item_content"><![CDATA[Содержимое]]></string>
     <string name="_bx_timeline_page_block_title_item_info"><![CDATA[Информация]]></string>
+    <string name="_bx_timeline_page_block_title_item_polls"><![CDATA[Голосования]]></string>
+    <string name="_bx_timeline_page_block_title_entry_reports"><![CDATA[Жалобы]]></string>
     <string name="_bx_timeline_page_block_title_item_comments"><![CDATA[Комментарии]]></string>
     <string name="_bx_timeline_page_block_title_system_post_account"><![CDATA[Создать публикацию]]></string>
     <string name="_bx_timeline_page_block_title_post_account"><![CDATA[Создать публикацию]]></string>
@@ -334,13 +376,14 @@
     <string name="_bx_timeline_menu_item_title_add_file"><![CDATA[Добавить Файл]]></string>
     <string name="_bx_timeline_menu_item_title_system_add_file_simple"><![CDATA[Добавить Файл (Обычная загрузка)]]></string>
     <string name="_bx_timeline_menu_item_title_system_add_file_html5"><![CDATA[Добавить Файл (Множественная загрузка)]]></string>
+    <string name="_bx_timeline_menu_item_title_system_add_poll"><![CDATA[Добавить голосование]]></string>
+    <string name="_bx_timeline_menu_item_title_add_poll"><![CDATA[Добавить голосование]]></string>
     <string name="_bx_timeline_menu_item_title_system_timeline"><![CDATA[Лента]]></string>
     <string name="_bx_timeline_menu_item_title_timeline"><![CDATA[Лента]]></string>
     <string name="_bx_timeline_menu_item_title_system_create_entry"><![CDATA[Статус]]></string>
     <string name="_bx_timeline_menu_item_title_create_entry"><![CDATA[Статус]]></string>
     <string name="_bx_timeline_menu_item_title_system_view_timeline_view"><![CDATA[Лента]]></string>
     <string name="_bx_timeline_menu_item_title_view_timeline_view"><![CDATA[Лента]]></string>
-
     <string name="_bx_timeline_menu_item_title_system_manage_my_timeline"><![CDATA[Лента]]></string>
     <string name="_bx_timeline_menu_item_title_manage_my_timeline"><![CDATA[Лента]]></string>
 
@@ -348,7 +391,8 @@
     <string name="_bx_timeline_grid_filter_item_title_adm_active"><![CDATA[Активные]]></string>
     <string name="_bx_timeline_grid_filter_item_title_adm_hidden"><![CDATA[Спрятанные]]></string>
     <string name="_bx_timeline_grid_filter_item_title_adm_pending"><![CDATA[В ожидании]]></string>
-    <string name="_bx_timeline_grid_column_title_adm_active"><![CDATA[Активные]]></string>
+    <string name="_bx_timeline_grid_column_title_adm_active"><![CDATA[Видимые]]></string>
+    <string name="_bx_timeline_grid_column_title_adm_status"><![CDATA[Статус]]></string>
     <string name="_bx_timeline_grid_column_title_adm_description"><![CDATA[Событие]]></string>
     <string name="_bx_timeline_grid_column_title_adm_added"><![CDATA[Добавлено]]></string>
     <string name="_bx_timeline_grid_column_title_adm_author"><![CDATA[Автор]]></string>
@@ -385,6 +429,10 @@
     <string name="_bx_timeline_txt_or_jump_to"><![CDATA[... или перейти к:]]></string>
     <string name="_bx_timeline_txt_jump_to_n_year"><![CDATA[Перейти к {0} году]]></string>
     <string name="_bx_timeline_txt_jump_to_recent"><![CDATA[Перейти к недавним сообщениям]]></string>
+    <string name="_bx_timeline_txt_status_active"><![CDATA[Активно]]></string>
+    <string name="_bx_timeline_txt_status_awaiting"><![CDATA[В ожидании]]></string>
+    <string name="_bx_timeline_txt_status_failed"><![CDATA[Неисправно]]></string>
+    <string name="_bx_timeline_txt_status_hidden"><![CDATA[Скрыто]]></string>
     <string name="_bx_timeline_txt_status_deleted"><![CDATA[Удалено]]></string>
     <string name="_bx_timeline_txt_hot"><![CDATA['Горячее' событие]]></string>
     <string name="_bx_timeline_txt_pinned"><![CDATA[Приколотое событие]]></string>
@@ -430,6 +478,12 @@
     <string name="_bx_timeline_txt_err_already_reposted"><![CDATA[Вы уже сделали репост этого элемента.]]></string>
     <string name="_bx_timeline_txt_msg_success_repost"><![CDATA[Репост данного элемента был сделан успешно.]]></string>
     <string name="_bx_timeline_txt_object_reposted"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> - {entry_sample} <b class="bx-ntfs-content-entry">{entry_caption}</b>]]> (репост)</string>
+
+    <string name="_bx_timeline_txt_poll_view_answers"><![CDATA[опрос]]></string>
+    <string name="_bx_timeline_txt_poll_view_results"><![CDATA[результаты]]></string>
+    <string name="_bx_timeline_txt_poll_answer_vote_do_by"><![CDATA[Проголосовали за]]></string>
+    <string name="_bx_timeline_txt_poll_answer_vote_counter"><![CDATA[{0} голосов]]></string>
+    <string name="_bx_timeline_txt_poll_answer_vote_percent"><![CDATA[({0}%)]]></string>
 
     <!-- EMAIL TEMPLATES -->
     <string name="_bx_timeline_et_txt_name_send"><![CDATA[Послать другу.]]></string>

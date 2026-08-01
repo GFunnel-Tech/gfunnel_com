@@ -69,7 +69,7 @@ class BxDolPush extends BxDolFactoryObject
          *      - `tags` - [array] by ref, array of tags, can be overridden in hook processing
          * @hook @ref hook-system-push_tags
          */
-        bx_alert('system', 'push_tags', $iProfileId, $iProfileId, array('tags' => &$a));
+        bx_alert('system', 'push_tags', $iProfileId, $iProfileId, array('tags' => &$a, 'tags_ref' => &$a));
 
         return $a;
     }

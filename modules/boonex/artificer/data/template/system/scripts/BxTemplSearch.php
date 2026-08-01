@@ -13,7 +13,7 @@ class BxTemplSearch extends BxBaseSearch
     {
         parent::__construct ($aChoice, $oTemplate);
         
-        $this->_sSearchFunctionParams .= ", bx_site_search_complete";
+        $this->_sSearchFunctionParams .= ", bx_site_search_complete, bx_site_search_cancel";
     }
 
     public function setLiveSearch($bLiveSearch)

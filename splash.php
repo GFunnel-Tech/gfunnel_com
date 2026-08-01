@@ -37,7 +37,9 @@ function getPageMainCode()
         'login_form_in_box' => DesignBoxContent(_t('_sys_txt_splash_login'), $sLoginForm, BX_DB_PADDING_DEF)
     ));
 
-    return bx_process_macros($s);
+    $s = bx_process_macros($s);
+    $s = bx_replace_markers($s, array('site_title' => getParam('site_title')));
+    return $s;
 }
 
 check_logged();

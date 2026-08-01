@@ -935,6 +935,36 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $aIcons = $this->getIcon($sCode, $aAttrs);
         return $aIcons[3] . $aIcons[4]; 
     }
+    
+    function getIconPreview($iId, $sIconImage = '', $sIcon = '')
+    {
+        $bIconImage = !empty($sIconImage);
+
+        $aIcons = $this->getIcon($sIcon);
+        $sIconHtml = $aIcons[2] . $aIcons[3] . $aIcons[4];
+        $bIconHtml = !empty($sIconHtml) && !$bIconImage;
+
+        return $this->_oTemplate->parseHtmlByName('item_icon_preview.html', [
+            'id' => $iId,
+            'bx_if:show_icon_empty' => [
+                'condition' => !$bIconImage && !$bIconHtml,
+                'content' => []
+            ],
+            'bx_if:show_icon_image' => [
+                'condition' => $bIconImage,
+                'content' => [
+                    'url' => $sIconImage,
+                    'id' => $iId
+                ]
+            ],
+            'bx_if:show_icon_html' => [
+                'condition' => $bIconHtml,
+                'content' => [
+                    'icon' => $sIconHtml
+                ]
+            ]
+        ]);
+    }
 
     function getTemplateIcon($sName)
     {
@@ -956,13 +986,18 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
     /**
      * functions for limiting maximal string length
      */
-    function getStringWithLimitedLength($sString, $iWidth = 45, $isPopupOnOverflow = false, $bReturnString = true)
+    function getStringWithLimitedLength($mixedString, $iWidth = 45, $isPopupOnOverflow = false, $bReturnString = true, $sPopupString = null)
     {
-        if (empty($sString) || mb_strlen($sString, 'UTF-8') <= $iWidth)
-            return $bReturnString ? $sString : array($sString);
+        if(is_array($mixedString))
+            list($sStrPlane, $sStrOriginal) = $mixedString;
+        else
+            $sStrPlane = $sStrOriginal = $mixedString;
+
+        if(empty($sStrPlane) || mb_strlen($sStrPlane, 'UTF-8') <= $iWidth)
+            return $bReturnString ? $sStrPlane : [$sStrPlane];
 
         $sResult = '';
-        $aWords = mb_split("[\s\r\n]", $sString);
+        $aWords = mb_split("[\s\r\n]", $sStrPlane);
         $iPosition = 0;
         $iWidthReal = $iWidth - 3;
         $iWidthMin = $iWidth - 15;
@@ -985,15 +1020,15 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         // add tripple dot
         if(!$isPopupOnOverflow) {
             $sResult .= '...';
-            return $bReturnString ? $sResult : array($sResult);
+            return $bReturnString ? $sResult : [$sResult];
         }
 
         // add button width popup
         $sId = 'bx-str-limit-' . rand(1, PHP_INT_MAX);
-        $sPopup = '<span class="bx-str-limit" onclick="$(\'#' . $sId . '\').dolPopup({pointer:{el:$(this), offset:\'10 1\'}})"/><i class="sys-icon ellipsis-h"></i></span>';
-        $sPopup .= '<div id="' . $sId . '" style="display:none;">' . BxTemplFunctions::getInstance()->transBox('', '<div class="bx-def-padding">'.$sString.'</div>') . '</div>';
+        $sPopup = '<a class="bx-str-limit pl-2" href="javascript:void(0)" onclick="$(\'#' . $sId . '\').dolPopup({pointer:{el:$(this), offset:\'10 1\'}})"><i class="sys-icon ellipsis-h"></i></a>';
+        $sPopup .= BxTemplFunctions::getInstance()->transBox($sId, '<div class="bx-def-padding">' . ($sPopupString ?? $sStrOriginal) . '</div>', true);
 
-        return $bReturnString ? $sResult . $sPopup : array($sResult, $sPopup);
+        return $bReturnString ? $sResult . $sPopup : [$sResult, $sPopup];
     }
 
     /**
@@ -1018,16 +1053,62 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
      * @see BX_DB_PADDING_DEF
      * @see BX_DB_PADDING_NO_CAPTION
      */
-    function designBoxContent ($sTitle, $sContent, $iTemplateNum = BX_DB_DEF, $mixedMenu = false, $mixedButtons = array())
+    function designBoxContent ($sTitle, $sContent, $iTemplateNum = BX_DB_DEF, $mixedMenu = false, $mixedButtons = [])
     {
-        return $this->_oTemplate->parseHtmlByName('designbox_' . (int)$iTemplateNum . '.html', array(
-            'title' => $sTitle,
-            'designbox_content' => $sContent,
-            'caption_item' => $this->designBoxMenu($mixedMenu, $mixedButtons),
-        ));
+        $bNoTitle = in_array($iTemplateNum, [BX_DB_CONTENT_ONLY, BX_DB_PADDING_CONTENT_ONLY, BX_DB_NO_CAPTION, BX_DB_PADDING_NO_CAPTION]);
+        $sMenu = $this->designBoxMenu($mixedMenu, $mixedButtons);
+
+        $aTmplVarsDbMenu = [];
+        if($bNoTitle && $sMenu)
+            $aTmplVarsDbMenu = [
+                'caption_item' => $sMenu
+            ];
+
+        $sDescription = $sIcon = $sIconHtml = '';
+        if(is_array($sTitle)) {
+            list($sTitle, $sDescription, $sIcon) = $sTitle;
+
+            if($sIcon) {
+                list($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $this->getIcon($sIcon);
+
+                if($sIcon)
+                    $sIcon = BxDolIconset::getObjectInstance()->getIcon($sIcon);
+            }
+        }
+
+        return $this->_oTemplate->parseHtmlByName('designbox_' . (int)$iTemplateNum . '.html', array_merge([
+                'bx_if:show_db_icon' => [
+                    'condition' => !empty($sIcon),
+                    'content' =>  [
+                        'icon' => $sIcon,
+                    ]
+                ],
+                'bx_if:show_db_icon_html' => [
+                    'condition' => !empty($sIconHtml),
+                    'content' =>  [
+                        'icon_html' => $sIconHtml,
+                    ]
+                ],
+                'title' => $sTitle,
+                'bx_if:show_db_description' => [
+                    'condition' => !empty($sDescription),
+                    'content' =>  [
+                        'description' => $sDescription,
+                    ]
+                ],
+                'designbox_content' => $sContent,
+            ], ($bNoTitle ? [
+                'bx_if:show_db_menu' => [
+                    'condition' => !empty($aTmplVarsDbMenu),
+                    'content' => $aTmplVarsDbMenu
+                ]
+            ] : [
+                'caption_item' => $sMenu
+            ]))
+        );
     }
 
-    function designBoxMenu ($mixedMenu, $mixedButtons = array())
+    function designBoxMenu ($mixedMenu, $mixedButtons = [])
     {
         $bUseTabs = is_bool($mixedButtons) && $mixedButtons === true;
 
@@ -1097,9 +1178,13 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                         continue;
                 }
 
-                $aAttrs = array();
-                if(!empty($aButton['onclick']))
+                $aAttrs = [];
+                if(!empty($aButton['href']))
+                    $aAttrs['href'] = $aButton['href'];
+                if(!empty($aButton['onclick'])) {
+                    $aAttrs['href'] = "javascript:void(0);";
                     $aAttrs['onclick'] = $aButton['onclick'];
+                }
                 
                 $aAttrs['class'] = 'bx-btn bx-btn-small';
                 if(!empty($aButton['class']))
@@ -1256,7 +1341,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
         bx_alert('system', 'get_logo', 0, 0, [
             'tmpl_name' => &$sTmplName,
-            'tmpl_vars' => &$aTmplVars
+            'tmpl_vars' => &$aTmplVars,
+
+            'tmpl_name_ref' => &$sTmplName,
+            'tmpl_vars_ref' => &$aTmplVars,
         ]);
 
         return $this->_oTemplate->parseHtmlByName($sTmplName, $aTmplVars);
@@ -1313,7 +1401,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $sRet = '';
         if($sImageUrlFav)
             $sRet .= '<link rel="icon" href="' . $sImageUrlFav . '" sizes="any" />';
-        if($sImageUrlFav)
+        if($sImageUrlSvg)
             $sRet .= '<link rel="icon" href="' . $sImageUrlSvg . '" type="image/svg+xml" />';
         $sRet .= '<link rel="apple-touch-icon" href="' . $sImageUrlApl . '" />';
 

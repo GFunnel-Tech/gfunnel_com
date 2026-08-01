@@ -14,8 +14,16 @@ class BxDolCronStorage extends BxDolCron
         set_time_limit(36000);
         ignore_user_abort();
 
-        if (BxDolStorage::pruneDeletions()) // if any files were deleted
-            BxDolInstallerUtils::checkModulesPendingUninstall(); // try to uninstall modules pending for uninstall
+        /**
+         * if any files were deleted, try to uninstall modules pending for uninstall
+         */
+        if (BxDolStorage::pruneDeletions())
+            BxDolInstallerUtils::checkModulesPendingUninstall();
+
+        /**
+         * delete outdated ghosts
+         */
+        BxDolStorage::pruneGhosts();
     }
 }
 

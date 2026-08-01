@@ -5,9 +5,20 @@
  */
 class Less_Tree {
 
+	/** @var bool */
 	public $parensInOp = false;
+	/** @var true|null */
 	public $extendOnEveryPath;
+	/** @var Less_Tree_Extend[] */
 	public $allExtends;
+	/**
+	 * This is set to true to ensure visibility
+	 * for all except Less_Tree_Anonymous where we decide
+	 * if the the node should be visible or not
+	 *
+	 * @var bool
+	 */
+	public $nodeVisible = true;
 
 	/**
 	 * @var Less_Parser
@@ -129,7 +140,6 @@ class Less_Tree {
 		) {
 			// for "symmetric results" force toCSS-based comparison via b.compare()
 			// of Quoted or Anonymous if either value is one of those
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			return $a->compare( $b );
 		} elseif ( $bHasCompare ) {
 			$res = $b->compare( $a );
@@ -142,7 +152,6 @@ class Less_Tree {
 		}
 
 		// Less_Tree subclasses that have an array value: Less_Tree_Expression, Less_Tree_Value
-		// @phan-suppress-next-line PhanUndeclaredProperty
 		$aval = $a->value ?? [];
 		$bval = $b->value ?? [];
 		if ( !( $a instanceof Less_Tree_Expression || $a instanceof Less_Tree_Value ) ) {
@@ -180,6 +189,7 @@ class Less_Tree {
 	public static function ReferencedArray( $rules ) {
 		foreach ( $rules as $rule ) {
 			if ( method_exists( $rule, 'markReferenced' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredMethod False positive
 				$rule->markReferenced();
 			}
 		}
@@ -195,6 +205,13 @@ class Less_Tree {
 			$obj->$key = $val;
 		}
 		return $obj;
+	}
+
+	/**
+	 * @see less-3.13.1.js#Node.prototype.isVisible
+	 */
+	public function isVisible() {
+		return $this->nodeVisible;
 	}
 
 }

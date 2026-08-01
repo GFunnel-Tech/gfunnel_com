@@ -28,6 +28,13 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
     protected $_bAjaxMode;
 
     /**
+     * 'Valid Mode' allows to create content even if some fields values 
+     * didn't pass checking. It's needed when content was created 
+     * with a service call. For example, automatic profile creation after join.
+     */
+    protected $_bValidMode;
+
+    /**
      * Use absolute Action URL in generated form object. 
      * It's needed in Ajax Mode.
      */
@@ -62,6 +69,11 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
         $this->_bAjaxMode = (bool)$bAjaxMode;
         if($this->_bAjaxMode)
             $this->setDynamicMode(true);
+    }
+
+    public function setValidMode($bValidMode)
+    {
+        $this->_bValidMode = (bool)$bValidMode;
     }
 
     public function setAbsoluteActionUrl($bAbsoluteActionUrl)
@@ -204,8 +216,11 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
                 $aValues[$sSubmitName] = $oForm->aInputs[$sSubmitName]['value'];
         }
 
-        $oForm->initChecker(array(), $aValues);
-        if (!$oForm->isSubmittedAndValid()) {
+        $oForm->initChecker([], $aValues);
+        if($this->_bValidMode && !$oForm->isValid())
+            $oForm->setValid(true);
+
+        if(!$oForm->isSubmittedAndValid()) {
             $aErrors = array();
             array_walk($oForm->aInputs, function($aInput, $sKey) use (&$aErrors) {
                 if(!empty($aInput['error']))
@@ -353,7 +368,7 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
         ]);
 
         if($this->_bIsApi)
-            return !empty($sUrl) ? [bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl)), 'timeout' => 1000])] : [];
+            return !empty($sUrl) ? [bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl))])] : [];
 
         if($this->_bAjaxMode) {
             echoJson($this->prepareResponse($sUrl, $this->_bAjaxMode, 'redirect'));
@@ -511,7 +526,7 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
         ]);
 
         if($this->_bIsApi)
-            return !empty($sUrl) ? bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl)), 'timeout' => 1000]) : [];
+            return !empty($sUrl) ? bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl))]) : [];
 
         $this->_redirectAndExit($sUrl);
     }
@@ -574,11 +589,12 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
         bx_alert($this->_oModule->getName(), 'redirect_after_delete', 0, false, [
             'content' => $aContentInfo,
             'markers' => &$aMarkers,
+            'markers_ref' => &$aMarkers,
             'override_result' => &$sUrl,
         ]);
 
         if($this->_bIsApi)
-            return bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl)), 'timeout' => 1000]);
+            return bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl))]);
 
         $this->_redirectAndExit($sUrl, true, $aMarkers);
     }
@@ -627,9 +643,15 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
          *      - `content` - [array] by ref, content info array as key&value pairs, can be overridden in hook processing
          * @hook @ref hook-bx_base_general-deleted
          */
-        bx_alert($this->_oModule->getName(), 'deleted', $aContentInfo[$CNF['FIELD_ID']], false, [
-            'content' => &$aContentInfo
-        ]);
+        $aAlertParams = [
+            'content' => &$aContentInfo,
+            'content_ref' => &$aContentInfo
+        ];
+
+        if(!empty($CNF['FIELD_ALLOW_VIEW_TO']) && isset($aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']]))
+            $aAlertParams['privacy_view'] = $aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']];
+
+        bx_alert($this->_oModule->getName(), 'deleted', $aContentInfo[$CNF['FIELD_ID']], false, $aAlertParams);
 
         return '';
     }
@@ -666,9 +688,9 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
 
         // display profile
         $oForm->initChecker($aContentInfo, $aSpecificValues);
-        
+
         if ($this->_bIsApi)
-            return [bx_api_get_block('entity_info', $oForm->getCodeAPI())];
+            return ($aForm = $oForm->getCodeAPI()) ? [bx_api_get_block('entity_info', $aForm)] : [];
         
         return $oForm->getCode();
     }
@@ -698,6 +720,8 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
                     bx_srv($sModule, $sMethod, [$this->_oModule->getName(), $iContentId, $oContext->getContentId()]);
             }
         }
+
+        $this->_oModule->_oDb->deletePolls(['content_id' => $iContentId]);
 
         bx_audit(
             $iContentId, 
@@ -836,13 +860,7 @@ class BxBaseModGeneralFormsEntryHelper extends BxDolProfileForms
 
     protected function _setAbsoluteActionUrl($sType, &$oForm)
     {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        $sUri = '';
-        if(($sKeyUri = 'URI_' . strtoupper($sType) . '_ENTRY') && !empty($CNF[$sKeyUri]))
-            $sUri = $CNF[$sKeyUri];
-        if(!$sUri && $sType == 'add' && ($sKeyUri = 'URI_EDIT_ENTRY') && !empty($CNF[$sKeyUri]))
-            $sUri = str_replace('edit', 'create', $CNF[$sKeyUri]);
+        $sUri = $this->_oModule->_oConfig->getEntryUri($sType);
         if(!$sUri)
             return;
 

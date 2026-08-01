@@ -212,21 +212,27 @@ class BxBaseModGeneralMenuSnippetMeta extends BxTemplMenuUnitMeta
         return $this->getUnitMetaItemCustom($oObject->getElementInline($aObjectOptions));
     }
 
-    protected function _getMenuItemRating($aItem)
+    protected function _getMenuItemRating($aItem, $aParams = [])
     {
-        if($this->_bIsApi) //--- API: Isn't supported
-            return false;
-
         $CNF = &$this->_oModule->_oConfig->CNF;
 
         if(empty($CNF['OBJECT_VOTES_STARS']))
             return false;
 
-        $oVotes = BxDolVote::getObjectInstance($CNF['OBJECT_VOTES_STARS'], $this->_aContentInfo[$CNF['FIELD_ID']]);
-        if(!$oVotes)
+        $oObject = BxDolVote::getObjectInstance($CNF['OBJECT_VOTES_STARS'], $this->_aContentInfo[$CNF['FIELD_ID']]);
+        if(!$oObject || !$oObject->isEnabled())
             return false;
 
-        return $this->getUnitMetaItemCustom($oVotes->getElementInline(array('show_counter' => true)));
+        $aObjectOptions = [
+            'show_counter' => true
+        ];
+        if(!empty($aParams['object_options']) && is_array($aParams['object_options']))
+            $aObjectOptions = array_merge($aObjectOptions, $aParams['object_options']);
+
+        if($this->_bIsApi)
+            return $this->_getMenuItemElementAPI($aItem, $oObject->getElementApi($aObjectOptions));
+
+        return $this->getUnitMetaItemCustom($oObject->getElementInline($aObjectOptions));
     }
     
     protected function _getMenuItemReactions($aItem)
@@ -236,17 +242,30 @@ class BxBaseModGeneralMenuSnippetMeta extends BxTemplMenuUnitMeta
 
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        if(empty($CNF['OBJECT_REACTIONS']))
+        $sKo = 'OBJECT_REACTIONS';
+        if(empty($CNF[$sKo]))
             return false;
 
-        $oVotes = BxDolVote::getObjectInstance($CNF['OBJECT_REACTIONS'], $this->_aContentInfo[$CNF['FIELD_ID']]);
-        if(!$oVotes)
+        $oObject = BxDolVote::getObjectInstance($CNF[$sKo], $this->_aContentInfo[$CNF['FIELD_ID']]);
+        if(!$oObject || !$oObject->isEnabled())
             return false;
 
-        return $this->getUnitMetaItemCustom($oVotes->getElementInline(array('show_counter' => false)));
+        return $this->getUnitMetaItemCustom($oObject->getCounter([
+            'show_counter_style' => 'compound',
+            'show_counter_empty' => false, 
+            'dynamic_mode' => true
+        ]));
     }
 
+    /**
+     * Note. Saved for backward compatibility.
+     */
     protected function _getMenuItemScore($aItem, $aParams = [])
+    {
+        return $this->_getMenuItemScores($aItem, $aParams);
+    }
+
+    protected function _getMenuItemScores($aItem, $aParams = [])
     {
         $bShowAsObject = isset($aParams['show_as_object']) && (bool)$aParams['show_as_object'] === true;
 
@@ -255,10 +274,11 @@ class BxBaseModGeneralMenuSnippetMeta extends BxTemplMenuUnitMeta
 
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        if(empty($CNF['FIELD_SCORE']) || (empty($this->_aContentInfo[$CNF['FIELD_SCORE']]) && !$this->_bShowZeros))
+        $sKf = 'FIELD_SCORE';
+        if(empty($CNF[$sKf]) || (empty($this->_aContentInfo[$CNF[$sKf]]) && !$this->_bShowZeros))
             return false;
 
-        $sTitle = _t('_sys_score_n_score', $this->_aContentInfo[$CNF['FIELD_SCORE']]);
+        $sTitle = _t('_sys_score_n_score', $this->_aContentInfo[$CNF[$sKf]]);
 
         if($this->_bIsApi)
             return $this->_getMenuItemAPI($aItem, 'text', [
@@ -266,7 +286,7 @@ class BxBaseModGeneralMenuSnippetMeta extends BxTemplMenuUnitMeta
             ]);
 
         return $this->getUnitMetaItemText($sTitle);
-    }
+    } 
 
     protected function _getMenuItemScoreObject($aItem, $aParams = [])
     {
@@ -349,49 +369,27 @@ class BxBaseModGeneralMenuSnippetMeta extends BxTemplMenuUnitMeta
 
     protected function _getMenuItemDefault($aItem)
     {
-        $sResult = false;
+        if(($mixedResult = $this->_rewriteMenuItem($aItem)) !== false)
+            return $mixedResult;
 
-        $a = [
-            'res' => &$sResult, 
-            'menu' => $this->_sObject, 
-            'menu_object' => $this, 
-            'item' => $aItem,
+        return parent::_getMenuItemDefault($aItem);
+    }
+
+    protected function _getMenuItemDefaultApi($aItem)
+    {
+        if(($mixedResult = $this->_rewriteMenuItem($aItem)) !== false)
+            return $mixedResult;
+
+        return parent::_getMenuItemDefaultApi($aItem);
+    }
+
+    protected function _rewriteMenuItem($aItem, $aExtrasAddon = [])
+    {
+        return parent::_rewriteMenuItem($aItem, [
             'module' => $this->_sModule,
             'content_id' => $this->_iContentId,
             'content_data' => $this->_aContentInfo,
-        ];
-        
-        /**
-         * @hooks
-         * @hookdef hook-bx_base_general-menu_custom_item '{module_name}', 'menu_custom_item' - hook to override menu item
-         * - $unit_name - module name
-         * - $action - equals `menu_custom_item`
-         * - $object_id - not used
-         * - $sender_id - not used
-         * - $extra_params - array of additional params with the following array keys:
-         *      - `res` - [string] by ref, menu item code, can be overridden in hook processing
-         *      - `menu` - [string] menu name
-         *      - `menu_object` - [object] an instance of menu, @see BxDolMenu
-         *      - `item` - [array] menu item array as key&value pairs
-         *      - `module` - [string] module name
-         *      - `content_id` - [int] content id
-         *      - `content_data` - [array] content info array as key&value pairs
-         * @hook @ref hook-bx_base_general-menu_custom_item
-         */
-        bx_alert($this->_sModule, 'menu_custom_item', 0, 0, $a);
-        
-        /**
-         * @hooks
-         * @hookdef hook-menu-menu_custom_item 'menu', 'menu_custom_item' - hook to override menu item
-         * It's equivalent to @ref hook-bx_base_general-menu_custom_item
-         * @hook @ref hook-menu-menu_custom_item
-         */
-        bx_alert('menu', 'menu_custom_item', 0, 0, $a);
-
-        if (false !== $sResult)
-            return $sResult;
-
-        return parent::_getMenuItemDefault($aItem);
+        ]);
     }
 }
 

@@ -20,15 +20,9 @@ class BxDolStudioLanguage extends BxTemplStudioModule
         $this->sLangPrefix = 'lang';
         $this->sParamPrefix = 'lang';
 
-        $this->sManageUrl = BX_DOL_URL_STUDIO . 'language.php?name=' . $this->aPage['name'];
-    }
-
-    public function init()
-    {
-        parent::init();
-
-        $this->aPage['header'] = $this->aModule['title'];
-        $this->aPage['caption'] = $this->aModule['title'];
+        $this->sManageUrl = '';
+        if($this->bPage)
+            $this->sManageUrl = BX_DOL_URL_STUDIO . 'language.php?name=' . $this->aPage['name'];
     }
 
     public function checkAction()

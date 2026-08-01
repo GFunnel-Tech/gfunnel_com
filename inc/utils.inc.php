@@ -64,6 +64,11 @@ define('BX_EMAIL_MASS', 2); ///< mass email, one mesage send to manu users, with
 
 define('BX_MAINTENANCE_FILE', '.bx_maintenance'); ///< file name to use as mantenance mode indicator
 
+define('BX_LOG_ERR', 1); ///< error log level format @see bx_log
+define('BX_LOG_WARN', 2); ///< warning log level format @see bx_log
+define('BX_LOG_INFO', 4); ///< info log level format @see bx_log
+define('BX_LOG_DEBUG', 8); ///< debug log level format @see bx_log
+
 /**
  * The following two functions are needed to convert title to uri and back.
  * It usefull when titles are used in URLs, like in Categories and Tags.
@@ -260,9 +265,9 @@ function bx_process_output ($mixedData, $iDataType = BX_DATA_TEXT, $mixedParams 
     case BX_DATA_HTML:
         $s = bx_linkify_html($mixedData, 'class="' . BX_DOL_LINK_CLASS . '"');
 
-        // remove empty tags from html content: #4203, #4486, #4827
-        $s = preg_replace('/<([a-z]+)(?:\s[^>]*)?>((?:\s|<br\s*\/?>)*)<\/\1>/i', '', $s);
-        $s = preg_replace('/(<br\s*\/?>\s*){2,}/i', '<br>', $s);
+        // remove empty tags from html content: #4203, #4486, #4827, #4979
+        $s = preg_replace('/<(div|p|blockquote|pre|section|article)(?:\s[^>]*)?'.'>((?:\s|<br\s*\/?'.'>)*)<\/\1>/i', '', $s);
+        $s = preg_replace('/(<br\s*\/?'.'>\s*){2,}/i', '<br>', $s);
         return $mixedParams && is_array($mixedParams) && in_array('no_process_macro', $mixedParams) ? $s : bx_process_macros($s);
     case BX_DATA_TEXT_MULTILINE:
         $s = $mixedData;
@@ -684,14 +689,14 @@ function getVisitorIP()
     $ip = "0.0.0.0";
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif (isset( $_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = explode(".",$_SERVER['HTTP_CLIENT_IP']);
-        $ip = $ip[3].".".$ip[2].".".$ip[1].".".$ip[0];
+    } elseif (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
     } elseif (!isset( $_SERVER['HTTP_X_FORWARDED_FOR']) || empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         if (!isset( $_SERVER['HTTP_CLIENT_IP']) && empty($_SERVER['HTTP_CLIENT_IP']) && isset($_SERVER['REMOTE_ADDR']))
             $ip = $_SERVER['REMOTE_ADDR'];
     }
-    return $ip;
+
+    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : "0.0.0.0";
 }
 
 function genFlag($sLang = '', $oTemplate = null)
@@ -715,7 +720,7 @@ function echoDbg( $what, $desc = '' )
 
 function echoDbgLog($mWhat, $sDesc = 'unused', $sFileName = 'unused')
 {
-    bx_log('sys_debug', $mWhat);
+    bx_log('sys_debug', $mWhat, BX_LOG_DEBUG);
 }
 
 function bx_is_dbg()
@@ -1157,17 +1162,7 @@ function bx_file_get_contents($sFileUrl, $aParams = array(), $sMethod = 'get', $
             curl_setopt($rConnect, CURLOPT_HTTPHEADER, $aHeaders);
 
         if (defined('BX_DOL_URL_ROOT') && 0 === strpos($sFileUrl, BX_DOL_URL_ROOT)) {
-            $sAllCookies = '';
-            foreach($_COOKIE as $sKey => $mValue){
-                if(is_array($mValue)){
-                    foreach ($mValue as $k => $v)
-                        $sAllCookies .= "{$sKey}[{$k}]={$v};";
-                }
-                else{
-                    $sAllCookies .= $sKey . '=' . $mValue . ';';
-                }
-            }
-            curl_setopt($rConnect, CURLOPT_COOKIE, $sAllCookies);
+            curl_setopt($rConnect, CURLOPT_COOKIE, http_build_query($_COOKIE, '', '; ', PHP_QUERY_RFC3986));
         }
 
         if ($aCustomCurlParams)
@@ -1184,7 +1179,6 @@ function bx_file_get_contents($sFileUrl, $aParams = array(), $sMethod = 'get', $
         if (NULL !== $sHttpCode)
             $sHttpCode = curl_getinfo($rConnect, CURLINFO_HTTP_CODE);
 
-        curl_close($rConnect);
     }
     else {
 
@@ -1325,6 +1319,17 @@ function return_bytes($val)
             break;
     }
     return $val;
+}
+
+/**
+ * Format bytes to human-readable format
+ * @param $iBytes - number of bytes
+ * @param $iPrecision - decimal places (default 1)
+ * @return formatted string like "2.5M", "512K", "1024B"
+ */
+function bx_format_bytes($iBytes)
+{
+    return _t_format_size($iBytes);
 }
 
 // Generate Random Password
@@ -2048,6 +2053,31 @@ function bx_check_maintenance_mode ($bShowHttpError = false)
 }
 
 /**
+ * Check if site soft maintetance mode is enabled.
+ * Soft maintetance mode is enabled when maintenance mode is enabled via studio setting.
+ */
+function bx_check_maintenance_mode_soft ()
+{
+    if (isset($_SERVER['HTTP_HOST'])) {
+        $sUrl = bx_proto() . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+        if (0 === strpos($sUrl, BX_DOL_URL_STUDIO)) // allow to view studio
+            return;
+        if (0 === strpos($sUrl, BX_DOL_URL_ROOT . 'member.php') && $_SERVER['REQUEST_METHOD'] === 'POST') // make studio login form to always work
+            return;
+    }
+
+    if (defined('BX_DOL_UPGRADING')) // allow upgrade
+        return;
+    if (!getParam('sys_maintenance_mode')) // check mainenance mode switcher
+        return;
+    if (isAdmin()) // always allow studio operators
+        return;
+
+    $sHtml = getParam('sys_maintenance_mode_html');
+    bx_show_service_unavailable_error_and_exit (trim($sHtml) ? $sHtml : 'Site is temporarily unavailable due to scheduled maintenance, please try again in a minute.', 600);
+}
+
+/**
  * Check for minimal requirements.
  * if BX_DISABLE_REQUIREMENTS_CHECK is defined then this requirements checking is skipped.
  * @param $bShowHttpError show 503 HTTP error if site doesn't meet minimal requirements
@@ -2129,6 +2159,11 @@ function bx_check_redirect_to_remove_install_folder ($bProcessRedirect = false)
  */
 function bx_show_service_unavailable_error_and_exit ($sMsg = false, $iRetryAfter = 86400)
 {
+    if (defined('BX_DOL_HEALTHCHECK') && BX_DOL_HEALTHCHECK) {
+        echo 'OK';
+        exit;
+    }
+
     header('HTTP/1.0 503 Service Unavailable', true, 503);
     header('Retry-After: 600');
     echo $sMsg ? $sMsg : 'Service temporarily unavailable';
@@ -2475,10 +2510,10 @@ function bx_get_device_pixel_ratio()
  * @param $sObject - logs object
  * @param $mixed - string or array to log
  */
-function bx_log($sObject, $mixed)
+function bx_log($sObject, $mixed, $iLevel = BX_LOG_DEBUG)
 {
     if (class_exists('BxDolLogs', true) && $o = BxDolLogs::getObjectInstance($sObject))
-        return $o->add($mixed);
+        return $o->add($mixed, $iLevel);
     else
         return false;
 }
@@ -2699,8 +2734,7 @@ function bx_api_get_image($mixedStorage, $iId)
         $sStorage = $mixedStorage;
 
     $sUrl = '';
-    $iWidth = 500;
-    $iHeight = 500;
+    $iWidth = $iHeight = 0;
     if($sTranscoder && ($oTranscoder = BxDolTranscoder::getObjectInstance($sTranscoder))) {
         $sUrl = $oTranscoder->getFileUrl($iId);
 
@@ -2709,7 +2743,7 @@ function bx_api_get_image($mixedStorage, $iId)
             $iHeight = (int)$aSize['h'];
         }
     }
-    
+
     if(!$sUrl && ($oS = BxDolStorage::getObjectInstance($sStorage))) {
         $sUrl = $oS->getFileUrlById($iId);
 
@@ -2718,6 +2752,17 @@ function bx_api_get_image($mixedStorage, $iId)
             $iWidth = (int)$aTmp[0];
             $iHeight = (int)$aTmp[1];
         }
+    }
+
+    if(!$iWidth && !$iHeight && $sUrl) {
+        $aSize = BxDolImageResize::getInstance()->getImageSize($sUrl);
+        $iWidth = (int)$aSize['w'];
+        $iHeight = (int)$aSize['h'];
+    }
+
+    if(!$iWidth && !$iHeight) {
+        $iWidth = 500;
+        $iHeight = 500;
     }
 
     return !empty($sUrl) ? [
@@ -2734,9 +2779,6 @@ function bx_api_get_browse_params($sParams, $bParamsOnly = false)
         return [];
 
     $aParams = json_decode($sParams, true);
-    if(isset($aParams['params']['validate']) && !is_array($aParams['params']['validate']))
-        $aParams['params']['validate'] = !empty($aParams['params']['validate']) ? explode(',', $aParams['params']['validate']) : [];
-
     if(!$bParamsOnly)
         return $aParams;
 
@@ -2746,6 +2788,28 @@ function bx_api_get_browse_params($sParams, $bParamsOnly = false)
     return $aParams['params'];
 }
 
+function bx_api_get_location_string($mixedValue)
+{
+    if(!is_array($mixedValue))
+        $aValue = bx_is_serialized($mixedValue) ? @unserialize($mixedValue) : json_decode($mixedValue, true);
+    else
+        $aValue = $mixedValue;
+
+    if(empty($aValue) || !is_array($aValue) || empty($aValue['country'])) 
+        return '';
+
+    $aCountries = BxDolFormQuery::getDataItems('Country');
+
+    $sResult = '';
+    $sResult .= $aValue['street_number'] ? $aValue['street_number'] . ', ' : '';
+    $sResult .= $aValue['street'] ? $aValue['street'] . ', ' : '';
+    $sResult .= $aValue['city'] ? $aValue['city'] . ', ' : '';
+    $sResult .= $aValue['state'] ? $aValue['state'] . ', ' : '';
+    $sResult .= $aCountries[$aValue['country']];
+
+    return $sResult;
+}
+    
 function bx_is_serialized($string) 
 {
     if (!is_string($string))
@@ -2759,6 +2823,161 @@ function bx_is_serialized($string)
     
     // other types
     return preg_match('/^([adObis]):[0-9]+:/', $string) === 1;
+}
+
+
+function bx_get_context_workspace($bFromCache = true)
+{
+    if ($bFromCache && !empty($GLOBALS['bxWorkspaceContext']))
+        return $GLOBALS['bxWorkspaceContext'];
+
+    $o = BxDolProfile::getInstance();
+    if (!$o) {
+        return ($GLOBALS['bxWorkspaceContext'] = false);
+    }
+
+    $sModule = $o->getModule();
+    if ($sModule !== 'bx_workspaces') {
+        return ($GLOBALS['bxWorkspaceContext'] = false);
+    }
+
+    $sModuleContext = getParam('bx_workspaces_context_module');
+    if (!$sModuleContext) {
+        return ($GLOBALS['bxWorkspaceContext'] = false);
+    }
+
+    $oModuleContext = BxDolModule::getInstance($sModuleContext);
+    if (!$oModuleContext) {
+        return ($GLOBALS['bxWorkspaceContext'] = false);
+    }
+
+    $CNF = $oModuleContext->_oConfig->CNF;
+    $oConnection = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS']);
+    if (!$oConnection) {
+        return ($GLOBALS['bxWorkspaceContext'] = false);
+    }
+
+    $a = $oConnection->getConnectedContent ($o->id(), true, 0, 1);
+    if (!$a) {
+        return ($GLOBALS['bxWorkspaceContext'] = false);
+    }
+
+    return ($GLOBALS['bxWorkspaceContext'] = array_pop($a));
+}
+
+function bx_content_cache_get(string $sKey, int|false $iTTL = false): mixed
+{
+    if (!getParam('sys_content_cache_enable'))
+        return null;
+
+    $oCache = bx_content_cache_obj();
+    return $oCache->getData(bx_content_cache_key($sKey), $iTTL);
+}
+
+function bx_content_cache_set(string $sKey, mixed $mixedData, int|false $iTTL = false): bool
+{
+    if (!getParam('sys_content_cache_enable'))
+        return false;
+
+    $oCache = bx_content_cache_obj();
+    return (bool)$oCache->setData(bx_content_cache_key($sKey), $mixedData, $iTTL);
+}
+
+function bx_content_cache_del(string $sKey): bool
+{
+    $oCache = bx_content_cache_obj();
+    return (bool)$oCache->delData(bx_content_cache_key($sKey));
+}
+
+function bx_content_cache_del_by_prefix(string $sPrefix): bool
+{
+    $oCache = bx_content_cache_obj();
+    return (bool)$oCache->removeAllByPrefix(bx_content_cache_key($sPrefix, true));
+}
+
+function bx_content_cache_key(string $sKey, bool $bPrefixOnly = false): string
+{
+    if ($bPrefixOnly)
+        return 'content_' . $sKey;
+    return 'content_' . $sKey . '_' . bx_lang_name() . '_' . BxDolTemplate::getInstance()->getCode() . '_' . bx_site_hash() . '.php';
+}
+
+function bx_content_cache_obj(): object
+{
+    if (isset($GLOBALS['bxCacheContentObj']))
+        return $GLOBALS['bxCacheContentObj'];
+
+    $sEngine = getParam('sys_content_cache_engine');
+    $oCacheObject = bx_instance('BxDolCache' . $sEngine);
+    if(!$oCacheObject->isAvailable())
+        $oCacheObject = bx_instance('BxDolCacheFile');
+
+    return $GLOBALS['bxCacheContentObj'] = $oCacheObject;
+}
+
+function bx_mem_cache_get(string $sKey): mixed
+{
+    if(isset($GLOBALS['glMemCache']) && array_key_exists($sKey, $GLOBALS['glMemCache']) && !defined('BX_DOL_INSTALL') && !defined('BX_DOL_CRON_EXECUTE'))
+        return $GLOBALS['glMemCache'][$sKey];
+
+    return null;
+}
+
+function bx_mem_cache_set(string $sKey, mixed $mixedData): mixed
+{
+    if(!isset($GLOBALS['glMemCache']))
+        $GLOBALS['glMemCache'] = [];
+
+    return $GLOBALS['glMemCache'][$sKey] = $mixedData;
+}
+
+function bx_get_search_class_name(): string
+{
+    $sClass = 'BxTemplSearch';
+
+    $sElsName = 'bx_elasticsearch';
+    $sElsMethod = 'is_configured';
+    if (BxDolRequest::serviceExists($sElsName, $sElsMethod) && BxDolService::call($sElsName, $sElsMethod)) {
+         $oModule = BxDolModule::getInstance($sElsName);
+
+         bx_import('Search', $oModule->_aModule);
+         $sClass = 'BxElsSearch';
+    }
+
+    return $sClass;
+}
+
+function bx_ai_process_agents_call_queue($bFinishRequest = true, $bExit = true)
+{
+    if ($bFinishRequest) {
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } else {
+            @ob_end_flush();
+            @flush();
+        }
+    }
+
+    if (!empty($GLOBALS['glAgentsCallQueue']))
+    {
+        $oAi = BxDolAI::getInstance();
+        foreach ($GLOBALS['glAgentsCallQueue'] as $r) 
+        {
+            $sMessage = $oAi->callAgent($r['type'], $r['agent'], $r['params']);
+            if (null == $sMessage) {
+                // TODO: maybe reply with some empty message
+                continue;
+            }
+            $oParsedown = new Parsedown();
+            $oParsedown->setSafeMode(true);
+            $sMessageHtml = $oParsedown->text($sMessage);
+            $oAi->sendMessengerMessage($r['agent']['profile_id'], $r['params']['sender_profile_id'], str_replace('\n', '', $sMessageHtml));
+        }
+    }
+    
+    if ($bExit) {
+        exit(0);
+    }
 }
 
 /** @} */

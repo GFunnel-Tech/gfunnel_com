@@ -10,8 +10,11 @@
     <string name="_bx_payment_option_err_default_currency_code"><![CDATA[Код валюты не может быть пуст.]]></string>
     <string name="_bx_payment_option_currency_exchange_api"><![CDATA[API-ключ для конвертации валют (от exchangeratesapi.io)]]></string>
     <string name="_bx_payment_option_site_admin"><![CDATA[Главный продавец (для продажи от имени сайта)]]></string>
+    <string name="_bx_payment_option_extended_mode"><![CDATA[Расширенный режим (позволяет продавцам использовать тестовый режим и т. д.).]]></string>
     <string name="_bx_payment_option_credits_only"><![CDATA[Режим оплаты только кредитами (приложение 'Кредиты' должно быть установлено).]]></string>
     <string name="_bx_payment_option_single_seller"><![CDATA[Режим единого продавца (все продается от имени 'Главный продавец').]]></string>
+    <string name="_bx_payment_option_sbs_cancel_survey"><![CDATA[Включите опрос 'Причина отмены подписки'.]]></string>
+    <string name="_bx_payment_option_commissions"><![CDATA[Включить расчет комиссий]]></string>
     <string name="_bx_payment_option_inv_issue_day"><![CDATA[День месяца, когда автоматически генерятся счета-фактуры (1, 2, 3 и тп)]]></string>
     <string name="_bx_payment_option_inv_lifetime"><![CDATA[Срок оплаты - количество дней после даты выставления счета-фактуры]]></string>
     <string name="_bx_payment_option_inv_expiraction_notify"><![CDATA[За сколько дней до истечения срока оплаты оповестить платильщика]]></string>
@@ -90,6 +93,7 @@
     <string name="_bx_payment_menu_item_title_admt_addon_counter2_caption"><![CDATA[задерж.]]></string>
 
     <string name="_bx_payment_menu_title_cart_submenu"><![CDATA[Подменю корзины]]></string>
+    <string name="_bx_payment_menu_title_public_cart_submenu"><![CDATA[Корзины]]></string>
     <string name="_bx_payment_menu_set_title_cart_submenu"><![CDATA[Подменю корзины]]></string>
     <string name="_bx_payment_menu_item_title_system_cart"><![CDATA[Оплата]]></string>
     <string name="_bx_payment_menu_item_title_cart"><![CDATA[Оплата]]></string>
@@ -131,12 +135,9 @@
     <string name="_bx_payment_grid_column_title_sbs_seller_id"><![CDATA[Продавец]]></string>
     <string name="_bx_payment_grid_column_title_sbs_client_id"><![CDATA[Покупатель]]></string>
     <string name="_bx_payment_grid_column_title_sbs_client_email"><![CDATA[Email]]></string>
-    <string name="_bx_payment_grid_column_title_sbs_customer_id"><![CDATA[ID Покупателя]]></string>
-    <string name="_bx_payment_grid_column_title_sbs_subscription_id"><![CDATA[Подписка]]></string>
-    <string name="_bx_payment_grid_column_title_sbs_transaction"><![CDATA[Транзакция]]></string>
-    <string name="_bx_payment_grid_column_title_sbs_license"><![CDATA[Лицензия]]></string>
+    <string name="_bx_payment_grid_column_title_sbs_items"><![CDATA[Продукты]]></string>
+    <string name="_bx_payment_grid_column_title_sbs_item_id"><![CDATA[Продукт]]></string>
     <string name="_bx_payment_grid_column_title_sbs_amount"><![CDATA[Сумма]]></string>
-    <string name="_bx_payment_grid_column_title_sbs_provider"><![CDATA[Поставщик]]></string>
     <string name="_bx_payment_grid_column_title_sbs_date"><![CDATA[Дата]]></string>
     <string name="_bx_payment_grid_column_title_sbs_date_add"><![CDATA[Дата создания]]></string>
     <string name="_bx_payment_grid_column_title_sbs_date_next"><![CDATA[Дата сл. оплаты]]></string>
@@ -175,6 +176,8 @@
     <string name="_bx_payment_grid_action_title_crts_continue"><![CDATA[Продолжить оплату]]></string>
     <string name="_bx_payment_grid_action_title_crt_checkout"><![CDATA[Оплатить через {0}]]></string>
     <string name="_bx_payment_grid_action_title_crt_delete"><![CDATA[Удалить]]></string>
+    <string name="_bx_payment_grid_action_title_crt_quantity_sub"><![CDATA[Уменьшить количество]]></string>
+    <string name="_bx_payment_grid_action_title_crt_quantity_add"><![CDATA[Увеличить количество]]></string>
     <string name="_bx_payment_grid_action_title_cms_add"><![CDATA[Добавить]]></string>
     <string name="_bx_payment_grid_action_title_cms_edit"><![CDATA[Изменить]]></string>
     <string name="_bx_payment_grid_action_title_cms_delete"><![CDATA[Удалить]]></string>
@@ -271,10 +274,25 @@
     <string name="_bx_payment_form_invoices_input_cancel_sys"><![CDATA[Отменить]]></string>
     <string name="_bx_payment_form_invoices_input_cancel"><![CDATA[Отменить]]></string>
 
+    <string name="_bx_payment_form_cs_input_items"><![CDATA[Почему вы хотите отменить подписку?]]></string>
+    <string name="_bx_payment_form_cs_input_other"><![CDATA[Ваш вариант]]></string>
+    <string name="_bx_payment_form_cs_input_submit"><![CDATA[Отправить]]></string>
+    <string name="_bx_payment_form_cs_input_cancel"><![CDATA[Отменить]]></string>
+
+    <string name="_bx_payment_form_input_err"><![CDATA[Это поле необходимо. Пожалуйста, заполните его.]]></string>
     <string name="_bx_payment_form_input_email_err_cor_or_emp"><![CDATA[Используйте правильный адрес электронной почты или оставьте поле пустым.]]></string>
 
     <!-- Predefined Values -->
     <string name="_bx_payment_pre_lists_currencies"><![CDATA[Валюты]]></string>
+
+    <string name="_bx_payment_pre_lists_reasons_cancel"><![CDATA[Причины для отмены подписки]]></string>
+    <string name="_bx_payment_pre_values_rc_0"><![CDATA[Другое]]></string>
+    <string name="_bx_payment_pre_values_rc_1"><![CDATA[Затраты и бюджетирование]]></string>
+    <string name="_bx_payment_pre_values_rc_2"><![CDATA[Скрытые платежи и проблемы с выставлением счетов]]></string>
+    <string name="_bx_payment_pre_values_rc_3"><![CDATA[Низкий уровень использования]]></string>
+    <string name="_bx_payment_pre_values_rc_4"><![CDATA[Потеря интереса]]></string>
+    <string name="_bx_payment_pre_values_rc_5"><![CDATA[Неудовлетворительный пользовательский опыт]]></string>
+    <string name="_bx_payment_pre_values_rc_6"><![CDATA[Есть альтернативы получше]]></string>
 
     <!-- ACL -->
     <string name="_bx_payment_acl_action_purchase"><![CDATA[Покупать]]></string>
@@ -399,11 +417,15 @@
     <string name="_bx_payment_txt_item"><![CDATA[Товар]]></string>
     <string name="_bx_payment_txt_quantity"><![CDATA[Шт.]]></string>
     <string name="_bx_payment_txt_order"><![CDATA[ID заказа]]></string>
+    <string name="_bx_payment_txt_customer_id"><![CDATA[ID Покупателя]]></string>
+    <string name="_bx_payment_txt_subscription"><![CDATA[Подписка]]></string>
     <string name="_bx_payment_txt_price"><![CDATA[Цена]]></string>
     <string name="_bx_payment_txt_price_sold"><![CDATA[Цена продажи]]></string>
     <string name="_bx_payment_txt_processed_with"><![CDATA[Обработан используя]]></string>
     <string name="_bx_payment_txt_message"><![CDATA[Результат]]></string>
     <string name="_bx_payment_txt_date"><![CDATA[Дата]]></string>
+    <string name="_bx_payment_txt_deleted"><![CDATA[Дата отмены]]></string>
+    <string name="_bx_payment_txt_deleted_reason"><![CDATA[Причина отмены]]></string>
     <string name="_bx_payment_txt_products"><![CDATA[Продукты]]></string>
     <string name="_bx_payment_txt_buyer_name_mask"><![CDATA[{0} {1}]]></string>
     <string name="_bx_payment_txt_none"><![CDATA[нет]]></string>
@@ -423,6 +445,7 @@
     <string name="_bx_payment_txt_status_unpaid"><![CDATA[Не оплачено]]></string>
     <string name="_bx_payment_txt_status_overdue"><![CDATA[Просрочено]]></string>
     <string name="_bx_payment_txt_status_paused"><![CDATA[Приостановлено]]></string>
+    <string name="_bx_payment_txt_status_cancel"><![CDATA[Отменено]]></string>
     <string name="_bx_payment_txt_status_canceled"><![CDATA[Отменено]]></string>
     <string name="_bx_payment_txt_status_unknown"><![CDATA[Неизвестно]]></string>
     <string name="_bx_payment_txt_invoice_title"><![CDATA[Счет {0} от {1}]]></string>
@@ -522,6 +545,7 @@
     <string name="_bx_payment_pp_api_err_cannot_authorize"><![CDATA[Не удалось авторизовать одобренный заказ.]]></string>
     <string name="_bx_payment_pp_api_err_cannot_capture"><![CDATA[Не удалось завершить оплату.]]></string>
     <string name="_bx_payment_pp_api_err_no_item"><![CDATA[Объект для создания подписки отсутствует.]]></string>
+    <string name="_bx_payment_pp_api_err_wrong_item"><![CDATA[Продукт, на который вы хотите подписаться, имеет неверные данные на стороне PayPal. Пожалуйста, сообщите.]]></string>
     <string name="_bx_payment_pp_api_err_no_subscription"><![CDATA[Данные подписки недоступны или неверны.]]></string>
     <string name="_bx_payment_pp_api_err_subscription_not_confirmed"><![CDATA[Подписка не подтверждена.]]></string>
     <string name="_bx_payment_pp_api_msg_authorized"><![CDATA[Заказ авторизован.]]></string>

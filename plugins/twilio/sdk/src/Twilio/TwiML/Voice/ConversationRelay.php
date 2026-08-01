@@ -157,41 +157,158 @@ class ConversationRelay extends TwiML {
     }
 
     /**
-     * Add Interruptible attribute.
-     *
-     * @param bool $interruptible Whether caller's speaking can interrupt the play
-     *                            of text-to-speech
-     */
-    public function setInterruptible($interruptible): self {
-        return $this->setAttribute('interruptible', $interruptible);
-    }
-
-    /**
-     * Add InterruptByDtmf attribute.
-     *
-     * @param bool $interruptByDtmf Whether DTMF tone can interrupt the play of
-     *                              text-to-speech
-     */
-    public function setInterruptByDtmf($interruptByDtmf): self {
-        return $this->setAttribute('interruptByDtmf', $interruptByDtmf);
-    }
-
-    /**
      * Add WelcomeGreetingInterruptible attribute.
      *
-     * @param bool $welcomeGreetingInterruptible Whether caller's speaking can
-     *                                           interrupt the welcome greeting
+     * @param string $welcomeGreetingInterruptible "Whether and how the input from
+     *                                             a caller, such as speaking or
+     *                                             DTMF can interrupt the welcome
+     *                                             greeting
      */
     public function setWelcomeGreetingInterruptible($welcomeGreetingInterruptible): self {
         return $this->setAttribute('welcomeGreetingInterruptible', $welcomeGreetingInterruptible);
     }
 
     /**
+     * Add Interruptible attribute.
+     *
+     * @param string $interruptible Whether and how the input from a caller, such
+     *                              as speaking or DTMF can interrupt the play of
+     *                              text-to-speech
+     */
+    public function setInterruptible($interruptible): self {
+        return $this->setAttribute('interruptible', $interruptible);
+    }
+
+    /**
+     * Add Preemptible attribute.
+     *
+     * @param bool $preemptible Whether subsequent text-to-speech or play media can
+     *                          interrupt the on-going play of text-to-speech or
+     *                          media
+     */
+    public function setPreemptible($preemptible): self {
+        return $this->setAttribute('preemptible', $preemptible);
+    }
+
+    /**
+     * Add Hints attribute.
+     *
+     * @param string $hints Phrases to help better accuracy in speech recognition
+     *                      of these pharases
+     */
+    public function setHints($hints): self {
+        return $this->setAttribute('hints', $hints);
+    }
+
+    /**
+     * Add IntelligenceService attribute.
+     *
+     * @param string $intelligenceService The Conversational Intelligence Service
+     *                                    id or unique name to be used for the
+     *                                    session
+     */
+    public function setIntelligenceService($intelligenceService): self {
+        return $this->setAttribute('intelligenceService', $intelligenceService);
+    }
+
+    /**
+     * Add ReportInputDuringAgentSpeech attribute.
+     *
+     * @param bool $reportInputDuringAgentSpeech Whether prompts should be reported
+     *                                           to WebSocket server when
+     *                                           text-to-speech playing and
+     *                                           interrupt is disabled
+     */
+    public function setReportInputDuringAgentSpeech($reportInputDuringAgentSpeech): self {
+        return $this->setAttribute('reportInputDuringAgentSpeech', $reportInputDuringAgentSpeech);
+    }
+
+    /**
+     * Add ElevenlabsTextNormalization attribute.
+     *
+     * @param string $elevenlabsTextNormalization When using ElevenLabs as TTS
+     *                                            provider, this parameter allows
+     *                                            you to enable or disable its text
+     *                                            normalization feature
+     */
+    public function setElevenlabsTextNormalization($elevenlabsTextNormalization): self {
+        return $this->setAttribute('elevenlabsTextNormalization', $elevenlabsTextNormalization);
+    }
+
+    /**
+     * Add InterruptSensitivity attribute.
+     *
+     * @param string $interruptSensitivity Set the sensitivity of the interrupt
+     *                                     feature for speech. The value can be
+     *                                     low, medium, or high
+     */
+    public function setInterruptSensitivity($interruptSensitivity): self {
+        return $this->setAttribute('interruptSensitivity', $interruptSensitivity);
+    }
+
+    /**
      * Add Debug attribute.
      *
-     * @param bool $debug Whether debugging on the session is enabled
+     * @param string $debug Multiple debug options to be used for troubleshooting
      */
     public function setDebug($debug): self {
         return $this->setAttribute('debug', $debug);
+    }
+
+    /**
+     * Add Backgroundnoisereduction attribute.
+     *
+     * @param string $backgroundnoisereduction This parameters enables background
+     *                                         noise filtering on the audio stream
+     *                                         before it reaches the STT engine,
+     *                                         improving transcription accuracy in
+     *                                         noisy environments
+     */
+    public function setBackgroundnoisereduction($backgroundnoisereduction): self {
+        return $this->setAttribute('backgroundnoisereduction', $backgroundnoisereduction);
+    }
+
+    /**
+     * Add Speechtimeout attribute.
+     *
+     * @param string $speechtimeout Set the duration of silence that indicates the
+     *                              end of speech
+     */
+    public function setSpeechtimeout($speechtimeout): self {
+        return $this->setAttribute('speechtimeout', $speechtimeout);
+    }
+
+    /**
+     * Add Deepgramsmartformat attribute.
+     *
+     * @param string $deepgramsmartformat This parameter enables Deepgram's smart
+     *                                    formatting feature, which automatically
+     *                                    applies punctuation, capitalization, and
+     *                                    formatting (e.g. numbers, dates,
+     *                                    currency) to transcripts
+     */
+    public function setDeepgramsmartformat($deepgramsmartformat): self {
+        return $this->setAttribute('deepgramsmartformat', $deepgramsmartformat);
+    }
+
+    /**
+     * Add Ignorebackchannel attribute.
+     *
+     * @param string $ignorebackchannel This parameter brief caller acknowledgments
+     *                                  (e.g. "yeah", "uh-huh") are ignored and
+     *                                  will not interrupt the agent while it is
+     *                                  speaking.
+     */
+    public function setIgnorebackchannel($ignorebackchannel): self {
+        return $this->setAttribute('ignorebackchannel', $ignorebackchannel);
+    }
+
+    /**
+     * Add Events attribute.
+     *
+     * @param string $events This parameter allows you to enable event subscriptions
+     */
+    public function setEvents($events): self {
+        return $this->setAttribute('events', $events);
     }
 }

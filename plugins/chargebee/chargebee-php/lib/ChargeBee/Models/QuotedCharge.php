@@ -15,6 +15,7 @@ class QuotedCharge extends Model
     'invoiceItems',
     'itemTiers',
     'coupons',
+    'couponApplicabilityMappings',
   ];
 
 

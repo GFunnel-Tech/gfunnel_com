@@ -18,12 +18,12 @@ $aConfig = array(
     'name' => 'bx_persons',
     'title' => 'Persons',
     'note' => 'Basic person profiles functionality.',
-    'version' => '14.0.6',
+    'version' => '15.0.4',
     'vendor' => 'UNA INC',
     'help_url' => 'http://feed.una.io/?section={module_name}',
 
     'compatible_with' => array(
-        '14.0.0-RC4'
+        '15.0.0-RC1'
     ),
 
     /**
@@ -84,7 +84,8 @@ $aConfig = array(
     	'bx_persons_picture',
     	'bx_persons_cover',
     	'bx_persons_cover_thumb',
-        'bx_persons_gallery'
+        'bx_persons_gallery',
+        'bx_persons_badge'
     ),
 
     /**

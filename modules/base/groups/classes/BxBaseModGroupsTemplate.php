@@ -22,7 +22,6 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
     {
         parent::__construct($oConfig, $oDb);
 
-        $this->_bLetterAvatar = false;
         $this->_iUnitCharsSummary = 50;
 
         $this->_sUnitClassWoCover = $this->_sUnitClass; //--- Save default 'Unit' class (from BxBaseModProfileTemplate) as 'Unit W\O Cover' class here.
@@ -31,6 +30,8 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
         $this->_sUnitClassWoInfo .= ' bx-base-groups-unit-wo-info'; 
         $this->_sUnitClassWoInfoShowCase .= ' bx-base-groups-unit-wo-info bx-base-groups-unit-wo-info-showcase';
         $this->_sUnitClassShowCase .= ' bx-base-groups-unit-with-cover bx-base-groups-unit-showcase';
+
+        $this->_bLetterAvatar = !$this->_oConfig->isUseCoverAsThumb();
     }
 
     public function addLocationBase()
@@ -50,9 +51,9 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
         if (!$oProfile) 
             $oProfile = BxDolProfileUndefined::getInstance();
 
-        $aVars['title'] = (boolean)$aVars['public'] ? bx_process_output($aData[$CNF['FIELD_NAME']]) : _t($CNF['T']['txt_private_group']);
+        $aVars['title'] = (bool)$aVars['public'] ? bx_process_output($aData[$CNF['FIELD_NAME']]) : _t($CNF['T']['txt_private_group']);
         $aVars['description'] = '';
-        if(!empty($CNF['FIELD_TEXT']) && !empty($aData[$CNF['FIELD_TEXT']]) && (boolean)$aVars['public'])
+        if(!empty($CNF['FIELD_TEXT']) && !empty($aData[$CNF['FIELD_TEXT']]) && (bool)$aVars['public'])
             $aVars['description'] = strmaxtextlen(strip_tags($aData[$CNF['FIELD_TEXT']]), $this->_iUnitCharsSummary);
 
         $aVars['author'] = $oProfile->getDisplayName();
@@ -74,6 +75,17 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
 
     public function getPopupSetRole($aRoles, $iProfileId, $iProfileRole)
     {
+        if ($this->_bIsApi){
+            $aTmplVarsRoles = array();
+            foreach($aRoles as $iRole => $sRole){
+                $aTmplVarsRoles[] = [
+                    'value' => $iRole,
+                    'label' => $sRole, 
+                ];
+            }
+            return ['values' => $aTmplVarsRoles, 'value' => $iProfileRole];
+        }
+        
         $sJsObject = $this->_oConfig->getJsObject('main');
         $sHtmlIdPrefix = str_replace('_', '-', $this->_oConfig->getName()) . '-role';
 
@@ -112,6 +124,48 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
             return $aTmplVarsAnswers;
 
         return $this->parseHtmlByName('popup_qnr_answers.html', ['bx_repeat:answers' => $aTmplVarsAnswers]);
+    }
+
+    public function getTimelineCardRecommendations($aParams)
+    {
+        $CNF = &$this->_oConfig->CNF;
+        $sModule = $this->_oConfig->getName();
+        
+        $iProfileId = 0;
+        if(!($iProfileId = bx_get_logged_profile_id()))
+            return $this->_bIsApi ? [] : '';
+
+        $oRecommendation = false;
+        if(($sKey = 'OBJECT_RECOMMENDATIONS_FANS') && (empty($CNF[$sKey]) || !($oRecommendation = BxDolRecommendation::getObjectInstance($CNF[$sKey]))))
+            return $this->_bIsApi ? [] : '';
+
+        $sId = 'rc' . ((int)($aParams['start'] ?? 0) + (int)($aParams['event_index'] ?? 0));
+
+        if($this->_bIsApi) {
+            $aResult = [];
+            if(($aCode = $oRecommendation->getCodeAPI($iProfileId, ['showcase' => true])) && is_array($aCode))
+                $aResult = [
+                    'id' => $sId,
+                    'type' => 'timeline_recommendations',
+                    'module' => $sModule,
+                    'title' => _t($sModule . '_timeline_recommendations'),
+                    'content' => array_merge($aCode, [
+                        'page_url' => bx_api_get_relative_url(BX_DOL_URL_ROOT . BxDolPermalinks::getInstance()->permalink($CNF['URL_HOME'])),
+                    ])
+                ];
+
+            return $aResult;
+        }
+
+        $sCode = $oRecommendation->getCode($iProfileId, ['showcase' => true]);
+        if(!$sCode)
+            return '';
+
+        return $this->parseHtmlByName('timeline_post_recommendation.html', [
+            'html_id' => $this->_oConfig->getHtmlIds('timeline_card_recommendations') . $sId,
+            'class' => str_replace('_', '-', $sModule),
+            'code' => $sCode
+        ]) . $this->addCss(['timeline.css'], true);
     }
 
     protected function _getUnitClass($aData, $sTemplateName = 'unit.html')
@@ -153,10 +207,11 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
     protected function _isUnitThumb($aData, $sTemplateName = 'unit.html')
     {
         $bResult = true;
-        
+
         switch($sTemplateName) {
             case 'unit.html':
             case 'unit_with_cover.html':
+            case 'unit_with_cover_showcase.html':
                 $bResult = !$this->_oConfig->isUseCoverAsThumb();
                 break;
         }
@@ -171,6 +226,14 @@ class BxBaseModGroupsTemplate extends BxBaseModProfileTemplate
             $sField = $CNF['FIELD_COVER'];
 
         return parent::_image($sField, $sTranscodeObject, $sNoImage, $aData, $bSubstituteNoImage);
+    }
+
+    protected function _isTemplateWithMeta(string $sTemplateName = 'unit.html'): bool
+    {
+        $bResult = parent::_isTemplateWithMeta($sTemplateName);
+        if (!$bResult && 'unit.html' == $sTemplateName)
+            $bResult = true;
+        return $bResult;
     }
 }
 

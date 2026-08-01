@@ -127,7 +127,7 @@ class BxBaseScore extends BxDolScore
 
     public function _getCounterSimple($aParams = [])
     {
-        $aScore = $this->_oQuery->getScore($this->getId());
+        $aScore = $this->_getVote();
 
         $iCup = (int)$aScore['count_up'];
         $iCdown = (int)$aScore['count_down'];
@@ -289,8 +289,8 @@ class BxBaseScore extends BxDolScore
         $isAllowedVote = $this->isAllowedVote();
         $isAllowedVoteView = $this->isAllowedVoteView();
         $isAllowedVoteViewVoters = $this->isAllowedVoteViewVoters();
-        
-        $aScore = $this->_oQuery->getScore($iObjectId);
+
+        $aScore = $this->_getVote();
         $bCount = $this->_isCount($aScore);
         $bCounter = $this->_isShowCounter($aParams, $isAllowedVote, $isAllowedVoteView, $bCount);
 

@@ -37,7 +37,7 @@ div.bx-std-block-caption {
     -webkit-align-items: center;
     align-items: center;
 
-    padding: 1.25rem 1.5rem 0 1.5rem;
+    padding: 0.625rem 0.5rem 0.625rem 1.0rem;
 }
 div.bx-std-bcap-text {
     -webkit-flex: 1 1 auto;
@@ -73,7 +73,7 @@ div.bx-std-block-panel-top .bx-std-pt-cnt {
 }
 
 div.bx-std-block-content {
-    padding: 1.5rem;
+    padding: 0.5rem;
 }
 div.bx-std-block-content div.bx-grid-header {
     margin-top: 0px;

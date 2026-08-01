@@ -44,6 +44,7 @@ abstract class MessageOptions
      * @param bool $sendAsMms If set to `true`, Twilio delivers the message as a single MMS message, regardless of the presence of media.
      * @param string $contentVariables For [Content Editor/API](https://www.twilio.com/docs/content) only: Key-value pairs of [Template variables](https://www.twilio.com/docs/content/using-variables-with-content-api) and their substitution values. `content_sid` parameter must also be provided. If values are not defined in the `content_variables` parameter, the [Template's default placeholder values](https://www.twilio.com/docs/content/content-api-resources#create-templates) are used.
      * @param string $riskCheck
+     * @param string $fallbackFrom A fallback SMS sender to use when the recipient cannot be reached over RCS. This parameter may only be used when also providing a [Messaging Service](https://twilio.com/docs/messaging/services) containing an RCS sender. The fallback SMS sender must be either a Twilio phone number (in [E.164](https://en.wikipedia.org/wiki/E.164) format), [alphanumeric sender ID](https://www.twilio.com/docs/sms/quickstart), or [short code](https://www.twilio.com/en-us/messaging/channels/sms/short-codes), hosted within Twilio and belong to the Account creating the Message.
      * @return CreateMessageOptions Options builder
      */
     public static function create(
@@ -67,10 +68,11 @@ abstract class MessageOptions
         string $trafficType = Values::NONE,
         bool $shortenUrls = Values::BOOL_NONE,
         string $scheduleType = Values::NONE,
-        \DateTime $sendAt = null,
+        ?\DateTime $sendAt = null,
         bool $sendAsMms = Values::BOOL_NONE,
         string $contentVariables = Values::NONE,
-        string $riskCheck = Values::NONE
+        string $riskCheck = Values::NONE,
+        string $fallbackFrom = Values::NONE
 
     ): CreateMessageOptions
     {
@@ -97,15 +99,16 @@ abstract class MessageOptions
             $sendAt,
             $sendAsMms,
             $contentVariables,
-            $riskCheck
+            $riskCheck,
+            $fallbackFrom
         );
     }
 
 
 
     /**
-     * @param string $to Filter by recipient. For example: Set this `to` parameter to `+15558881111` to retrieve a list of Message resources with `to` properties of `+15558881111`
-     * @param string $from Filter by sender. For example: Set this `from` parameter to `+15552229999` to retrieve a list of Message resources with `from` properties of `+15552229999`
+     * @param string $to Filter by recipient. For example: Set this parameter to `+15558881111` to retrieve a list of Message resources sent to `+15558881111`.
+     * @param string $from Filter by sender. For example: Set this parameter to `+15552229999` to retrieve a list of Message resources sent by `+15552229999`.
      * @param string $dateSentBefore Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).
      * @param string $dateSent Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).
      * @param string $dateSentAfter Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).
@@ -115,9 +118,9 @@ abstract class MessageOptions
         
         string $to = Values::NONE,
         string $from = Values::NONE,
-        string $dateSentBefore = null,
-        string $dateSent = null,
-        string $dateSentAfter = null
+        ?string $dateSentBefore = null,
+        ?string $dateSent = null,
+        ?string $dateSentAfter = null
 
     ): ReadMessageOptions
     {
@@ -176,6 +179,7 @@ class CreateMessageOptions extends Options
      * @param bool $sendAsMms If set to `true`, Twilio delivers the message as a single MMS message, regardless of the presence of media.
      * @param string $contentVariables For [Content Editor/API](https://www.twilio.com/docs/content) only: Key-value pairs of [Template variables](https://www.twilio.com/docs/content/using-variables-with-content-api) and their substitution values. `content_sid` parameter must also be provided. If values are not defined in the `content_variables` parameter, the [Template's default placeholder values](https://www.twilio.com/docs/content/content-api-resources#create-templates) are used.
      * @param string $riskCheck
+     * @param string $fallbackFrom A fallback SMS sender to use when the recipient cannot be reached over RCS. This parameter may only be used when also providing a [Messaging Service](https://twilio.com/docs/messaging/services) containing an RCS sender. The fallback SMS sender must be either a Twilio phone number (in [E.164](https://en.wikipedia.org/wiki/E.164) format), [alphanumeric sender ID](https://www.twilio.com/docs/sms/quickstart), or [short code](https://www.twilio.com/en-us/messaging/channels/sms/short-codes), hosted within Twilio and belong to the Account creating the Message.
      */
     public function __construct(
         
@@ -198,10 +202,11 @@ class CreateMessageOptions extends Options
         string $trafficType = Values::NONE,
         bool $shortenUrls = Values::BOOL_NONE,
         string $scheduleType = Values::NONE,
-        \DateTime $sendAt = null,
+        ?\DateTime $sendAt = null,
         bool $sendAsMms = Values::BOOL_NONE,
         string $contentVariables = Values::NONE,
-        string $riskCheck = Values::NONE
+        string $riskCheck = Values::NONE,
+        string $fallbackFrom = Values::NONE
 
     ) {
         $this->options['from'] = $from;
@@ -227,6 +232,7 @@ class CreateMessageOptions extends Options
         $this->options['sendAsMms'] = $sendAsMms;
         $this->options['contentVariables'] = $contentVariables;
         $this->options['riskCheck'] = $riskCheck;
+        $this->options['fallbackFrom'] = $fallbackFrom;
     }
 
     /**
@@ -496,6 +502,18 @@ class CreateMessageOptions extends Options
     }
 
     /**
+     * A fallback SMS sender to use when the recipient cannot be reached over RCS. This parameter may only be used when also providing a [Messaging Service](https://twilio.com/docs/messaging/services) containing an RCS sender. The fallback SMS sender must be either a Twilio phone number (in [E.164](https://en.wikipedia.org/wiki/E.164) format), [alphanumeric sender ID](https://www.twilio.com/docs/sms/quickstart), or [short code](https://www.twilio.com/en-us/messaging/channels/sms/short-codes), hosted within Twilio and belong to the Account creating the Message.
+     *
+     * @param string $fallbackFrom A fallback SMS sender to use when the recipient cannot be reached over RCS. This parameter may only be used when also providing a [Messaging Service](https://twilio.com/docs/messaging/services) containing an RCS sender. The fallback SMS sender must be either a Twilio phone number (in [E.164](https://en.wikipedia.org/wiki/E.164) format), [alphanumeric sender ID](https://www.twilio.com/docs/sms/quickstart), or [short code](https://www.twilio.com/en-us/messaging/channels/sms/short-codes), hosted within Twilio and belong to the Account creating the Message.
+     * @return $this Fluent Builder
+     */
+    public function setFallbackFrom(string $fallbackFrom): self
+    {
+        $this->options['fallbackFrom'] = $fallbackFrom;
+        return $this;
+    }
+
+    /**
      * Provide a friendly representation
      *
      * @return string Machine friendly representation
@@ -512,8 +530,8 @@ class CreateMessageOptions extends Options
 class ReadMessageOptions extends Options
     {
     /**
-     * @param string $to Filter by recipient. For example: Set this `to` parameter to `+15558881111` to retrieve a list of Message resources with `to` properties of `+15558881111`
-     * @param string $from Filter by sender. For example: Set this `from` parameter to `+15552229999` to retrieve a list of Message resources with `from` properties of `+15552229999`
+     * @param string $to Filter by recipient. For example: Set this parameter to `+15558881111` to retrieve a list of Message resources sent to `+15558881111`.
+     * @param string $from Filter by sender. For example: Set this parameter to `+15552229999` to retrieve a list of Message resources sent by `+15552229999`.
      * @param string $dateSentBefore Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).
      * @param string $dateSent Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).
      * @param string $dateSentAfter Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).
@@ -522,9 +540,9 @@ class ReadMessageOptions extends Options
         
         string $to = Values::NONE,
         string $from = Values::NONE,
-        string $dateSentBefore = null,
-        string $dateSent = null,
-        string $dateSentAfter = null
+        ?string $dateSentBefore = null,
+        ?string $dateSent = null,
+        ?string $dateSentAfter = null
 
     ) {
         $this->options['to'] = $to;
@@ -535,9 +553,9 @@ class ReadMessageOptions extends Options
     }
 
     /**
-     * Filter by recipient. For example: Set this `to` parameter to `+15558881111` to retrieve a list of Message resources with `to` properties of `+15558881111`
+     * Filter by recipient. For example: Set this parameter to `+15558881111` to retrieve a list of Message resources sent to `+15558881111`.
      *
-     * @param string $to Filter by recipient. For example: Set this `to` parameter to `+15558881111` to retrieve a list of Message resources with `to` properties of `+15558881111`
+     * @param string $to Filter by recipient. For example: Set this parameter to `+15558881111` to retrieve a list of Message resources sent to `+15558881111`.
      * @return $this Fluent Builder
      */
     public function setTo(string $to): self
@@ -547,9 +565,9 @@ class ReadMessageOptions extends Options
     }
 
     /**
-     * Filter by sender. For example: Set this `from` parameter to `+15552229999` to retrieve a list of Message resources with `from` properties of `+15552229999`
+     * Filter by sender. For example: Set this parameter to `+15552229999` to retrieve a list of Message resources sent by `+15552229999`.
      *
-     * @param string $from Filter by sender. For example: Set this `from` parameter to `+15552229999` to retrieve a list of Message resources with `from` properties of `+15552229999`
+     * @param string $from Filter by sender. For example: Set this parameter to `+15552229999` to retrieve a list of Message resources sent by `+15552229999`.
      * @return $this Fluent Builder
      */
     public function setFrom(string $from): self

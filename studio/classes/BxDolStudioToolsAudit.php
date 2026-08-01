@@ -376,6 +376,9 @@ class BxDolStudioToolsAudit extends BxDol
 
         if (!defined('BX_DOL_INSTALL'))
             $this->optimizationScript();
+
+        if (!defined('BX_DOL_INSTALL'))
+            $this->optimizationCache();
     }
 
     protected function optimizationPhp()
@@ -451,6 +454,30 @@ class BxDolStudioToolsAudit extends BxDol
         }
 
         echo $this->getSection('UNA', '', $s);
+    }
+
+    protected function optimizationCache()
+    {
+        $a = explode(',', 'File,APC,Memcache,Memcached,Redis');
+        $s = '';
+        foreach ($a as $sName) {
+
+            $sClass = 'BxDolCache' . $sName;
+            if (class_exists($sClass))
+                $o = new $sClass();
+
+            if ($o && $o->isInstalled() && $o->isAvailable()) {
+                $val = true;
+                $aMessage = array('type' => BX_DOL_AUDIT_OK);
+            } else {
+                $val = false;
+                $aMessage = array('type' => BX_DOL_AUDIT_FAIL);
+            }
+
+            $s .= $this->getBlock($sName, $this->format_output($val, ['type' => 'bool' ]), $this->getMsgHTML($sName, $aMessage));
+        }
+
+        echo $this->getSection('Cache engines', '', $s);
     }
 
     protected function manualCheck()
@@ -623,7 +650,7 @@ class BxDolStudioToolsAudit extends BxDol
     protected function setErrorReporting ()
     {
         if (version_compare(phpversion(), "5.3.0", ">=") == 1)
-            $this->iPhpErrorReporting = error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED & ~E_STRICT);
+            $this->iPhpErrorReporting = error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
         else
             $this->iPhpErrorReporting = error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
     }

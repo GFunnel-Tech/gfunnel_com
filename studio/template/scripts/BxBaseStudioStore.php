@@ -48,7 +48,7 @@ class BxBaseStudioStore extends BxDolStudioStore
             'search' => ['icon' => 'mi-str-search.svg'],
             'purchases' => ['icon' => 'mi-str-purchases.svg'], 
             'updates' => ['icon' => 'mi-str-updates.svg'], 
-            'checkout' => ['icon' => 'mi-str-checkout.svg'], 
+            'checkout' => ['icon' => 'mi-str-checkout.svg', 'title' => '_adm_lmi_ttl_checkout'], 
             'downloaded' => ['icon' => 'mi-str-downloaded.svg']
         ];
         foreach($aMenuItems as $sMenuItem => $aItem)
@@ -58,6 +58,7 @@ class BxBaseStudioStore extends BxDolStudioStore
                 'icon_bg' => true,
                 'link' => $this->getBaseUrl($sMenuItem),
                 'title' => _t('_adm_lmi_cpt_' . $sMenuItem),
+                'title_attr' => !empty($aItem['title']) ? _t($aItem['title']) : '',
                 'selected' => $sMenuItem == $this->sPage
             ];
 

@@ -103,7 +103,7 @@ class BxDolStorageS3v4alt extends BxDolStorageS3
         } catch (Exception $e) {
             @unlink($sTmpFile);
             $this->setErrorCode(BX_DOL_STORAGE_ERR_UNLINK);
-            bx_log('sys_storage_s3v4alt', $e->getMessage());
+            bx_log('sys_storage_s3v4alt', $e->getMessage(), BX_LOG_ERR);
             return false;
         }
 
@@ -171,7 +171,7 @@ class BxDolStorageS3v4alt extends BxDolStorageS3
 
         } catch (Exception $e) {
             $this->setErrorCode(BX_DOL_STORAGE_ERR_ENGINE_ADD);
-            bx_log('sys_storage_s3v4alt', $e->getMessage());
+            bx_log('sys_storage_s3v4alt', $e->getMessage(), BX_LOG_ERR);
             return false;
         }
 
@@ -186,7 +186,7 @@ class BxDolStorageS3v4alt extends BxDolStorageS3
             $this->_s3->deleteObject($this->_sBucket, $sFileLocation);
         } catch (Exception $e) {
             $this->setErrorCode(BX_DOL_STORAGE_ERR_UNLINK);
-            bx_log('sys_storage_s3v4alt', $e->getMessage());
+            bx_log('sys_storage_s3v4alt', $e->getMessage(), BX_LOG_ERR);
             return false;
         }
 

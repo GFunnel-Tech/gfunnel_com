@@ -42,7 +42,9 @@ class BxDolStudioModule extends BxTemplStudioWidget
         if(is_string($sPage) && !empty($sPage))
             $this->sPage = $sPage;
 
-        $this->sManageUrl = BX_DOL_URL_STUDIO . 'module.php?name=' . $this->aPage['name'];
+        $this->sManageUrl = '';
+        if($this->bPage)
+            $this->sManageUrl = BX_DOL_URL_STUDIO . 'module.php?name=' . $this->aPage['name'];
     }
 
     public static function getObjectInstance($mixedPageName, $sPage = "", $bInit = true)
@@ -122,7 +124,7 @@ class BxDolStudioModule extends BxTemplStudioWidget
                 if(empty($sValue))
                     break;
 
-                $iWidgetId = bx_process_input(bx_get($this->sParamPrefix . '_widget_id'), BX_DATA_INT);
+                $iWidgetId = (int)bx_get($this->sParamPrefix . '_widget_id');
 
                 $aResult = $this->activate($sValue, $iWidgetId);
                 break;
@@ -187,10 +189,12 @@ class BxDolStudioModule extends BxTemplStudioWidget
 
         $aResult = array('code' => 0, 'message' => _t('_adm_scs_operation_done'));
         if($iWidgetId == 0) {
-            $aResult['content'] = BxDolStudioTemplate::getInstance()->parseHtmlByName('page_content_2_col.html', [
-                'page_menu_code' => $this->getPageMenu(),
-                'page_main_code' => $this->getPageCode()
-            ]);
+            $aResult['content'] = '';
+            if(!$this->_bShowHeaderBreadcrumb || (int)$aModule['enabled'] == 0)
+                $aResult['content'] = BxDolStudioTemplate::getInstance()->parseHtmlByName('page_content_2_col.html', [
+                    'page_menu_code' => $this->getPageMenu(),
+                    'page_main_code' => $this->getPageCode()
+                ]);
         }
         else
             $aResult['widget'] = BxTemplStudioFunctions::getInstance()->getWidget($iWidgetId);

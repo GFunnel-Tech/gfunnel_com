@@ -51,8 +51,10 @@ class BxBaseFormLogin extends BxTemplFormView
     public function __construct($aInfo, $oTemplate)
     {
         parent::__construct($aInfo, $oTemplate);
-        $this->_aFieldsExcludeFromCheckForSpam = array("ID");
-        $aNoRelocatePages = array('forgot-password', 'login', 'create-account', 'logout');
+        
+        $this->aParams['checker_errors']['summary']['disabled'] = true;
+
+        $this->_aFieldsExcludeFromCheckForSpam = ['ID'];
 
         if (isset($this->aInputs['ID']))
             $this->aInputs['ID']['skip_domain_check'] = true;
@@ -62,7 +64,8 @@ class BxBaseFormLogin extends BxTemplFormView
             if (!$sRelocate && isset($_SERVER['HTTP_REFERER']) && 0 === mb_stripos($_SERVER['HTTP_REFERER'], BX_DOL_URL_ROOT)) {
 
                 $sRelocate = $_SERVER['HTTP_REFERER'];
-        
+                $aNoRelocatePages = ['forgot-password', 'login', 'create-account', 'logout'];
+
                 foreach ($aNoRelocatePages as $s) {
                     if (false !== mb_stripos($_SERVER['HTTP_REFERER'], $s)) {
                         $sRelocate = BX_DOL_URL_ROOT . 'member.php';

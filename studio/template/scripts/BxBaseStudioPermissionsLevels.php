@@ -37,6 +37,9 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
                 return;
             }
 
+            if(($aUnavailableTo = $oForm->getCleanValue('UnavailableTo')) && is_array($aUnavailableTo))
+            BxDolForm::setSubmittedValue('UnavailableTo', implode(',', $aUnavailableTo), $oForm->aFormAttrs['method']);
+
             $mixedIcon = '';
             if(!empty($_FILES['Icon_image']['tmp_name'])) {
                 $oStorage = BxDolStorage::getObjectInstance(BX_DOL_STORAGE_OBJ_IMAGES);
@@ -71,16 +74,16 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
 
             	$iActionsFrom = (int)$oForm->getCleanValue('Actions');
             	if($iActionsFrom > 0) {
-            		$aActions = array();
-            		$this->oDb->getActions(array('type' => 'by_level_id', 'value' => $iActionsFrom), $aActions, false);
-            		foreach($aActions as $aAction)
-            			$this->oDb->switchAction($iId, $aAction['id'], true, array(
-            				'AllowedCount' => $aAction['allowed_count'],
-            				'AllowedPeriodLen' => $aAction['allowed_period_len'],
-            				'AllowedPeriodStart' => $aAction['allowed_period_start'],
-            				'AllowedPeriodEnd' => $aAction['allowed_period_end'],
-            				'AdditionalParamValue' => $aAction['additional_param_value']
-            			));
+                    $aActions = array();
+                    $this->oDb->getActions(array('type' => 'by_level_id', 'value' => $iActionsFrom), $aActions, false);
+                    foreach($aActions as $aAction)
+                        $this->oDb->switchAction($iId, $aAction['id'], true, array(
+                            'AllowedCount' => $aAction['allowed_count'],
+                            'AllowedPeriodLen' => $aAction['allowed_period_len'],
+                            'AllowedPeriodStart' => $aAction['allowed_period_start'],
+                            'AllowedPeriodEnd' => $aAction['allowed_period_end'],
+                            'AdditionalParamValue' => $aAction['additional_param_value']
+                        ));
             	}
 
                 // create system event
@@ -133,6 +136,9 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
         $oForm->initChecker();
 
         if($oForm->isSubmittedAndValid()) {
+            if(($aUnavailableTo = $oForm->getCleanValue('UnavailableTo')) && is_array($aUnavailableTo))
+                BxDolForm::setSubmittedValue('UnavailableTo', implode(',', $aUnavailableTo), $oForm->aFormAttrs['method']);
+
             $bIconImageCur = is_numeric($aLevel['icon']) && (int)$aLevel['icon'] != 0;
             $bIconImageNew = !empty($_FILES['Icon_image']['tmp_name']);
 
@@ -319,40 +325,9 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
         return  parent::_getActionDefault($sType, $sKey, $a, false, $isDisabled, $aRow);
     }
 
-    protected function _getIconPreview($iId, $sIconImage = '', $sIcon = '')
-    {
-        $bIconImage = !empty($sIconImage);
-		
-        $aIcons = BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon($sIcon);
-        $sIconHtml = $aIcons[2] . $aIcons[3] . $aIcons[4];
-		$bIconHtml = !empty($sIconHtml) && !$bIconImage;
-            
-        return $this->_oTemplate->parseHtmlByName('item_icon_preview.html', array(
-            'id' => $iId,
-            'bx_if:show_icon_empty' => array(
-                'condition' => !$bIconImage && !$bIconHtml,
-                'content' => array()
-            ),
-            'bx_if:show_icon_image' => array(
-                'condition' => $bIconImage,
-                'content' => array(
-                    'js_object' => $this->getJsObject(),
-                    'url' => $sIconImage,
-                    'id' => $iId
-                )
-            ),
-            'bx_if:show_icon_html' => array(
-                'condition' => $bIconHtml,
-                'content' => array(
-                    'icon' => $sIconHtml
-                )
-            )
-        ));
-    }
-
     protected function _getFormObject($sAction, $aLevel = array())
     {
-    	bx_import('BxTemplStudioFormView');
+        bx_import('BxTemplStudioFormView');
 
         $aForm = array(
             'form_attrs' => array(
@@ -425,9 +400,19 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
                     'caption' => _t('_adm_prm_txt_level_description'),
                     'info' => _t('_adm_prm_dsc_level_description'),
                     'value' => isset($aLevel['description']) ? $aLevel['description'] : '_adm_prm_txt_level',
-                	'code' => 1,
+                    'code' => 1,
                     'db' => array (
                         'pass' => 'XssHtml',
+                    )
+                ),
+                'UnavailableTo' => array(
+                    'type' => 'checkbox_set',
+                    'name' => 'UnavailableTo',
+                    'caption' => _t('_adm_prm_txt_level_unavailable_to'),
+                    'info' => _t('_adm_prm_dsc_level_unavailable_to'),
+                    'value' => isset($aLevel['unavailable_to']) ? explode(',', $aLevel['unavailable_to']) : [],
+                    'db' => array (
+                        'pass' => 'Xss',
                     )
                 ),
                 'QuotaSize' => array(
@@ -517,7 +502,7 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
                     'info' => _t('_adm_prm_dsc_level_icon'),
                     'value' => '',
                     'required' => '0',
-					'code' => 1,
+                    'code' => 1,
                     'db' => array (
                         'pass' => 'Xss',
                     ),
@@ -526,7 +511,7 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
                         'params' => array(),
                         'error' => _t('_adm_prm_err_level_icon'),
                     ),
-					'attrs' => array('class' => 'bx-form-input-textarea-small'),
+                    'attrs' => array('class' => 'bx-form-input-textarea-small'),
                 ),
                 'Icon_image' => array(
                     'type' => 'file',
@@ -551,8 +536,8 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
                     'name' => 'Actions',
                     'caption' => _t('_adm_prm_txt_level_actions_copy'),
                     'values' => array(
-                		array('key' => 0, 'value' => _t('_sys_txt_empty'))
-                	),
+                        array('key' => 0, 'value' => _t('_sys_txt_empty'))
+                    ),
                 ),
                 'controls' => array(
                     'name' => 'controls',
@@ -578,7 +563,12 @@ class BxBaseStudioPermissionsLevels extends BxDolStudioPermissionsLevels
         $aLevels = array(); 
         $this->oDb->getLevels(array('type' => 'all_pair'), $aLevels, false);
         foreach($aLevels as $iId => $sName)
-        	$aForm['inputs']['Actions']['values'][] = array('key' => $iId, 'value' => _t($sName));
+            $aForm['inputs']['Actions']['values'][] = array('key' => $iId, 'value' => _t($sName));
+        
+        $aModules = bx_srv('system', 'GetModulesByType', ['profile']);
+        foreach($aModules as $aModule)
+            $aForm['inputs']['UnavailableTo']['values'][] = array('key' => '|' . $aModule['name'] . '|', 'value' => BxDolStudioUtils::getModuleTitle($aModule['name']));
+        
 
         switch($sAction) {
             case 'add':

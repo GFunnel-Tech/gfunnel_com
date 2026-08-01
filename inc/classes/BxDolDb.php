@@ -20,6 +20,7 @@ define('BX_PDO_STATE_SUCCESS', '00000');
 class BxDolDb extends BxDolFactory implements iBxDolSingleton
 {	
     protected static $_rLink;
+    protected static $_iQueriesCounter = 0;
     protected static $_aDbCacheData = [];
 
     protected static $_aParams;
@@ -142,6 +143,11 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
     public static function getLink()
     {
     	return self::$_rLink;
+    }
+
+    public static function getQueriesCounter()
+    {
+    	return self::$_iQueriesCounter;
     }
 
     public function setReadOnlyMode($b)
@@ -458,19 +464,19 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
     /**
      * execute sql query and return table of records as result
      */
-    public function getPairs($oStatement, $sFieldKey, $sFieldValue, $aBindings = array(), $iFetchType = PDO::FETCH_ASSOC)
+    public function getPairs($oStatement, $sFieldKey, $sFieldValue, $aBindings = [], $iFetchType = PDO::FETCH_ASSOC)
     {
-    	$aResult = array();
+    	$aResult = [];
         if(!$oStatement)
             return $aResult;
-		else if(!($oStatement instanceof PDOStatement) && is_string($oStatement))
-			$oStatement = $this->prepare($oStatement);
+        else if(!($oStatement instanceof PDOStatement) && is_string($oStatement))
+            $oStatement = $this->prepare($oStatement);
 
         $aRow = $this->getFirstRow($oStatement, $aBindings, $iFetchType);
         while(!empty($aRow)) {
-        	$aResult[$aRow[$sFieldKey]] = $aRow[$sFieldValue];
+            $aResult[$aRow[$sFieldKey] ?? ''] = $aRow[$sFieldValue];
 
-        	$aRow = $this->getNextRow($iFetchType);
+            $aRow = $this->getNextRow($iFetchType);
         }
 
         return $aResult;
@@ -568,6 +574,8 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         if(isset($GLOBALS['bx_profiler']))
         	$GLOBALS['bx_profiler']->endQuery($oStatement);
 
+        ++self::$_iQueriesCounter;
+
 		//is needed for SILENT mode
 		if(!$bResult && !empty($this->_aError))
 			$this->error($this->_aError);
@@ -661,52 +669,51 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
 		return $bIndex;
 	}
 
-   public function error($aError)
-{
-    $sErrorType = self::$_aErrors[$aError['code']];
-    $bVerbose = isset($aError['verbose']) ? (bool)$aError['verbose'] : $this->_bErrorChecking;
-    if(!$bVerbose) {
-        $this->log($sErrorType . ': ' . $aError['message']);
-        if (!defined('BX_DOL_INSTALL')) // this is needed to display error during installation
-            return;
-    }
-    
-    // Initialize $sOutput unconditionally to prevent undefined variable notice
-    $sOutput = '';
-    
-    // NEW: Flag to determine if visual error display is appropriate
-    $bVisual = (defined('BX_DB_FULL_VISUAL_PROCESSING') && BX_DB_FULL_VISUAL_PROCESSING) || defined('BX_DOL_INSTALL');
-    
-    if($bVisual) {
-        $sOutput = '<div style="border:2px solid red;padding:4px;width:600px;margin:0px auto;">';
-        $sOutput .= '<div style="text-align:center;background-color:red;color:white;font-weight:bold;">Error</div>';
-        $sOutput .= '<div style="text-align:center;">' . $sErrorType . '</div>';
-        if((defined('BX_DB_FULL_DEBUG_MODE') && BX_DB_FULL_DEBUG_MODE) || defined('BX_DOL_INSTALL'))
-            $sOutput .= $this->errorOutput($aError);
-        $sOutput .= '</div>';
-    }
-    
-    if (self::$_rLink) { // connection errors aren't logged since bx_log required DB connection
-        bx_log('sys_db', "$sErrorType\n" .
-            (empty($aError['message']) ? '' : " Error: {$aError['message']}\n") .
-            (empty($aError['query']) ? '' : " Query: {$aError['query']}\n") .
-            (!function_exists('getLoggedId') || !getLoggedId() ? '' : " Account ID: " . getLoggedId() . "\n")
-        );
-    }
-    if(defined('BX_DB_DO_EMAIL_ERROR_REPORT') && BX_DB_DO_EMAIL_ERROR_REPORT) {
-        $sSiteTitle = $this->getParam('site_title');
-        $sMailBody = "Database error in " . $sSiteTitle . "<br /><br /> \n";
-        $sMailBody .= $this->errorOutput($aError);
-        $sMailBody .= "<hr />Auto-report system";
-        sendMail($this->getParam('site_email'), "Database error in " . $sSiteTitle, $sMailBody, 0, array(), BX_EMAIL_SYSTEM, 'html', true);
-    }
-    
-    // NEW: Conditionally exit only in visual/install modes to avoid generic unavailable in CLI/non-visual
-    if($bVisual) {
+    public function error($aError)
+    {
+    	$sErrorType = self::$_aErrors[$aError['code']];
+
+    	$bVerbose = isset($aError['verbose']) ? (bool)$aError['verbose'] : $this->_bErrorChecking;
+        if(!$bVerbose) {
+            $this->log($sErrorType . ': ' . $aError['message']);
+            if (!defined('BX_DOL_INSTALL')) // this is needed to display error during installation
+    			return;
+        }
+
+        $sOutput = ''; // GFunnel: init unconditionally so it is defined when visual processing is off
+
+        if((defined('BX_DB_FULL_VISUAL_PROCESSING') && BX_DB_FULL_VISUAL_PROCESSING) || defined('BX_DOL_INSTALL')) {
+            $sOutput = '<div style="border:2px solid red;padding:4px;width:600px;margin:0px auto;">'."\n";
+            $sOutput .= '<div style="text-align:center;background-color:red;color:white;font-weight:bold;">Error</div>'."\n";
+            $sOutput .= '<div style="text-align:center;">' . $sErrorType . '</div>'."\n";
+            if((defined('BX_DB_FULL_DEBUG_MODE') && BX_DB_FULL_DEBUG_MODE) || defined('BX_DOL_INSTALL'))
+				$sOutput .= $this->errorOutput($aError);
+            $sOutput .= '</div>';
+        } 
+
+        if (self::$_rLink) { // connection errors aren't logged since bx_log required DB connection
+            bx_log('sys_db', "$sErrorType\n" . 
+                (empty($aError['message']) ? '' : "  Error: {$aError['message']}\n") . 
+                (empty($aError['query']) ? '' : "  Query: {$aError['query']}\n") . 
+                (!function_exists('getLoggedId') || !getLoggedId() ? '' : "  Account ID: " . getLoggedId() . "\n"),
+                BX_LOG_ERR
+            );
+        }
+
+        if(defined('BX_DB_DO_EMAIL_ERROR_REPORT') && BX_DB_DO_EMAIL_ERROR_REPORT) {
+            $sSiteTitle = $this->getParam('site_title');
+
+            $sMailBody = "Database error in " . $sSiteTitle . "<br /><br /> \n";
+            $sMailBody .= $this->errorOutput($aError);
+            $sMailBody .= "<hr />Auto-report system";
+
+            sendMail($this->getParam('site_email'), "Database error in " . $sSiteTitle, $sMailBody, 0, array(), BX_EMAIL_SYSTEM, 'html', true);
+        }
+
         bx_show_service_unavailable_error_and_exit($sOutput);
     }
-}
-    protected function isParamInCache($sKey)
+
+    public function isParamInCache($sKey)
     {
         return is_array(self::$_aParams) && isset(self::$_aParams[$sKey]);
     }
@@ -716,7 +723,7 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         if ($bForceCacheInvalidate)
             $this->cacheParamsClear();
 
-        self::$_aParams = $this->fromCache(self::$_sParamsCacheName, 'getPairs', "SELECT `name`, `value` FROM `sys_options`", "name", "value");
+        self::$_aParams = $this->getPairs("SELECT `name`, `value` FROM `sys_options`", "name", "value");
 
         list($sTmplCode, $sTmplName) = BxDolTemplate::retrieveCode();
         if(!empty($sTmplCode) && !empty($sTmplName)) {
@@ -724,10 +731,11 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
             if(is_array($sTmplCode))
                 list($sTmplCode, $iTmplMix) = $sTmplCode;
 
-            if(empty($iTmplMix))
+            $bMixesDiabled = ($GLOBALS['glMixesDisabled'] ?? false);
+            if(empty($iTmplMix) && !$bMixesDiabled)
                 $iTmplMix = (int)$this->getParam($sTmplName . '_default_mix');
 
-            if(!empty($iTmplMix)) {
+            if(!empty($iTmplMix) && !$bMixesDiabled) {
                 $sCacheNameMixed = self::$_sParamsCacheNameMixed . $sTmplCode .  '_' . $iTmplMix;
                 if($bForceCacheInvalidateMixed)
                     $this->cacheParamsClear($sCacheNameMixed);
@@ -752,8 +760,10 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
 
     public function cacheParamsClear($sCacheName = '')
     {
-        if(empty($sCacheName))
+        if(empty($sCacheName)) {
+            self::$_aParams = [];
             $sCacheName = self::$_sParamsCacheName;
+        }
 
         return $this->cleanCache($sCacheName);
     }
@@ -781,16 +791,17 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         if (!$sKey)
             return false;
 
-        if ($bFromCache && $this->isParamInCache($sKey)) {
-            return self::$_aParams[$sKey];
+        if ($bFromCache) {
+            return $this->isParamInCache($sKey) ? self::$_aParams[$sKey] : false;
         } else {
             $sQuery = $this->prepare("SELECT `tmo`.`value` AS `value` FROM `sys_options_mixes2options` AS `tmo` INNER JOIN `sys_options_mixes` AS `tm` ON `tmo`.`mix_id`=`tm`.`id` AND `tm`.`active`='1' WHERE `tmo`.`option`=? LIMIT 1", $sKey);
-            $mixedValue = $this->getOne($sQuery);
-            if($mixedValue !== false)
-                return $mixedValue;
-
-            $sQuery = $this->prepare("SELECT `value` FROM `sys_options` WHERE `name` = ? LIMIT 1", $sKey);
-            return $this->getOne($sQuery);
+            $s = $this->getOne($sQuery);
+            if($s === false) {
+                $sQuery = $this->prepare("SELECT `value` FROM `sys_options` WHERE `name` = ? LIMIT 1", $sKey);            
+                $s = $this->getOne($sQuery);
+            }
+            self::$_aParams[$sKey] = $s; // cache it
+            return $s;
         }
     }
 
@@ -804,7 +815,7 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         $bResult = (int)$this->query($sQuery) > 0;
 
         // renew params cache
-        $bResult &= $this->cacheParams(true, !empty($iMixId));
+        self::$_aParams[$sKey] = $mixedValue;
 
         return $bResult;
     }
@@ -990,6 +1001,72 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         return $s;
     }
 
+    public function isValidFieldName($s)
+    {
+        if (false !== strpos($s, '`.`')) {
+            $a = explode('`.`', $s, 2);
+            foreach ($a as $sField) {
+                if (false === $this->isValidFieldName($sField))
+                    return false;
+            }
+            return true;
+        }
+
+        $inner = $s;
+
+        // Disallow trailing space
+        if ($inner === '' || preg_match('/\s$/u', $inner)) {
+            return false;
+        }
+
+        // Disallow all-numeric content (even if quoted)
+        if (preg_match('/^\d+$/u', $inner)) {
+            return false;
+        }
+
+        $i = 0;
+        $len = mb_strlen($inner, 'UTF-8');
+
+        while ($i < $len) {
+            $char = mb_substr($inner, $i, 1, 'UTF-8');
+
+            // Allow escaped backtick (``)
+            if ($char === '`') {
+                if ($i + 1 >= $len || mb_substr($inner, $i + 1, 1, 'UTF-8') !== '`') {
+                    return false; // Single backtick is invalid
+                }
+                $i += 2;
+                continue;
+            }
+
+            // Convert to UTF-8 bytes to check for supplementary chars
+            $utf8 = mb_convert_encoding($char, 'UTF-8');
+            $byteLen = strlen($utf8);
+
+            // 1-byte to 3-byte UTF-8 sequences = BMP (valid)
+            // 4-byte UTF-8 sequences = Supplementary chars (invalid)
+            if ($byteLen === 4) {
+                return false;
+            }
+
+            // Disallow ASCII NUL (0x00)
+            if ($utf8 === "\x00") {
+                return false;
+            }
+
+            $i++;
+        }
+
+        return true;
+/*
+        // alternative quick checking without checking BMP range
+        if (preg_match('/^[0-9]+$/', $s))
+            return false;
+
+        return preg_match('/^(?:(?!`)[\x01-\x7F\x{0080}-\x{FFFF}]|``)*[^[:space:]]$/u', $s);
+*/
+    }
+
     /**
      * This function is usefull when you need to form array of parameters to pass to IN(...) SQL construction.
      * Example:
@@ -1127,9 +1204,11 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         $sOperator = in_array($sOperator, $aOperators) ? $sOperator : '=';
         $s = '';
         foreach($a as $k => $v) {
+            if (!$this->isValidFieldName($k))
+                throw new Exception('Invalid field name in arrayToSQL method');
             if ($bWildcardSpaceChars)
                 $v = preg_replace('/[\p{Zs}\p{Cc}\p{Pd}]/', '_', $v);
-            $s .= "`{$k}` {$sOperator} " . $this->escape($v) . $sDiv;
+            $s .= "`{$k}` {$sOperator} " . (is_null($v) ? 'NULL' : $this->escape($v)) . $sDiv;
         }
         return trim($s, $sDiv);
     }
@@ -1293,15 +1372,15 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
         $sOutput = '';
         
         if(!empty($aError['query']))
-            $sOutput .= '<p><b>Query:</b><br />' . bx_process_output($aError['query']) . '</p>';
+            $sOutput .= '<p><b>Query:</b><br />' . bx_process_output($aError['query']) . '</p>'."\n";
 
         if(!empty($aError['message']))
-            $sOutput .= '<p><b>Mysql error:</b><br />' . $aError['message'] . '</p>';
+            $sOutput .= '<p><b>Mysql error:</b><br />' . $aError['message'] . '</p>'."\n";
 
 		if(!empty($aErrorLocation))
-			$sOutput .= '<p><b>Location:</b><br />The error was found in <b>' . $aErrorLocation['function'] . '</b> function in the file <b>' . $aErrorLocation['file'] . '</b> at line <b>' . $aErrorLocation['line'] . '</b>.</p>';
+			$sOutput .= '<p><b>Location:</b><br />The error was found in <b>' . $aErrorLocation['function'] . '</b> function in the file <b>' . $aErrorLocation['file'] . '</b> at line <b>' . $aErrorLocation['line'] . '</b>.</p>'."\n";
 
-        $sOutput .= '<p><b>collation_connection:</b><br />' . $this->getOne("SELECT @@collation_connection") . '</p>';
+        $sOutput .= '<p><b>collation_connection:</b><br />' . $this->getOne("SELECT @@collation_connection") . '</p>'."\n";
         
 		if(!empty($aError['trace'])) {
             $sBackTrace = print_r($aError['trace'], true);
@@ -1319,7 +1398,7 @@ class BxDolDb extends BxDolFactory implements iBxDolSingleton
 			$sOutput .= '<div><b>Settings:</b></div><div style="overflow:scroll;height:300px;border:1px solid gray;"><pre>' . htmlspecialchars_adv($sSettings) . '</pre></div>';
 		}
 
-		$sOutput .= '<p><b>Called script:</b><br />' . $_SERVER['PHP_SELF'] . '</p>';
+        $sOutput .= '<p><b>Called script:</b><br />' . htmlspecialchars_adv($_SERVER['PHP_SELF']) . '</p>';
 
 		if(!empty($_REQUEST)) {
 			$sRequest = var_export($_REQUEST, true);

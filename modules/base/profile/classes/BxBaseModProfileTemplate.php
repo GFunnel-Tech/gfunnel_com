@@ -56,13 +56,20 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
      */
     function unit ($aData, $isCheckPrivateContent = true, $mixedTemplate = false, $aParams = [])
     {
-        list($sTemplate) = is_array($mixedTemplate) ? $mixedTemplate : array($mixedTemplate);
+        $CNF = &$this->_oConfig->CNF;
+
+        list($sTemplate, $sTemplateSize) = is_array($mixedTemplate) ? $mixedTemplate : array($mixedTemplate, false);
 
         if(!empty($aParams['template_name']))
             $sTemplate = $aParams['template_name'];
         if(empty($sTemplate))
             $sTemplate = $this->_sUnitDefault;
-        
+
+        if(!empty($aParams['template_size']))
+            $sTemplateSize = $aParams['template_size'];
+        if(empty($sTemplateSize))
+            $sTemplateSize = $this->_getUnitSize($aData, $sTemplate);
+
         /**
          * Allow use separate template for private profiles. 
          * These templates will be used if privacy field "Visible to" don't allow to view content.
@@ -77,16 +84,62 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
             }
         }
 
-        $aVars = $this->unitVars($aData, $isCheckPrivateContent, $mixedTemplate, $aParams);
+        // check visibility
+        $isAllowedViewCoverImage = ($oModule->checkAllowedViewCoverImage($aData) === CHECK_ACTION_RESULT_ALLOWED);
+        $isAllowedViewProfileImage = ($oModule->checkAllowedViewProfileImage($aData) === CHECK_ACTION_RESULT_ALLOWED);
+        $isProfilePublic = $this->isProfilePublic($aData);
+        $bPublic = $isCheckPrivateContent && !empty($CNF['OBJECT_PRIVACY_VIEW']) ? $isProfilePublic : true;
+
+        // prepare params
+        $aParams = array_merge($aParams, [
+            'is_allowed_view_cover_img' => $isAllowedViewCoverImage, 
+            'is_allowed_view_profile_img' => $isAllowedViewProfileImage, 
+            'is_profile_public' => $isProfilePublic,
+        ]);
+
+        // profile
+        if (isset($aData['profile_id']))
+            $oProfile = BxDolProfile::getInstance($aData['profile_id']);
+        else
+            $oProfile = BxDolProfile::getInstanceByContentAndType((int)$aData[$CNF['FIELD_ID']], $this->MODULE);
         
+        $iProfile = $oProfile->id();
+
+        // try to get template variables from cache
+        $sCacheKey = 'sprofile_unit_vars:' . $iProfile . ':' . $sTemplateSize . ':onl' . ($oProfile->isOnline() ? 1 : 0) . ':' . $sTemplate . ':avci' . ($isAllowedViewCoverImage ? '1' : '0') . ':avpi' . ($isAllowedViewProfileImage ? '1' : '0') . ':pp' . ($isProfilePublic ? '1' : '0');
+        $aVars = bx_content_cache_get($sCacheKey);
+        if (null === $aVars) {
+            // get template variables if not found in cache
+            $aVars = $this->unitVars($aData, $isCheckPrivateContent, $mixedTemplate, $aParams);
+            bx_content_cache_set($sCacheKey, $aVars);
+        }
+
+        // get snippet menu
+        $aTmplVarsMeta = array();
+        if($this->_isTemplateWithMeta($sTemplate)) {
+            $aTmplVarsMeta = $this->getSnippetMenuVars ($iProfile, $bPublic, $aParams);
+        }
+
+        // snippet meta menu is never cached
+        $aVars['bx_if:meta']['condition'] = !empty($aTmplVarsMeta);
+        $aVars['bx_if:meta']['content'] = $aTmplVarsMeta;
+
         $aExtras = [
             'module' => $oModule->getName(),
             'data' => $aData,
             'check_private_content' => $isCheckPrivateContent,
             'template' => $mixedTemplate,
             'params' => $aParams,
+
             'tmpl_name' => &$sTemplate,
-            'tmpl_vars' => &$aVars
+            'tmpl_vars' => &$aVars,
+            'tmpl_name_ref' => &$sTemplate,
+            'tmpl_vars_ref' => &$aVars,
+
+            'tmpl_name_ref' => &$sTemplate,
+            'tmpl_vars_ref' => &$aVars,
+            'tmpl_name_ref' => &$sTemplate,
+            'tmpl_vars_ref' => &$aVars
         ];
         
         /**
@@ -124,6 +177,50 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
         return $this->getModule()->getDataAPI($aData, $aParams);
     }
 
+    public function getBadgeImage($aData, $bSubstituteNoImage = false)
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        return $this->_image($CNF['FIELD_BADGE'], $CNF['OBJECT_IMAGES_TRANSCODER_BADGE'], 'no-picture-thumb.png', $aData, $bSubstituteNoImage);
+    }
+    
+    public function getBadgeLink($aData)
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        $sLink = $aData[$CNF['FIELD_BADGE_LINK']];
+        if(!$sLink && ($oProfile = BxDolProfile::getInstanceByContentAndType($aData[$CNF['FIELD_ID']], $this->_oConfig->getName())) !== false) 
+            $sLink = $oProfile->getUrl();
+
+        return $sLink;
+    }
+
+    public function getBadge($mixedData, $sSize = 'icon')
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        if(!is_array($mixedData))
+            $mixedData = $this->_oDb->getContentInfoById((int)$mixedData);
+
+        $oModule = $this->getModule();
+        if(!$mixedData || !$oModule->isBadge($mixedData) || $oModule->checkAllowedViewBadgeImage($mixedData) !== CHECK_ACTION_RESULT_ALLOWED)
+            return $this->_bIsApi ? [] : '';
+
+        $sBadgeUrl = $this->getBadgeImage($mixedData);
+        if(empty($sBadgeUrl))
+            return $this->_bIsApi ? [] : '';
+        
+        $aBadge = [
+            'badge_url' => $sBadgeUrl,
+            'badge_link' => $this->getBadgeLink($mixedData),
+            'title_attr' => bx_html_attribute($mixedData[$CNF['FIELD_TITLE']])
+        ];
+
+        return $this->_bIsApi ? $aBadge : $this->parseHtmlByName('badge.html', array_merge([
+            'size' => $sSize
+        ], $aBadge));
+    }
+
     function unitVars ($aData, $isCheckPrivateContent = true, $mixedTemplate = false, $aParams = [])
     {
         $CNF = &$this->_oConfig->CNF;
@@ -148,16 +245,8 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
         $oModule = $this->getModule();
         $iContentId = (int)$aData[$CNF['FIELD_ID']];
 
-        $bPublic = $isCheckPrivateContent && !empty($CNF['OBJECT_PRIVACY_VIEW']) ? $this->isProfilePublic($aData) : true;
-
-        $bPublicThumb = true;
-        if($isCheckPrivateContent && $oModule->checkAllowedViewProfileImage($aData) !== CHECK_ACTION_RESULT_ALLOWED)
-            $bPublicThumb = false;
-
-        $bPublicCover = true;
-        if($isCheckPrivateContent && $oModule->checkAllowedViewCoverImage($aData) !== CHECK_ACTION_RESULT_ALLOWED)
-            $bPublicCover = false;
-
+        $bPublic = $isCheckPrivateContent && !empty($CNF['OBJECT_PRIVACY_VIEW']) ? ($aParams['is_profile_public'] ?? false) : true;
+        
         $oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->MODULE);
         $iProfile = $oProfile->id();
 
@@ -166,22 +255,27 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
 
         // get profile's title
         $sTitle = $oModule->serviceProfileName($iContentId);
+        $sTitleAttr = bx_html_attribute($sTitle);
 
         $sText = $sSummary = '';
         if(!empty($CNF['FIELD_TEXT']) && !empty($aData[$CNF['FIELD_TEXT']])) {
             $sText = $this->getText($aData);
             $sSummary = $this->getSummary($aData, $sTitle, $sText, $sUrl);
         }
-        
-        $sCoverUrl = $bPublicCover ? $this->urlCoverUnit($aData, false) : '';
+
+        $sCoverUrl = '';
+        if(!$isCheckPrivateContent || ($aParams['is_allowed_view_cover_img'] ?? false))
+            $sCoverUrl = $this->urlCoverUnit($aData, false);
         $bCoverUrl = !empty($sCoverUrl);
 
         if(empty($sCoverUrl) && ($iCoverId = (int)getParam('sys_unit_cover_profile')) != 0)
             $sCoverUrl = BxDolTranscoder::getObjectInstance(BX_DOL_TRANSCODER_OBJ_COVER_UNIT_PROFILE)->getFileUrlById($iCoverId);
         if(empty($sCoverUrl))
             $sCoverUrl = $this->getImageUrl('cover.svg');
-        
-        $sThumbUrl = $this->_isUnitThumb($aData, $sTemplate) && $bPublicThumb ? $this->_getUnitThumbUrl($sTemplateSize, $aData, false) : '';
+
+        $sThumbUrl = '';
+        if($this->_isUnitThumb($aData, $sTemplate) && (!$isCheckPrivateContent || ($aParams['is_allowed_view_profile_img'] ?? false)))
+            $sThumbUrl = $this->_getUnitThumbUrl($sTemplateSize, $aData, false);
         $bThumbUrl = !empty($sThumbUrl);
 
         $aTmplVarsThumbnail = array(
@@ -212,11 +306,8 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
             'thumb_url' => $bThumbUrl ? $sThumbUrl : $this->getImageUrl('no-picture-thumb.png'),
         );
 
-        $aTmplVarsMeta = array();
-        if(substr($sTemplate, 0, 8) != 'unit_wo_')
-            $aTmplVarsMeta = $this->getSnippetMenuVars ($iProfile, $bPublic, $aParams);
-        
-        $sCoverData = isset($aData['cover_data']) ? $aData['cover_data'] : '';
+        $sCoverData = $aData['cover_data'] ?? '';
+        $sCoverSettings = $this->_getImageSettings($CNF['FIELD_COVER'], $sCoverData, 'unit_cover');
 
         return array_merge(array (
             'class' => $this->_getUnitClass($aData, $sTemplate) . (!$bCoverUrl ? ' bx-cover-empty' : ''),
@@ -227,25 +318,26 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
                 'content' => $aTmplVarsThumbnail
             ),
             'cover_url' => $sCoverUrl,
-            'cover_settings' => $this->_getImageSettings($sCoverData),
+            'cover_settings' => $sCoverSettings,
             'bx_if:show_cover' => array(
                 'condition' => $bCoverUrl,
                 'content' => array(
                     'cover_url' => $sCoverUrl,
-                    'cover_settins' => $this->_getImageSettings($sCoverData),
+                    'cover_settins' => $sCoverSettings,
                     'title' => $sTitle,
                 )
             ),
             'content_url' => $bPublic ? $sUrl : 'javascript:void(0);',
             'content_click' => !$bPublic ? 'javascript:bx_alert(' . bx_js_string('"' . _t('_sys_access_denied_to_private_content') . '"') . ');' : '',
+            'content_target' => !empty($aParams['link_target']) ? $aParams['link_target'] : '_self',
             'title' => $sTitle,
-            'title_attr' => bx_html_attribute($sTitle),
+            'title_attr' => $sTitleAttr,
             'addon' => !empty($aData['addon']) ? $aData['addon'] : '',
             'module_name' => _t($CNF['T']['txt_sample_single']),
             'ts' => $aData[$CNF['FIELD_ADDED']],
             'bx_if:meta' => array(
-                'condition' => !empty($aTmplVarsMeta),
-                'content' => $aTmplVarsMeta
+                'condition' => !empty($aParams['snippet_menu_vars']),
+                'content' => $aParams['snippet_menu_vars'] ?? [],
             ),
             'text' => $sText,
             'summary' => $sSummary,
@@ -314,6 +406,7 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
         $sShowData = isset($aParams['show_data']) ? $aParams['show_data'] : '';
         $bShowCover = !isset($aParams['show_cover']) || $aParams['show_cover'] === true;
         $bShowAvatar = !isset($aParams['show_avatar']) || $aParams['show_avatar'] === true;
+        $bShowBadge = $oModule->isBadge($aData) && (!isset($aParams['show_badge']) || $aParams['show_badge'] === true);
         $sAddCode = "";
         
 
@@ -398,14 +491,18 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
                    'content_id' => $aData[$CNF['FIELD_ID']],
                    'is_allow_edit' => $bIsAllowEditCover,
                    'image_type' => 'cover',
-                   'image_url' => $aData[$CNF['FIELD_COVER']] ? $sUrlCover : '',
+                   'image_url' => $CNF['FIELD_COVER'] && $aData[$CNF['FIELD_COVER']] ? $sUrlCover : '',
                    'uploader' => $CNF['OBJECT_UPLOADERS_COVER'][0],
                    'storage' => $CNF['OBJECT_STORAGE_COVER'],
                    'transcoder' => $CNF['OBJECT_IMAGES_TRANSCODER_COVER'],
                    'field' => $CNF['FIELD_COVER'],
                    'is_background' => true,
+
                    'add_class' => &$sAddClassCover,
-                   'add_code' => &$sAddCode
+                   'add_code' => &$sAddCode,
+
+                   'add_class_ref' => &$sAddClassCover,
+                   'add_code_ref' => &$sAddCode
                 ]);
             }
             
@@ -419,7 +516,7 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
                 'cover_popup_id' => $sCoverPopupId,
                 'cover_url' => $sUrlCover,
                 'unique_id' => $sUniqIdCover,
-                'cover_settins' => isset($CNF['FIELD_COVER_POSITION']) ? $this->_getImageSettings($aData[$CNF['FIELD_COVER_POSITION']]) : '',
+                'cover_settins' => isset($CNF['FIELD_COVER_POSITION']) ? $this->_getImageSettings($CNF['FIELD_COVER'], $aData[$CNF['FIELD_COVER_POSITION']], 'page_cover') : '',
                 'add_class' => $sAddClassCover,
                 'img_class' => $sAddClassCover != '' ? 'bx-media-editable-src' : '',
             ];
@@ -471,14 +568,18 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
                    'content_id' => $aData[$CNF['FIELD_ID']],
                    'is_allow_edit' => $bIsAllowEditPicture,
                    'image_type' => 'avatar',
-                   'image_url' =>  $aData[$CNF['FIELD_PICTURE']] ? $sUrlPicture : '',
+                   'image_url' => $CNF['FIELD_PICTURE'] && $aData[$CNF['FIELD_PICTURE']] ? $sUrlPicture : '',
                    'uploader' => $CNF['OBJECT_UPLOADERS_PICTURE'][0],
                    'storage' => $CNF['OBJECT_STORAGE'],
                    'transcoder' => $CNF['OBJECT_IMAGES_TRANSCODER_AVATAR_BIG'],
                    'field' => $CNF['FIELD_PICTURE'],
                    'is_background' => false,
+
                    'add_class' => &$sAddClassPicture,
-                   'add_code' => &$sAddCode
+                   'add_code' => &$sAddCode,
+
+                   'add_class_ref' => &$sAddClassPicture,
+                   'add_code_ref' => &$sAddCode,
                 ]); 
             }
             
@@ -517,15 +618,31 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
                 'picture_avatar_url' => $bUrlAvatar ? $sUrlAvatar : $this->getImageUrl('no-picture-preview.png'),
                 'unique_id' => $sUniqIdPicture,
                 'picture_tweak' => $sPictureTweak, 
-                'cover_settins' => isset($CNF['FIELD_PICTURE_POSITION']) ? $this->_getImageSettings($aData[$CNF['FIELD_PICTURE_POSITION']]) : '',
-                'picture_href' => !$aData[$CNF['FIELD_PICTURE']] && CHECK_ACTION_RESULT_ALLOWED === $oModule->checkAllowedEdit($aData) ? $sUrlPictureChange : 'javascript:void(0);',
+                'cover_settins' => isset($CNF['FIELD_PICTURE_POSITION']) ? $this->_getImageSettings($CNF['FIELD_PICTURE'], $aData[$CNF['FIELD_PICTURE_POSITION']], 'page_cover') : '',
+                'picture_href' => (!$CNF['FIELD_PICTURE'] || !$aData[$CNF['FIELD_PICTURE']]) && CHECK_ACTION_RESULT_ALLOWED === $oModule->checkAllowedEdit($aData) ? $sUrlPictureChange : 'javascript:void(0);',
             );
 
-            if($bProfileViewAllowed && $aData[$CNF['FIELD_PICTURE']]) {
+            if($bProfileViewAllowed && $CNF['FIELD_PICTURE'] && $aData[$CNF['FIELD_PICTURE']]) {
                 $sPicturePopup = BxTemplFunctions::getInstance()->transBox($sPicturePopupId, $this->parseHtmlByName('image_popup.html', [
                     'image_url' => $sUrlPicture,
                 ]), true, true);
             }
+        }
+        
+        //--- Process Badge
+        $bTmplVarsShowBadge = false;
+        $aTmplVarsShowBadge = [];
+
+        if($bShowBadge) {
+            $sUrlBadge = $this->getBadgeImage($aData);
+
+            if(($bTmplVarsShowBadge = !empty($sUrlBadge))) 
+                $aTmplVarsShowBadge = [
+                    'size' => 'ava-big',
+                    'badge_url' => $sUrlBadge,
+                    'badge_link' => $this->getBadgeLink($aData),
+                    'title_attr' => bx_html_attribute($sTitle),
+                ];
         }
 
         //--- Process Actions menu
@@ -557,13 +674,21 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
             'bx_if:show_title_as_tag' => [
                 'condition' => !$bUseAsAuthor,
                 'content' => [
-                    'title' => $sTitle
+                    'title' => $sTitle,
+                    'bx_if:show_badge' => [
+                        'condition' => $bTmplVarsShowBadge,
+                        'content' => $aTmplVarsShowBadge
+                    ]
                 ]
             ],
             'bx_if:show_title_as_text' => [
                 'condition' => $bUseAsAuthor,
                 'content' => [
-                    'title' => $sTitle
+                    'title' => $sTitle,
+                    'bx_if:show_badge' => [
+                        'condition' => $bTmplVarsShowBadge,
+                        'content' => $aTmplVarsShowBadge
+                    ]
                 ]
             ],
             'bx_if:show_avatar' => [
@@ -573,6 +698,10 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
             'bx_if:show_avatar_placeholder' => [
                 'condition' => !$bTmplVarsShowAvatar,
                 'content' => [true]
+            ],
+            'bx_if:show_badge' => [
+                'condition' => $bTmplVarsShowBadge,
+                'content' => $aTmplVarsShowBadge
             ],
             'badges' => $oModule->serviceGetBadges($aData[$CNF['FIELD_ID']]),
             'action_menu' => $sActionsMenu,
@@ -742,7 +871,7 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
     function _image ($sField, $sTranscodeObject, $sNoImage, $aData, $bSubstituteNoImage = true)
     {
         $sImageUrl = false;
-        if ($aData[$sField]) {
+        if (isset($aData[$sField]) && $aData[$sField]) {
             $oImagesTranscoder = BxDolTranscoderImage::getObjectInstance($sTranscodeObject);
             if ($oImagesTranscoder)
                 $sImageUrl = $oImagesTranscoder->getFileUrl($aData[$sField]);
@@ -756,6 +885,31 @@ class BxBaseModProfileTemplate extends BxBaseModGeneralTemplate
             $sImageUrl = bx_is_api() ? '' : $this->getImageUrl(substr($sNoImage, 0, strrpos($sNoImage, '-')) . '.svg');
 
         return $sImageUrl;
+    }
+
+    function _getImageSettings($sField, $sSettings, $sUsage = '')
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        if(isset($CNF['FIELD_COVER']) && $sField == $CNF['FIELD_COVER'] && $sUsage == 'unit_cover')
+            return '';
+
+        return parent::_getImageSettings($sField, $sSettings, $sUsage);
+    }
+
+    protected function _isTemplateWithMeta(string $sTemplateName = 'unit.html'): bool
+    {
+        $sResult = '';
+        switch($sTemplateName) {
+            case 'unit_ext.html':
+            case 'unit_with_cover.html':
+                $sResult = true;
+                break;
+            default:
+                $sResult = false;
+                break;
+        }
+        return $sResult;        
     }
 
     protected function _getUnitClass($aData, $sTemplateName = 'unit.html')

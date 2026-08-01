@@ -104,13 +104,15 @@ class BxDolAlerts extends BxDol
     public function alert()
     {
         if (isset($this->_aAlerts[$this->sUnit]) && isset($this->_aAlerts[$this->sUnit][$this->sAction]))
-            foreach($this->_aAlerts[$this->sUnit][$this->sAction] as $iHandlerId) {
-                $aHandler = $this->_aHandlers[$iHandlerId];
+
+            foreach($this->_aAlerts[$this->sUnit][$this->sAction] as $iHandlerId) {                
+                $aHandler = $this->_aHandlers[$iHandlerId];                
                 if(!$aHandler['active'])
                     continue;
 
                 if (isset($GLOBALS['bx_profiler']) && 'bx_profiler' != $aHandler['name']) 
                     $GLOBALS['bx_profiler']->beginAlert($this->sUnit, $this->sAction, $aHandler['name']);
+                $fStart = microtime(true);
 
                 if (!empty($aHandler['file']) && !empty($aHandler['class']) && file_exists(BX_DIRECTORY_PATH_ROOT . $aHandler['file'])) {
                     if(!class_exists($aHandler['class'], false))
@@ -127,7 +129,8 @@ class BxDolAlerts extends BxDol
 
                     BxDolService::call($aService['module'], $aService['method'], $aParams, isset($aService['class']) ? $aService['class'] : 'Module');
                 }
-
+                
+                BxDolAlertsStats::hit($aHandler['name'], microtime(true) - $fStart);
                 if (isset($GLOBALS['bx_profiler']) && 'bx_profiler' != $aHandler['name']) 
                     $GLOBALS['bx_profiler']->endAlert($this->sUnit, $this->sAction, $aHandler['name']);
             }
@@ -144,15 +147,56 @@ class BxDolAlerts extends BxDol
             }
         }
 
+        // log alert
+        BxDolAlertsStats::log($this);
+
+        // call agents
+        $oAi = BxDolAI::getInstance();
+        if($aAgents = $oAi->getAgentsByAlertUnitAndAction($this->sUnit, $this->sAction)) {
+            foreach($aAgents as $a) {
+                $aParams = [
+                    'trigger' => 'alert',
+                    'object_id' => $this->iObject,
+                    'sender_profile_id' => $this->iSender,
+                    'unit' => $this->sUnit, 
+                    'action' => $this->sAction,
+                    'extra' => $this->aExtras,
+                ];
+                if ($a['async']) {
+                    BxDolBackgroundJobs::getInstance()->add(bin2hex(random_bytes(16)), [
+                        'system', 'call_agent', 
+                        ['alert', $a, $aParams], 
+                        'TemplServices'
+                    ]);
+                }
+                else {
+                    $sExtraJSON = $oAi->callAgent('alert', $a, $aParams);
+
+                    $aExtra = [];
+                    if ($sExtraJSON && 0 === bx_mb_strpos($sExtraJSON, '{'))
+                        $aExtra = json_decode($sExtraJSON, true);
+                    
+                    if ($aExtra && is_array($aExtra)) {
+                        foreach ($aExtra as $k => $v) {
+                            if (isset($this->aExtras[$k]))
+                                $this->aExtras[$k] = $v;
+                        }
+                    }
+                }
+            }
+        }
+
         // call automators
         $oAi = BxDolAI::getInstance();
-
-        $aAutomators = $oAi->getAutomatorsEvent($this->sUnit, $this->sAction);
-        foreach($aAutomators as $aAutomator)
-            $oAi->callAutomator(BX_DOL_AI_AUTOMATOR_EVENT, [
-                'automator' => $aAutomator,
-                'alert' => $this
-            ]);
+        if($oAi->hasAutomators(BX_DOL_AI_AUTOMATOR_EVENT, true)) {
+            $aAutomators = $oAi->getAutomatorsEvent($this->sUnit, $this->sAction);
+            foreach($aAutomators as $aAutomator) {
+                $oAi->callAutomator(BX_DOL_AI_AUTOMATOR_EVENT, [
+                    'automator' => $aAutomator,
+                    'alert' => $this
+                ]);
+            }
+        }        
     }
 
     /**
@@ -187,6 +231,18 @@ class BxDolAlerts extends BxDol
             ];
 
         return $aResult;
+    }
+
+    static public function resetAlertsCounter24h()
+    {
+        $oDb = BxDolDb::getInstance();
+        $oDb->query("UPDATE sys_alerts_log SET counter_24h = 0");
+    }
+
+    static public function deleteModuleAlerts($sUnit)
+    {
+        $oDb = BxDolDb::getInstance();
+        $oDb->query("DELETE FROM sys_alerts_log WHERE unit = :unit", ['unit' => $sUnit]);
     }
 }
 

@@ -19,16 +19,46 @@ class BxBaseModGroupsGridPricesManage extends BxBaseModGroupsGridPrices
     {
         parent::__construct ($aOptions, $oTemplate);
 
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        $this->_iRoleId = 0;
-        if(($iRoleId = (int)bx_get('role_id')) !== false)
+        $this->_iRoleId = false;
+        if(($iRoleId = bx_get('role_id')) !== false)
             $this->setRoleId($iRoleId);
     }
 
-    public function setRoleId($iRoleId)
+    public function getFormBlockTitleAPI($sAction, $iId = 0)
     {
-        $this->_iRoleId = (int)$iRoleId;
+        $CNF = &$this->_oModule->_oConfig->CNF;
+
+        $sResult = '';
+
+        switch($sAction) {
+            case 'add':
+                $sResult = _t($CNF['T']['popup_title_price_add']);
+                break;
+
+            case 'edit':
+                $sResult = _t($CNF['T']['popup_title_price_edit']);
+                break;
+        }
+
+        return $sResult;
+    }
+
+    public function getFormCallBackUrlAPI($sAction, $iId = 0)
+    {
+         return '/api.php?r=system/perfom_action_api/TemplServiceGrid/&params[]=&o=' . $this->_sObject . '&a=' . $sAction . '&profile_id=' . $this->_iGroupProfileId . '&role_id=' . $this->_iRoleId . '&id=' . $iId;
+    }
+
+    public function setRoleId($mixedRoleId)
+    {
+        if(is_string($mixedRoleId)) {
+            if($mixedRoleId === '')
+                return;
+
+            if(!is_numeric($mixedRoleId))
+                $mixedRoleId = $this->_roleIdS2I($mixedRoleId);
+        }
+
+        $this->_iRoleId = (int)$mixedRoleId;
         $this->_aQueryAppend['role_id'] = $this->_iRoleId;
     }
 
@@ -56,104 +86,121 @@ class BxBaseModGroupsGridPricesManage extends BxBaseModGroupsGridPrices
 
     public function performActionAdd()
     {
-    	$CNF = &$this->_oModule->_oConfig->CNF;
+        $CNF = &$this->_oModule->_oConfig->CNF;
 
-    	$sAction = 'add';
+        $sAction = 'add';
 
         if(($mixedResult = $this->_oModule->checkAllowedEdit($this->_aGroupContentInfo)) !== CHECK_ACTION_RESULT_ALLOWED)
-            return echoJson(['msg' => $mixedResult]);
+            return $this->_bIsApi ? [bx_api_get_msg($mixedResult)] : echoJson(['msg' => $mixedResult]);
 
         $sFilter = bx_get('filter');
-        if(strpos($sFilter, $this->_sParamsDivider) !== false)
-            list($this->_iRoleId, $sFilter) = explode($this->_sParamsDivider, $sFilter);
+        if(strpos($sFilter, $this->_sParamsDivider) !== false) {
+            list($sRoleId, $sFilter) = explode($this->_sParamsDivider, $sFilter);
+            if($sRoleId)
+                $this->setRoleId($sRoleId);
+        }
 
-        if(!is_numeric($this->_iRoleId) && ($iRoleId = bx_get('role_id')) !== false)
-            $this->_iRoleId = (int)$iRoleId;
+        if($this->_iRoleId === false && ($sRoleId = bx_get('role_id')) !== false)
+            $this->setRoleId($sRoleId);
 
         $sForm = $CNF['OBJECT_FORM_PRICE_DISPLAY_ADD'];
-    	$oForm = BxDolForm::getObjectInstance($CNF['OBJECT_FORM_PRICE'], $CNF['OBJECT_FORM_PRICE_DISPLAY_ADD']);
-    	$oForm->setId($sForm);
+        $oForm = BxDolForm::getObjectInstance($CNF['OBJECT_FORM_PRICE'], $CNF['OBJECT_FORM_PRICE_DISPLAY_ADD']);
+        $oForm->setId($sForm);
         $oForm->setName($sForm);
-        $oForm->setAction(BX_DOL_URL_ROOT . bx_append_url_params('grid.php', array('o' => $this->_sObject, 'a' => $sAction, 'profile_id' => $this->_iGroupProfileId, 'role_id' => $this->_iRoleId)));
+        $oForm->setAction(BX_DOL_URL_ROOT . bx_append_url_params('grid.php', ['o' => $this->_sObject, 'a' => $sAction, 'profile_id' => $this->_iGroupProfileId]));
         $oForm->setRoleId($this->_iRoleId);
 
         $oForm->initChecker();
         if($oForm->isSubmittedAndValid()) {
+            $sRoleId = $oForm->getCleanValue('role_id');
+            BxDolForm::setSubmittedValue('role_id', $this->_roleIdS2I($sRoleId), $oForm->aFormAttrs['method']);
+
             $iPeriod = $oForm->getCleanValue('period');
             $sPeriodUnit = $oForm->getCleanValue('period_unit');
 
             if(!empty($iPeriod) && empty($sPeriodUnit)) 
-                return echoJson(array('msg' => _t($CNF['T']['err_period_unit'])));
+                return ($sMsg = _t($CNF['T']['err_period_unit'])) && $this->_bIsApi ? [bx_api_get_msg($sMsg)] : echoJson(['msg' => $sMsg]);
 
-            $aPrice = $this->_oModule->_oDb->getPrices(array('type' => 'by_prpp', 'profile_id' => $this->_iGroupProfileId, 'role_id' => $this->_iRoleId, 'period' => $iPeriod, 'period_unit' => $sPeriodUnit));
+            $aPrice = $this->_oModule->_oDb->getPrices(['type' => 'by_prpp', 'profile_id' => $this->_iGroupProfileId, 'role_id' => $this->_iRoleId, 'period' => $iPeriod, 'period_unit' => $sPeriodUnit]);
             if(!empty($aPrice) && is_array($aPrice))
-                return echoJson(array('msg' => _t($CNF['T']['err_price_duplicate'])));
+                return ($sMsg = _t($CNF['T']['err_price_duplicate'])) && $this->_bIsApi ? [bx_api_get_msg($sMsg)] : echoJson(['msg' => $sMsg]);
 
-            $iId = (int)$oForm->insert(array('profile_id' => $this->_iGroupProfileId, 'order' => $this->_oModule->_oDb->getPriceOrderMax($this->_iRoleId) + 1));
+            if($oForm->getCleanValue('default') != 0)
+                $this->_oModule->_oDb->updatePrices(['default' => 0], ['profile_id' => $this->_iGroupProfileId]);
+
+            $iId = (int)$oForm->insert(['profile_id' => $this->_iGroupProfileId, 'added' => time(), 'order' => $this->_oModule->_oDb->getPriceOrderMax($this->_iRoleId) + 1]);
             if($iId != 0)
-                $aRes = array('grid' => $this->getCode(false), 'blink' => $iId);
+                $aRes = ['grid' => $this->getCode(false), 'blink' => $iId];
             else
-                $aRes = array('msg' => _t($CNF['T']['err_cannot_perform']));
+                $aRes = ['msg' => _t($CNF['T']['err_cannot_perform'])];
 
-            echoJson($aRes);
-            return;
+            return $this->_bIsApi ? [] : echoJson($aRes);
         }
 
+        if($this->_bIsApi)
+            return $this->getFormBlockAPI($oForm, $sAction);
+
         bx_import('BxTemplFunctions');
-        $sContent = BxTemplFunctions::getInstance()->popupBox($this->_oModule->_oConfig->getHtmlIds('popup_price'), _t($CNF['T']['popup_title_price_add']), $this->_oModule->_oTemplate->parseHtmlByName('popup_price.html', array(
+        $sContent = BxTemplFunctions::getInstance()->popupBox($this->_oModule->_oConfig->getHtmlIds('popup_price'), _t($CNF['T']['popup_title_price_add']), $this->_oModule->_oTemplate->parseHtmlByName('popup_price.html', [
             'form_id' => $oForm->getId(),
             'form' => $oForm->getCode(true),
             'object' => $this->_sObject,
             'action' => $sAction
-        )));
+        ]));
 
-        echoJson(array('popup' => array('html' => $sContent, 'options' => array('closeOnOuterClick' => false))));
+        echoJson(['popup' => ['html' => $sContent, 'options' => ['closeOnOuterClick' => false]]]);
     }
 
     public function performActionEdit()
     {
-    	$CNF = &$this->_oModule->_oConfig->CNF;
+        $CNF = &$this->_oModule->_oConfig->CNF;
 
         $sAction = 'edit';
 
         if(($mixedResult = $this->_oModule->checkAllowedEdit($this->_aGroupContentInfo)) !== CHECK_ACTION_RESULT_ALLOWED)
-            return echoJson(['msg' => $mixedResult]);
+            return $this->_bIsApi ? [bx_api_get_msg($mixedResult)] : echoJson(['msg' => $mixedResult]);
 
         $aIds = $this->_getIds();
         if($aIds === false)
-            return echoJson(array());
+            return $this->_bIsApi ? [] : echoJson([]);
 
-        $aItem = $this->_oModule->_oDb->getPrices(array('type' => 'by_id', 'value' => array_shift($aIds)));
+        $aItem = $this->_oModule->_oDb->getPrices(['type' => 'by_id', 'value' => array_shift($aIds)]);
         if(!is_array($aItem) || empty($aItem))
-            return echoJson(array());
+            return $this->_bIsApi ? [] : echoJson([]);
+
+        $aItem['role_id'] = $this->_roleIdI2S($aItem['role_id']);
 
         $sForm = $CNF['OBJECT_FORM_PRICE_DISPLAY_EDIT'];
         $oForm = BxDolForm::getObjectInstance($CNF['OBJECT_FORM_PRICE'], $CNF['OBJECT_FORM_PRICE_DISPLAY_EDIT']);
         $oForm->setId($sForm);
         $oForm->setName($sForm);
-    	$oForm->setAction(BX_DOL_URL_ROOT . bx_append_url_params('grid.php', ['o' => $this->_sObject, 'a' => $sAction, 'profile_id' => $this->_iGroupProfileId, 'role_id' => $this->_iRoleId]));
+        $oForm->setAction(BX_DOL_URL_ROOT . bx_append_url_params('grid.php', ['o' => $this->_sObject, 'a' => $sAction, 'profile_id' => $this->_iGroupProfileId]));
 
         $oForm->initChecker($aItem);
         if($oForm->isSubmittedAndValid()) {
-            if($oForm->update($aItem['id']) !== false)
-                $aRes = array('grid' => $this->getCode(false), 'blink' => $aItem['id']);
-            else
-                $aRes = array('msg' => _t($CNF['T']['err_cannot_perform']));
+            if($oForm->getCleanValue('default') != 0)
+                $this->_oModule->_oDb->updatePrices(['default' => 0], ['profile_id' => $this->_iGroupProfileId]);
 
-            return echoJson($aRes);
+            if($oForm->update($aItem['id']) !== false)
+                $aRes = ['grid' => $this->getCode(false), 'blink' => $aItem['id']];
+            else
+                $aRes = ['msg' => _t($CNF['T']['err_cannot_perform'])];
+
+            return $this->_bIsApi ? [] : echoJson($aRes);
         }
 
+        if($this->_bIsApi)
+            return $this->getFormBlockAPI($oForm, $sAction, $iItem);
+
         bx_import('BxTemplFunctions');
-        $sContent = BxTemplFunctions::getInstance()->popupBox($this->_oModule->_oConfig->getHtmlIds('popup_price'), _t($CNF['T']['popup_title_price_edit']), $this->_oModule->_oTemplate->parseHtmlByName('popup_price.html', array(
+        $sContent = BxTemplFunctions::getInstance()->popupBox($this->_oModule->_oConfig->getHtmlIds('popup_price'), _t($CNF['T']['popup_title_price_edit']), $this->_oModule->_oTemplate->parseHtmlByName('popup_price.html', [
             'form_id' => $oForm->getId(),
             'form' => $oForm->getCode(true),
             'object' => $this->_sObject,
             'action' => $sAction
-        )));
+        ]));
 
-        $aRes = array('popup' => array('html' => $sContent, 'options' => array('closeOnOuterClick' => false)));
-
-        return echoJson($aRes);
+        return echoJson(['popup' => ['html' => $sContent, 'options' => ['closeOnOuterClick' => false]]]);
     }
 
     public function performActionDelete()
@@ -162,17 +209,17 @@ class BxBaseModGroupsGridPricesManage extends BxBaseModGroupsGridPrices
 
     	$aIds = bx_get('ids');
         if(!$aIds || !is_array($aIds))
-            return echoJson(array());
+            return echoJson([]);
 
         $iAffected = 0;
-        $aIdsAffected = array();
+        $aIdsAffected = [];
         foreach($aIds as $iId)
-            if($this->_oModule->_oDb->deletePrices(array('id' => $iId))) {
+            if($this->_oModule->_oDb->deletePrices(['id' => $iId])) {
                 $aIdsAffected[] = $iId;
                 $iAffected++;
             }
 
-        return echoJson($iAffected ? array('grid' => $this->getCode(false), 'blink' => $aIdsAffected) : array('msg' => _t($CNF['T']['err_cannot_perform'])));
+        return echoJson($iAffected ? ['grid' => $this->getCode(false), 'blink' => $aIdsAffected] : ['msg' => _t($CNF['T']['err_cannot_perform'])]);
     }
 
     protected function _addJsCss()
@@ -190,32 +237,39 @@ class BxBaseModGroupsGridPricesManage extends BxBaseModGroupsGridPrices
         ]);
     }
 
+    protected function _getCellDefaultPrice($mixedValue, $sKey, $aField, $aRow)
+    {
+        return parent::_getCellDefault((int)$mixedValue != 0 ? _t('_Yes') : '', $sKey, $aField, $aRow);
+    }
+
     protected function _getFilterControls()
     {
         parent::_getFilterControls();
 
         $sContent = '';
-        $oForm = new BxTemplFormView(array());
+        $oForm = new BxTemplFormView([]);
 
-        $aInputRoles = array(
+        $aInputRoles = [
             'type' => 'select',
             'name' => 'role',
-            'attrs' => array(
+            'attrs' => [
                 'id' => 'bx-grid-level-' . $this->_sObject,
                 'onChange' => 'javascript:' . $this->_oModule->_oConfig->getJsObject('prices') . '.onChangeRole()'
-            ),
+            ],
             'value' => $this->_iRoleId,
-            'values' => $this->_aRoles
-        );
+            'values' => ['' => _t('_Select_all')]
+        ];
+        foreach($this->_aRoles as $iId => $sTitle)
+            $aInputRoles['values'][$this->_roleIdI2S($iId)] = $sTitle;
         $sContent .=  $oForm->genRow($aInputRoles);
 
-        $aInputSearch = array(
+        $aInputSearch = [
             'type' => 'text',
             'name' => 'keyword',
-            'attrs' => array(
+            'attrs' => [
                 'id' => 'bx-grid-search-' . $this->_sObject,
-            ),
-        );
+            ]
+        ];
         $sContent .= $oForm->genRow($aInputSearch);
 
         return $sContent;
@@ -223,17 +277,18 @@ class BxBaseModGroupsGridPricesManage extends BxBaseModGroupsGridPrices
 
     protected function _getDataSql($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage)
     {
-        if(strpos($sFilter, $this->_sParamsDivider) !== false) {
-            list($iRoleId, $sFilter) = explode($this->_sParamsDivider, $sFilter);
-            if(!is_numeric($iRoleId))
-                $iRoleId = 0;
+        $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString("AND `profile_id`=?", $this->_iGroupProfileId);
 
-            $this->setRoleId($iRoleId);
+        if(strpos($sFilter, $this->_sParamsDivider) !== false) {
+            list($sRoleId, $sFilter) = explode($this->_sParamsDivider, $sFilter);
+            if(!empty($sRoleId))
+                $this->setRoleId($this->_roleIdS2I($sRoleId));
         }
 
-        $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString("AND `profile_id`=? AND `role_id`=? ", $this->_iGroupProfileId, $this->_iRoleId);
+        if($this->_iRoleId !== false)
+            $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `role_id`=? ", $this->_iRoleId);
 
-        return parent::_getDataSql($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage);;
+        return parent::_getDataSql($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage);
     }
 
     protected function _isVisibleGrid ($a)

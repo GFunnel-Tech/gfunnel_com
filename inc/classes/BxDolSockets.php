@@ -28,9 +28,9 @@ class BxDolSockets extends BxDolFactory implements iBxDolSingleton
             return;
 
         $a = parse_url($sUrl);
-        $this->_sHost = $a['host'];
-        $this->_sPort = $a['port'];
-        $this->_sScheme = $a['scheme'];
+        $this->_sHost = $a['host'] ?? '';
+        $this->_sPort = $a['port'] ?? '';
+        $this->_sScheme = $a['scheme'] ?? '';
 
         $this->_sIsEnabled = true;
     }
