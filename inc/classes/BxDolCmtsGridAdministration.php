@@ -27,7 +27,7 @@ class BxDolCmtsGridAdministration extends BxTemplGrid
         $this->_bShowModule = false;
 
         $this->_sFilter1Name = 'filter1';
-        $this->_aFilter1Values = ['' => _t('_adm_txt_select_module')];
+        $this->_aFilter1Values = [];
 
         $aModules = BxDolModuleQuery::getInstance()->getModulesBy(array('type' => 'modules', 'active' => 1));
         foreach($aModules as $aModule) {

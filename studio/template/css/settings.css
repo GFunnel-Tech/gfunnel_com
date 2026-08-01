@@ -1,7 +1,3 @@
-div.bx-std-page-column.bx-std-page-content div.bx-std-page-column-cnt {
-    padding: 5rem 0  0  0;
-}
-
 .bx-std-block .bx-std-block-content {
     padding: 0;
 }
@@ -16,7 +12,7 @@ div.bx-std-page-column.bx-std-page-content div.bx-std-page-column-cnt {
 }
 #adm-settings-form .bx-form-advanced-wrapper .bx-form-section-wrapper,
 #adm-settings-form-categorized .bx-form-advanced-wrapper .bx-form-section-wrapper {
-    padding: 0 1.0rem;
+    padding: 0 0.5rem 0 0;
 }
 #adm-settings-form-categorized .bx-form-advanced-wrapper .bx-form-section-wrapper:last-child {
     position: absolute;
@@ -27,7 +23,9 @@ div.bx-std-page-column.bx-std-page-content div.bx-std-page-column-cnt {
     padding: 1.25rem 1.5rem;
 }
 
-#adm-settings-form .bx-form-advanced-wrapper .bx-form-section-wrapper:first-child,
+#adm-settings-form .bx-form-advanced-wrapper .bx-form-section-wrapper:first-child {
+    padding-top: 0.5rem;
+}
 #adm-settings-form-categorized .bx-form-advanced-wrapper .bx-form-section-wrapper:first-child {
-    padding-top: 1rem;
+    padding-top: 0;
 }

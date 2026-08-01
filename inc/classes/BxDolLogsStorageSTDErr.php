@@ -26,12 +26,12 @@ class BxDolLogsStorageSTDErr extends BxDolLogsStorageFolder implements iBxDolSin
      * @param $mixed string or array to log
      * @return true on success or false on error
      */
-    public function add($oObject, $mixed)
+    public function add($oObject, $mixed, $iLevel)
     {
         if (!$mixed)
             return true;
 
-        $s = $this->formatLogString($oObject, $mixed, true);
+        $s = $this->formatLogString($oObject, $mixed, true, $iLevel);
 
         if (!($fd = fopen('php://stderr', 'w')))
             return false;

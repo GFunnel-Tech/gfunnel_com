@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources name="ru" flag="ru" title="Russian">
+    <string name="_bx_decorous"><![CDATA[Decorous]]></string>
     <string name="_bx_decorous_wgt_cpt"><![CDATA[Decorous (прекращено)]]></string>
 
     <string name="_bx_decorous_stg_cpt_type"><![CDATA[Decorous]]></string>

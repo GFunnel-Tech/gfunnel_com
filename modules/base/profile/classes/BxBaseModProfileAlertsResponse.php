@@ -56,6 +56,22 @@ class BxBaseModProfileAlertsResponse extends BxBaseModGeneralAlertsResponse
                 bx_alert($sModule, 'profile_cover_deleted', $oAlert->iObject);
         }
 
+        if (($sKey = 'OBJECT_STORAGE_BADGE') && isset($CNF[$sKey]) && $CNF[$sKey] == $oAlert->sUnit && 'file_deleted' == $oAlert->sAction && isset($CNF['FIELD_BADGE'])) {
+            $bResult = (int)$this->_oModule->_oDb->resetContentPictureByFileId($oAlert->iObject, $CNF['FIELD_BADGE']) > 0;
+            if($bResult)
+                /**
+                 * @hooks
+                 * @hookdef hook-bx_base_profile-profile_badge_deleted '{module_name}', 'profile_badge_deleted' - hook after profile badge was deleted
+                 * - $unit_name - module name
+                 * - $action - equals `profile_cover_deleted`
+                 * - $object_id - context id
+                 * - $sender_id - not used
+                 * - $extra_params - not used
+                 * @hook @ref hook-bx_base_profile-profile_badge_deleted
+                 */
+                bx_alert($sModule, 'profile_badge_deleted', $oAlert->iObject);
+        }
+
         // connection events
         if ($oAlert->sUnit == 'sys_profiles_friends' && $oAlert->sAction == 'connection_added') {
             if((int)$oAlert->aExtras['mutual'] == 0 && !BxDolModuleQuery::getInstance()->isEnabledByName('bx_notifications'))

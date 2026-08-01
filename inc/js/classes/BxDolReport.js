@@ -20,6 +20,7 @@ function BxDolReport(options)
     this._iAnimationSpeed = 'slow';
     this._sSP = options.sStylePrefix == undefined ? 'bx-report' : options.sStylePrefix;
     this._aHtmlIds = options.aHtmlIds;
+    this._oRequestParams = options.oRequestParams == undefined ? {} : options.oRequestParams;
     this._sUnreportConfirm = options.sUnreportConfirm == undefined ? _t('_Are_you_sure') : options.sUnreportConfirm;
 
     this._oParent = null;
@@ -68,7 +69,11 @@ BxDolReport.prototype.onReport = function(oData, oElement)
         if(oData && oData.code != 0)
             return;
 
-        $(oElement).toggleClass('bx-report-reported');
+        if(oData && oData.reported != undefined)
+            $(oElement).toggleClass('bx-report-reported', oData.reported);
+
+        if(oData && oData.disabled)
+            $(oElement).removeAttr('onclick').addClass($(oElement).hasClass('bx-btn') ? 'bx-btn-disabled' : 'bx-report-disabled');
 
         if(oData && oData.label_icon)
             $(oElement).find('.sys-action-do-icon .sys-icon').attr('class', 'sys-icon ' + oData.label_icon);
@@ -77,9 +82,6 @@ BxDolReport.prototype.onReport = function(oData, oElement)
             $(oElement).attr('title', oData.label_title);
             $(oElement).find('.sys-action-do-text').html(oData.label_title);
         }
-
-        if(oData && oData.disabled)
-            $(oElement).removeAttr('onclick').addClass($(oElement).hasClass('bx-btn') ? 'bx-btn-disabled' : 'bx-report-disabled');
 
         var oCounter = $this._getCounter(oElement);
         if(oCounter && oCounter.length > 0) {
@@ -96,28 +98,39 @@ BxDolReport.prototype.onReport = function(oData, oElement)
 };
 
 BxDolReport.prototype.processJson = function(oData, oElement) {
-	oElement = oElement != undefined ? oElement : this._oParent;
+    oElement = oElement != undefined ? oElement : this._oParent;
 
-	var fContinue = function() {
-		//--- Show Popup
-	    if(oData && oData.popup != undefined) {
-	    	$('#' + oData.popup_id).remove();
+    var fContinue = function() {
+        //--- Show Popup
+        if(oData && oData.popup != undefined) {
+            $('#' + oData.popup_id).remove();
 
-	    	$(oData.popup).hide().prependTo('body').dolPopup({
-	    		pointer: {
-	    			el: oElement
-	    		},
-	            fog: {
-					color: '#fff',
-					opacity: .7
-	            }
-	        });
-	    }
+            var oPopup = null;
+            var oOptions = {
+                pointer: {
+                    el: oElement
+                },
+                fog: {
+                    color: '#fff',
+                    opacity: .7
+                },
+                closeOnOuterClick: false
+            };
 
-	    //--- Evaluate JS code
-	    if (oData && oData.eval != undefined)
-	        eval(oData.eval);
-	};
+            if(typeof(oData.popup) == 'object') {
+                oOptions = $.extend({}, oOptions, oData.popup.options);
+                oPopup = $(oData.popup.html);
+            }
+            else 
+                oPopup = $(oData.popup);
+
+            oPopup.hide().prependTo('body').dolPopup(oOptions);
+        }
+
+        //--- Evaluate JS code
+        if (oData && oData.eval != undefined)
+            eval(oData.eval);
+    };
 
     //--- Show Message
     if(oData && oData.message != undefined)
@@ -127,33 +140,35 @@ BxDolReport.prototype.processJson = function(oData, oElement) {
 };
 
 BxDolReport.prototype._getButtons = function(oElement) {
-	if($(oElement).hasClass(this._sSP))
-		return $(oElement).find('.' + this._sSP + '-button');
-	else
-		return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-button');
+    if($(oElement).hasClass(this._sSP))
+        return $(oElement).find('.' + this._sSP + '-button');
+    else
+        return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-button');
 };
 
 BxDolReport.prototype._getCounter = function(oElement) {
-	if($(oElement).hasClass(this._sSP))
-		return $(oElement).find('.' + this._sSP + '-counter');
-	else 
-		return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-counter');
+    if($(oElement).hasClass(this._sSP))
+        return $(oElement).find('.' + this._sSP + '-counter');
+    else 
+        return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-counter');
 };
 
 BxDolReport.prototype._loadingInButton = function(e, bShow) {
-	if($(e).length)
-		bx_loading_btn($(e), bShow);
-	else
-		bx_loading($('body'), bShow);	
+    if($(e).length)
+        bx_loading_btn($(e), bShow);
+    else
+        bx_loading($('body'), bShow);	
 };
 
 BxDolReport.prototype._getDefaultParams = function() {
-	var oDate = new Date();
-    return {
+    var oDate = new Date();
+
+    return jQuery.extend({
         sys: this._sSystem,
-        object_id: this._iObjId,
+        object_id: this._iObjId
+    }, this._oRequestParams, {
         _t: oDate.getTime()
-    };
+    });
 };
 
 /** @} */

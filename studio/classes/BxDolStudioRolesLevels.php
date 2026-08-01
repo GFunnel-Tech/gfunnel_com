@@ -36,7 +36,7 @@ class BxDolStudioRolesLevels extends BxTemplStudioGrid
             return false;
 
         $isStopDeletion = false;
-        bx_alert('roles', 'before_delete', $iId, 0, array('role' => $aRole, 'stop_deletion' => &$isStopDeletion));
+        bx_alert('roles', 'before_delete', $iId, 0, array('role' => $aRole, 'stop_deletion' => &$isStopDeletion, 'stop_deletion_ref' => &$isStopDeletion));
         if($isStopDeletion)
             return false;
 

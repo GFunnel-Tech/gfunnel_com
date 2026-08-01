@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources name="ru" flag="ru" title="Russian">
-
-	<string name="_bx_massmailer"><![CDATA[Mass Mailer]]></string>
+  <string name="_bx_massmailer"><![CDATA[Mass Mailer]]></string>
   <string name="_bx_massmailer_adm_stg_cpt_type"><![CDATA[Mass Mailer]]></string>
   <string name="_bx_massmailer_adm_stg_cpt_category_general"><![CDATA[Основные]]></string>
   <string name="_bx_massmailer_delete_sent_email_in_days"><![CDATA[Удалить отправленные кампании старше (дней)]]></string>
@@ -83,7 +82,11 @@
   <string name="_bx_massmailer_form_campaign_input_sys_body"><![CDATA[Тело письма]]></string>
   <string name="_bx_massmailer_form_campaign_input_body"><![CDATA[Тело письма]]></string>
   <string name="_bx_massmailer_form_campaign_input_body_err"><![CDATA[Тело письма не может быть пустым и в нем должен обязательно присутствовать маркер {unsubscribe_url}]]></string>
+  <string name="_bx_massmailer_form_campaign_input_sys_body_info"><![CDATA[Тело письма: Справка]]></string>
+  <string name="_bx_massmailer_form_campaign_input_body_info"><![CDATA[]]></string>
+  <string name="_bx_massmailer_form_campaign_input_sys_is_one_per_account"><![CDATA[Одно письмо на один аккаунт]]></string>
   <string name="_bx_massmailer_form_campaign_input_is_one_per_account"><![CDATA[Одно письмо на один аккаунт]]></string>
+  <string name="_bx_massmailer_form_campaign_input_sys_is_track_links"><![CDATA[Отслеживать клики]]></string>
   <string name="_bx_massmailer_form_campaign_input_is_track_links"><![CDATA[Отслеживать клики]]></string>
   <string name="_bx_massmailer_form_campaign_input_sys_test_email"><![CDATA[Email]]></string>
   <string name="_bx_massmailer_form_campaign_input_email"><![CDATA[Email]]></string>

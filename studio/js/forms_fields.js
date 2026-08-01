@@ -98,15 +98,14 @@ BxDolStudioFormsFields.prototype.reloadGrid = function(sModule, sObject, sDispla
 };
 
 BxDolStudioFormsFields.prototype.onSelectType = function(sType, oLink) {
-	var oPopup = $(oLink).parents('.bx-popup-applied');
-	bx_loading(oPopup, true);
+    var oPopup = $(oLink).parents('.bx-popup-applied');
+    bx_loading(oPopup, true);
 
-	glGrids[this.sObjNameGrid].action('add', {}, 'type=' + sType, false, false);
+    glGrids[this.sObjNameGrid].action('add', {}, 'type=' + sType, false, false);
 };
 
-BxDolStudioFormsFields.prototype.onChangeType = function(iDiId) {
-	var sType = $('#bx-form-field-type').val();
-	glGrids[this.sObjNameGrid].action('edit', {}, 'type=' + sType + '&di_id=' + iDiId, false, false);
+BxDolStudioFormsFields.prototype.onChangeType = function(iDiId, oSource) {
+    glGrids[this.sObjNameGrid].action('edit', {}, 'type=' + $(oSource).val() + '&di_id=' + iDiId, false, false);
 };
 
 BxDolStudioFormsFields.prototype.onSelectChecker = function(oSelect, bClear) {
@@ -125,6 +124,7 @@ BxDolStudioFormsFields.prototype.onSelectChecker = function(oSelect, bClear) {
             break;
 
         case 'preg':
+        case 'password':
             $('#bx-form-element-checker_params_preg').show().find('input').removeAttr('disabled');
             break;
     }

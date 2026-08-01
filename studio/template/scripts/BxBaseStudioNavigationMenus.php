@@ -56,11 +56,12 @@ class BxBaseStudioNavigationMenus extends BxDolStudioNavigationMenus
             unset($oForm->aInputs['set_title']);
 
             $iId = (int)$oForm->insert(array('object' => $sObject, 'module' => BX_DOL_STUDIO_MODULE_CUSTOM, 'deletable' => 1, 'active' => 1));
-            if($iId != 0)
+            if($iId != 0) {
+                $this->onMenuChanged($sObject);
                 $aRes = array('grid' => $this->getCode(false), 'blink' => $iId);
-            else
+            } else {
                 $aRes = array('msg' => _t('_adm_nav_err_menus_create'));
-
+            }
             echoJson($aRes);
         }
         else {
@@ -105,10 +106,12 @@ class BxBaseStudioNavigationMenus extends BxDolStudioNavigationMenus
             }
             unset($oForm->aInputs['set_title']);
 
-            if($oForm->update($aMenu['id']) !== false)
+            if($oForm->update($aMenu['id']) !== false) {
+                $this->onMenuChanged($aMenu['object']);
                 $aRes = array('grid' => $this->getCode(false), 'blink' => $aMenu['id']);
-            else
+            } else {
                 $aRes = array('msg' => _t('_adm_nav_err_menus_edit'));
+            }
 
             echoJson($aRes);
         }
@@ -128,25 +131,22 @@ class BxBaseStudioNavigationMenus extends BxDolStudioNavigationMenus
     {
         $iAffected = 0;
         $aIds = bx_get('ids');
-        if(!$aIds || !is_array($aIds)) {
-            echoJson(array());
-            exit;
-        }
+        if(!$aIds || !is_array($aIds))
+            return echoJson([]);
 
-        $aIdsAffected = array ();
+        $aIdsAffected = [];
         foreach($aIds as $iId) {
             $aMenu = array();
             $iMenu = $this->oDb->getMenus(array('type' => 'by_id', 'value' => (int)$iId), $aMenu);
-            if($iMenu != 1 || empty($aMenu))
-                continue;
-
-            if((int)$aMenu['deletable'] != 1)
+            if($iMenu != 1 || empty($aMenu) || !$this->_isDeletable($aMenu))
                 continue;
 
             if((int)$this->_delete($iId) <= 0)
                 continue;
 
             BxDolStudioLanguagesUtils::getInstance()->deleteLanguageString($aMenu['title']);
+
+            $this->onMenuChanged($aMenu['object']);            
 
             $aIdsAffected[] = $iId;
             $iAffected++;
@@ -214,10 +214,10 @@ class BxBaseStudioNavigationMenus extends BxDolStudioNavigationMenus
 
     protected function _getActionDelete ($sType, $sKey, $a, $isSmall = false, $isDisabled = false, $aRow = array())
     {
-        if ($sType == 'single' && (int)$aRow['deletable'] != 1)
+        if($sType == 'single' && !$this->_isDeletable($aRow))
             return '';
 
-        return  parent::_getActionDefault($sType, $sKey, $a, false, $isDisabled, $aRow);
+        return parent::_getActionDefault($sType, $sKey, $a, false, $isDisabled, $aRow);
     }
 
     protected function _getFilterControls ()
@@ -274,6 +274,17 @@ class BxBaseStudioNavigationMenus extends BxDolStudioNavigationMenus
                         'params' => array(3, 100, 'title'),
                         'error' => _t('_adm_nav_err_menus_title'),
                     ),
+                ),
+                'title_public' => array(
+                    'type' => 'text_translatable',
+                    'name' => 'title_public',
+                    'caption' => _t('_adm_nav_txt_menus_title_public'),
+                    'info' => '',
+                    'value' => $aMenu['title_public'] ?? '',
+                    'required' => '0',
+                    'db' => array (
+                        'pass' => 'Xss',
+                    )
                 ),
                 'set_name' => array(
                     'type' => 'select',
@@ -406,6 +417,18 @@ class BxBaseStudioNavigationMenus extends BxDolStudioNavigationMenus
             unset($oForm->aInputs['set_title']['checker']);
         else
             unset($oForm->aInputs['set_title']['tr_attrs']['style']);
+    }
+
+    protected function _isDeletable(&$aRow)
+    {
+    	return (int)$aRow['deletable'] != 0;
+    }
+
+    protected function onMenuChanged($sObject)
+    {
+        bx_content_cache_del_by_prefix('menu_' . $sObject); 
+        $this->oDb->cleanCache('sys_menus');
+        $this->oDb->cleanCache('sys_menu_objects');
     }
 }
 

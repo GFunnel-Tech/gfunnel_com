@@ -32,7 +32,7 @@ class BxBaseModGroupsGridPrices extends BxTemplGrid
 
         $CNF = $this->_oModule->_oConfig->CNF;
 
-        $this->_aRoles = BxDolFormQuery::getDataItems($CNF['OBJECT_PRE_LIST_ROLES']);
+        $this->_aRoles = $this->_oModule->_oConfig->getRolesPurchasable();
         $this->_aPeriodUnits = BxDolForm::getDataItems($CNF['OBJECT_PRE_LIST_PERIOD_UNITS']);
 
         $this->_iGroupProfileId = 0;
@@ -58,25 +58,44 @@ class BxBaseModGroupsGridPrices extends BxTemplGrid
     {
         $CNF = $this->_oModule->_oConfig->CNF;
 
-        if((int)$mixedValue == 0)
-            $mixedValue = _t('_lifetime');
+        if(!$this->_bIsApi) {
+            if((int)$mixedValue == 0)
+                $mixedValue = _t('_lifetime');
+            else
+                $mixedValue = _t($CNF['T']['txt_n_unit'], $mixedValue, _t($this->_aPeriodUnits[$aRow['period_unit']]));
+        }
         else
-            $mixedValue = _t($CNF['T']['txt_n_unit'], $mixedValue, _t($this->_aPeriodUnits[$aRow['period_unit']]));
+            $mixedValue = ['type' => 'period', 'period' => $mixedValue, 'unit' => $aRow['period_unit']];
 
         return parent::_getCellDefault($mixedValue, $sKey, $aField, $aRow);
     }
 
     protected function _getCellPrice($mixedValue, $sKey, $aField, $aRow)
     {
-        if((float)$mixedValue != 0) {
-            $aCurrency = $this->_oModule->_oConfig->getCurrency();
+        $CNF = $this->_oModule->_oConfig->CNF;
+        
+        $aCurrency = $this->_oModule->_oConfig->getCurrency($this->_aGroupContentInfo[$CNF['FIELD_AUTHOR']]);
 
-            $mixedValue = $aCurrency['sign'] . $mixedValue;
+        if(!$this->_bIsApi) {
+            if((float)$mixedValue != 0)
+                $mixedValue = html_entity_decode($aCurrency['sign']) . $mixedValue;
+            else 
+                $mixedValue = _t('_free');
         }
-        else 
-            $mixedValue = _t('_free');
+        else
+            $mixedValue = ['type' => 'price', 'value' => $mixedValue, 'currency' => $aCurrency['code']];
 
         return parent::_getCellDefault($mixedValue, $sKey, $aField, $aRow);
+    }
+
+    protected function _roleIdI2S($iValue)
+    {
+        return $this->_oModule->_oConfig->roleIdI2S($iValue);
+    }
+
+    protected function _roleIdS2I($sValue)
+    {
+        return $this->_oModule->_oConfig->roleIdS2I($sValue);
     }
 
     protected function _getIds()

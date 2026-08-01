@@ -31,9 +31,18 @@ class BxBaseUploaderHTML5 extends BxDolUploader
         $this->_sJsTemplate = 'uploader_button_html5_js.html';
         $this->_sUploaderFormTemplate = 'uploader_form_html5.html';
 
-        $aUploaderLangs = array('am-et' => 1, 'ar-ar' => 1, 'az-az' => 1, 'ca-ca' => 1, 'cs-cz' => 1, 'da-dk' => 1, 'de-de' => 1, 'el-el' => 1, 'en-en' => 1, 'es-es' => 1, 'et-ee' => 1, 'fa_ir' => 1, 'fi-fi' => 1, 'fr-fr' => 1, 'he-he' => 1, 'hr-hr' => 1, 'hu-hu' => 1, 'id-id' => 1, 'it-it' => 1, 'ja-ja' => 1, 'km-km' => 1, 'ko-kr' => 1, 'ku-ckb' => 1, 'lt-lt' => 1, 'lv-lv' => 1, 'nl-nl' => 1, 'no_nb' => 1, 'pl-pl' => 1, 'pt-br' => 1, 'pt-pt' => 1, 'ro-ro' => 1, 'ru-ru' => 1, 'sk-sk' => 1, 'sv_se' => 1, 'tr-tr' => 1, 'uk-ua' => 1, 'vi-vi' => 1, 'zh-cn' => 1, 'zh-tw' => 1);
-        $sUploaderLang = BxDolLanguages::getInstance()->getCurrentLanguage() . '-' . BxDolLanguages::getInstance()->getLangFlag();
-        if (!isset($aUploaderLangs[$sUploaderLang]))
+        $aUploaderLangs = [
+            'am-et' => 1, 'ar-ar' => 1, 'az-az' => 1, 'ca-ca' => 1, 'cs-cz' => 1, 
+            'da-dk' => 1, 'de-de' => 1, 'el-el' => 1, 'en-en' => 1, 'es-es' => 1, 
+            'et-ee' => 1, 'fa_ir' => 1, 'fi-fi' => 1, 'fr-fr' => 1, 'he-he' => 1, 
+            'hr-hr' => 1, 'hu-hu' => 1, 'id-id' => 1, 'it-it' => 1, 'ja-ja' => 1, 
+            'km-km' => 1, 'ko-kr' => 1, 'ku-ckb' => 1, 'lt-lt' => 1, 'lv-lv' => 1, 
+            'nl-nl' => 1, 'no_nb' => 1, 'pl-pl' => 1, 'pt-br' => 1, 'pt-pt' => 1, 
+            'ro-ro' => 1, 'ru-ru' => 1, 'sk-sk' => 1, 'sv_se' => 1, 'tr-tr' => 1, 
+            'uk-ua' => 1, 'vi-vi' => 1, 'zh-cn' => 1, 'zh-tw' => 1
+        ];
+        $sUploaderLang = bx_lang_code() . '-' . bx_lang_country();
+        if(!isset($aUploaderLangs[$sUploaderLang]))
             $sUploaderLang = 'en-en';
 
         $this->_sLangJsUrl = $this->_oTemplate->getJsUrlWithRevision('filepond/locale/' . $sUploaderLang . '.js');
@@ -163,22 +172,24 @@ class BxBaseUploaderHTML5 extends BxDolUploader
         $oStorage = BxDolStorage::getObjectInstance($this->_sStorageObject);
 
         if (!$isMultiple)
-            $this->deleteGhostsForProfile($iProfileId, $iContentId);
+            $this->deleteGhostsForProfile($iProfileId, [$iContentId, $this->_aObject['id']]);
 
-        if (bx_get('file')) {
-            $iId = $oStorage->storeFileFromXhr(bx_get('file'), $bPrivate, $iProfileId, $iContentId);
-        } 
-        else {
+        if (($sFile = bx_get('file')) !== false)
+            $iId = $oStorage->storeFileFromXhr($sFile, $bPrivate, $iProfileId, $iContentId);
+        else
             $iId = $oStorage->storeFileFromForm($_FILES['file'], $bPrivate, $iProfileId, $iContentId);
-        }
 
         if ($iId) {
-            $aResponse = array ('success' => 1, 'id' => $iId);
+            $oStorage->updateGhostsUploaderId($iId, $this->_aObject['id']);
+
+            $aResponse = ['success' => 1, 'id' => $iId];
         } else {
             $this->appendUploadErrorMessage(_t('_sys_uploader_err_msg', isset($_FILES['file']['name']) ? $_FILES['file']['name'] : bx_get('file'), $oStorage->getErrorString()));
-            $aResponse = array ('error' => $this->getUploadErrorMessages());
+
+            $aResponse = ['error' => $this->getUploadErrorMessages()];
         }
-        if (bx_is_api())
+
+        if ($this->_bIsApi)
             return $aResponse;
         else
             echo htmlspecialchars(json_encode($aResponse), ENT_NOQUOTES);

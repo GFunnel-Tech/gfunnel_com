@@ -566,9 +566,14 @@ class BxDolGrid extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
             'markers' => $this->_aMarkers, 
             'filter' => $sFilter, 
             'browse_params' => $this->_aBrowseParams, 
+
             'query' => &$sQuery,
             'conditions' => &$sCond,
             'join' => &$sJoin,
+
+            'query_ref' => &$sQuery,
+            'conditions_ref' => &$sCond,
+            'join_ref' => &$sJoin,
         ]);
 
         // add WHERE for searching in translatable fields

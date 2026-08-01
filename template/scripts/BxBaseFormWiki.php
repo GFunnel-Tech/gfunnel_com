@@ -20,7 +20,7 @@ class BxBaseFormWiki extends BxTemplFormView
             $this->aInputs['language']['values'] = BxDolLanguages::getInstance()->getLanguages(false, true);
         if (isset($this->aInputs['content'])) {
             $this->aInputs['content']['attrs']['id'] = 'wiki_content_';
-            $this->aInputs['content']['code'] = true;
+            // $this->aInputs['content']['code'] = true;
         }
 
     	if(isset($this->aInputs['files'])) {

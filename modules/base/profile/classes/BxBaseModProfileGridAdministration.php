@@ -11,37 +11,66 @@
 
 class BxBaseModProfileGridAdministration extends BxBaseModGeneralGridAdministration
 {
+    protected $_bSetAclWithDuration;
+
     protected $_sFilter1Name;
     protected $_sFilter1Value;
     protected $_aFilter1Values;
 
-    protected $_bSetAclWithDuration;
+    protected $_sFilter2Name;
+    protected $_sFilter2Value;
+    protected $_aFilter2Values;
+
+    protected $_sConfirmationType;
 
     public function __construct ($aOptions, $oTemplate = false)
     {
         parent::__construct ($aOptions, $oTemplate);
 
+        $this->_aQueryReset = [$this->_aOptions['paginate_get_start'], $this->_aOptions['paginate_get_per_page']];
+
+        $this->_bSetAclWithDuration = true;
+
+        $this->_init();
+    }
+
+    protected function _init()
+    {
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        $this->_aQueryReset = array($this->_aOptions['paginate_get_start'], $this->_aOptions['paginate_get_per_page']);
+        //--- Status
+        $this->_sStatusField = $CNF['FIELD_STATUS'] ?? 'status';
+        $this->_aStatusValues = ['active', 'pending', 'suspended'];
 
-        $this->_sStatusField = !empty($CNF['FIELD_STATUS']) ? $CNF['FIELD_STATUS'] : 'status';
-        $this->_aStatusValues = array('active', 'pending', 'suspended');
-
+        //--- Filter 1
         $this->_sFilter1Name = 'filter1';
-        $this->_aFilter1Values = array(
+        $this->_aFilter1Values = [
             'active' => $CNF['T']['filter_item_active'],
             'pending' => $CNF['T']['filter_item_pending'],
             'suspended' => $CNF['T']['filter_item_suspended'],
-        );
+        ];
 
-    	$sFilter1 = bx_get($this->_sFilter1Name);
-        if(!empty($sFilter1)) {
+        if(($sFilter1 = bx_get($this->_sFilter1Name)) !== false) {
             $this->_sFilter1Value = bx_process_input($sFilter1);
             $this->_aQueryAppend[$this->_sFilter1Name] = $this->_sFilter1Value;
         }
 
-        $this->_bSetAclWithDuration = true;
+        $this->_sConfirmationType = getParam('sys_account_confirmation_type');
+        if($this->_sConfirmationType != BX_ACCOUNT_CONFIRMATION_NONE)
+            $this->_aFilter1Values['unconfirmed'] = $CNF['T']['filter_item_unconfirmed'];
+
+        //--- Filter 2
+        $this->_sFilter2Name = 'filter2';
+
+        $aLevels = [];
+        BxDolAclQuery::getInstance()->getLevels(['type' => 'all_active_not_automatic_pair'], $aLevels);
+        foreach($aLevels as $sKey => $sValue)
+            $this->_aFilter2Values["level" . $sKey] = $sValue;
+
+        if(($sFilter2 = bx_get($this->_sFilter2Name)) !== false) {
+            $this->_sFilter2Value = bx_process_input($sFilter2);
+            $this->_aQueryAppend[$this->_sFilter2Name] = $this->_sFilter2Value;
+        }
     }
 
     public function performActionSetAclLevel()
@@ -189,14 +218,14 @@ class BxBaseModProfileGridAdministration extends BxBaseModGeneralGridAdministrat
 
     protected function _enable ($mixedId, $isChecked)
     {
-    	$oProfile = $this->_getProfileObject($mixedId);
+        $oProfile = $this->_getProfileObject($mixedId);
 
-    	if($oProfile instanceof BxDolProfileUndefined)
+        if($oProfile instanceof BxDolProfileUndefined)
             return false;
 
         $iAction = BX_PROFILE_ACTION_MANUAL;
         $bSendEmailNotification = $this->_oModule->serviceActAsProfile();
-    	return $isChecked ? $oProfile->activate($iAction, 0, $bSendEmailNotification) : $oProfile->suspend($iAction, 0, $bSendEmailNotification);
+        return $isChecked ? $oProfile->activate($iAction, 0, $bSendEmailNotification && $this->_oModule->serviceIsEnableProfileActivationLetter()) : $oProfile->suspend($iAction, 0, $bSendEmailNotification);
     }
 
     protected function _getDataSql($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage)
@@ -212,8 +241,29 @@ class BxBaseModProfileGridAdministration extends BxBaseModGeneralGridAdministrat
                 break;
         }
 
-    	if(!empty($this->_sFilter1Value))
-            $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `tp`.`status`=?", $this->_sFilter1Value);
+    	if(!empty($this->_sFilter1Value)) {
+            if($this->_sFilter1Value == 'unconfirmed')
+                switch ($this->_sConfirmationType) {
+                    case BX_ACCOUNT_CONFIRMATION_EMAIL:
+                        $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `ta`.`email_confirmed` = 0 ");
+                        break;
+                    case BX_ACCOUNT_CONFIRMATION_PHONE:
+                        $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `ta`.`phone_confirmed` = 0 ");
+                        break;
+                    case BX_ACCOUNT_CONFIRMATION_EMAIL_PHONE:
+                        $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND (`ta`.`email_confirmed` = 0 AND `ta`.`phone_confirmed` = 0) ");
+                        break;
+                }
+            else
+                $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `tp`.`status`=?", $this->_sFilter1Value);
+        }
+
+        if(!empty($this->_sFilter2Value)) {
+            if(($iLevel = (int)str_replace('level', '', $this->_sFilter2Value)) != 3)
+                $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `tp`.`id` IN (SELECT `IDMember` FROM `sys_acl_levels_members` WHERE IDLevel = ?) ", $iLevel);
+            else
+                $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `tp`.`id` NOT IN (SELECT `IDMember` FROM `sys_acl_levels_members`) ");
+        }
 
         return $this->_getDataSqlInner($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage);
     }
@@ -228,7 +278,7 @@ class BxBaseModProfileGridAdministration extends BxBaseModGeneralGridAdministrat
     {
         parent::_getFilterControls();
 
-        return  $this->_getFilterSelectOne($this->_sFilter1Name, $this->_sFilter1Value, $this->_aFilter1Values) . $this->_getSearchInput();
+        return  $this->_getFilterSelectOne($this->_sFilter1Name, $this->_sFilter1Value, $this->_aFilter1Values) . $this->_getFilterSelectOne($this->_sFilter2Name, $this->_sFilter2Value, $this->_aFilter2Values) . $this->_getSearchInput();
     }
 
     protected function _getFilterControlsAPI($aFilters = [])
@@ -252,19 +302,18 @@ class BxBaseModProfileGridAdministration extends BxBaseModGeneralGridAdministrat
     protected function _getCellFullname($mixedValue, $sKey, $aField, $aRow)
     {
     	$oProfile = $this->_getProfileObject($aRow['id']);
-        
-        if (bx_is_api()){
-            return ['type' => 'profile', 'data' => BxDolProfile::getData($oProfile->id())];
-        }
 
-        return parent::_getCellDefault($oProfile->getUnit(), $sKey, $aField, $aRow);
+        if($this->_bIsApi)
+            return ['type' => 'profile', 'data' => BxDolProfile::getData($oProfile->id())];
+
+        return parent::_getCellDefault($oProfile->getUnit(0, ['link_target' => '_blank']), $sKey, $aField, $aRow);
     }
 
     protected function _getCellLastOnline($mixedValue, $sKey, $aField, $aRow)
     {
-        if (bx_is_api()){
+        if($this->_bIsApi)
             return ['type' => 'time', 'data' => $mixedValue];
-        }
+
         return parent::_getCellDefault(bx_time_js($mixedValue), $sKey, $aField, $aRow);
     }
 
@@ -273,17 +322,17 @@ class BxBaseModProfileGridAdministration extends BxBaseModGeneralGridAdministrat
         return $this->_getCellLastOnline($mixedValue, $sKey, $aField, $aRow);
     }
 
-	protected function _getCellAccount($mixedValue, $sKey, $aField, $aRow)
+    protected function _getCellAccount($mixedValue, $sKey, $aField, $aRow)
     {
-    	$sManageAccountUrl = $this->_getManageAccountUrl($aRow[$sKey]);
-    	if(!empty($sManageAccountUrl)) {
-    		$mixedValue = $this->_oTemplate->parseHtmlByName('account_link.html', array(
-    			'href' => $sManageAccountUrl,
-    			'title' => _t($this->_oModule->_oConfig->CNF['T']['grid_txt_account_manager']),
-    			'content' => $mixedValue, 
+        $sManageAccountUrl = $this->_getManageAccountUrl($aRow[$sKey]);
+        if(!empty($sManageAccountUrl)) {
+            $mixedValue = $this->_oTemplate->parseHtmlByName('account_link.html', [
+                'href' => $sManageAccountUrl,
+                'title' => _t($this->_oModule->_oConfig->CNF['T']['grid_txt_account_manager']),
+                'content' => $mixedValue, 
                 'class' => ''
-    		));
-    	}
+            ]);
+        }
 
         return parent::_getCellDefault($mixedValue, $sKey, $aField, $aRow);
     }

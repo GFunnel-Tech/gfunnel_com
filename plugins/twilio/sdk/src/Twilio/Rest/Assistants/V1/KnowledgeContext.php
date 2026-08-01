@@ -22,6 +22,8 @@ use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
+use Twilio\Http\Response;
+use Twilio\Metadata\ResourceMetadata;
 use Twilio\Rest\Assistants\V1\Knowledge\ChunkList;
 use Twilio\Rest\Assistants\V1\Knowledge\KnowledgeStatusList;
 
@@ -59,57 +61,165 @@ class KnowledgeContext extends InstanceContext
     }
 
     /**
+     * Helper function for Delete
+     *
+     
+     * @return Response Deleted Response
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    private function _delete(): Response
+    {
+        
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
+    }
+
+    /**
      * Delete the KnowledgeInstance
      *
+     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
+        $response = $this->_delete();
+        
+        return true;
     }
 
-
     /**
-     * Fetch the KnowledgeInstance
+     * Delete the KnowledgeInstance with Metadata
      *
-     * @return KnowledgeInstance Fetched KnowledgeInstance
+     
+     * @return ResourceMetadata The Deleted Resource with Metadata
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function fetch(): KnowledgeInstance
+    public function deleteWithMetadata(): ResourceMetadata
     {
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
-
-        return new KnowledgeInstance(
-            $this->version,
-            $payload,
-            $this->solution['id']
+        $response = $this->_delete();
+        
+        
+        return new ResourceMetadata(
+            null,
+            $response->getStatusCode(),
+            $response->getHeaders()
         );
     }
 
 
     /**
+     * Helper function for Fetch
+     *
+     
+     * @return Response Fetched Response
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    private function _fetch(): Response
+    {
+        
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
+        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
+    }
+
+    /**
+     * Fetch the KnowledgeInstance
+     *
+     
+     * @return KnowledgeInstance Fetched KnowledgeInstance
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function fetch(): KnowledgeInstance
+    {
+        $response = $this->_fetch();
+        return new KnowledgeInstance(
+            $this->version,
+            $response->getContent(),
+            $this->solution['id']
+        );
+        
+    }
+
+    /**
+     * Fetch the KnowledgeInstance with Metadata
+     *
+     
+     * @return ResourceMetadata The Fetched Resource with Metadata
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function fetchWithMetadata(): ResourceMetadata
+    {
+        $response = $this->_fetch();
+        $resource = new KnowledgeInstance(
+                        $this->version,
+                        $response->getContent(),
+                        $this->solution['id']
+                    );
+        
+        return new ResourceMetadata(
+            $resource,
+            $response->getStatusCode(),
+            $response->getHeaders()
+        );
+    }
+
+
+    /**
+     * Helper function for Update
+     *
+     
+     * @param ?AssistantsV1ServiceUpdateKnowledgeRequest $assistantsV1ServiceUpdateKnowledgeRequest
+     * @return Response Updated Response
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    private function _update(?AssistantsV1ServiceUpdateKnowledgeRequest $assistantsV1ServiceUpdateKnowledgeRequest = null): Response
+    {
+        
+        $headers = Values::of(['Content-Type' => 'application/json', 'Accept' => 'application/json' ]);
+        $data = $assistantsV1ServiceUpdateKnowledgeRequest ? $assistantsV1ServiceUpdateKnowledgeRequest->toArray() : [];
+        return $this->version->handleRequest('PUT', $this->uri, [], $data, $headers, "update");
+    }
+
+    /**
      * Update the KnowledgeInstance
      *
+     
+     * @param ?AssistantsV1ServiceUpdateKnowledgeRequest $assistantsV1ServiceUpdateKnowledgeRequest
      * @return KnowledgeInstance Updated KnowledgeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function update(): KnowledgeInstance
+    public function update(?AssistantsV1ServiceUpdateKnowledgeRequest $assistantsV1ServiceUpdateKnowledgeRequest = null): KnowledgeInstance
     {
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        $data = $assistantsV1ServiceUpdateKnowledgeRequest->toArray();
-        $headers['Content-Type'] = 'application/json';
-        $payload = $this->version->update('PUT', $this->uri, [], $data, $headers);
-
+        $response = $this->_update($assistantsV1ServiceUpdateKnowledgeRequest);
         return new KnowledgeInstance(
             $this->version,
-            $payload,
+            $response->getContent(),
             $this->solution['id']
+        );
+        
+    }
+
+    /**
+     * Update the KnowledgeInstance with Metadata
+     *
+     
+     * @param ?AssistantsV1ServiceUpdateKnowledgeRequest $assistantsV1ServiceUpdateKnowledgeRequest
+     * @return ResourceMetadata The Updated Resource with Metadata
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function updateWithMetadata(?AssistantsV1ServiceUpdateKnowledgeRequest $assistantsV1ServiceUpdateKnowledgeRequest = null): ResourceMetadata
+    {
+        $response = $this->_update($assistantsV1ServiceUpdateKnowledgeRequest);
+        $resource = new KnowledgeInstance(
+                        $this->version,
+                        $response->getContent(),
+                        $this->solution['id']
+                    );
+        
+        return new ResourceMetadata(
+            $resource,
+            $response->getStatusCode(),
+            $response->getHeaders()
         );
     }
 

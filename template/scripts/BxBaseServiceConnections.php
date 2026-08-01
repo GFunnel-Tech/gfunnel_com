@@ -71,6 +71,9 @@ class BxBaseServiceConnections extends BxDol
         if($aResult['err'] !== false)
             return ['code' => 3, 'message' => $aResult['msg']];
 
+        if(($aParams['r'] ?? '') == 'object') 
+            return $oConnection->getElementAPI($aParams['cid'], $aParams['iid']);
+
         $aFlip = ['add' => 'remove', 'remove' => 'add'];
 
         return [
@@ -352,7 +355,7 @@ class BxBaseServiceConnections extends BxDol
      */
     public function serviceRelationsTable ($iProfileId = 0)
     {
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return false;
 
         if(!$iProfileId && bx_get('profile_id') !== false)
@@ -389,7 +392,7 @@ class BxBaseServiceConnections extends BxDol
      */
     public function serviceRelatedMeTable ($iProfileId = 0)
     {
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return false;
 
         if(!$iProfileId && bx_get('profile_id') !== false)

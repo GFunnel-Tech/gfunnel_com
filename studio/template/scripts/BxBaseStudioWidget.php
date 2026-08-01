@@ -19,7 +19,7 @@ class BxBaseStudioWidget extends BxDolStudioWidget
     {
         parent::__construct($mixedPageName);
 
-        $this->bPageMenuTitle = true;
+        $this->bPageMenuTitle = !$this->_bShowHeaderBreadcrumb;
         $this->bPageMenuIconsInline = true;
 
         $this->aPageCodeNoWrap = [];
@@ -100,14 +100,6 @@ class BxBaseStudioWidget extends BxDolStudioWidget
                 'title' => '_adm_tmi_cpt_site'
             ];
 
-        $aItemsRight['scheme'] = [
-            'name' => 'scheme',
-            'icon' => 'tmi-scheme-auto.svg',
-            'link' => 'javascript:void(0);',
-            'onclick' => 'bx_menu_popup_inline(\'#bx-std-pcap-menu-popup-scheme\', this);',
-            'title' => '_adm_tmi_cpt_scheme'
-        ];
-
         $aItemsRight['account'] = [
             'name' => 'account',
             'icon' => 'tmi-account.svg',
@@ -133,18 +125,19 @@ class BxBaseStudioWidget extends BxDolStudioWidget
         if(!$this->bPageMenuTitle && $aMenu === false)
             return '';
 
-        $oTemplate = BxDolStudioTemplate::getInstance();
+        $sActions = $this->bPageMenuTitle ? $this->getPageCaptionActions() : '';           
 
-        $bActions = false;
-        if($this->bPageMenuTitle && ($sActions = $this->getPageCaptionActions()) && ($bActions = strlen($sActions)) > 0)
-            $oTemplate->addInjection('injection_header', 'text', BxTemplStudioFunctions::getInstance()->transBox('bx-std-pmenu-popup-actions', $sActions, true));
-
-        return $oTemplate->parseHtmlByName('page_menu.html', [
-            'title' => _t($this->aPage['caption']),
-            'bx_if:show_actions' => [
-                'condition' => $bActions,
+        return BxDolStudioTemplate::getInstance()->parseHtmlByName('page_menu.html', [
+            'bx_if:show_title' => [
+                'condition' => $this->bPageMenuTitle,
                 'content' => [
-                    'onclick' => BX_DOL_STUDIO_PAGE_JS_OBJECT . ".togglePopup('actions', this)",
+                    'title' => _t($this->aPage['caption']),
+                    'bx_if:show_actions' => [
+                        'condition' => (bool)$sActions,
+                        'content' => [
+                            'onclick' => $sActions,
+                        ]
+                    ],
                 ]
             ],
             'menu' => parent::getPageMenu($aMenu, $aMarkers)
@@ -171,14 +164,18 @@ class BxBaseStudioWidget extends BxDolStudioWidget
             if(!$bWrap || in_array($sPage, $this->aPageCodeNoWrap))
                 $sResult .= $mixedContent;
             else if(is_string($mixedContent))
-                $sResult .= $this->getBlockCode(array(
+                $sResult .= $this->getBlockCode([
                     'content' => $mixedContent
-                ));
-            else if(is_array($mixedContent))
-                foreach($mixedContent as $sBlock)
-                    $sResult .= $this->getBlockCode(array(
-                        'content' => $sBlock
-                    ));
+                ]);
+            else if(is_array($mixedContent)) {
+                if(isset($mixedContent['content']))
+                    $sResult .= $this->getBlockCode($mixedContent);
+                else
+                    foreach($mixedContent as $sBlock)
+                        $sResult .= $this->getBlockCode([
+                            'content' => $sBlock
+                        ]);
+            }
             else if(is_a($mixedContent, 'BxDolPage'))
                 $sResult .= $mixedContent->getCode();
         }
@@ -213,7 +210,8 @@ class BxBaseStudioWidget extends BxDolStudioWidget
             BX_DB_DEF => 'cnt-ttl-bg',
             BX_DB_NO_CAPTION => 'cnt-bg'
         ];
-        $iType = isset($aBlock['type'], $aTypeI2S[$aBlock['type']]) ? $aBlock['type'] : BX_DB_NO_CAPTION;
+
+        $iType = isset($aBlock['type'], $aTypeI2S[$aBlock['type']]) ? $aBlock['type'] : BX_DB_DEF;
 
         $sContent = '';
         if(!empty($aBlock['content']))
@@ -232,38 +230,87 @@ class BxBaseStudioWidget extends BxDolStudioWidget
 
     public function getBlockCaption($aBlock)
     {
+        if(($sK = 'caption') && empty($aBlock[$sK])) {
+            if(($sPageCaption = $this->aPage['subcaption'] ?? false))
+                $aBlock[$sK] = $sPageCaption;
+            else if(($sPageCaption = $this->aPage['caption'] ?? false)) {
+                $_sPageCaption = _t($sPageCaption);
+                if(strcmp($sPageCaption, $_sPageCaption) !== 0)
+                    $aBlock[$sK] = $_sPageCaption;
+            }
+        }
+
         if(empty($aBlock) || !is_array($aBlock) || (empty($aBlock['caption']) && empty($aBlock['actions'])))
             return '';
+        
+        $oTemplate = BxDolStudioTemplate::getInstance();
 
         $aTmplActions = array();
         if(!empty($aBlock['actions']) && is_array($aBlock['actions']))
             foreach($aBlock['actions'] as $aAction) {
+                $aTmplVarsIcon = $aTmplVarsIconUrl = $aTmplVarsIconHtml = [];
+                if(($sIcon = $aAction['icon'] ?? false)) {
+                    list($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $oTemplate->getTemplateFunctions()->getIcon($sIcon);
+                    
+                    if($sIcon)
+                        $aTmplVarsIcon = [
+                            'icon' => BxDolIconset::getObjectInstance()->getIcon($sIcon)
+                        ];
+                    else if($sIconUrl)
+                        $aTmplVarsIconUrl = [
+                            'icon_url' => $sIconUrl,
+                        ];
+                    else if($sIconHtml)
+                        $aTmplVarsIconHtml = [
+                            'icon_html' => $sIconHtml
+                        ];
+                }
+
                 $sCaption = is_array($aAction['caption']) ? call_user_func_array('_t', $aAction['caption']) : _t($aAction['caption']);
+                $bTitleOnly = $aAction['title_only'] ?? false;
 
                 $bOnClick = !empty($aAction['onclick']);
                 $aOnClick = $bOnClick ? array('onclick' => $aAction['onclick']) : array();
 
-                $aTmplActions[] = array(
+                $aTmplActions[] = [
                     'name' => $aAction['name'],
                     'url' => $aAction['url'],
-                    'title' => $sCaption,
-                    'bx_if:show_onclick' => array(
+                    'title' => bx_html_attribute($sCaption),
+                    'bx_if:show_onclick' => [
                         'condition' => $bOnClick,
                         'content' => $aOnClick
-                    ),
-                    'caption' => $sCaption
-                );
+                    ],
+                    'bx_if:show_bc_icon' => [
+                        'condition' => !empty($aTmplVarsIcon),
+                        'content' => $aTmplVarsIcon
+                    ],
+                    'bx_if:show_bc_icon_url' => [
+                        'condition' => !empty($aTmplVarsIconUrl),
+                        'content' => $aTmplVarsIconUrl
+                    ],
+                    'bx_if:show_bc_icon_html' => [
+                        'condition' => !empty($aTmplVarsIconHtml),
+                        'content' => $aTmplVarsIconHtml
+                    ],
+                    'bx_if:show_bc_text' => [
+                        'condition' => (bool)$sCaption && !$bTitleOnly,
+                        'content' => [
+                            'caption' => $sCaption
+                        ]
+                    ],
+                    
+                ];
             }
 
-        return BxDolStudioTemplate::getInstance()->parseHtmlByName('block_caption.html', array(
+        return $oTemplate->parseHtmlByName('block_caption.html', [
             'caption' => is_array($aBlock['caption']) ? call_user_func_array('_t', $aBlock['caption']) : _t($aBlock['caption']),
-            'bx_if:show_actions' => array(
+            'bx_if:show_actions' => [
                 'condition' => !empty($aTmplActions),
-                'content' => array(
+                'content' => [
                     'bx_repeat:actions' => $aTmplActions
-                )
-            ),
-        ));
+                ]
+            ],
+        ]);
     }
 
     public function getBlockPanelTop($aBlock)
@@ -290,17 +337,6 @@ class BxBaseStudioWidget extends BxDolStudioWidget
     /**
      * Internal methods.
      */
-    protected function getPageCaptionActions()
-    {
-        $sActions = $this->getPageActions();
-        if(empty($sActions))
-            return "";
-
-        return BxDolStudioTemplate::getInstance()->parseHtmlByName('page_caption_actions.html', array(
-            'content' => $sActions
-        ));
-    }
-
     protected function getPageActions($iWidgetId = 0)
     {
         if(empty($this->aActions))

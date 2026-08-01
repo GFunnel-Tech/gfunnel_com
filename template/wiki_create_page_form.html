@@ -9,8 +9,8 @@
                 bx_loading($("#bx-wiki-create-page-form form"), true);
             },
             success: function (data) {
-                if ('{' == data[0]) {
-                    var oResponce = JSON.parse(data);
+                if ('object' == typeof(data)) {
+                    var oResponce = data;
                     if (oResponce.code) {
                         $('.bx-popup-applied:visible').dolPopupHide();
                         bx_alert(oResponce.msg);

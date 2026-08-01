@@ -1,6 +1,4 @@
+<div class="bx-db-placeholder-async">&nbsp;</div>
 <script>
-  $(document).ready(function () {
-    var iBlockID = '__id__';
-    getHtmlData($('#bx-page-block-' + iBlockID), bx_append_url_params(document.location.href, 'dynamic=tab&pageBlock=' + iBlockID), onAsyncBlockLoad, 'post', false, {includedCss: JSON.stringify(aIncludedCss), includedJs: JSON.stringify(aIncludedJs)});
-  });
+    loadDynamicBlockAsync('__id__', false, true, true);
 </script>

@@ -183,6 +183,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     protected $_sBaseUrl = '';
     protected $_sListAnchor = '';
     protected $_sItemAnchor = '';
+    protected $_sItemAnchorApi = '';
 
     protected $_aSystems = [];
 
@@ -261,6 +262,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
 
         $this->_sListAnchor = "cmts-anchor-%s-%d";
         $this->_sItemAnchor = "cmt-anchor-%s-%d-%d";
+        $this->_sItemAnchorApi = "cid=%d";
 
         $this->_oQuery = new BxDolCmtsQuery($this);
 
@@ -457,6 +459,11 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
         return $this->_aSystem;
     }
 
+    public function getModule()
+    {
+        return $this->_aSystem['module'];
+    }
+
     public function getStorageObjectName()
     {
     	return $this->_getFormObject()->getStorageObjectName();
@@ -532,31 +539,59 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
         return $this->_prepareTextForOutput($mixedItem['cmt_text'], (int)$mixedItem['cmt_id']);
     }
 
-    public function getBaseUrl()
+    public function getViewSnippet($mixedItem, $sMaxLength = 20)
+    {
+        if(!is_array($mixedItem))
+            $mixedItem = $this->getCommentSimple((int)$mixedItem);
+
+        if(empty($mixedItem) || !is_array($mixedItem))
+            return '';
+
+        $sResult = bx_process_output(strip_tags($mixedItem['cmt_text']), BX_DATA_TEXT);
+        if(mb_strlen($sResult) > $sMaxLength)
+            $sResult = strmaxtextlen($sResult, $sMaxLength, '...');
+
+        return $sResult;
+    }
+
+    public function getBaseUrl($sPrefix = BX_DOL_URL_ROOT)
     {
         $sUrl = $this->_replaceMarkers($this->_sBaseUrl);
         $sUrl = BxDolPermalinks::getInstance()->permalink($sUrl);
-        if(get_mb_substr($sUrl, 0, 6) != 'http:/' && get_mb_substr($sUrl, 0, 7) != 'https:/')
-            $sUrl = BX_DOL_URL_ROOT . $sUrl;
-        return $sUrl;
+        return bx_absolute_url($sUrl, $sPrefix);
     }
 
-    public function getListUrl()
+    public function getListUrl($sPrefix = BX_DOL_URL_ROOT)
     {
-        $sBaseUrl = $this->getBaseUrl();
+        $sBaseUrl = $this->getBaseUrl($sPrefix);
         if(empty($sBaseUrl))
             return '';
 
         return $sBaseUrl . $this->getListAnchor(true);
     }
 
-    public function getItemUrl($iItemId)
+    /**
+     * Get URL for view commented content page with anchor to the coment. 
+     * @param integer $iItemId - comment ID.
+     * @param string $sPrefix - URL prefix.
+     * @return string with URL.
+     */
+    public function getItemUrl($iItemId, $sPrefix = BX_DOL_URL_ROOT)
     {
-        $sBaseUrl = $this->getBaseUrl();
+        $sBaseUrl = $this->getBaseUrl($sPrefix);
         if(empty($sBaseUrl))
             return '';
 
         return $sBaseUrl . $this->getItemAnchor($iItemId, true);
+    }
+
+    public function getItemUrlApi($iItemId, $sPrefix = BX_DOL_URL_ROOT)
+    {
+        $sBaseUrl = $this->getBaseUrl($sPrefix);
+        if(empty($sBaseUrl))
+            return '';
+
+        return $sBaseUrl . $this->getItemAnchorApi($iItemId, true);
     }
 
     public function getListAnchor($bWithHash = false)
@@ -567,6 +602,16 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function getItemAnchor($iItemId, $bWithHash = false)
     {
         return ($bWithHash ? '#' : '') . sprintf($this->_sItemAnchor, str_replace('_', '-', $this->getSystemName()), $this->getId(), $iItemId);
+    }
+
+    public function getItemAnchorApi($iItemId, $bWithHash = false)
+    {
+        return ($bWithHash ? '#' : '') . sprintf($this->_sItemAnchorApi, $iItemId);
+    }
+
+    public function geModalViewApi()
+    {
+        return 'default';
     }
 
     public function getAttachments($iCmtId)
@@ -1618,7 +1663,12 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
 
     public function add($aValues)
     {
-        return $this->_getFormAdd($aValues);
+        return $this->_getFormDirectAdd($aValues);
+    }
+
+    public function edit($aValues, $iCmtId)
+    {
+        return $this->_getFormDirectEdit($aValues, $iCmtId);
     }
 
     public function actionResumeLiveUpdate()
@@ -1875,7 +1925,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function serviceGetAuthor ($iContentId)
     {
         $aComment = $this->_oQuery->getCommentsBy(array('type' => 'id', 'id' => $iContentId));
-        $this->setId($aComment['cmt_object_id']);
+        $this->init($aComment['cmt_object_id']);
 
         return $aComment['cmt_author_id'];
     }
@@ -1883,7 +1933,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function serviceGetDateAdded ($iContentId)
     {
         $aComment = $this->_oQuery->getCommentsBy(array('type' => 'id', 'id' => $iContentId));
-        $this->setId($aComment['cmt_object_id']);
+        $this->init($aComment['cmt_object_id']);
 
         return $aComment['cmt_time'];
     }
@@ -1895,7 +1945,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function serviceGetLink ($iContentId)
     {
         $aComment = $this->_oQuery->getCommentsBy(array('type' => 'id', 'id' => $iContentId));
-        $this->setId($aComment['cmt_object_id']);
+        $this->init($aComment['cmt_object_id']);
 
         return $this->getViewUrl($iContentId);
     }
@@ -1908,7 +1958,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function serviceGetText ($iContentId)
     {
         $aComment = $this->_oQuery->getCommentsBy(array('type' => 'id', 'id' => $iContentId));
-        $this->setId($aComment['cmt_object_id']);
+        $this->init($aComment['cmt_object_id']);
 
         return $aComment['cmt_text'];
     }
@@ -1921,7 +1971,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function serviceGetInfo ($iContentId, $bSearchableFieldsOnly = true)
     {
         $aComment = $this->_oQuery->getCommentsBy(array('type' => 'id', 'id' => $iContentId));
-        $this->setId($aComment['cmt_object_id']);
+        $this->init($aComment['cmt_object_id']);
 
         return BxDolContentInfo::formatFields($aComment);
     }
@@ -1941,7 +1991,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
         if(empty($aComment) || !is_array($aComment))
             return '';
 
-        $this->setId($aComment['cmt_object_id']);
+        $this->init($aComment['cmt_object_id']);
 
         return $this->getComment($aComment, array(), array('type' => BX_CMT_DISPLAY_FLAT, 'view_only' => true));
     }
@@ -2527,21 +2577,25 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
         $sCmtIndex = 'i' . $iCmtId;
 
         if($bItem) {
-            $oMenuActions = BxDolMenu::getObjectInstance($this->_sMenuObjActions);
-            $oMenuActions->setCmtsData($this, $iCmtId, $aBp);
+            $aMenuActions = [];
+            if(($oMenuActions = BxDolMenu::getObjectInstance($this->_sMenuObjActions)) !== false) {
+                $oMenuActions->setCmtsData($this, $iCmtId, $aBp);
+                $aMenuActions = $oMenuActions->getCodeAPI();
+            }
 
-            $oMenuManage = BxDolMenu::getObjectInstance($this->_sMenuObjManage);
-            $oMenuManage->setCmtsData($this, $iCmtId, $aBp);
+            $aMenuManage = [];
+            if(($oMenuManage = BxDolMenu::getObjectInstance($this->_sMenuObjManage)) !== false) {
+                $oMenuManage->setCmtsData($this, $iCmtId, $aBp);
+                if($oMenuManage->isVisible())
+                    $aMenuManage = $oMenuManage->getShortCodeAPI();
+            }
 
-            $aData = $this->getCommentSimple($iCmtId);
-            
             bx_import('BxDolEmbed');
-            $aData['embed'] = bx_linkify_embeded($aData['cmt_text']);
-            
-            $aData = array_merge($this->getDataAPI($aData), [
-                'menu_actions' => $oMenuActions->getCodeAPI(),
-                'menu_manage' => $oMenuManage->getShortCodeAPI(),
-            ]);
+            $aData = $this->getDataAPI(array_merge($this->getCommentSimple($iCmtId), [
+                'embed' => bx_linkify_embeded($aData['cmt_text']),
+                'menu_actions' => $aMenuActions,
+                'menu_manage' => $aMenuManage,
+            ]));
 
             $aStructure[$sCmtIndex] = [
                 'id' => $iCmtId, 
@@ -2585,8 +2639,9 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
     public function getDataAPI($aData, $aParams = [])
     {
         $aDataApi = array_merge($aData, [
-            'cmt_url' => '/' . $this->getViewUrl($aData['cmt_id'], false),
+            'cmt_url' => bx_api_get_relative_url($this->getItemUrlApi($aData['cmt_id'])),
             'author_data' => BxDolProfile::getData($aData['cmt_author_id']),
+            'author_badges' => BxDolProfile::getInstance($aData['cmt_author_id'])->getBadges()
         ]);
 
         $sModule = $this->_aSystem['module'];
@@ -2595,6 +2650,7 @@ class BxDolCmts extends BxDolFactory implements iBxDolReplaceable, iBxDolContent
             'data' => $aData,
             'params' => $aParams,
             'data_api' => &$aDataApi,
+            'data_api_ref' => &$aDataApi,
         ];
 
         /**

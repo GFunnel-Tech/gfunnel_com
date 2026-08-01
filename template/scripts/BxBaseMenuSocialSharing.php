@@ -48,6 +48,10 @@ class BxBaseMenuSocialSharing extends BxTemplMenu
         $oAlert = new BxDolAlerts('system', 'social_sharing_display', '', '', array (
         	'markers' => &$this->_aMarkers,
             'buttons' => &$this->_aObject['menu_items'],
+
+        	'markers_ref' => &$this->_aMarkers,
+            'buttons_ref' => &$this->_aObject['menu_items'],
+
             'override_output' => &$sOverrideOutput,
         ));
         $oAlert->alert();

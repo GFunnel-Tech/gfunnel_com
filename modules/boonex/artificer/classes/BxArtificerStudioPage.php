@@ -40,13 +40,9 @@ class BxArtificerStudioPage extends BxTemplStudioDesign
 
     	$oOptions = new BxArtificerStudioOptions($this->sModule, $mixedCategory, $sMix);
 
-        $this->aPageCss = array_merge($this->aPageCss, $oOptions->getCss(), [BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'codemirror/|codemirror.css']);
-        $this->aPageJs = array_merge($this->aPageJs, $oOptions->getJs(), ['codemirror/codemirror.min.js']);
         return BxDolStudioTemplate::getInstance()->parseHtmlByName('design.html', [
             'content' => $oOptions->getCode(),
-            'js_content' => $this->getPageJsCode([
-                'sCodeMirror' => "textarea[name='" . $sPrefix . "_styles_custom'],textarea[name='" . $sPrefix . "_images_custom']"
-            ])
+            'js_content' => $this->getPageJsCode()
         ]);
     }
 }

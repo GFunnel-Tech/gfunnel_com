@@ -22,6 +22,17 @@ class BxBaseModGroupsFormPrice extends BxTemplFormView
 
         $CNF = &$this->_oModule->_oConfig->CNF;
 
+        if(isset($this->aInputs[$CNF['FIELD_PRICE_ROLE_ID']])) {
+            $aRoles = $this->_oModule->_oConfig->getRolesPurchasable();
+
+            $this->aInputs[$CNF['FIELD_PRICE_ROLE_ID']]['values'][] = ['key' => '', 'value' => _t('_sys_please_select')];
+            foreach($aRoles as $iId => $sTitle)
+                $this->aInputs[$CNF['FIELD_PRICE_ROLE_ID']]['values'][] = [
+                    'key' => 'r' . $iId, 
+                    'value' => _t($sTitle)
+                ];
+        }
+
         if(isset($this->aInputs[$CNF['FIELD_PRICE_NAME']])) {
             $sJsObject = $this->_oModule->_oConfig->getJsObject('prices');
 
@@ -39,16 +50,20 @@ class BxBaseModGroupsFormPrice extends BxTemplFormView
 
     public function setRoleId($iRoleId)
     {
+        if($iRoleId === false)
+            return;
+
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        $this->aInputs[$CNF['FIELD_PRICE_ROLE_ID']]['value'] = (int)$iRoleId;
+        $this->aInputs[$CNF['FIELD_PRICE_ROLE_ID']]['value'] = $this->_oModule->_oConfig->roleIdI2S($iRoleId);
+
         if(empty($this->aInputs[$CNF['FIELD_PRICE_NAME']]['value'])) {
             $aRoles = $this->_oModule->_oConfig->getRoles();
             $this->aInputs[$CNF['FIELD_PRICE_NAME']]['value'] = $this->_oModule->_oConfig->getPriceName(_t($aRoles[$iRoleId]));
         }
     }
 
-    public function insert ($aValsToAdd = array(), $isIgnore = false)
+    public function insert ($aValsToAdd = [], $isIgnore = false)
     {
         $CNF = &$this->_oModule->_oConfig->CNF;
 

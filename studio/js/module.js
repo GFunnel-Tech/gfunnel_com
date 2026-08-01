@@ -56,11 +56,11 @@ BxDolStudioModule.prototype.activate = function(oCheckbox, sName, iWidgetId) {
                 return;
             }
 
-            var oContent = $('#bx-std-page-columns');
-            if(oData.content.length > 0)
-                oContent.bx_anim('hide', $this.sAnimationEffect, $this.iAnimationSpeed, function() {
-                    $(this).html(oData.content).bx_anim('show', $this.sAnimationEffect, 'fast');
-                });
+            $('#bx-std-page-columns').bx_anim('hide', $this.sAnimationEffect, $this.iAnimationSpeed, function() {
+                $(this).html(oData.content);
+                if(oData.content.length > 0)
+                    $(this).bxProcessHtml().bx_anim('show', $this.sAnimationEffect, 'fast');
+            });
         },
         'json'
     );

@@ -34,10 +34,11 @@ class BxBasePagesSearchResult extends BxTemplSearchResult
                     'groupTable' => 'sys_objects_page', 
                     'groupField' => 'object',
                 ),
-            ),            
+            ),
             'paginate' => array('perPage' => 10, 'start' => 0),
             'sorting' => 'last',
             'ident' => 'id',
+            'added' => 'id'
         );
 
         $this->sBrowseUrl = BX_DOL_SEARCH_KEYWORD_PAGE;

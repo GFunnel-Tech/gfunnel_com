@@ -23,6 +23,7 @@
     <string name="_bx_orgs_option_searchable_fields"><![CDATA[Поля для поиска по ключевому слову]]></string>
     <string name="_bx_orgs_option_members_mode"><![CDATA[Спец. режим для членов организации]]></string>
     <string name="_bx_orgs_option_members_mode_multi_roles"><![CDATA[Множественные роли]]></string>
+    <string name="_bx_orgs_option_friends"><![CDATA[Дружба]]></string>
     <string name="_bx_orgs_option_public_subscriptions"><![CDATA[Открытый список подписок]]></string>
     <string name="_bx_orgs_option_public_subscribed_me"><![CDATA[Открытый список подписчиков]]></string>
     <string name="_bx_orgs_option_enable_subscribe_wo_join"><![CDATA[Разрешить подписываться не членам организации]]></string>
@@ -34,6 +35,7 @@
     <string name="_bx_orgs_form_profile_display_add"><![CDATA[Добавление организации]]></string>
     <string name="_bx_orgs_form_profile_display_edit"><![CDATA[Редактирование организации]]></string>
     <string name="_bx_orgs_form_profile_display_edit_cover"><![CDATA[Редактирование обложки]]></string>
+    <string name="_bx_orgs_form_profile_display_edit_badge"><![CDATA[Редактирование значка]]></string>
     <string name="_bx_orgs_form_profile_display_delete"><![CDATA[Удаление организации]]></string>
     <string name="_bx_orgs_form_profile_display_view"><![CDATA[Просмотр организации]]></string>
     <string name="_bx_orgs_form_profile_display_view_full"><![CDATA[Полный просмотр организации]]></string>
@@ -66,6 +68,13 @@
     <string name="_bx_orgs_form_profile_input_online_search"><![CDATA[В сети]]></string>
     <string name="_bx_orgs_form_profile_input_sys_cover"><![CDATA[Картинка обложки]]></string>
     <string name="_bx_orgs_form_profile_input_cover"><![CDATA[Загрузить новую картинку обложки]]></string>
+    <string name="_bx_orgs_form_profile_input_sys_badge"><![CDATA[Изображение значка]]></string>
+    <string name="_bx_orgs_form_profile_input_badge"><![CDATA[Загрузить новое изображение значка]]></string>
+    <string name="_bx_orgs_form_profile_input_sys_badge_link_custom"><![CDATA[Пользовательская ссылка значка]]></string>
+    <string name="_bx_orgs_form_profile_input_badge_link_custom"><![CDATA[Пользовательская ссылка значка]]></string>
+    <string name="_bx_orgs_form_profile_input_badge_link_custom_placeholder"><![CDATA[или введите свою собственную здесь]]></string>
+    <string name="_bx_orgs_form_profile_input_sys_badge_link_select"><![CDATA[Выбор ссылки значка]]></string>
+    <string name="_bx_orgs_form_profile_input_badge_link_select"><![CDATA[Ссылка для значка]]></string>
     <string name="_bx_orgs_form_profile_input_sys_delete_confirm"><![CDATA[Удалить подтверждение]]></string>
     <string name="_bx_orgs_form_profile_input_delete_confirm"><![CDATA[Я уверен, что хочу удалить этот профиль]]></string>
     <string name="_bx_orgs_form_profile_input_delete_confirm_info"><![CDATA[Это действие не может быть отменено.]]></string>
@@ -76,6 +85,8 @@
     <string name="_bx_orgs_form_profile_input_profile_status"><![CDATA[Статус]]></string>
     <string name="_bx_orgs_form_profile_input_sys_profile_ip"><![CDATA[IP]]></string>
     <string name="_bx_orgs_form_profile_input_profile_ip"><![CDATA[IP]]></string>
+    <string name="_bx_orgs_form_profile_input_sys_profile_last_active"><![CDATA[Последняя активность аккаунта]]></string>
+    <string name="_bx_orgs_form_profile_input_profile_last_active"><![CDATA[Последняя активность аккаунта]]></string>
     <string name="_bx_orgs_form_profile_input_sys_date_added"><![CDATA[Дата создания]]></string>
     <string name="_bx_orgs_form_profile_input_date_added"><![CDATA[Дата создания]]></string>
     <string name="_bx_orgs_form_profile_input_sys_date_changed"><![CDATA[Дата обновления]]></string>
@@ -90,11 +101,17 @@
     <string name="_bx_orgs_form_price_display_add"><![CDATA[Добавление]]></string>
     <string name="_bx_orgs_form_price_display_edit"><![CDATA[Редактирование]]></string>
     <string name="_bx_orgs_form_price_input_sys_id"><![CDATA[ID]]></string>
-    <string name="_bx_orgs_form_price_input_sys_role_id"><![CDATA[ID роли]]></string>
+    <string name="_bx_orgs_form_price_input_sys_role_id"><![CDATA[Роль]]></string>
+    <string name="_bx_orgs_form_price_input_role_id"><![CDATA[Роль]]></string>
+    <string name="_bx_orgs_form_price_input_err_role_id"><![CDATA[Здесь Вам необходимо выбрать роль.]]></string>
     <string name="_bx_orgs_form_price_input_sys_name"><![CDATA[Имя]]></string>
     <string name="_bx_orgs_form_price_input_name"><![CDATA[Имя]]></string>
     <string name="_bx_orgs_form_price_input_inf_name"><![CDATA[Уникальное значение, которое будет использоваться в серверной части и API запросах]]></string>
-    <string name="_bx_orgs_form_price_input_err_name"><![CDATA[Введите уникальное значение]]></string>
+    <string name="_bx_orgs_form_price_input_err_name"><![CDATA[Значение поля должно быть уникальным и необходимо для внутреннего использования.]]></string>
+    <string name="_bx_orgs_form_price_input_sys_caption"><![CDATA[Название]]></string>
+    <string name="_bx_orgs_form_price_input_caption"><![CDATA[Название]]></string>
+    <string name="_bx_orgs_form_price_input_inf_caption"><![CDATA[Название будет показываться на стороне пользователя.]]></string>
+    <string name="_bx_orgs_form_price_input_err_caption"><![CDATA[Здесь вам необходимо ввести значение.]]></string>
     <string name="_bx_orgs_form_price_input_sys_period"><![CDATA[Период]]></string>
     <string name="_bx_orgs_form_price_input_period"><![CDATA[Период]]></string>
     <string name="_bx_orgs_form_price_input_inf_period"><![CDATA[Используйте 0 для пожизненного]]></string>
@@ -105,6 +122,8 @@
     <string name="_bx_orgs_form_price_input_sys_price"><![CDATA[Цена]]></string>
     <string name="_bx_orgs_form_price_input_price"><![CDATA[Цена]]></string>
     <string name="_bx_orgs_form_price_input_inf_price"><![CDATA[Введите 0 или оставьте пустым для создания бесплатного уровня.]]></string>
+    <string name="_bx_orgs_form_price_input_sys_default"><![CDATA[По умолчанию]]></string>
+    <string name="_bx_orgs_form_price_input_default"><![CDATA[По умолчанию]]></string>
     <string name="_bx_orgs_form_price_input_sys_do_submit"><![CDATA[Выполнить]]></string>
     <string name="_bx_orgs_form_price_input_do_submit"><![CDATA[Выполнить]]></string>
     <string name="_bx_orgs_form_price_input_sys_do_cancel"><![CDATA[Отменить]]></string>
@@ -114,6 +133,7 @@
     <string name="_bx_orgs_acl_action_use_paid_join"><![CDATA[Использовать платный вход в организацию]]></string>
     <string name="_bx_orgs_acl_action_delete_profile"><![CDATA[Удалить профиль организации]]></string>
     <string name="_bx_orgs_acl_action_view_profile"><![CDATA[Просмотреть профиль организации]]></string>
+    <string name="_bx_orgs_acl_action_change_badge"><![CDATA[Изменять значок профиля организации]]></string>
     <string name="_bx_orgs_acl_action_edit_any_profile"><![CDATA[Редактировать профиль любой организации]]></string>
     <string name="_bx_orgs_acl_action_delete_any_profile"><![CDATA[Удалять профиль любой организации]]></string>
     <string name="_bx_orgs_acl_action_delete_invites"><![CDATA[Удалять приглашения]]></string>
@@ -124,6 +144,10 @@
     <string name="_bx_orgs_page_title_edit_profile"><![CDATA[Редактировать профиль]]></string>
     <string name="_bx_orgs_page_title_sys_edit_profile_cover"><![CDATA[Редактировать обложку профиля]]></string>
     <string name="_bx_orgs_page_title_edit_profile_cover"><![CDATA[Редактировать обложку]]></string>
+    <string name="_bx_orgs_page_title_sys_edit_profile_badge"><![CDATA[Редактировать значок]]></string>
+    <string name="_bx_orgs_page_title_edit_profile_badge"><![CDATA[Редактировать значок]]></string>
+    <string name="_bx_orgs_page_title_manage_profile"><![CDATA[Управление]]></string>
+    <string name="_bx_orgs_page_title_sys_manage_profile"><![CDATA[Управление группой]]></string>
     <string name="_bx_orgs_page_title_sys_delete_profile"><![CDATA[Удалить профиль]]></string>
     <string name="_bx_orgs_page_title_delete_profile"><![CDATA[Удалить профиль]]></string>
     <string name="_bx_orgs_page_title_sys_join_profile"><![CDATA[Присоединиться к организации]]></string>
@@ -185,6 +209,7 @@
     <string name="_bx_orgs_page_block_title_create_profile"><![CDATA[Создать профиль - организация]]></string>
     <string name="_bx_orgs_page_block_title_edit_profile"><![CDATA[Редактировать профиль]]></string>
     <string name="_bx_orgs_page_block_title_edit_profile_cover"><![CDATA[Редактировать обложку]]></string>
+    <string name="_bx_orgs_page_block_title_edit_profile_cover"><![CDATA[Редактировать обложку]]></string>
     <string name="_bx_orgs_page_block_title_delete_profile"><![CDATA[Удалить профиль]]></string>
     <string name="_bx_orgs_page_block_title_profile_all_actions"><![CDATA[Все действия]]></string>
     <string name="_bx_orgs_page_block_title_join_profile"><![CDATA[Присоединиться к организации]]></string>
@@ -206,11 +231,12 @@
     <string name="_bx_orgs_page_block_title_friend_requests_link"><![CDATA[<a href="{profile_link}">{display_name}</a> - Приглашения в друзья]]></string>
     <string name="_bx_orgs_page_block_title_system_friend_requests"><![CDATA[Приглашения в друзья]]></string>
     <string name="_bx_orgs_page_block_title_admins"><![CDATA[Администраторы]]></string>
-    <string name="_bx_orgs_page_block_title_fans_link"><![CDATA[Участники группы: <a href="{profile_link}">{display_name}</a>]]></string>
+    <string name="_bx_orgs_page_block_title_fans_link"><![CDATA[Участники организации: <a href="{profile_link}">{display_name}</a>]]></string>
     <string name="_bx_orgs_page_block_title_fans"><![CDATA[Участники]]></string>
     <string name="_bx_orgs_page_block_title_system_fans"><![CDATA[Участники]]></string>
-    <string name="_bx_orgs_page_block_title_fans_invites"><![CDATA[Приглашения]]></string>
-    <string name="_bx_orgs_page_block_title_system_invites"><![CDATA[Приглашения]]></string>
+    <string name="_bx_orgs_page_block_title_system_fans_manage"><![CDATA[Управление участниками]]></string>
+    <string name="_bx_orgs_page_block_title_invites"><![CDATA[Приглашения]]></string>
+    <string name="_bx_orgs_page_block_title_system_invites_manage"><![CDATA[Приглашения]]></string>
     <string name="_bx_orgs_page_block_title_profile_location"><![CDATA[Расположение]]></string>
     <string name="_bx_orgs_page_block_title_system_profile_subscriptions"><![CDATA[Подписки]]></string>
     <string name="_bx_orgs_page_block_title_profile_subscriptions"><![CDATA[Подписки]]></string>
@@ -259,6 +285,7 @@
     <string name="_bx_orgs_page_block_title_cover_block"><![CDATA[Обложка]]></string>
 
     <string name="_bx_orgs_menu_title_submenu"><![CDATA[Организации - Подменю]]></string>
+    <string name="_bx_orgs_menu_title_public_submenu"><![CDATA[Организации]]></string>
     <string name="_bx_orgs_menu_set_title_submenu"><![CDATA[Организации - Подменю]]></string>
     <string name="_bx_orgs_menu_set_title_view_profile_actions"><![CDATA[Организации - Действия]]></string>
     <string name="_bx_orgs_menu_title_view_profile_actions"><![CDATA[Организации - Действия]]></string>
@@ -272,8 +299,8 @@
     <string name="_bx_orgs_menu_set_title_entries_my"><![CDATA[Организации профиля - Меню]]></string>
     <string name="_bx_orgs_menu_set_title_manage_tools"><![CDATA[Инструменты управления - Подменю]]></string>
     <string name="_bx_orgs_menu_title_manage_tools"><![CDATA[Инструменты управления - Подменю]]></string>
-    <string name="_bx_orgs_menu_item_title_system_delete_with_content"><![CDATA[Удалить вместе с содержимым]]></string>
-    <string name="_bx_orgs_menu_item_title_delete_with_content"><![CDATA[Удалить вместе с содержимым]]></string>
+    <string name="_bx_orgs_menu_item_title_system_delete_with_content"><![CDATA[Удалить с данными]]></string>
+    <string name="_bx_orgs_menu_item_title_delete_with_content"><![CDATA[Удалить с данными]]></string>
     <string name="_bx_orgs_menu_item_title_system_clear_reports"><![CDATA[Очистить жалобы]]></string>
     <string name="_bx_orgs_menu_item_title_clear_reports"><![CDATA[Очистить жалобы]]></string>
     <string name="_bx_orgs_menu_item_title_system_edit_cover"><![CDATA[Редактировать обложку]]></string>
@@ -282,12 +309,14 @@
     <string name="_bx_orgs_menu_item_title_edit_pricing"><![CDATA[Редактировать цены]]></string>
     <string name="_bx_orgs_menu_item_title_system_edit_profile"><![CDATA[Редактировать организацию]]></string>
     <string name="_bx_orgs_menu_item_title_edit_profile"><![CDATA[Редактировать профиль]]></string>
-    <string name="_bx_orgs_menu_item_title_system_delete_profile"><![CDATA[Удалить организацию]]></string>
-    <string name="_bx_orgs_menu_item_title_delete_profile"><![CDATA[Удалить профиль]]></string>
+    <string name="_bx_orgs_menu_item_title_system_edit_badge"><![CDATA[Редактировать значок]]></string>
+    <string name="_bx_orgs_menu_item_title_edit_badge"><![CDATA[Редактировать значок]]></string>
+    <string name="_bx_orgs_menu_item_title_system_delete_profile"><![CDATA[Удалить профиль и данные]]></string>
+    <string name="_bx_orgs_menu_item_title_delete_profile"><![CDATA[Удалить профиль и данные]]></string>
     <string name="_bx_orgs_menu_item_title_system_delete_account"><![CDATA[Удалить аккаунт]]></string>
     <string name="_bx_orgs_menu_item_title_delete_account"><![CDATA[Удалить аккаунт]]></string>
-    <string name="_bx_orgs_menu_item_title_system_delete_account_content"><![CDATA[Удалить аккаунт и контент]]></string>
-    <string name="_bx_orgs_menu_item_title_delete_account_content"><![CDATA[Удалить аккаунт и контент]]></string>
+    <string name="_bx_orgs_menu_item_title_system_delete_account_content"><![CDATA[Удалить аккаунт и данные]]></string>
+    <string name="_bx_orgs_menu_item_title_delete_account_content"><![CDATA[Удалить аккаунт и данные]]></string>
     <string name="_bx_orgs_menu_item_title_system_profile_type"><![CDATA[Организация]]></string>
     <string name="_bx_orgs_menu_item_title_profile_type"><![CDATA[Организация]]></string>
     <string name="_bx_orgs_menu_item_title_system_create_profile"><![CDATA[Организация]]></string>
@@ -312,6 +341,8 @@
     <string name="_bx_orgs_menu_item_title_view_profile_more_auto"><![CDATA[Еще]]></string>
     <string name="_bx_orgs_menu_item_title_system_view_joined_groups"><![CDATA[Организации]]></string>
     <string name="_bx_orgs_menu_item_title_view_joined_groups"><![CDATA[Организации]]></string>
+    <string name="_bx_orgs_menu_item_title_system_manage"><![CDATA[Управление]]></string>
+    <string name="_bx_orgs_menu_item_title_manage"><![CDATA[Управление]]></string>
     <string name="_bx_orgs_menu_item_title_system_invite"><![CDATA[Пригласить]]></string>
     <string name="_bx_orgs_menu_item_title_invite"><![CDATA[Пригласить]]></string>
     <string name="_bx_orgs_menu_item_title_system_befriend"><![CDATA[Добавить в друзья]]></string>
@@ -322,6 +353,8 @@
     <string name="_bx_orgs_menu_item_title_unfriend"><![CDATA[Удалить из друзей]]></string>
     <string name="_bx_orgs_menu_item_title_unfriend_cancel_request"><![CDATA[Отменить запрос о дружбе]]></string>
     <string name="_bx_orgs_menu_item_title_unfriend_reject_request"><![CDATA[Отвергнуть запрос о дружбе]]></string>
+    <string name="_bx_orgs_menu_item_title_system_fans"><![CDATA[Участники]]></string>
+    <string name="_bx_orgs_menu_item_title_fans"><![CDATA[Участники]]></string>
     <string name="_bx_orgs_menu_item_title_system_become_fan"><![CDATA[Присоединиться]]></string>
     <string name="_bx_orgs_menu_item_title_become_fan"><![CDATA[Присоединиться]]></string>
     <string name="_bx_orgs_menu_item_title_become_fan_sent"><![CDATA[Присоединение запрошено]]></string>
@@ -331,7 +364,8 @@
     <string name="_bx_orgs_menu_item_title_leave_organization_cancel_request"><![CDATA[Отменить присоединение]]></string>
     <string name="_bx_orgs_menu_item_title_leave_organization_reject_request"><![CDATA[Отвергнуть присоединение]]></string>
     <string name="_bx_orgs_menu_item_title_system_pay_and_join"><![CDATA[Оплатить и присоединиться]]></string>
-    <string name="_bx_orgs_menu_item_title_pay_and_join"><![CDATA[Оплатить и присоединиться]]></string>
+    <string name="_bx_orgs_menu_item_title_pay_and_join"><![CDATA[Присоединиться {0}]]></string>
+    <string name="_bx_orgs_menu_item_title_system_subscriptions"><![CDATA[Подписки]]></string>
     <string name="_bx_orgs_menu_item_title_system_subscribe"><![CDATA[Получать уведомления]]></string>
     <string name="_bx_orgs_menu_item_title_subscribe"><![CDATA[Получать уведомления]]></string>
     <string name="_bx_orgs_menu_item_title_system_unsubscribe"><![CDATA[Отключить уведомления]]></string>
@@ -395,13 +429,15 @@
     <string name="_bx_orgs_grid_action_title_adm_more_actions"><![CDATA[Дополнительные действия]]></string>
     <string name="_bx_orgs_grid_action_title_adm_audit_content"><![CDATA[Аудит действий над профилем]]></string>
     <string name="_bx_orgs_grid_action_title_adm_audit_profile"><![CDATA[Аудит действий профиля]]></string>
-	<string name="_bx_orgs_grid_action_err_delete"><![CDATA[Невозможно удалить выбранную(ные) организацию(ции).]]></string>
-	<string name="_bx_orgs_grid_txt_account_manager"><![CDATA[Перенаправить в Управление аккаунтом.]]></string>
+    <string name="_bx_orgs_grid_action_err_delete"><![CDATA[Невозможно удалить выбранную(ные) организацию(ции).]]></string>
+    <string name="_bx_orgs_grid_txt_account_manager"><![CDATA[Перенаправить в Управление аккаунтом.]]></string>
 
-    <string name="_bx_orgs_grid_column_title_name"><![CDATA[Название]]></string>
+    <string name="_bx_orgs_grid_column_title_name"><![CDATA[Имя]]></string>
+    <string name="_bx_orgs_grid_column_title_caption"><![CDATA[Название]]></string>
     <string name="_bx_orgs_grid_column_title_role_id"><![CDATA[Роль]]></string>
     <string name="_bx_orgs_grid_column_title_period"><![CDATA[Период]]></string>
     <string name="_bx_orgs_grid_column_title_price"><![CDATA[Цена]]></string>
+    <string name="_bx_orgs_grid_column_title_default_price"><![CDATA[По умолчанию]]></string>
     <string name="_bx_orgs_grid_action_title_add"><![CDATA[Добавить]]></string>
     <string name="_bx_orgs_grid_action_title_edit"><![CDATA[Изменить]]></string>
     <string name="_bx_orgs_grid_action_title_delete"><![CDATA[Удалить]]></string>

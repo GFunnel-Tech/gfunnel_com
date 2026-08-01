@@ -69,13 +69,22 @@ class BxDolCategoriesQuery extends BxDolDb
                 $oModule = BxDolModule::getInstance($aParams['module']);
                 $CNF = $oModule->_oConfig->CNF;
                 
-                $sSelectClause = "`sc`.`value`, COUNT(`sc`.`id`) as `num`";
+                $sSelectClause = "`sc`.`value`, `sc`.`icon_type`, `sc`.`icon`, COUNT(`sc`.`id`) as `num`";
                 $sJoinClause = "INNER JOIN `sys_categories2objects` `soc` ON `sc`.`id` =  `soc`.`category_id`";
                 if (isset($CNF['FIELD_STATUS']))
                     $sJoinClause .= "INNER JOIN `" . $CNF['TABLE_ENTRIES'] . "` `data` ON `soc`.`object_id` =  `data`.`id` AND `data`.`" . $CNF['FIELD_STATUS'] . "` = 'active'";
                 $sWhereClause = " AND `sc`.`status` = 'active' AND `soc`.`module` = :module";
                 $sGroupClause = "`sc`.`id`";
-                $sOrderClause = "`num` DESC";
+                $sOrderClause = "`sc`.`added` ASC";
+                if(isset($aParams['order_by']))
+                    switch($aParams['order_by']) {
+                        case 'num_asc':
+                            $sOrderClause = "`num` ASC";
+                            break;
+                        case 'num_desc':
+                            $sOrderClause = "`num` DESC";
+                            break;
+                    }
                 break;
                 
             case 'by_module&context_with_num':
@@ -88,14 +97,23 @@ class BxDolCategoriesQuery extends BxDolDb
                 $oModule = BxDolModule::getInstance($aParams['module']);
                 $CNF = $oModule->_oConfig->CNF;
                 
-                $sSelectClause = "`sc`.`value`, COUNT(`sc`.`id`) as `num`";
+                $sSelectClause = "`sc`.`value`, `sc`.`icon_type`, `sc`.`icon`, COUNT(`sc`.`id`) as `num`";
                 $sJoinClause = " INNER JOIN `sys_categories2objects` `soc` ON `sc`.`id` =  `soc`.`category_id`";
                 $sJoinClause .= " INNER JOIN `" . $CNF['TABLE_ENTRIES'] . "` `data` ON `soc`.`object_id` =  `data`.`id` AND `data`.`" . $CNF['FIELD_ALLOW_VIEW_TO'] . "` = :context_id";
                 if (isset($CNF['FIELD_STATUS']))
                     $sJoinClause .= " AND `data`.`" . $CNF['FIELD_STATUS'] . "` = 'active' ";
                 $sWhereClause = " AND `sc`.`status` = 'active' AND `soc`.`module` = :module";
                 $sGroupClause = "`sc`.`id`";
-                $sOrderClause = "`num` DESC";
+                $sOrderClause = "`sc`.`added` ASC";
+                if(isset($aParams['order_by']))
+                    switch($aParams['order_by']) {
+                        case 'num_asc':
+                            $sOrderClause = "`num` ASC";
+                            break;
+                        case 'num_desc':
+                            $sOrderClause = "`num` DESC";
+                            break;
+                    }
                 break;
                 
             case 'by_module_and_object':
@@ -152,34 +170,31 @@ class BxDolCategoriesQuery extends BxDolDb
         );
         $this->query($sQuery, $aBindings);
     }
-    
+
     public function add($sModule, $iProfileId, $sValue, $iObject, $bAutoActivation)
     {
-        $sStatus = $bAutoActivation ? 'active' : 'hidden';
-        $aBindings = array(
+        $aBindings = [
             'value' => $sValue,
             'module' => $sModule,
             'author' => $iProfileId 
-        );
-        $sQuery = "SELECT id FROM `sys_categories` WHERE `value` = :value AND `module` = :module AND (`author` = 0 OR `author` = :author)";
-        $iCategoryId = (int)$this->getOne($sQuery, $aBindings);
-        
-        if($iCategoryId == 0){   
-            $aBindings['status'] = $sStatus;
-            $aBindings['added'] = time();
-            $sQuery = "INSERT INTO `sys_categories` (`value`, `module`, `status`, `added`, `author`) VALUES(:value, :module, :status, :added, :author)";
-            $this->query($sQuery, $aBindings);
+        ];
+
+        $iCategoryId = (int)$this->getOne("SELECT `tc`.`id` FROM `sys_categories` AS `tc` LEFT JOIN `sys_localization_keys` AS `tlk` ON `tc`.`value`=`tlk`.`Key` LEFT JOIN `sys_localization_strings` AS `tls` ON `tlk`.`ID`=`tls`.`IDKey` WHERE (`tc`.`value` = :value OR `tls`.`String`=:value) AND `tc`.`module` = :module AND (`tc`.`author` = 0 OR `tc`.`author` = :author)", $aBindings);
+        if($iCategoryId == 0) {
+            $this->query("INSERT INTO `sys_categories` (`value`, `module`, `status`, `added`, `author`) VALUES(:value, :module, :status, :added, :author)", array_merge($aBindings, [
+                'status' => $bAutoActivation ? 'active' : 'hidden',
+                'added' => time()
+            ]));
+
             $iCategoryId = $this->lastId();
         }
 
-        $sQuery = "INSERT INTO `sys_categories2objects` (`module`, `object_id`, `category_id`) VALUES(:module, :object_id, :category_id)";
-        $aBindings = array(
+        $this->query("INSERT INTO `sys_categories2objects` (`module`, `object_id`, `category_id`) VALUES(:module, :object_id, :category_id)", [
            'module' => $sModule,
            'object_id' => $iObject,
            'category_id' => $iCategoryId,
-        );
-        $this->query($sQuery, $aBindings);
-        
+        ]);
+
         return $iCategoryId;
     }
 }

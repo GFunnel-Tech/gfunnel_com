@@ -211,7 +211,17 @@ class BxBaseModNotificationsDb extends BxBaseModGeneralDb
 
                     $sWhereClause = "AND `id`=:id";
                     break;
-                
+
+                case 'by_unit_action':
+                    $aMethod['name'] = 'getRow';
+                    $aMethod['params'][1] = [
+                        'alert_unit' => $aParams['unit'],
+                        'alert_action' => $aParams['action'],
+                    ];
+
+                    $sWhereClause = "AND `alert_unit`=:alert_unit AND `alert_action`=:alert_action";
+                    break;
+
                 case 'by_type':
                     $aMethod['params'][1] = array(
                         'type' => $aParams['value']
@@ -233,6 +243,11 @@ class BxBaseModNotificationsDb extends BxBaseModGeneralDb
 
         $aMethod['params'][0] = "SELECT * FROM `{$this->_sTableHandlers}` WHERE 1 " . $sWhereClause;
         return call_user_func_array(array($this, $aMethod['name']), $aMethod['params']);
+    }
+
+    public function isHandler($sUnit, $sAction)
+    {
+        return ($aHandler = $this->getHandlers(['type' => 'by_unit_action', 'unit' => $sUnit, 'action' => $sAction])) && is_array($aHandler);
     }
 
     public function getSetting($aParams = array())

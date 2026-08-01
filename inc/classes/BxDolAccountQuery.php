@@ -272,6 +272,10 @@ class BxDolAccountQuery extends BxDolDb implements iBxDolSingleton
         if ($bResult = $this->_updateField ($iID, 'profile_id', $iProfileId))
             $this->cleanMemory('BxDolProfileQuery::getCurrentProfileByAccount' . $iID);
 
+        // clean acount swither cache
+        bx_content_cache_del("profile_switcher_{$iID}_0");
+        bx_content_cache_del("profile_switcher_{$iID}_1");
+
         return $bResult;
     }
 
@@ -297,6 +301,17 @@ class BxDolAccountQuery extends BxDolDb implements iBxDolSingleton
         return $this->_updateField ($iID, 'phone_confirmed', $isConfirmed ? 1 : 0);
     }
     
+    /**
+     * Update 'welcome_sent' field.
+     * @param  int    $isSent   - 0: mark as sent, 1: as not sent
+     * @param  int    $iID      - account id
+     * @return number of affected rows
+     */
+    public function updateWelcomeSent($isSent, $iID)
+    {
+        return $this->_updateField ($iID, 'welcome_sent', $isSent ? 1 : 0);
+    }
+
     /**
      * Update 'phone' field.
      * @param  int    $sPhone - phone number

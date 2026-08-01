@@ -139,15 +139,19 @@ class BxBaseModGroupsGridConnections extends BxDolGridConnections
         if(empty($this->_aRoles) || !is_array($this->_aRoles))
             return $this->_getActionResult(['msg' => _t('_sys_txt_error_occured')]);
 
+        $bMultiRoles = $this->_oModule->_oConfig->isMultiRoles();
         $iRole = $this->_oModule->_oDb->getRole($this->_iGroupProfileId, $iId);
 
-        if(!$this->_oModule->_oConfig->isMultiRoles()) {
+        if(!$bMultiRoles) {
             $sJsObject = $this->_oModule->_oConfig->getJsObject('main');
             $sHtmlIdPrefix = str_replace('_', '-', $this->_sContentModule) . '-set-role-';
 
             $aMenuItems = [];
             foreach($this->_aRoles as $iRoleId => $sRoleTitle)
-                $aMenuItems[] = array(
+                $aMenuItems[] = $this->_bIsApi ? [
+                    'value' => $iRoleId,
+                    'label' => $sRoleTitle
+                ] : [
                     'id' => $sHtmlIdPrefix . $iRoleId, 
                     'name' => $sHtmlIdPrefix . $iRoleId, 
                     'class' => '', 
@@ -156,16 +160,31 @@ class BxBaseModGroupsGridConnections extends BxDolGridConnections
                     'target' => '_self', 
                     'title' => $sRoleTitle, 
                     'active' => 1
-                );            
+                ];
 
             $oMenu = new BxTemplMenu(array('template' => 'menu_vertical.html', 'menu_id'=> $sHtmlIdPrefix . 'menu', 'menu_items' => $aMenuItems));
             if(!empty($iRole))
                 $oMenu->setSelected('', $sHtmlIdPrefix . $iRole);
-
-            $sPopupContent = $oMenu->getCode();
+            if($this->_bIsApi)
+                $sPopupContent = [
+                    'values' => $aMenuItems,
+                    'value' => $iRole
+                ];
+            else
+                $sPopupContent = $oMenu->getCode();
         }
         else
             $sPopupContent = $this->_oModule->_oTemplate->getPopupSetRole($this->_aRoles, $iId, $iRole);
+
+        if($this->_bIsApi) {
+            $sPopupContent = array_merge($sPopupContent, [
+                'multi' => (int)$bMultiRoles,
+                'title' => _t('_' . $this->_sContentModule . '_txt_set_role'),
+                'callback' => '/api.php?r=system/perfom_action_api/TemplServiceGrid/&params[]=&o=' . $this->_sObject . '&a=set_role_submit&profile_id=' . $this->_iGroupProfileId . '&content_module=' .  $this->_sContentModule .'&ids[]=' . $iId . '&'
+            ]);
+
+            return [bx_api_get_block('membership', $sPopupContent)];
+        }
 
         $oFunctions = BxTemplFunctions::getInstance();
         return $this->_getActionResult(['popup' => $oFunctions->transBox(str_replace('_', '-', $this->_sContentModule) . '-set-role-popup', $oFunctions->simpleBoxContent($sPopupContent))]);
@@ -332,14 +351,18 @@ class BxBaseModGroupsGridConnections extends BxDolGridConnections
 
     protected function _getActionSetRole ($sType, $sKey, $a, $isSmall = false, $isDisabled = false, $aRow = [])
     {
-        /**
-         * Note. The feature isn't available in API for now.
-         */
-        if($this->_bIsApi)
-            return [];
-
         if ($this->_oModule->checkAllowedManageAdmins($this->_iGroupProfileId) !== CHECK_ACTION_RESULT_ALLOWED)
             return $this->_bIsApi ? [] : '';
+        
+        if($this->_bIsApi){
+            $CNF = &$this->_oModule->_oConfig->CNF;
+            return array_merge($a, [
+                'name' => $sKey, 
+                'type' => 'modal', 
+                'callback' => 'system/perfom_action_api/TemplServiceGrid/&params[]=&o=' . $this->_sObject . '&a=set_role&profile_id=' . $this->_iGroupProfileId . '&content_module=' .  $this->_sContentModule .'&ids[]=' . $aRow['id'],
+                'content_type' => $aRow['content_type']
+            ]);
+         }
 
         return parent::_getActionDefault ($sType, $sKey, $a, $isSmall, $isDisabled, $aRow);
     }
@@ -508,52 +531,9 @@ class BxBaseModGroupsGridConnections extends BxDolGridConnections
         return $sResult;
     }
 
-    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, $bAddSelectOne = true)
+    protected function _getFilterOnChange()
     {
-        if(empty($sFilterName) || empty($aFilterValues))
-            return '';
-
-        $CNF = &$this->_oModule->_oConfig->CNF;
-        $sJsObject = $this->_oModule->_oConfig->getJsObject('main');
-
-        $aInputValues = [];
-        if($bAddSelectOne && ($sLangKey = 'filter_item_select_one_' . $sFilterName))
-            $aInputValues[''] = _t(!empty($CNF['T'][$sLangKey]) ? $CNF['T'][$sLangKey] : '_Select_one');
-
-        foreach($aFilterValues as $aFilterValue)
-            $aInputValues[$aFilterValue['key']] = _t($aFilterValue['value']);
-
-        $aInputModules = [
-            'type' => 'select',
-            'name' => $sFilterName,
-            'attrs' => [
-                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
-                'onChange' => 'javascript:' . $sJsObject . '.onChangeMembersFilter(this)'
-            ],
-            'value' => $sFilterValue,
-            'values' => $aInputValues
-        ];
-
-        $oForm = new BxTemplFormView([]);
-        return $oForm->genRow($aInputModules);
-    }
-
-    protected function _getSearchInput()
-    {
-        $sJsObject = $this->_oModule->_oConfig->getJsObject('main');
-
-        $aInputSearch = [
-            'type' => 'text',
-            'name' => 'search',
-            'attrs' => [
-                'id' => 'bx-grid-search-' . $this->_sObject,
-                'onKeyup' => 'javascript:$(this).off(\'keyup focusout\'); ' . $sJsObject . '.onChangeMembersFilter(this)',
-                'onBlur' => 'javascript:' . $sJsObject . '.onChangeMembersFilter(this)',
-            ]
-        ];
-
-        $oForm = new BxTemplFormView([]);
-        return $oForm->genRow($aInputSearch);
+        return $this->_oModule->_oConfig->getJsObject('main') . '.onChangeMembersFilter(this)';
     }
 
     protected function _addJsCss()

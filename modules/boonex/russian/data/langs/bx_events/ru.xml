@@ -4,6 +4,8 @@
     <string name="_bx_events_cmts"><![CDATA[События - Комментарии]]></string>
 
     <string name="_bx_events_option_enable_auto_approve"><![CDATA[Автоматически активировать событие после создания]]></string>
+    <string name="_bx_events_option_use_cover_as_thumb"><![CDATA[Использовать только изображение обложки]]></string>
+    <string name="_bx_events_option_use_cover_as_thumb_inf"><![CDATA[После отключения не забудьте активировать поле «Загрузить изображение» в формах создания/редактирования события.]]></string>
     <string name="_bx_events_option_num_connections_quick"><![CDATA[Количество элементов в блоке друзей]]></string>
     <string name="_bx_events_option_per_page_browse"><![CDATA[Количество элементов на странице]]></string>
     <string name="_bx_events_option_num_rss"><![CDATA[Количество элементов в ленте RSS]]></string>
@@ -20,6 +22,7 @@
     <string name="_bx_events_option_enable_subscribe_wo_join"><![CDATA[Разрешить помечать как 'Заинтересован' пользователям, не являющимся участниками события]]></string>
     <string name="_bx_events_option_internal_notifications"><![CDATA[Использовать встроенную нотификацию]]></string>
     <string name="_bx_events_option_enable_subscribe_for_past_events"><![CDATA[Разрешить присоединение к прошедшим событиям]]></string>
+    <string name="_bx_events_option_rm_from_timeline_after"><![CDATA[Удалить прошедшие события с Ленты через N часов (0 - не удалять)]]></string>
 
     <string name="_bx_events_form_profile"><![CDATA[События]]></string>
     <string name="_bx_events_form_profile_display_add"><![CDATA[Добавление события]]></string>
@@ -42,7 +45,7 @@
     <string name="_bx_events_form_profile_input_initial_members"><![CDATA[Пригласить участников]]></string>
     <string name="_bx_events_form_profile_input_sys_event_name"><![CDATA[Название события]]></string>
     <string name="_bx_events_form_profile_input_event_name"><![CDATA[Название события]]></string>
-    <string name="_bx_events_form_profile_input_event_name_err"><![CDATA[Поле должно содержать от 1 до 80 символов.]]></string>
+    <string name="_bx_events_form_profile_input_event_name_err"><![CDATA[Название обязателено, мин. 3 макс. 160.]]></string>
     <string name="_bx_events_form_profile_input_sys_event_desc"><![CDATA[Описание]]></string>
     <string name="_bx_events_form_profile_input_event_desc"><![CDATA[Описание]]></string>
     <string name="_bx_events_form_profile_input_sys_event_cat"><![CDATA[Категория]]></string>
@@ -91,6 +94,38 @@
     <string name="_bx_events_form_input_repeat_day_of_month"><![CDATA[Повторять: число месяца]]></string>
     <string name="_bx_events_form_input_repeat_day_of_week"><![CDATA[Повторять: день недели]]></string>
     <string name="_bx_events_form_input_stop_repeating"><![CDATA[Отстановить повтор]]></string>
+
+    <string name="_bx_events_form_price"><![CDATA[Цена]]></string>
+    <string name="_bx_events_form_price_display_add"><![CDATA[Добавить]]></string>
+    <string name="_bx_events_form_price_display_edit"><![CDATA[Изменить]]></string>
+    <string name="_bx_events_form_price_input_sys_id"><![CDATA[ID]]></string>
+    <string name="_bx_events_form_price_input_sys_role_id"><![CDATA[Роль]]></string>
+    <string name="_bx_events_form_price_input_role_id"><![CDATA[Роль]]></string>
+    <string name="_bx_events_form_price_input_err_role_id"><![CDATA[Здесь Вам необходимо выбрать роль.]]></string>
+    <string name="_bx_events_form_price_input_sys_name"><![CDATA[Имя]]></string>
+    <string name="_bx_events_form_price_input_name"><![CDATA[Имя]]></string>
+    <string name="_bx_events_form_price_input_inf_name"><![CDATA[Уникальное значение, которое будет использоваться в серверной части и вызовах API.]]></string>
+    <string name="_bx_events_form_price_input_err_name"><![CDATA[Значение поля должно быть уникальным и необходимо для внутреннего использования.]]></string>
+    <string name="_bx_events_form_price_input_sys_caption"><![CDATA[Название]]></string>
+    <string name="_bx_events_form_price_input_caption"><![CDATA[Название]]></string>
+    <string name="_bx_events_form_price_input_inf_caption"><![CDATA[Название будет показываться на стороне пользователя.]]></string>
+    <string name="_bx_events_form_price_input_err_caption"><![CDATA[Здесь вам необходимо ввести значение.]]></string>
+    <string name="_bx_events_form_price_input_sys_period"><![CDATA[Период]]></string>
+    <string name="_bx_events_form_price_input_period"><![CDATA[Период]]></string>
+    <string name="_bx_events_form_price_input_inf_period"><![CDATA[0 для постоянного использования]]></string>
+    <string name="_bx_events_form_price_input_sys_period_unit"><![CDATA[Единица периода]]></string>
+    <string name="_bx_events_form_price_input_period_unit"><![CDATA[Единица периода]]></string>
+    <string name="_bx_events_form_price_input_inf_period_unit"><![CDATA[Оставьте пустым для уровня жизни.]]></string>
+    <string name="_bx_events_form_price_input_err_period_unit"><![CDATA[Здесь необходимо выбрать единицу периода.]]></string>
+    <string name="_bx_events_form_price_input_sys_price"><![CDATA[Цена]]></string>
+    <string name="_bx_events_form_price_input_price"><![CDATA[Цена]]></string>
+    <string name="_bx_events_form_price_input_inf_price"><![CDATA[Используйте 0 или оставьте пустым, чтобы создать бесплатный уровень.]]></string>
+    <string name="_bx_events_form_price_input_sys_default"><![CDATA[По умолчанию]]></string>
+    <string name="_bx_events_form_price_input_default"><![CDATA[По умолчанию]]></string>
+    <string name="_bx_events_form_price_input_sys_do_submit"><![CDATA[Отправить]]></string>
+    <string name="_bx_events_form_price_input_do_submit"><![CDATA[Отправить]]></string>
+    <string name="_bx_events_form_price_input_sys_do_cancel"><![CDATA[Отменить]]></string>
+    <string name="_bx_events_form_price_input_do_cancel"><![CDATA[Отменить]]></string>
 
     <string name="_bx_events_form_question"><![CDATA[Вопрос]]></string>
     <string name="_bx_events_form_question_display_add"><![CDATA[Добавление вопроса]]></string>
@@ -146,12 +181,13 @@
     <string name="_bx_events_acl_action_edit_any_profile"><![CDATA[Редактировать любое событие]]></string>
     <string name="_bx_events_acl_action_delete_any_profile"><![CDATA[Удалять любое событие]]></string>
     <string name="_bx_events_acl_action_delete_invites"><![CDATA[Удалять приглашения]]></string>
+    <string name="_bx_events_acl_action_use_paid_join"><![CDATA[Использовать платное подключение]]></string>
 
     <string name="_bx_events_page_title_sys_joined"><![CDATA[События профиля]]></string>
     <string name="_bx_events_page_title_joined"><![CDATA[События профиля]]></string>
     <string name="_bx_events_page_title_sys_joined_entries"><![CDATA[События профиля]]></string>
     <string name="_bx_events_page_title_joined_entries"><![CDATA[События профиля]]></string>
-     <string name="_bx_events_page_title_followed"><![CDATA[Подписанные События]]></string>
+    <string name="_bx_events_page_title_followed"><![CDATA[Подписанные События]]></string>
     <string name="_bx_events_page_title_sys_followed"><![CDATA[Подписанные События]]></string>
     <string name="_bx_events_page_title_sys_entries_in_context"><![CDATA[События в контексте]]></string>
     <string name="_bx_events_page_title_entries_in_context"><![CDATA[События в {display_name}]]></string>
@@ -288,6 +324,7 @@
     <string name="_bx_events_page_block_title_cover_block"><![CDATA[Обложка]]></string>
 
     <string name="_bx_events_menu_title_submenu"><![CDATA[Под-меню событий]]></string>
+    <string name="_bx_events_menu_title_public_submenu"><![CDATA[События]]></string>
     <string name="_bx_events_menu_set_title_submenu"><![CDATA[Под-меню событий]]></string>
     <string name="_bx_events_menu_set_title_view_profile_actions"><![CDATA[Событие - Действия]]></string>
     <string name="_bx_events_menu_title_view_profile_actions"><![CDATA[Событие - Действия]]></string>
@@ -301,6 +338,7 @@
     <string name="_bx_events_menu_set_title_entries_my"><![CDATA[События профиля - Меню]]></string>
     <string name="_bx_events_menu_set_title_manage_tools"><![CDATA[Инструменты управления - Подменю]]></string>
     <string name="_bx_events_menu_title_manage_tools"><![CDATA[Инструменты управления - Подменю]]></string>
+    <string name="_bx_events_menu_title_add_content"><![CDATA[Добавить контент]]></string>
     <string name="_bx_events_menu_item_title_system_delete"><![CDATA[Удалить]]></string>
     <string name="_bx_events_menu_item_title_delete"><![CDATA[Удалить]]></string>
     <string name="_bx_events_menu_item_title_system_delete_with_content"><![CDATA[Удалить вместе с содержимым]]></string>
@@ -325,6 +363,8 @@
     <string name="_bx_events_menu_item_title_view_joined_groups"><![CDATA[События]]></string>
     <string name="_bx_events_menu_item_title_system_view_fans"><![CDATA[Гости]]></string>
     <string name="_bx_events_menu_item_title_view_fans"><![CDATA[Гости]]></string>
+    <string name="_bx_events_menu_item_title_system_add_content"><![CDATA[Добавить контент]]></string>
+    <string name="_bx_events_menu_item_title_add_content"><![CDATA[Добавить контент]]></string>
     <string name="_bx_events_menu_item_title_system_view_manage"><![CDATA[Управление]]></string>
     <string name="_bx_events_menu_item_title_view_manage"><![CDATA[Управление]]></string>
     <string name="_bx_events_menu_item_title_system_view_profile_comments"><![CDATA[Комментарии]]></string>
@@ -347,6 +387,8 @@
     <string name="_bx_events_menu_item_title_unfriend_cancel_request"><![CDATA[Отменить запрос о дружбе]]></string>
     <string name="_bx_events_menu_item_title_unfriend_reject_request"><![CDATA[Отвергнуть запрос о дружбе]]></string>
 
+    <string name="_bx_events_menu_item_title_system_fans"><![CDATA[Гости]]></string>
+    <string name="_bx_events_menu_item_title_fans"><![CDATA[Гости]]></string>
     <string name="_bx_events_menu_item_title_system_become_fan"><![CDATA[Присоединиться]]></string>
     <string name="_bx_events_menu_item_title_become_fan"><![CDATA[Пойду]]></string>
     <string name="_bx_events_menu_item_title_become_fan_sent"><![CDATA[Запрошено]]></string>
@@ -358,6 +400,7 @@
     <string name="_bx_events_menu_item_title_sm_members"><![CDATA[{0} гостей]]></string>
     <string name="_bx_events_menu_item_title_sm_subscribers"><![CDATA[{0} заинтересованных]]></string>
 
+    <string name="_bx_events_menu_item_title_system_subscriptions"><![CDATA[Подписки]]></string>
     <string name="_bx_events_menu_item_title_system_subscribe"><![CDATA[Получать уведомления]]></string>
     <string name="_bx_events_menu_item_title_subscribe"><![CDATA[Заинтересован]]></string>
     <string name="_bx_events_menu_item_title_system_check_in"><![CDATA[Зарегистрироваться]]></string>
@@ -483,6 +526,8 @@
     <string name="_bx_events_alert_action_join_request"><![CDATA[запрос на присоединение к событию]]></string>
     <string name="_bx_events_alert_action_reminder"><![CDATA[напоминание]]></string>
     <string name="_bx_events_alert_action_reminder_follow_context"><![CDATA[Новые напоминания]]></string>
+    <string name="_bx_events_alert_action_info_reminder_follow_context"><![CDATA[В пространстве, на которое вы подписаны, опубликованы новые напоминания.]]></string>
+
     <string name="_bx_events_txt_ntfs_join_invitation"><![CDATA[Представитель события <b class="bx-ntfs-content-profile">{owner_name}</b> пригласил <b class="bx-ntfs-content-entry">{subentry_sample}</b> присоединиться к событию]]></string>
     <string name="_bx_events_txt_ntfs_join_request"><![CDATA[У события <b class="bx-ntfs-content-profile">{owner_name}</b> новый запрос на присоединение от <b class="bx-ntfs-content-entry">{subentry_sample}</b>]]></string>
     <string name="_bx_events_txt_ntfs_reminder_1"><![CDATA[Событие <b class="bx-ntfs-content-profile">{owner_name}</b> начнется через час]]></string>
@@ -551,33 +596,9 @@
 
     <string name="_bx_events_pre_lists_repeat_day_of_month"><![CDATA[Повторять: число месяца]]></string>
     <string name="_bx_events_cat_repeat_day_of_month_every_day"><![CDATA[Каждый день]]></string>
-    
-    <string name="_bx_events_form_price"><![CDATA[Цена]]></string>
-    <string name="_bx_events_form_price_display_add"><![CDATA[Добавить]]></string>
-    <string name="_bx_events_form_price_display_edit"><![CDATA[Изменить]]></string>
-    <string name="_bx_events_form_price_input_sys_id"><![CDATA[ID]]></string>
-    <string name="_bx_events_form_price_input_sys_role_id"><![CDATA[ID Роли]]></string>
-    <string name="_bx_events_form_price_input_sys_name"><![CDATA[Название]]></string>
-    <string name="_bx_events_form_price_input_name"><![CDATA[Название]]></string>
-    <string name="_bx_events_form_price_input_inf_name"><![CDATA[Уникальное значение, которое будет использоваться в серверной части и вызовах API.]]></string>
-    <string name="_bx_events_form_price_input_err_name"><![CDATA[Здесь нужно ввести уникальное значение]]></string>
-    <string name="_bx_events_form_price_input_sys_period"><![CDATA[Период]]></string>
-    <string name="_bx_events_form_price_input_period"><![CDATA[Период]]></string>
-    <string name="_bx_events_form_price_input_inf_period"><![CDATA[0 для постоянного использования]]></string>
-    <string name="_bx_events_form_price_input_sys_period_unit"><![CDATA[Единица периода]]></string>
-    <string name="_bx_events_form_price_input_period_unit"><![CDATA[Единица периода]]></string>
-    <string name="_bx_events_form_price_input_inf_period_unit"><![CDATA[Оставьте пустым для уровня жизни.]]></string>
-    <string name="_bx_events_form_price_input_err_period_unit"><![CDATA[Здесь необходимо выбрать единицу периода.]]></string>
-    <string name="_bx_events_form_price_input_sys_price"><![CDATA[Цена]]></string>
-    <string name="_bx_events_form_price_input_price"><![CDATA[Цена]]></string>
-    <string name="_bx_events_form_price_input_inf_price"><![CDATA[Используйте 0 или оставьте пустым, чтобы создать бесплатный уровень.]]></string>
-    <string name="_bx_events_form_price_input_sys_do_submit"><![CDATA[Отправить]]></string>
-    <string name="_bx_events_form_price_input_do_submit"><![CDATA[Отправить]]></string>
-    <string name="_bx_events_form_price_input_sys_do_cancel"><![CDATA[Отменить]]></string>
-    <string name="_bx_events_form_price_input_do_cancel"><![CDATA[Отменить]]></string>
-    <string name="_bx_events_acl_action_use_paid_join"><![CDATA[Использовать платное подключение]]></string>
-    <string name="_bx_events_page_title_sys_join_profile"><![CDATA[Присоединиться к курсу]]></string>
-    <string name="_bx_events_page_title_join_profile"><![CDATA[Присоединиться к курсу]]></string>
+
+    <string name="_bx_events_page_title_sys_join_profile"><![CDATA[Присоединиться к событию]]></string>
+    <string name="_bx_events_page_title_join_profile"><![CDATA[Присоединиться к событию]]></string>
     <string name="_bx_events_page_title_browse_upcoming"><![CDATA[Предстоящие События]]></string>
     <string name="_bx_events_page_title_sys_profile_sessions"><![CDATA[Сессии]]></string>
     <string name="_bx_events_page_title_profile_sessions"><![CDATA[Сессии]]></string>
@@ -594,11 +615,13 @@
     <string name="_bx_events_menu_item_title_system_edit_pricing"><![CDATA[Цены]]></string>
     <string name="_bx_events_menu_item_title_edit_pricing"><![CDATA[Цены]]></string>
     <string name="_bx_events_menu_item_title_system_pay_and_join"><![CDATA[Плати и присоединяйся]]></string>
-    <string name="_bx_events_menu_item_title_pay_and_join"><![CDATA[Плати и присоединяйся]]></string>
-    <string name="_bx_events_grid_column_title_name"><![CDATA[Название]]></string>
+    <string name="_bx_events_menu_item_title_pay_and_join"><![CDATA[Присоединиться {0}]]></string>
+    <string name="_bx_events_grid_column_title_name"><![CDATA[Имя]]></string>
+    <string name="_bx_events_grid_column_title_caption"><![CDATA[Название]]></string>
     <string name="_bx_events_grid_column_title_role_id"><![CDATA[Роль]]></string>
     <string name="_bx_events_grid_column_title_period"><![CDATA[Период]]></string>
     <string name="_bx_events_grid_column_title_price"><![CDATA[Цена]]></string>
+    <string name="_bx_events_grid_column_title_default_price"><![CDATA[По умолчанию]]></string>
     <string name="_bx_events_grid_action_title_add"><![CDATA[Добавить]]></string>
     <string name="_bx_events_grid_action_title_edit"><![CDATA[Редактировать]]></string>
     <string name="_bx_events_grid_action_title_delete"><![CDATA[Удалить]]></string>

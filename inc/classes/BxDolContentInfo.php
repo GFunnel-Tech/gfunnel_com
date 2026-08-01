@@ -327,9 +327,9 @@ class BxDolContentInfo extends BxDolFactory implements iBxDolFactoryObject
         return $this->_call('delete_entity', $iContentId);
     }
 
-    public function updateContent ($iContentId, $aValues)
+    public function updateContent ($iContentId, $aValues, $sDisplay = false)
     {
-        return $this->_call('edit_entity', $iContentId, $aValues);
+        return $this->_call('edit_entity', $iContentId, $aValues, $sDisplay);
     }
 
     public function addContent ($aValues)

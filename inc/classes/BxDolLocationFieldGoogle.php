@@ -9,6 +9,57 @@
 
 class BxDolLocationFieldGoogle extends BxDolLocationField
 {
+    protected $_sApiKey;
+    protected $_sEndpoint;
+
+    protected function __construct($aObject)
+    {
+        parent::__construct($aObject);
+
+        $this->_sApiKey = trim(getParam('sys_maps_api_key'));
+        $this->_sEndpoint = 'https://maps.googleapis.com/maps/api/place/';
+    }
+
+    public function getAutocomplete($sValue)
+    {
+        $sEndpoint = bx_append_url_params($this->_sEndpoint . 'autocomplete/json', [
+            'key' => $this->_sApiKey,
+            'input' => urlencode($sValue)
+        ]);
+
+        $sResponse = bx_file_get_contents($sEndpoint);
+        if(empty($sResponse))
+            return false;
+
+        $aResponse = json_decode($sResponse, true);
+        if(empty($aResponse) || !is_array($aResponse))
+            return false;
+
+        return $aResponse;
+    }
+
+    public function getPlace($sPlaceId, $aFields = [])
+    {
+        if(!$aFields)
+            $aFields = ['geometry', 'formatted_address', 'address_component'];
+
+        $sEndpoint = bx_append_url_params($this->_sEndpoint . 'details/json', [
+            'key' => $this->_sApiKey,
+            'place_id' => $sPlaceId,
+            'fields' => implode(',', $aFields)
+        ]);
+
+        $sResponse = bx_file_get_contents($sEndpoint);
+        if(empty($sResponse))
+            return false;
+
+        $aResponse = json_decode($sResponse, true);
+        if(empty($aResponse) || !is_array($aResponse) || empty($aResponse['result']))
+            return false;
+
+        return $aResponse['result'];
+    }
+
     public function genInputLocation (&$aInput, $oForm)
     {
         $aVars = $this->_getInputLocationVars($aInput, $oForm);
@@ -22,7 +73,7 @@ class BxDolLocationFieldGoogle extends BxDolLocationField
         $sIdInput = $oForm->getInputId($aInput) . '_location';
 
         $aVars = array (
-            'key' => trim(getParam('sys_maps_api_key')),
+            'key' => $this->_sApiKey,
             'lang' => bx_lang_name(),
             'name' => $aInput['name'],
             'id_status' => $sIdStatus,

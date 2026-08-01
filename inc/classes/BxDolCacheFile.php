@@ -52,17 +52,19 @@ class BxDolCacheFile extends BxDolCache
      */
     function setData($sKey, $mixedData, $iTTL = false)
     {
-        if(file_exists($this->sPath . $sKey) && !is_writable($this->sPath . $sKey))
+        $sFileName = $this->sPath . $sKey;
+        $sFileNameTmp = $this->sPath . '.' . uniqid('', true) . '.tmp';
+
+        if(file_exists($sFileName) && !is_writable($sFileName))
            return false;
 
-        if(!($rHandler = fopen($this->sPath . $sKey, 'w')))
-           return false;
+        $content = '<?php $mixedData=' . var_export($mixedData, true) . '; ?>';
+        if (false === file_put_contents($sFileNameTmp, $content))
+            return false;
+        rename($sFileNameTmp, $sFileName);
+        @chmod($sFileName, 0666);
 
-        fwrite($rHandler, '<?php $mixedData=' . var_export($mixedData, true) . '; ?>');
-        fclose($rHandler);
-        @chmod($this->sPath . $sKey, 0666);
-
-        if (function_exists('opcache_invalidate')) opcache_invalidate($this->sPath . $sKey);
+        if (function_exists('opcache_invalidate')) opcache_invalidate($sFileName, true);
 
         return true;
     }

@@ -58,6 +58,7 @@ class BxDolModuleProxy
             bx_alert($this->_sObjectType . '_method_call', $sMethodName, 0, 0, [
                 'module' => $oModule, 
                 'args' => &$aArguments, 
+                'args_ref' => &$aArguments,
                 'override_result' => &$res
             ]);
             if (null !== $res)

@@ -11,26 +11,7 @@ function BxDolStudioDesigner(oOptions) {
     this.sParamPrefix = oOptions.sParamPrefix == undefined ? 'dsg' : oOptions.sParamPrefix;
     this.sAnimationEffect = oOptions.sAnimationEffect == undefined ? 'fade' : oOptions.sAnimationEffect;
     this.iAnimationSpeed = oOptions.iAnimationSpeed == undefined ? 'slow' : oOptions.iAnimationSpeed;
-    this.sCodeMirror = oOptions.sCodeMirror == undefined ? '' : oOptions.sCodeMirror;
-
-    var $this = this;
-    $(document).ready (function () {
-    	if($this.sCodeMirror != '')
-    		$this.initCodeMirror($this.sCodeMirror);
-    });
 }
-
-BxDolStudioDesigner.prototype.initCodeMirror = function(sSelector) {
-    var oSelector = $(sSelector);
-    for(var i = 0; i < oSelector.length; i++) {
-        var e = CodeMirror.fromTextArea(oSelector.get(i), {
-            lineNumbers: true,
-            mode: "htmlmixed",
-            htmlMode: true,
-            matchBrackets: true
-        });
-    }
-};
 
 BxDolStudioDesigner.prototype.makeDefault = function(sUri) {
     var $this = this;

@@ -231,17 +231,45 @@
                 }
 
                 // show popup
-
                 $el.css({display: 'block', visibility: 'visible'});
                 if (o.fog) {
-                	var oOnHide = function() {
-                		$(window).triggerHandler('resize.popupFog');
-                	};
-                	
+                    var oOnHide = function() {
+                        $(window).triggerHandler('resize.popupFog');
+                    };
+
                     if (o.speed > 0)
                         $('#bx-popup-fog').fadeIn(o.speed, oOnHide);
                     else
                         $('#bx-popup-fog').show(oOnHide);
+                }
+
+                /*
+                 * Trap focus inside popup.
+                 */
+                $el.find('.bx-focus-trap').bind('focus', function() {
+                    var aFocusable = bx_get_focusable($el.get(0));
+                    if(aFocusable && aFocusable.length > 0)
+                        $(aFocusable[0]).focus();
+                });
+
+                /*
+                 * Add onHide to return focus back.
+                 */
+                if(bx_clicked_stack_lenth()) {
+                    var onHide = null;
+                    if(typeof(o.onHide) == 'function')
+                        onHide = o.onHide;
+                    else if(typeof(o.onHide) == 'string')
+                        onHide = function(oPopup) {
+                            eval(o.onHide);
+                        };
+
+                    o.onHide = function() {
+                        if(typeof(onHide) == 'function')
+                            onHide($el);
+
+                        $(bx_clicked_stack_pop()).focus();
+                    };
                 }
 
                 setTimeout(function () {
@@ -254,12 +282,14 @@
                         return;
                     }
 
+                    var aFocusable = bx_get_focusable($el.get(0));
+                    if(aFocusable && aFocusable.length > 0)
+                        $(aFocusable[0]).focus();
+
                     if(typeof(o.onShow) == 'function')
                         o.onShow($el);
                     else if(typeof(o.onShow) == 'string')
                     	eval(o.onShow);
-                    else
-                        $el.find('input[type=text]:first').focus(); //NOTE. Put cursor to the first input element, ONLY IF there is no any custom behaviour for onShow event.
 
                 }, o.speed);
 
@@ -510,12 +540,17 @@
 
                 var fOnLoad = function() {
                     bx_loading_content(oLoading, false);
+                    
+                    var oPopup = $('#' + sPopupId);
 
-                    $('#' + sPopupId + ' ' + options.container).bxProcessHtml().show();
-
-                    $('#' + sPopupId)._dolPopupSetPosition({
+                    oPopup.find(options.container).bxProcessHtml().show();
+                    oPopup._dolPopupSetPosition({
                         pointer: oPointerOptions
                     });
+
+                    var aFocusable = bx_get_focusable(oPopup.get(0));
+                    if(aFocusable && aFocusable.length > 0)
+                        $(aFocusable[0]).focus();
 
                     if (typeof (options.onLoad) == 'function')
                         options.onLoad('#' + sPopupId);
@@ -647,6 +682,14 @@
 
             oAPopup.dolPopupHide();
         });
+        
+        var fOnShow = options.onShow;
+        options.onShow = function(oPopup) {
+            oBtnOk.focus();
+
+            if(typeof(fOnShow) == 'function')
+                fOnShow(oAPopup);
+        };
 
         var fOnHide = options.onHide;
         options.onHide = function(oPopup) {
@@ -714,6 +757,14 @@
 
             oCPopup.dolPopupHide();
         });
+
+        var fOnShow = options.onShow;
+        options.onShow = function(oPopup) {
+            oBtnYes.focus();
+
+            if(typeof(fOnShow) == 'function')
+                fOnShow(oCPopup);
+        };
 
         var fOnHide = options.onHide;
         options.onHide = function(oPopup) {
@@ -792,6 +843,14 @@
 
             oPPopup.dolPopupHide();
         });
+
+        var fOnShow = options.onShow;
+        options.onShow = function(oPopup) {
+            oBtnOk.focus();
+
+            if(typeof(fOnShow) == 'function')
+                fOnShow(oPPopup);
+        };
 
         var fOnHide = options.onHide;
         options.onHide = function(oPopup) {

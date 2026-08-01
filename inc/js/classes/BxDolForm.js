@@ -12,12 +12,14 @@ function BxDolForm(oOptions)
         return;
 
     this._sObjName = oOptions.sObjName === undefined ? 'oForm' : oOptions.sObjName; // javascript object name, to run current object instance from onTimer
+    this._sId = oOptions.sId; // form HTML ID
     this._sName = oOptions.sName; // form name
     this._sObject = oOptions.sObject; // form object
     this._sDisplay = oOptions.sDisplay; // form display
 
     this._sActionsUri = 'form.php';
     this._sActionsUrl = oOptions.sRootUrl + this._sActionsUri; // actions url address
+    this._bInitCodeMirror = oOptions.bInitCodeMirror == undefined ? false : oOptions.bInitCodeMirror;
     this._bLeavePageConfirmation = oOptions.bLeavePageConfirmation == undefined ? false : oOptions.bLeavePageConfirmation;
     this._sTxtLeavePageConfirmation = oOptions.sTxtLeavePageConfirmation === undefined ? _t('_sys_leave_page_confirmation') : oOptions.sTxtLeavePageConfirmation;
 
@@ -30,6 +32,34 @@ function BxDolForm(oOptions)
     if(this._bLeavePageConfirmation)
         this.initLeavePageConfirmation();
 }
+
+/**
+ * Note. Is called anytime a form was loaded, even if previously created object of the form is used.
+ */
+BxDolForm.prototype.init = function()
+{
+    if(this._bInitCodeMirror) {
+        setTimeout(() => {
+            this.initCodeMirror();
+        }, 500);
+    }
+};
+
+BxDolForm.prototype.initCodeMirror = function()
+{
+    var oSelector = $('#' + this._sId + ' .bx-form-input-code');
+
+    for(var i = 0; i < oSelector.length; i++) {
+        CodeMirror.fromTextArea(oSelector.get(i), {
+            lineNumbers: true,
+            mode: "htmlmixed",
+            htmlMode: true,
+            matchBrackets: true
+        }).on('blur', function(oEditor) {
+            oEditor.save();
+        });
+    }
+};
 
 BxDolForm.prototype.initLeavePageConfirmation = function()
 {

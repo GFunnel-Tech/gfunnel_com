@@ -1035,6 +1035,19 @@ ul.bx-menu-btns-icon-hor li:last-child .bx-btn {
     display: none;
 }
 
+/* --------------- object counters in menu items (e.g. Profiles meta menu) */
+.bx-menu-item .sys-action-counter .sys-action-counter-label .sys-action-counter-icon .sys-icon-image,
+.bx-menu-item .sys-action-counter .sys-action-counter-label .sys-action-counter-icon .sys-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 0.75rem;
+    line-height: 1.1rem;
+    text-align: center;
+}
+.bx-menu-item .sys-action-counter .sys-action-counter-label .sys-action-counter-icon .sys-icon-image,
+.bx-menu-item .sys-action-counter .sys-action-counter-label .sys-action-counter-icon .sys-icon.sys-icon-emoji {
+    line-height: 1rem;
+}
 
 /* --------------- add relation menu */
 .bx-popup .bx-menu-ver.bx-menu-object-sys_add_relation li a {
@@ -1045,9 +1058,6 @@ ul.bx-menu-btns-icon-hor li:last-child .bx-btn {
     text-transform: capitalize;
 }
 
-.bx-menu-add-relation-hidden {
-    display: none;
-}
 
 /* --------------- footer menu */
 #bx-menu-footer.bx-menu-hor li {

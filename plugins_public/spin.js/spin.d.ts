@@ -1,12 +1,11 @@
-import { SpinnerOptions } from './SpinnerOptions';
-export { SpinnerOptions } from './SpinnerOptions';
+import { SpinnerOptions } from './SpinnerOptions.js';
+export { SpinnerOptions } from './SpinnerOptions.js';
 export declare class Spinner {
     private opts;
     /**
      * The Spinner's HTML element - can be used to manually insert the spinner into the DOM
      */
     el: HTMLElement | undefined;
-    private animateId;
     constructor(opts?: SpinnerOptions);
     /**
      * Adds the spinner to the given target element. If this instance is already

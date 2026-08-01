@@ -573,18 +573,14 @@ class BxBaseStudioDesigner extends BxDolStudioDesigner
             exit;
         }
 
-        $oTemplate->addJs(array('codemirror/codemirror.min.js'));
-        $oTemplate->addCss(BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'codemirror/|codemirror.css');
-        return $oTemplate->parseHtmlByName('designer.html', array(
-            'content' => $oTemplate->parseHtmlByName('dsr_splash.html', array(
+        return $oTemplate->parseHtmlByName('designer.html', [
+            'content' => $oTemplate->parseHtmlByName('dsr_splash.html', [
                 'warning' => MsgBox(_t('_adm_dsg_dsc_splash_warning')),
                 'splash_iframe_id' => $this->sSplashIframeId, 
                 'form' => $oForm->getCode()
-            )),
-            'js_content' => $this->getPageJsCode(array(
-                'sCodeMirror' => 'textarea[name=code]'
-            )),
-        ));
+            ]),
+            'js_content' => $this->getPageJsCode(),
+        ]);
     }
 
     protected function getInjections()
@@ -647,19 +643,14 @@ class BxBaseStudioDesigner extends BxDolStudioDesigner
             exit;
         }
 
-        $oTemplate->addJs(array('codemirror/codemirror.min.js'));
-        $oTemplate->addCss(BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'codemirror/|codemirror.css');
-
-        return $oTemplate->parseHtmlByName('designer.html', array(
-            'content' => $oTemplate->parseHtmlByName('dsr_injections.html', array(
+        return $oTemplate->parseHtmlByName('designer.html', [
+            'content' => $oTemplate->parseHtmlByName('dsr_injections.html', [
                 'warning' => '',
                 'splash_iframe_id' => $this->sInjectionsIframeId, 
                 'form' => $oForm->getCode()
-            )),
-            'js_content' => $this->getPageJsCode(array(
-                'sCodeMirror' => 'textarea[name=sys_head],textarea[name=sys_body]'
-            ))
-        ));
+            ]),
+            'js_content' => $this->getPageJsCode()
+        ]);
     }
 
     protected function getPwa()

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources name="ru" flag="ru" title="Russian">
+    <string name="_bx_ocean"><![CDATA[Океан]]></string>
     <string name="_bx_ocean_wgt_cpt"><![CDATA[Океан (прекращено)]]></string>
     <string name="_bx_ocean_stg_cpt_type"><![CDATA[Океан]]></string>
     <string name="_bx_ocean_stg_cpt_category_system"><![CDATA[Общие]]></string>

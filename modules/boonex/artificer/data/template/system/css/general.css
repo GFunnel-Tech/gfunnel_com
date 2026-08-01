@@ -227,6 +227,10 @@ import url(../../../../../../../template/css/general.css);
 }
 
 /* --------------- System objects like Views, Votes, Comments, etc, */
+.sys-action .sys-action-element-holder .sys-action-do-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
 .sys-action-counter.sys-ac-hidden {
     display: none;
 }

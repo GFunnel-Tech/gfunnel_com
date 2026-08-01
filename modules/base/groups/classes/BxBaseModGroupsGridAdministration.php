@@ -11,17 +11,18 @@
 
 class BxBaseModGroupsGridAdministration extends BxBaseModProfileGridAdministration
 {
-    protected $_sFilter2Name;
-    protected $_sFilter2Value;
-    protected $_aFilter2Values;
     protected $_bContentFilter;
 
     public function __construct ($aOptions, $oTemplate = false)
     {
         parent::__construct ($aOptions, $oTemplate);
+    }
 
+    protected function _init()
+    {
         $CNF = &$this->_oModule->_oConfig->CNF;
 
+        //--- Status
         $this->_sStatusField = $CNF['FIELD_STATUS_ADMIN'];
         $this->_aStatusValues = [
             BX_BASE_MOD_GENERAL_STATUS_ACTIVE, 
@@ -29,6 +30,7 @@ class BxBaseModGroupsGridAdministration extends BxBaseModProfileGridAdministrati
             BX_BASE_MOD_GENERAL_STATUS_PENDING
         ];
 
+        //--- Filter 1
         $this->_sFilter1Name = 'filter1';
         $this->_aFilter1Values = [
             BX_BASE_MOD_GENERAL_STATUS_ACTIVE => $CNF['T']['filter_item_active'],
@@ -37,6 +39,12 @@ class BxBaseModGroupsGridAdministration extends BxBaseModProfileGridAdministrati
         if($this->_oModule->_oConfig->isAutoApprove())
             $this->_aFilter1Values[BX_BASE_MOD_GENERAL_STATUS_PENDING] = $CNF['T']['filter_item_pending'];
 
+        if(($sFilter1 = bx_get($this->_sFilter1Name)) !== false) {
+            $this->_sFilter1Value = bx_process_input($sFilter1);
+            $this->_aQueryAppend[$this->_sFilter1Name] = $this->_sFilter1Value;
+        }
+
+        //--- Filter 2
         $oCf = BxDolContentFilter::getInstance();
         if(($this->_bContentFilter = ($oCf->isEnabled() && !empty($CNF['FIELD_CF']))) !== false) {
             $this->_sFilter2Name = 'filter2';
@@ -103,16 +111,18 @@ class BxBaseModGroupsGridAdministration extends BxBaseModProfileGridAdministrati
 
     	return $this->_getActionDefault ($sType, $sKey, $a, $isSmall, $isDisabled, $aRow);
     }
-    
+
     protected function _getCellName($mixedValue, $sKey, $aField, $aRow)
     {
         $oProfile = $this->_getProfileObject($aRow['id']);
-        
-        if (bx_is_api()){
-            return ['type' => 'profile', 'data' => BxDolProfile::getData($oProfile->id())];
-        }
 
-        return parent::_getCellDefault($oProfile->getUnit(0, array('template' => 'unit_wo_cover')), $sKey, $aField, $aRow);
+        if($this->_bIsApi)
+            return ['type' => 'profile', 'data' => BxDolProfile::getData($oProfile->id())];
+
+        return parent::_getCellDefault($oProfile->getUnit(0, [
+            'template' => 'unit_wo_cover', 
+            'link_target' => '_blank'
+        ]), $sKey, $aField, $aRow);
     }
 
     protected function _getFilterControls()

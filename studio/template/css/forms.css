@@ -54,3 +54,19 @@ div.bx-form-input-language {
 div.bx-form-input-language-current {
     font-weight: bold;
 }
+
+/**
+ * Translatable textarea with Editor switcher.
+ */
+.bx-form-input-wrapper-textarea.bx-form-input-translatable .bx-form-input-translation {
+    position: relative;
+}
+.bx-form-input-wrapper-textarea.bx-form-input-translatable .bx-form-input-textarea-switcher {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+.bx-form-input-wrapper-textarea.bx-form-input-translatable .bx-form-input-textarea-switcher > div {
+    top: auto;
+    bottom: -1.75rem;
+}

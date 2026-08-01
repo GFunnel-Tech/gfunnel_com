@@ -18,29 +18,30 @@ class BxBaseDashboardServices extends BxDol
         $oMenu = BxDolMenu::getObjectInstance('sys_dashboard_reports');
         if(!$oMenu)
             return '';
-        
+
         $aSystems = BxDolReport::getSystems();
-        $sSelected = bx_get('object');
-        
-        if ($sSelected == ''){
+
+        $sSelected = '';
+        if(($_sSelected = bx_get('object')) !== false)
+            $sSelected = bx_process_input($_sSelected);
+        if(!$sSelected)
             $sSelected = reset($aSystems)['name'];
-        }
-        
+
         $oGrid = BxDolGrid::getObjectInstance('sys_reports_administration');
         $oGrid->setObject($aSystems[$sSelected]['name']);
-        
+
         if(!$oGrid)
             return '';
 
         $oTemplate = BxDolTemplate::getInstance();
-        $oTemplate->addJs(array('BxDolReportsManageTools.js', 'BxDolGrid.js'));
-		$oTemplate->addCss(array('manage_tools.css'));
-        $oTemplate->addJsTranslation(array('_sys_grid_search'));
-        
-    	return array(
+        $oTemplate->addJs(['BxDolReportsManageTools.js', 'BxDolGrid.js']);
+        $oTemplate->addCss(['manage_tools.css']);
+        $oTemplate->addJsTranslation(['_sys_grid_search']);
+
+    	return [
             'content' =>$oGrid->getCode(),
             'menu' => $oMenu
-        );
+        ];
     }
     
     public function serviceGetReportsCount($sObjectReposrt, $iStatus)
@@ -87,7 +88,7 @@ class BxBaseDashboardServices extends BxDol
                     'key' => $aModule['name'], 
                     'title' => $aModule['title'], 
                     'add_url' => !empty($CNF['URI_ADD_ENTRY']) ? $CNF['URI_ADD_ENTRY'] : '', 
-                    'url' => !empty($CNF['URL_HOME']) ? $oPermalink->permalink($CNF['URL_HOME']) : '', 
+                    'url' => !empty($CNF['URL_MANAGE_COMMON']) ? $oPermalink->permalink($CNF['URL_MANAGE_COMMON']) : '', 
                     'action' => 'views', 
                     'icon' => !empty($CNF['ICON']) ? $CNF['ICON'] : '', 
                     'type' => 'simple'
@@ -113,7 +114,7 @@ class BxBaseDashboardServices extends BxDol
                 $aData[] = array_merge([
                     'key' => $aModule['name'], 
                     'title' => ($_sTitle = '_' . $aModule['name']) && ($sTitle = _t($_sTitle)) && $_sTitle != $sTitle ? $sTitle : $aModule['title'], 
-                    'url' => $oPermalink->permalink($CNF['URL_HOME']), 
+                    'url' => $oPermalink->permalink($CNF['URL_MANAGE_COMMON']), 
                     'add_url' => str_replace('edit-', 'create-',$CNF['URI_EDIT_ENTRY']), 
                     'action' => 'member',  
                     'icon' => !empty($CNF['ICON']) ? $CNF['ICON'] : '', 

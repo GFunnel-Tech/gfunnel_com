@@ -29,10 +29,11 @@ class BxBaseModPaymentConfig extends BxBaseModGeneralConfig
     {
         parent::__construct($aModule);
 
-        $this->CNF = array_merge($this->CNF, array(
+        $this->CNF = array_merge($this->CNF, [
             // some params
             'PARAM_CURRENCY_CODE' => $this->_sName . '_default_currency_code',
 
+            'PARAM_CMSN_ENABLE' => true,
             'PARAM_CMSN_INVOICE_ISSUE_DAY' => 1, //the first day of month
             'PARAM_CMSN_INVOICE_LIFETIME' => 4, //in days
             'PARAM_CMSN_INVOICE_EXPIRATION_NOTIFY' => 1, //in days, before expiration date
@@ -40,6 +41,8 @@ class BxBaseModPaymentConfig extends BxBaseModGeneralConfig
             'PARAM_CMSN_DATE_TIME_FORMAT' => 'd.m.Y H:i',
 
             // objects
+            'OBJECT_FORM_DETAILES' => $this->_sName . '_form_details',
+            'OBJECT_FORM_DETAILES_EDIT' => $this->_sName . '_form_details_edit',
             'OBJECT_FORM_PRELISTS_CURRENCIES' => '',
 
             'PROVIDER_GENERIC' => 'generic',
@@ -50,17 +53,17 @@ class BxBaseModPaymentConfig extends BxBaseModGeneralConfig
             'DIVIDER_DESCRIPTOR' => '_',
             'DIVIDER_DESCRIPTORS' => ':',
             'DIVIDER_GRID_FILTERS' => '#-#',
-        ));
+        ]);
 
-        $this->_aPrefixes = array(
+        $this->_aPrefixes = [
             'general' => $this->_sName . '_',
             'langs' => '_' . $this->_sName . '_',
             'options' => $this->_sName . '_'
-        );
+        ];
 
-        $this->_aObjects = array_merge($this->_aObjects, array(
-            'form_details' => $this->_sName . '_form_details',
-            'form_display_details_edit' => $this->_sName . '_form_details_edit',
+        $this->_aObjects = array_merge($this->_aObjects, [
+            'form_details' => $this->CNF['OBJECT_FORM_DETAILES'],
+            'form_display_details_edit' => $this->CNF['OBJECT_FORM_DETAILES_EDIT'],
             'form_pendings' => $this->_sName . '_form_pendings',
             'form_processed' => $this->_sName . '_form_processed',
             'form_display_pendings_process' => $this->_sName . '_form_pendings_process',
@@ -88,10 +91,10 @@ class BxBaseModPaymentConfig extends BxBaseModGeneralConfig
             'grid_sbs_list_my' => $this->_sName . '_grid_sbs_list_my',
             'grid_sbs_list_all' => $this->_sName . '_grid_sbs_list_all',
             'grid_sbs_history' => $this->_sName . '_grid_sbs_history',
-        ));
+        ]);
 
-        $this->_aPerPage = array();
-        $this->_aHtmlIds = array();
+        $this->_aPerPage = [];
+        $this->_aHtmlIds = [];
 
         $this->_sAnimationEffect = 'fade';
         $this->_iAnimationSpeed = 'slow';
@@ -136,6 +139,12 @@ class BxBaseModPaymentConfig extends BxBaseModGeneralConfig
     public function isSingleSeller()
     {
         return $this->_bSingleSeller;
+    }
+
+    public function isCommissions()
+    {
+        $sKey = 'PARAM_CMSN_ENABLE';
+        return is_bool($this->CNF[$sKey]) ? $this->CNF[$sKey] : $this->_oDb->getParam($this->CNF[$sKey]) == 'on';
     }
 
     public function getInvoiceIssueDay()

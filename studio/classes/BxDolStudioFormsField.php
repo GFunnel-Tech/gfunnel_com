@@ -102,6 +102,12 @@ class BxDolStudioFormsField extends BxDol
             $this->aParams['table'] = $aForm['table'];
         }
     }
+    
+    public function onInit()
+    {
+        if(($sClass = get_class($this)) && defined($sClass . '::mixedChangeFormField') && call_user_func_array('method_exists', $sClass::mixedChangeFormField))
+            $this->aForm['inputs'] = call_user_func($sClass::mixedChangeFormField, $this->aParams, $this->aForm['inputs'], $this->oDb);
+    }
 
     public function canAdd()
     {

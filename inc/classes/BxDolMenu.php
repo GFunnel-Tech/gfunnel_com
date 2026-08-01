@@ -100,7 +100,7 @@ class BxDolMenu extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
     protected $_oQuery;
     protected $_oPermalinks;
     protected $_aMarkers = array();
-    protected $_bMultilevel = false;
+    protected $_isMultilevel = null;
 
     protected $_sSessionKeyCollapsed;
 
@@ -127,9 +127,7 @@ class BxDolMenu extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
         $this->_sObject = isset($aObject['object']) ? $aObject['object'] : 'bx-menu-obj-' . time() . rand(0, PHP_INT_MAX);
         $this->_aObject = $aObject;
         $this->_oQuery = new BxDolMenuQuery($this->_aObject);
-        $this->_oPermalinks = BxDolPermalinks::getInstance();
-
-        $this->_bMultilevel = !empty($this->_aObject['set_name']) && $this->_oQuery->isSetMultilevel($this->_aObject['set_name']);
+        $this->_oPermalinks = BxDolPermalinks::getInstance();        
 
         $this->_sSessionKeyCollapsed = 'bx_menu_collapsed_';
 
@@ -491,7 +489,15 @@ class BxDolMenu extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
 
         return true;
     }
-    
+
+    protected function isMultilevel ()
+    {
+        if($this->_isMultilevel === null)
+            $this->_isMultilevel = !empty($this->_aObject['set_name']) && $this->_oQuery->isSetMultilevel($this->_aObject['set_name']);
+
+        return $this->_isMultilevel;
+    }
+
     protected function _getVisibilityClass($a)
     {
         $aHiddenOn = array(
@@ -524,6 +530,36 @@ class BxDolMenu extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
         return $sHiddenOnCssClasses;
     }
 
+    protected function _updateVisibilityParamsAPI(&$a)
+    {
+        $aValues = [
+            'hidden_on' => [
+                pow(2, BX_DB_HIDDEN_PHONE - 1) => 'phone',
+                pow(2, BX_DB_HIDDEN_TABLET - 1) => 'tablet',
+                pow(2, BX_DB_HIDDEN_DESKTOP - 1) => 'desktop',
+                pow(2, BX_DB_HIDDEN_MOBILE - 1) => 'mobile-app'
+            ],
+            'hidden_on_col' => [
+                pow(2, 0) => 'thin-col',
+                pow(2, 1) => 'half-col',
+                pow(2, 2) => 'wide-col',
+                pow(2, 3) => 'full-col'
+            ]
+        ];
+
+        foreach(['hidden_on', 'hidden_on_col'] as $sK)
+            if(!empty($a[$sK])) {
+                $aHoResults = [];
+                foreach($aValues[$sK] as $iHiddenOn => $sHiddenOn)
+                    if((int)$a[$sK] & $iHiddenOn)
+                        $aHoResults[] = $sHiddenOn;
+
+                $a[$sK] = $aHoResults;
+            }
+            else
+                $a[$sK] = false;
+    }
+
     /**
      * Replace provided markers in menu item array, curently markers are replaced in title, link and onclick fields.
      * @param $a menu item array
@@ -531,12 +567,14 @@ class BxDolMenu extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
      */
     protected function _replaceMarkers ($a)
     {
-        if (empty($this->_aMarkers))
+        if(empty($this->_aMarkers))
             return $a;
-        $aReplacebleFields = array ('title', 'link', 'onclick');
-        foreach ($aReplacebleFields as $sField)
-            if (isset($a[$sField]))
+
+        $aReplacebleFields = ['title', 'title_attr', 'link', 'onclick'];
+        foreach($aReplacebleFields as $sField)
+            if(isset($a[$sField]))
                 $a[$sField] = bx_replace_markers($a[$sField], $this->_aMarkers);
+
         return $a;
     }
 
