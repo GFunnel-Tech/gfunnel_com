@@ -1,11 +1,18 @@
 # UNA 14.0.0 → 15.x Upgrade Plan
 
-> **Status:** Planning. Site is currently on **UNA 14.0.0** (`inc/version.inc.php`)
-> and healthy. The target release the team looked at is
-> [UNA 15.0.0-A1](https://github.com/unacms/UNA/releases/tag/15.0.0-A1).
+> **Status:** File-level upgrade **DONE on branch `claude/unacms-update-issue-dyij3w`.**
+> The codebase on this branch is now **UNA 15.0.0-RC1** with every GFunnel
+> customization ported on top (see §8 for the execution record). Production is
+> still on 14.0.0; the remaining work is host-side — deploy this tree to
+> **staging**, run the DB migration, and test (§9).
 >
-> **Read this before running the Studio in-app updater. For this fork, the
-> in-app updater is unsafe to run directly on production** — see §2.
+> Target is **15.0.0-RC1** (Release Candidate). There is still **no 15.0.0
+> stable** — this is a staging/preview build, not for production until 15.0.0
+> final ships and staging is verified.
+>
+> **Do NOT run the Studio in-app updater on production for this fork** — it
+> overwrites the customized core files in place (§2). The upgrade was done as a
+> controlled 3-way merge in git instead.
 
 ---
 
@@ -175,10 +182,94 @@ that breaks on 15.x.stable and every future release.
 
 ---
 
-## 7. What I (the repo tooling) can and cannot do
+## 7. What is repo-side vs host-side
 
-This repo is a copy of the 14.0.0 codebase + customizations; the live upgrade
-runs on the hosting environment, which is not reachable from here. The port
-worklist (§4) and merges (§5.5) are repo-side and can be prepared here against a
-15.x source tree; the snapshot, staging, DB migration, and deploy (§3, §5.1–2,
-§5.7) are operational steps on the host.
+This repo is a copy of the codebase; the live upgrade runs on the hosting
+environment, not reachable from here. **Done repo-side (§8):** the whole file
+tree upgraded to 15.0.0-RC1 with customizations 3-way-merged. **Still host-side
+(§9):** snapshot, staging deploy, DB migration, and testing.
+
+---
+
+## 8. Execution record — how the 14→15.0.0-RC1 merge was done
+
+Done as two commits on `claude/unacms-update-issue-dyij3w`, using a real 3-way
+merge against pristine source trees (not the in-place updater):
+
+- Baseline = pristine **UNA 14.0.0**, target = pristine **UNA 15.0.0-RC1**
+  (both from the official GitHub release assets), ours = this repo.
+- Diffing the repo against pristine 14.0.0 classified all 11,687 tracked files:
+  **8,017 unchanged** stock, **3,619 net-new** (GFunnel + third-party),
+  **51 modified** upstream, **0 collisions**, **0** of our edits removed in 15.
+
+**Commit 1 — `chore(core): upgrade UNA core 14.0.0 -> 15.0.0-RC1 (pristine)`**
+- Every unmodified stock file upgraded to its 15 version (3,206 actually
+  differed), **6,119 new 15 files added**, **172** stock files 15 removed were
+  dropped. All GFunnel/third-party modules, root pages, and template assets
+  preserved. `install/` left untracked as before.
+
+**Commit 2 — `feat(core): re-apply GFunnel customizations onto UNA 15.0.0-RC1`**
+- 24 upstream files carry real GFunnel edits. **17 merged cleanly** — including
+  the entire workspace shell (`BxBaseFunctions.php`), `r.php` SEO routing,
+  `.htaccess`, the overview blocks, and the menus.
+- **7 conflicts resolved:**
+
+  | File | Resolution |
+  |---|---|
+  | `inc/classes/BxDolDb.php` | Took 15's `error()`; re-added the `$sOutput=''` guard (15 still leaves it undefined when visual processing is off — the bug the GFunnel edit fixed) |
+  | `studio/classes/BxDolStudioToolsAudit.php` | Kept GFunnel's `shell_exec` neutralization (host hardening) |
+  | `template/_page_toolbar.html` | Kept `__gf_toolbar__` (custom header owns the bar) |
+  | `modules/boonex/artificer/.../pt_application.html` | Kept `__gf_toolbar_app__` (workspace shell) |
+  | `inc/classes/BxDolTemplate.php` | Took 15's richer OG/meta — see **deferred** below |
+  | `modules/boonex/artificer/install/langs/en.xml` | Took 15's strings (pure lang drift, no GFunnel keys) |
+  | `modules/boonex/persons/install/langs/en.xml` | Took 15's strings (pure lang drift) |
+
+- Verification: all hand-merged PHP files `php -l` clean (PHP 8.4), lang XML
+  well-formed, **no conflict markers** anywhere.
+
+### Deferred (not carried over — needs a deliberate re-layer)
+
+- **GFunnel SEO meta extras in `BxDolTemplate.php`** — Twitter cards
+  (`twitter:title/description/image`), `og:site_name`, and the extra `og:url`
+  canonical. UNA 15 rewrote this method with its own richer OG handling
+  (dynamic `og:type` by content). Grafting GFunnel's block back verbatim would
+  reference variables that no longer exist in 15's scope (`$sMetaTitleTag`,
+  `$sMetaDescTag`), so it was intentionally left out. Re-add against 15's
+  variable names if the Twitter cards are wanted.
+
+### Compatibility not yet verified (runtime, needs staging)
+
+- The 24 in-place edits are ported, but 15's **session refactor** and
+  **template-API** changes can still affect GFunnel/third-party code that
+  *calls* core without editing it — the `modules/gfunnel/*` service blocks and
+  signed `api/`, plus third-party modules (modzzz, aqb, smsoftwares, …). These
+  need the staging smoke test (§9), not a file merge.
+
+---
+
+## 9. Staging deploy + DB migration runbook (host-side, remaining work)
+
+The file tree is ready; the **database is still at the 14.0.0 schema**. UNA
+compares file version vs DB version (`bx_get_ver`) and will require the DB
+migration before the site runs correctly on 15.
+
+1. **Snapshot production** — full files + `mysqldump` (see §3). Non-negotiable.
+2. **Stand up staging** from that snapshot (separate subdomain + DB). Confirm it
+   renders on 14.0.0 first.
+3. **Deploy this branch's tree** onto staging (git checkout / rsync). Keep the
+   host's own `inc/header.inc.php`, `storage/`, `cache*/`, `logs/` — those are
+   gitignored and environment-specific; do not overwrite them.
+4. **Run the 15 DB migration** on staging. UNA detects the file>DB version gap
+   and drives the update from **Studio → Dashboard**; follow UNA's 15 upgrade
+   notes for the multi-step (14→15) DB deltas. Clear caches afterwards
+   (Studio → Clear cache, or delete `cache/` + `cache_public/`).
+5. **Smoke-test the customized + dependent surfaces** (from §5.6): left sidebar,
+   workspace selector + `gf_ws` switching, time-tracker, person/org/workspace
+   overview blocks, Messenger skin, home + SEO landings (`/applications`,
+   `/marketplace`, `/business`, `/services`, `/resources`), onboarding `api/`,
+   and the third-party modules.
+6. **Only after staging is clean and 15.0.0 *stable* has shipped**, promote to
+   production in a maintenance window, keeping the snapshot as rollback.
+
+> Because 15's migrations are one-way, the pre-migration DB dump is the only
+> real rollback. Never run step 4 against production without it.

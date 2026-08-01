@@ -6,8 +6,10 @@
 > *where* — so a change lands in the right module, following the pattern that
 > module already uses, instead of inventing a new place for it.
 
-**Platform:** UNA CMS `14.0.0` (see `inc/version.inc.php`) — a PHP community
-platform — with GFunnel customizations layered on top.
+**Platform:** UNA CMS `15.0.0-RC1` (see `inc/version.inc.php`) — a PHP community
+platform — with GFunnel customizations layered on top. (Upgraded from 14.0.0 on
+this branch; see `docs/una-15-upgrade-plan.md`. Production may still be on 14.0.0
+until this is deployed and the DB is migrated.)
 **Stack:** PHP (core), MySQL, HTML templates, jQuery/vanilla JS front-end,
 plus one Supabase edge function (TypeScript) for directory sync.
 
