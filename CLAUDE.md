@@ -308,6 +308,7 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/directory-content-pipeline.md` | Monitors that enrich the directory (YouTube tutorials → `app_tutorials` → mirror) |
 | `docs/organization-overview-block.md` | org overview UI block |
 | `docs/workspace-administration.md` | workspace roles, ownership transfer/claim, the picker's manage panel |
+| `docs/una-15-upgrade-plan.md` | **upgrading UNA core** (14→15): why the in-app updater breaks this fork, the port worklist of in-place core edits, and the safe staging runbook |
 | `docs/persons-overview-block.md` | person profile overview block (`BxPersonsModule::serviceOverview()`) |
 | `docs/workspace-overview-block.md` | workspace overview block for orgs/spaces/groups (`BxBaseModGroupsModule::serviceOverviewStructured()`) |
 | `docs/audits/homepage-audit.md` | the home page |
