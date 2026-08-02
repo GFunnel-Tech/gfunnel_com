@@ -59,6 +59,8 @@ define('BX_DOL_STORAGE_DEFAULT_ICON_FONT', 'far file'); ///< default font icon i
 
 define('BX_DOL_STORAGE_QUEUED_DELETIONS_PER_RUN', 200); ///< max number of file deletions per one cron run, @see BxDolStorage::pruneDeletions
 
+define('BX_DOL_STORAGE_GHOST_LIFETIME', 600); ///< ununsed ghost lifetime, @see BxDolStorage::pruneGhosts
+
 /**
  * This class unify storage.
  * As the result there are many advantages:
@@ -187,6 +189,7 @@ define('BX_DOL_STORAGE_QUEUED_DELETIONS_PER_RUN', 200); ///< max number of file 
  * you control this period using 'token_life' field in 'sys_objects_storage' table.
  *
  */
+
 abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
 {
     protected $_aObject; ///< object properties
@@ -195,6 +198,7 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
     protected $_iErrorCode; ///< last error code
     protected $_oDb; ///< database relates function are in this object
     protected $_aMimeTypesViewable = ['audio/', 'image/', 'video/']; ///< file types (by mime type) to allow view file in browser instead of downloading
+    protected $_bSanitizeSvg = true; ///< enable/disable SVG sanitization
     
     /**
      * constructor
@@ -242,6 +246,11 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
         return ($GLOBALS['bxDolClasses']['BxDolStorage!'.$sObject] = $o);
     }
 
+    public static function getGhostLifetime()
+    {
+        return ($iLifetime = getParam('sys_storage_ghost_lifetime')) !== false ? (int)$iLifetime * 60 : BX_DOL_STORAGE_GHOST_LIFETIME;
+    }
+
     /**
      * Delete old security tokens from database.
      * It is alutomatically called upin cron execution, usually once in a day.
@@ -260,7 +269,7 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
 
     /**
      * Delete files queued for deletions
-     * It is alutomatically called upin cron execution, usually one time per minute.
+     * It is alutomatically called upon cron execution, usually one time per minute.
      * Max number of deletetion per time is defined in @see BX_DOL_STORAGE_QUEUED_DELETIONS_PER_RUN
      * @return number of deleted records
      */
@@ -272,6 +281,26 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
             $o = BxDolStorage::getObjectInstance($r['object']);
             $iDeleted += ($o && $o->deleteFile($r['file_id']) ? 1 : 0);
         }
+
+        return $iDeleted;
+    }
+
+    /**
+     * Delete outdated ghosts
+     * It is alutomatically called upon cron execution, usually one time per minute.
+     */
+    public static function pruneGhosts()
+    {
+        $iLifetime = self::getGhostLifetime();
+        if($iLifetime == 0)
+            return;
+
+        $iDeleted = 0;
+
+        $aGhosts = BxDolStorageQuery::getOutdatedUnusedGhosts($iLifetime);
+        foreach($aGhosts as $aGhost)
+            if(($oStorage = BxDolStorage::getObjectInstance($aGhost['object'])) !== false)
+                $iDeleted += $oStorage->deleteFile($aGhost['id']);
 
         return $iDeleted;
     }
@@ -461,6 +490,26 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
         if (!$oHelper->save($sTmpFile)) {
             $this->setErrorCode(BX_DOL_STORAGE_INVALID_FILE);
             return false;
+        }
+
+        // perform SVG sanitization
+
+        if($this->isMimeTypeSvg($sMimeType) && $this->isSanitizeSvg()) {
+            $oSanitizer = new enshrined\svgSanitize\Sanitizer();
+
+            $sSvgOrig = @file_get_contents($sTmpFile);
+            if($sSvgOrig === false) {
+                $this->setErrorCode(BX_DOL_STORAGE_INVALID_FILE);
+                return false;
+            }
+
+            $sSvgClean = $oSanitizer->sanitize($sSvgOrig);
+            if($sSvgClean === false) {
+                $this->setErrorCode(BX_DOL_STORAGE_INVALID_FILE);
+                return false;
+            }
+
+            file_put_contents($sTmpFile, $sSvgClean);
         }
 
         // process additional custom fields, like video duration and video dimension
@@ -794,20 +843,17 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
     /**
      * Get ghost/orphaned files for particular user.
      * @param $iProfileId profile id
-     * @param $iContentId content id, or false to not consider content id at all
+     * @param $mixedContent - int Content ID | array Content ID + Uploader ID | false to not consider content id at all
      * @param $isCheckAllAccountProfiles get all files associated with all account profiles
      * @param $isAdmin if true, then don't check files ownership, it makes sense when $iContentId is provided, so it will return all files assiciated with content
      * @return array of arrays
      */
-    public function getGhosts($iProfileId, $iContentId = false, $isCheckAllAccountProfiles = false, $isAdmin = false)
+    public function getGhosts($iProfileId, $mixedContent = false, $isCheckAllAccountProfiles = false, $isAdmin = false)
     {
-        if ($isCheckAllAccountProfiles && ($oProfile = BxDolProfile::getInstance($iProfileId))) {
-            $oAccount = $oProfile->getAccountObject();
-            $aProfiles = $oAccount->getProfilesIds(false, false);
-            return $this->_oDb->getGhosts($aProfiles, $iContentId, $isAdmin);
-        }
-        
-        return $this->_oDb->getGhosts($iProfileId, $iContentId, $isAdmin);
+        if($isCheckAllAccountProfiles && ($oProfile = BxDolProfile::getInstance($iProfileId)) !== false && ($oAccount = $oProfile->getAccountObject()) !== false)
+            $iProfileId = $oAccount->getProfilesIds(false, false);
+
+        return $this->_oDb->getGhosts($iProfileId, $mixedContent, $isAdmin);
     }
     
     /**
@@ -845,6 +891,17 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
         }
 
         return $this->_oDb->updateGhostsContentId($mixedFileIds, $iProfileId, $iContentId, $aProfiles, $isAdmin);
+    }
+    
+    /**
+     * Update ghosts' uploader id.
+     * @param $mixedFileIds array of file ids or just one file id
+     * @param $iUploaderId uploader id
+     * @return true on success or false otherwise
+     */
+    public function updateGhostsUploaderId($mixedFileIds, $iUploaderId)
+    {
+        return $this->_oDb->updateGhostsUploaderId($mixedFileIds, $iUploaderId);
     }
 
     /**
@@ -1103,7 +1160,22 @@ abstract class BxDolStorage extends BxDolFactory implements iBxDolFactoryObject
             $sIcon = BX_DOL_STORAGE_DEFAULT_ICON_FONT;
         return $sIcon;
     }
-    
+
+    public function setSanitizeSvg($bSanitize)
+    {
+        $this->_bSanitizeSvg = $bSanitize;
+    }
+
+    public function isSanitizeSvg()
+    {
+        return $this->_bSanitizeSvg && !isAdmin();
+    }
+
+    public function isMimeTypeSvg($sMimeType)
+    {
+        return strncmp('image/svg', $sMimeType, 9) === 0;
+    }
+
     // ------------ internal functions - events
 
     protected function onBeforeFileAdd ($aFileInfo)

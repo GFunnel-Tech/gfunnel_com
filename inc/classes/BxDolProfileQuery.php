@@ -215,7 +215,16 @@ class BxDolProfileQuery extends BxDolDb implements iBxDolSingleton
      */
     public function changeAccountId ($iProfileId, $iAccountId)
     {
-        return $this->_updateField ($iProfileId, 'account_id', $iAccountId);
+        $aInfoOld = $this->getInfoById($iProfileId);
+        $bRet = $this->_updateField ($iProfileId, 'account_id', $iAccountId);
+        if ($bRet && $aInfoOld) {
+            // invalidate profile switcher cache for old and new account
+            bx_content_cache_del("profile_switcher_" . $aInfoOld['account_id'] . "_0");
+            bx_content_cache_del("profile_switcher_" . $aInfoOld['account_id'] . "_1");
+            bx_content_cache_del("profile_switcher_" . $iAccountId . "_0");
+            bx_content_cache_del("profile_switcher_" . $iAccountId . "_1");
+        }
+        return $bRet;
     }
 
     /**

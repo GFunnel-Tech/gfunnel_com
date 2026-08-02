@@ -41,7 +41,7 @@
                 var oPdfjsLib = window['pdfjsLib'];
                 oPdfjsLib.GlobalWorkerOptions.workerSrc = '__pdfjs_worker_url__';
 
-                var oLoadingTask = pdfjsLib.getDocument(sUrl);
+                var oLoadingTask = pdfjsLib.getDocument({ url: sUrl });
                 oLoadingTask.promise.then(function(pdf) {  
                     pdf.getPage(1).then(function(page) {
                         var iDpx = parseInt($.cookie('devicePixelRatio'));

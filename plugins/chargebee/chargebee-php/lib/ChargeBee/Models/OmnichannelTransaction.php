@@ -20,6 +20,8 @@ class OmnichannelTransaction extends Model
     'transactedAt',
     'createdAt',
     'resourceVersion',
+    'linkedOmnichannelSubscriptions',
+    'linkedOmnichannelOneTimeOrders',
   ];
 
 

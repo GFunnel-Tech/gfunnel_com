@@ -22,7 +22,7 @@ class BxBaseMenuProfileFollowings extends BxTemplMenu
     {
         parent::__construct ($aObject, $oTemplate);
 
-        $this->_bMultilevel = true;
+        $this->_isMultilevel = true;
         $this->_bDisplayAddons = true;
 
         $this->_sConnection = 'sys_profiles_subscriptions';

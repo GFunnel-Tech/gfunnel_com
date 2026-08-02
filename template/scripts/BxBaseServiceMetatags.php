@@ -108,21 +108,23 @@ class BxBaseServiceMetatags extends BxDol
      */
     public function serviceGetNotificationsPostMention($aEvent)
     {
-    	$iProfile = (int)$aEvent['object_owner_id'];
-    	$oProfile = BxDolProfile::getInstance($iProfile);
+        $iProfile = (int)$aEvent['object_owner_id'];
+        $oProfile = BxDolProfile::getInstance($iProfile);
         if(!$oProfile)
             return [];
 
-        $sEntryUrl = '';
+        $sEntryUrl = $sEntryUrlApi = '';
         if (isset($aEvent['content']['module']) && isset($aEvent['content']['content_id'])) {
             if ('sys_cmts' == $aEvent['content']['module']) {
                 $oCmts = BxDolCmts::getObjectInstanceByUniqId($aEvent['content']['content_id']);
                 $aCmt = BxDolCmtsQuery::getCommentExtendedByUniqId($aEvent['content']['content_id']);
-                if ($oCmts && $aCmt)
-                    $sEntryUrl = $oCmts->getViewUrl($aCmt['cmt_id']);
-            } elseif (BxDolRequest::serviceExists($aEvent['content']['module'], 'get_link')) {
-                $sEntryUrl = str_replace(BX_DOL_URL_ROOT, '{bx_url_root}', bx_srv($aEvent['content']['module'], 'get_link', [$aEvent['content']['content_id']]));
+                if ($oCmts && $aCmt) {
+                    $sEntryUrl = $oCmts->getItemUrl($aCmt['cmt_id'], '{bx_url_root}');
+                    $sEntryUrlApi = $oCmts->getItemUrlApi($aCmt['cmt_id'], '{bx_url_root}');
+                }
             }
+            elseif (BxDolRequest::serviceExists($aEvent['content']['module'], 'get_link'))
+                $sEntryUrl = str_replace(BX_DOL_URL_ROOT, '{bx_url_root}', bx_srv($aEvent['content']['module'], 'get_link', [$aEvent['content']['content_id']]));
         }
 
         if(!$sEntryUrl)
@@ -131,6 +133,7 @@ class BxBaseServiceMetatags extends BxDol
         return [
             'entry_sample' => '_sys_profile_sample_single',
             'entry_url' => $sEntryUrl,
+            'entry_url_api' => $sEntryUrlApi,
             'entry_caption' => $oProfile->getDisplayName(),
             'entry_author' => $iProfile,
             'lang_key' => '_sys_metatags_mention_added',

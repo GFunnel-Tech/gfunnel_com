@@ -37,7 +37,7 @@ class BxDolSocketsSoketi extends BxDolSockets
             $b = $oPusher->trigger($sSocket . '_' . $iContentId, $sEvent, $sMessage);
         }
         catch (Exception $oException) {
-            $this->writeLog($oException->getFile() . ':' . $oException->getLine() . ' ' . $oException->getMessage());
+            $this->writeLog($oException->getFile() . ':' . $oException->getLine() . ' ' . $oException->getMessage(), BX_LOG_ERR);
             return false;
         }
     }

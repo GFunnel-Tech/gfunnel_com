@@ -26,12 +26,12 @@ class BxDolLogsStoragePHPLog extends BxDolLogsStorageFolder implements iBxDolSin
      * @param $mixed string or array to log
      * @return true on success or false on error
      */
-    public function add($oObject, $mixed)
+    public function add($oObject, $mixed, $iLevel)
     {
         if (!$mixed)
             return true;
 
-        $s = $this->formatLogString($oObject, $mixed, true);
+        $s = $this->formatLogString($oObject, $mixed, true, $iLevel);
 
         return error_log($s, 0);
     }

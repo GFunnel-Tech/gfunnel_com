@@ -69,24 +69,20 @@ class BxBaseModPaymentGridTransactions extends BxTemplGrid
 
     public function performActionViewOrder()
     {
-        $aIds = bx_get('ids');
-        if((!$aIds || !is_array($aIds)) && !bx_is_api()) 
-            return echoJson(array());
-        
-        $iId = (int)$aIds[0];
-        
-        if (bx_is_api()){
-            $iId = bx_get('id');
-        }
+        $iId = 0;
+        if(($aIds = bx_get('ids')) !== false && is_array($aIds)) 
+            $iId = (int)$aIds[0];
+        else if(($iId = bx_get('id')) !== false)
+            $iId = (int)$iId;
+
+        if(!$iId)
+            return $this->_bIsApi ? [] : echoJson([]);
 
         $sKey = 'order_' . $this->_sOrdersType . '_view';
         $sId = $this->_oModule->_oConfig->getHtmlIds($this->_sOrdersType, $sKey);
         $sTitle = _t($this->_sLangsPrefix . 'popup_title_ods_' . $sKey);
         $sContent = $this->_oModule->getObjectOrders()->getOrder($this->_sOrdersType, $iId);
-        if (bx_is_api()){
-            return [bx_api_get_block('simple_list',  $sContent)];
-        }
-        return echoJson(array('popup' => BxTemplFunctions::getInstance()->popupBox($sId, $sTitle, $sContent)));
+        return $this->_bIsApi ? [bx_api_get_block('simple_list',  $sContent)] : echoJson(['popup' => BxTemplFunctions::getInstance()->popupBox($sId, $sTitle, $sContent)]);
     }
 
     protected function _getCellHeaderAuthorId ($sKey, $aField)
@@ -143,6 +139,21 @@ class BxBaseModPaymentGridTransactions extends BxTemplGrid
     	)), $sKey, $aField, $aRow);
     }
 
+    protected function _getCellItems($mixedValue, $sKey, $aField, $aRow)
+    {
+        $aInfo = $this->_oModule->getObjectCart()->getInfo(BX_PAYMENT_TYPE_RECURRING, $aRow['client_id'], $aRow['seller_id'], $mixedValue);
+
+        $mixedValue = [];
+        if(($sK = 'items') && !empty($aInfo[$sK]) && is_array($aInfo[$sK]))
+        foreach($aInfo[$sK] as $aItem)
+            if($this->_bIsApi)
+                $mixedValue[] = $aItem['title'];
+            else
+                $mixedValue[] = $this->_oTemplate->parseLink($aItem['url'], $aItem['title']);
+
+        return parent::_getCellDefault(implode(', ', $mixedValue), $sKey, $aField, $aRow);
+    }
+
     protected function _getCellAmount($mixedValue, $sKey, $aField, $aRow)
     {
         if(bx_is_api()) {
@@ -185,6 +196,11 @@ class BxBaseModPaymentGridTransactions extends BxTemplGrid
         return parent::_getCellDefault(bx_time_js($mixedValue, BX_FORMAT_DATE_TIME, true), $sKey, $aField, $aRow);
     }
 
+    protected function _getFilterOnChange()
+    {
+        return $this->_sJsObject . '.onChangeFilter(this)';
+    }
+
     protected function _getFilterSelectAll($sName, $aParams = array())
     {
         $sJsObject = !empty($aParams['js_object']) ? $aParams['js_object'] : $this->_sJsObject;
@@ -207,22 +223,6 @@ class BxBaseModPaymentGridTransactions extends BxTemplGrid
             'attrs' => $aAttrs,
             'value' => !empty($aParams['value']) ? $aParams['value'] : '',
             'values' => !empty($aParams['values']) && is_array($aParams['values']) ? $aParams['values'] : array()
-        );
-
-        $oForm = new BxTemplFormView(array());
-        return $oForm->genRow($aInput);
-    }
-
-    protected function _getSearchInput()
-    {
-        $aInput = array(
-            'type' => 'text',
-            'name' => 'keyword',
-            'attrs' => array(
-                'id' => 'bx-grid-search-' . $this->_sObject,
-                'onKeyup' => 'javascript:$(this).off(\'keyup\'); ' . $this->_sJsObject . '.onChangeFilter(this)',
-                'placeholder' => bx_html_attribute(_t('_sys_grid_search'))
-            )
         );
 
         $oForm = new BxTemplFormView(array());

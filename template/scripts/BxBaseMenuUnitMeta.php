@@ -134,47 +134,19 @@ class BxBaseMenuUnitMeta extends BxTemplMenuCustom
         return $this->_oTemplate->parseHtmlByName('unit_meta_item_ex.html', $aTmplVars);
     }
 
-    public function getUnitMetaItem($sName, $sContent, $aAttrs = array(), $sTemplate = 'unit_meta_item.html')
+    public function getUnitMetaItem($sName, $sContent, $aAttrs = [], $sTemplate = 'unit_meta_item.html')
     {
         if(empty($sContent) && $sName != 'nl')
             return '';
 
-        if(!is_array($aAttrs))
-            $aAttrs = array();
-
-        $aTags = array('span', 'a', 'button', 'sbutton', 'custom', 'nl', 'extended');
-
-        $sTmplVarsClass = ''; 
-        if(!empty($aAttrs['class'])) {
-            $sTmplVarsClass = $aAttrs['class'];
-            unset($aAttrs['class']);
-        }
-
-        $aTmplVarsAttrs = array();
-        foreach($aAttrs as $sKey => $sValue)
-            $aTmplVarsAttrs[] = array('key' => $sKey, 'value' => bx_html_attribute($sValue));
-
-        $aTmplVars = array();
-        foreach($aTags as $sTag) {
-            $aTmplVarsTag = array();
-            $bTmplVarsTag = $sTag == $sName;
-            if($bTmplVarsTag)
-                $aTmplVarsTag = array(
-                    'style_prefix' => $this->_sStylePrefix,
-                    'class' => $sTmplVarsClass,
-                    'content' => $sContent,
-                    'bx_repeat:attrs' => $aTmplVarsAttrs
-                );
-
-            $aTmplVars['bx_if:' . $sTag] = array(
-            	'condition' => $bTmplVarsTag,
-                'content' => $aTmplVarsTag
-            );
-        }
-        
-        return $this->_oTemplate->parseHtmlByName($sTemplate, $aTmplVars);
+        return $this->_oTemplate->parseTag($sName, $sContent, $aAttrs, [
+            'template_name' => $sTemplate,
+            'template_vars' => [
+                'style_prefix' => $this->_sStylePrefix
+            ]
+        ]);
     }
-    
+
     public function getUnitMetaItemButtonOrLink($sName, $sContent, $aAttrs = array())
     {
         if(!isset($aAttrs['href']))

@@ -26,7 +26,7 @@
     <string name="_bx_reviews_form_entry_input_do_submit"><![CDATA[Выполнить]]></string>
     <string name="_bx_reviews_form_entry_input_sys_title"><![CDATA[Заголовок]]></string>
     <string name="_bx_reviews_form_entry_input_title"><![CDATA[Заголовок]]></string>
-    <string name="_bx_reviews_form_entry_input_title_err"><![CDATA[Заголовок обязателен. Пожалуйста, заполните это поле]]></string>
+    <string name="_bx_reviews_form_entry_input_title_err"><![CDATA[Заголовок обязателен, мин. 3 макс. 160.]]></string>
     <string name="_bx_reviews_form_entry_input_sys_cat"><![CDATA[Категория]]></string>
     <string name="_bx_reviews_form_entry_input_cat"><![CDATA[Категория]]></string>
     <string name="_bx_reviews_form_entry_input_cat_err"><![CDATA[Нужно обязательно выбрать категорию]]></string>

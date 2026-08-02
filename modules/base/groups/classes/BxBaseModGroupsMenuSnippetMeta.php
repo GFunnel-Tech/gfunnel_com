@@ -69,7 +69,10 @@ class BxBaseModGroupsMenuSnippetMeta extends BxBaseModProfileMenuSnippetMeta
         if(!isset($CNF['OBJECT_CONNECTIONS']))
             return false;
 
-        return $this->_getMenuItemConnection($CNF['OBJECT_CONNECTIONS'], 'add', $aItem);
+        if(($sKey = 'OBJECT_RECOMMENDATIONS_FANS') && isset($CNF[$sKey]) && $this->_sContext == BxDolRecommendation::getContextName($CNF[$sKey]))
+            return $this->_getMenuItemRecommendation($CNF[$sKey], 'add', $aItem);
+        else
+            return $this->_getMenuItemConnection($CNF['OBJECT_CONNECTIONS'], 'add', $aItem);
     }
 
     protected function _getMenuItemLeave($aItem)

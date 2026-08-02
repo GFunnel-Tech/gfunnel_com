@@ -8,6 +8,8 @@
  * @{
  */
 
+bx_import('BxDolStudioUtils');
+
 class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
 {
     protected $sUrlPage;
@@ -77,11 +79,12 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
 
             bx_import('BxDolStudioUtils');
             $iId = (int)$oForm->insert(array('module' => BX_DOL_STUDIO_MODULE_CUSTOM, 'name' => $sName, 'active' => 1, 'order' => $this->oDb->getItemOrderMax($this->sSet) + 1));
-            if($iId != 0)
+            if($iId != 0) {
+                $this->onMenuItemsChanged();
                 $aRes = array('grid' => $this->getCode(false), 'blink' => $iId);
-            else
+            } else {
                 $aRes = array('msg' => _t('_adm_nav_err_items_create'));
-
+            }
             echoJson($aRes);
         }
         else {
@@ -151,11 +154,12 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
             if($sTarget === false && !in_array($aItem['target'], array('', '_blank')))
                 unset($oForm->aInputs['target']);
 
-            if($oForm->update($aItem['id']) !== false)
+            if($oForm->update($aItem['id']) !== false) {
+                $this->onMenuItemsChanged();
                 $aRes = array('grid' => $this->getCode(false), 'blink' => $aItem['id']);
-            else
+            } else {
                 $aRes = array('msg' => _t('_adm_nav_err_items_edit'));
-
+            }
             echoJson($aRes);
         }
         else {
@@ -179,13 +183,16 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
     {
         $iAffected = 0;
         $aIds = bx_get('ids');
-        if(!$aIds || !is_array($aIds)) {
-            echoJson(array());
-            exit;
-        }
+        if(!$aIds || !is_array($aIds))
+            return echoJson([]);
 
-        $aIdsAffected = array ();
+        $aIdsAffected = [];
         foreach($aIds as $iId) {
+            $aItem = [];
+            $iItem = $this->oDb->getItems(['type' => 'by_id', 'value' => $iId], $aItem);
+            if($iItem != 1 || empty($aItem) || !$this->_isDeletable($aItem))
+                continue;            
+
             if(!$this->deleteById($iId))
                 continue;
 
@@ -193,7 +200,24 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
             $iAffected++;
         }
 
+        if ($iAffected)
+            $this->onMenuItemsChanged(); 
+
         echoJson($iAffected ? array('grid' => $this->getCode(false), 'blink' => $aIdsAffected) : array('msg' => _t('_adm_nav_err_items_delete')));
+    }
+
+    public function performActionReorder()
+    {        
+        $mixed = parent::performActionReorder();
+        $this->onMenuItemsChanged();
+        return $mixed;
+    }
+
+    public function performActionEnable($mixedChecked = null)
+    {
+        $mixed = parent::performActionEnable($mixedChecked);
+        $this->onMenuItemsChanged();
+        return $mixed;
     }
 
     public function performActionShowTo()
@@ -290,11 +314,12 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
         $oForm->initChecker();
 
         if($oForm->isSubmittedAndValid()) {
-            if($oForm->updateWithVisibility($aItem['id']) !== false)
+            if($oForm->updateWithVisibility($aItem['id']) !== false) {
+                $this->onMenuItemsChanged();
                 $aRes = array('grid' => $this->getCode(false), 'blink' => $aItem['id']);
-            else
+            } else {
                 $aRes = array('msg' => _t('_adm_nav_err_items_show_to'));
-
+            }
             echoJson($aRes);
         }
         else {
@@ -334,8 +359,10 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                 exit;
             }
 
-        if($this->oDb->updateItem($aItem['id'], array('icon' => '')) !== false)
+        if($this->oDb->updateItem($aItem['id'], array('icon' => '')) !== false) {
+            $this->onMenuItemsChanged();
             echoJson(array('grid' => $this->getCode(false), 'blink' => $iId, 'preview' => $this->_getIconPreview($aItem['id']), 'eval' => $this->getJsObject() . ".onDeleteIcon(oData)"));
+        }
     }
 
     public function getJsObject()
@@ -618,6 +645,28 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                         'pass' => 'Xss',
                     ),
                 ),
+                'title_attr' => array(
+                    'type' => 'text_translatable',
+                    'name' => 'title_attr',
+                    'caption' => _t('_adm_nav_txt_items_title_attr'),
+                    'info' => _t('_adm_nav_dsc_items_title_attr'),
+                    'value' => isset($aItem['title_attr']) ? $aItem['title_attr'] : '_adm_nav_txt_item',
+                    'required' => '0',
+                    'db' => array (
+                        'pass' => 'Xss',
+                    ),
+                ),
+                'info' => array(
+                    'type' => 'text_translatable',
+                    'name' => 'info',
+                    'caption' => _t('_adm_nav_txt_items_info'),
+                    'info' => _t('_adm_nav_dsc_items_info'),
+                    'value' => isset($aItem['info']) ? $aItem['info'] : '_adm_nav_txt_item',
+                    'required' => '0',
+                    'db' => array (
+                        'pass' => 'Xss',
+                    ),
+                ),
                 'parent_id' => array(
                     'type' => 'select',
                     'name' => 'parent_id',
@@ -709,6 +758,17 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                         'error' => _t('_adm_nav_err_items_onclick'),
                     ),
                 ),
+                'area_label' => array(
+                    'type' => 'text_translatable',
+                    'name' => 'area_label',
+                    'caption' => _t('_adm_nav_txt_items_area_label'),
+                    'info' => _t('_adm_nav_dsc_items_area_label'),
+                    'value' => isset($aItem['area_label']) ? $aItem['area_label'] : '_adm_nav_txt_item',
+                    'required' => '0',
+                    'db' => array (
+                        'pass' => 'Xss',
+                    ),
+                ),
                 'hidden_on' => array(
                     'type' => 'select_multiple',
                     'name' => 'hidden_on',
@@ -753,7 +813,7 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                     'caption' => _t('_adm_nav_txt_items_icon'),
                     'info' => _t('_adm_nav_dsc_items_icon'),
                     'value' => '',
-					'code' => 1,
+                    'code' => 1,
                     'required' => '0',
                     'db' => array (
                         'pass' => 'Xss',
@@ -763,7 +823,7 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                         'params' => array(),
                         'error' => _t('_adm_nav_err_items_icon'),
                     ),
-					'attrs' => array('class' => 'bx-form-input-textarea-small'),
+                    'attrs' => array('class' => 'bx-form-input-textarea-small'),
                 ),
                 'icon_image' => array(
                     'type' => 'file',
@@ -783,6 +843,17 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                     'caption' => _t('_adm_nav_txt_items_icon_image_old'),
                     'content' => ''
                 ),
+                'icon_only' => array(
+                    'type' => 'switcher',
+                    'name' => 'icon_only',
+                    'caption' => _t('_adm_nav_txt_items_icon_only'),
+                    'info' => '',
+                    'value' => '1',
+                    'checked' => isset($aItem['icon_only']) && (int)$aItem['icon_only'] == 1,
+                    'db' => array (
+                        'pass' => 'Int',
+                    )
+                ),
                 'primary' => array(
                     'type' => 'switcher',
                     'name' => 'primary',
@@ -801,6 +872,17 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
                     'info' => '',
                     'value' => '1',
                     'checked' => isset($aItem['collapsed']) && (int)$aItem['collapsed'] == 1,
+                    'db' => array (
+                        'pass' => 'Int',
+                    )
+                ),
+                'persistent' => array(
+                    'type' => 'switcher',
+                    'name' => 'persistent',
+                    'caption' => _t('_adm_nav_txt_items_persistent'),
+                    'info' => '',
+                    'value' => '1',
+                    'checked' => isset($aItem['persistent']) && (int)$aItem['persistent'] == 1,
                     'db' => array (
                         'pass' => 'Int',
                     )
@@ -911,33 +993,7 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
 
     protected function _getIconPreview($iId, $sIconImage = '', $sIcon = '')
     {
-        $bIconImage = !empty($sIconImage);
-		
-        $aIcons = BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon($sIcon);
-        $sIconHtml = $aIcons[2] . $aIcons[3] . $aIcons[4];
-		$bIconHtml = !empty($sIconHtml) && !$bIconImage;
-		
-        return $this->_oTemplate->parseHtmlByName('item_icon_preview.html', array(
-            'id' => $iId,
-            'bx_if:show_icon_empty' => array(
-                'condition' => !$bIconImage && !$bIconHtml,
-                'content' => array()
-            ),
-            'bx_if:show_icon_image' => array(
-                'condition' => $bIconImage,
-                'content' => array(
-                    'js_object' => $this->getJsObject(),
-                    'url' => $sIconImage,
-                    'id' => $iId
-                )
-            ),
-            'bx_if:show_icon_html' => array(
-                'condition' => $bIconHtml,
-                'content' => array(
-                    'icon' => $sIconHtml
-                )
-            )
-        ));
+        return BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIconPreview($iId, $sIconImage, $sIcon);
     }
 
     protected function _isEditable(&$aRow)
@@ -945,9 +1001,23 @@ class BxBaseStudioNavigationItems extends BxDolStudioNavigationItems
     	return (int)$aRow['editable'] != 0;
     }
 
-	protected function _isDeletable(&$aRow)
+    protected function _isDeletable(&$aRow)
     {
     	return $aRow['module'] != BX_DOL_STUDIO_MODULE_SYSTEM;
+    }
+
+    protected function onMenuItemsChanged()
+    {
+        bx_alert('system', 'menu_items_changed', 0, 0, array(
+            'set' => $this->sSet
+        ));
+
+        // clear all menus cache related to the current set
+        $aMenus = [];
+        $this->oDb->getMenus(array('type' => 'by_set_name', 'value' => $this->sSet), $aMenus, false);
+        foreach($aMenus as $aMenu) {
+            bx_content_cache_del_by_prefix('menu_' . $aMenu['object']);
+        }        
     }
 }
 

@@ -30,7 +30,7 @@ class BxDolStudioPermissionsLevels extends BxTemplStudioGrid
 
         // create system event before deletion
         $isStopDeletion = false;
-        bx_alert('acl', 'before_delete', $aLevel['id'], 0, array('level' => $aLevel, 'stop_deletion' => &$isStopDeletion));
+        bx_alert('acl', 'before_delete', $aLevel['id'], 0, array('level' => $aLevel, 'stop_deletion' => &$isStopDeletion, 'stop_deletion_ref' => &$isStopDeletion));
         if($isStopDeletion)
             return false;
 

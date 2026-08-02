@@ -90,7 +90,7 @@ class BxDolStudioBuilderPageQuery extends BxDolStudioPageQuery
         $sJoinClause = $sWhereClause = $sGroupClause = $sOrderClause = $sLimitClause = "";
 
         if(!isset($aParams['order']) || empty($aParams['order']))
-           $sOrderClause = "ORDER BY `tp`.`object` ASC";
+           $sOrderClause = "`tp`.`object` ASC";
 
         switch($aParams['type']) {
             case 'by_id':
@@ -138,6 +138,13 @@ class BxDolStudioBuilderPageQuery extends BxDolStudioPageQuery
                 $sWhereClause = " AND `tp`.`module`=:module ";
                 break;
 
+            case 'modules_with_pages':
+                $sSelectClause = "DISTINCT `tm`.*";
+                $sJoinClause = "INNER JOIN `sys_modules` AS `tm` ON `tp`.`module`=`tm`.`name`";
+                $sWhereClause = " AND `tm`.`enabled`='1'";
+                $sOrderClause = "`tm`.`title` ASC";
+                break;
+
             case 'export':
                 $sSelectClause = "`tp`.*";
                 break;
@@ -145,6 +152,9 @@ class BxDolStudioBuilderPageQuery extends BxDolStudioPageQuery
             case 'all':
                 break;
         }
+
+        if(!empty($sOrderClause))
+            $sOrderClause = "ORDER BY " . $sOrderClause;
 
         $aMethod['params'][0] = "SELECT 
                 " . $sSelectClause . "
@@ -377,6 +387,8 @@ class BxDolStudioBuilderPageQuery extends BxDolStudioPageQuery
             `tpb`.`module` AS `module`,
             `tpb`.`title_system` AS `title_system`,
             `tpb`.`title` AS `title`,
+            `tpb`.`description` AS `description`,
+            `tpb`.`icon` AS `icon`,
             `tpb`.`designbox_id` AS `designbox_id`,
             `tpb`.`class` AS `class`,
             `tpb`.`async` AS `async`,
@@ -501,7 +513,8 @@ class BxDolStudioBuilderPageQuery extends BxDolStudioPageQuery
             
     function insertBlock($aData)
     {
-        $aData['order'] = $this->getBlockOrderMax($aData['object']) + 1;
+        if(!isset($aData['order']))
+            $aData['order'] = $this->getBlockOrderMax($aData['object']) + 1;
 
         return $this->query("INSERT INTO `sys_pages_blocks` SET " . $this->arrayToSQL($aData)) ? $this->lastId() : false;
     }

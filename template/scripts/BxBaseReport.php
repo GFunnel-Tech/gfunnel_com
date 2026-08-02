@@ -79,7 +79,6 @@ class BxBaseReport extends BxDolReport
             return ['code' => 2, 'message' => $this->msgErrAllowedReport()];
 
         $iAuthorId = $this->_getAuthorId();
-        $iAuthorNip = bx_get_ip_hash($this->_getAuthorIp());
 
         $iObjectId = $this->_iId;
         $iObjectAuthorId = $this->_oQuery->getObjectAuthorId($iObjectId);
@@ -119,100 +118,20 @@ class BxBaseReport extends BxDolReport
         }
 
         $oForm = $this->_getFormObject();
-        $oForm->setId($this->_aHtmlIds['do_form']);
-        $oForm->setName($this->_aHtmlIds['do_form']);
-        $oForm->aParams['db']['table'] = $this->_aSystem['table_track'];
-        $oForm->aInputs['sys']['value'] = $this->_sSystem;
-        $oForm->aInputs['object_id']['value'] = $this->_iId;
-        $oForm->aInputs['action']['value'] = 'Report';
-
         $oForm->initChecker();
-        if($oForm->isSubmittedAndValid() || ($this->_bApi && !empty($aParams) && is_array($aParams))) {
-            $iObjectId = $this->_bApi ? $this->_iId : $oForm->getCleanValue('object_id');
-            $iObjectAuthorId = $this->_oQuery->getObjectAuthorId($iObjectId);
+        if($oForm->isSubmittedAndValid() || ($this->_bApi && !empty($aParams) && is_array($aParams)))
+            return $this->_report($bPerformed, $aParams, $oForm);
 
-            if(!$this->isAllowedReport(true))
-                return ['code' => 2, 'message' => $this->msgErrAllowedReport()];
-
-            $sType = $this->_bApi ? $aParams['type'] : $oForm->getCleanValue('type');
-            if(!in_array($sType, $this->_aTypes)) 
-                return ['code' => 5, 'message' => _t('_report_err_wrong_type')];
-
-            $sText = $this->_bApi ? $aParams['text'] : $oForm->getCleanValue('text');
-            $sText = bx_process_input($sText, BX_DATA_TEXT_MULTILINE);
-
-            $iId = (int)$oForm->insert(['object_id' => $iObjectId, 'author_id' => $iAuthorId, 'author_nip' => $iAuthorNip, 'type' => $sType, 'text' => $sText,  'date' => time()]);
-            if($iId != 0 && $this->_oQuery->putReport($iObjectId, $iAuthorId)) {
-                if(!empty($this->_sObjectCmts) && ($oCmts = BxDolCmts::getObjectInstance($this->_sObjectCmts, $this->getId()))) {
-                    $sCmtText = '_report_comment';
-                    if(!empty($sText))
-                        $sCmtText = '_report_comment_with_note';
-
-                    $aTypes = BxDolForm::getDataItems('sys_report_types');
-
-                    $oCmts->add(array(
-                        'cmt_author_id' => $iAuthorId,
-                        'cmt_parent_id' => 0,
-                        'cmt_text' => _t($sCmtText, $aTypes[$sType], $sText)
-                    ));
-                }
-
-                $aTemplate = BxDolEmailTemplates::getInstance()->parseTemplate('t_Reported', array(
-                    'report_type' => $sType,
-                    'report_text' => $sText,
-                    'report_url' => $this->getBaseUrl(),
-                ));
-                if($aTemplate)
-                    sendMail(getParam('site_email'), $aTemplate['Subject'], $aTemplate['Body']);
-
-                $mixedParams = $this->_prepareAuditParams($iObjectId, array('type' => $sType, 'text' => $sText));
-                if($mixedParams) {
-                    $sActionName = $mixedParams['action_name'];
-                    $iAuditObjectId = $mixedParams['object_id'];
-                    unset($mixedParams['action_name']);
-                    unset($mixedParams['object_id']);
-                    bx_audit($iAuditObjectId, $this->_sSystem, $sActionName, $mixedParams);
-                }
-
-                $aReport = $this->_getReport($iObjectId, true);
-                
-                $iBlockContentAfter = (int)getParam('sys_security_block_content_after_n_reports');
-                if ($iBlockContentAfter > 0 && $aReport['count'] >= $iBlockContentAfter){
-                    $oModule = BxDolModule::getInstance($this->_aSystem['module_name']);
-                    if($oModule)
-                        $oModule->_oDb->updateStatusAdmin($iObjectId, false);
-                }
-
-                $this->_trigger();
-
-                bx_alert($this->_sSystem, 'doReport', $iObjectId, $iAuthorId, array('report_id' => $iId, 'report_author_id' => $iAuthorId, 'object_author_id' => $iObjectAuthorId, 'type' => $sType, 'text' => $sText));
-                /**
-                 * @hooks
-                 * @hookdef hook-report-do 'report', 'do' - hook on create new report 
-                 * - $unit_name - equals `report`
-                 * - $action - equals `do` 
-                 * - $object_id - report id 
-                 * - $sender_id - profile_id for report's author
-                 * - $extra_params - array of additional params with the following array keys:
-                 *      - `object_system` - [string] system name, ex: bx_posts
-                 *      - `object_id` - [int] reported object id 
-                 *      - `object_author_id` - [int] author's profile_id for reported object_id 
-                 *      - `type` - [string] report type
-                 *      - `text` - [bool] report text
-                 * @hook @ref hook-report-do
-                 */
-                bx_alert('report', 'do', $iId, $iAuthorId, array('object_system' => $this->_sSystem, 'object_id' => $iObjectId, 'object_author_id' => $iObjectAuthorId, 'type' => $sType, 'text' => $sText));
-
-                $aResult = $this->_returnReportData($iObjectId, $iAuthorId, $iId, $aReport, !$bPerformed);
-
-                if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled())
-                    $oSockets->sendEvent($this->getSocketName(), $iObjectId, 'reported', json_encode($this->_returnReportDataForSocket($aResult)));
-
-                return $aResult;
-            }
-
-            return ['code' => 3, 'message' => _t('_report_err_cannot_perform_action')];
-        }
+        if($this->_bApi)
+            return [
+                'code' => 0,
+                'api' => bx_api_get_block('form', $oForm->getCodeAPI(), [
+                    'ext' => [
+                        'name' => $oForm->getName(),
+                        'request' => ['url' => '/api.php?r=system/do/TemplReportServices&params[]=' . json_encode(['s' => $this->_sSystem, 'o' => $this->_iId]), 'immutable' => true]
+                    ]
+                ])
+            ];
 
         $sPopupId = $this->_aHtmlIds['do_popup'];
         $sPopupContent = BxTemplFunctions::getInstance()->transBox($sPopupId, $this->_oTemplate->parseHtmlByName('report_do_report_form.html', array(
@@ -230,10 +149,11 @@ class BxBaseReport extends BxDolReport
         return $this->_sJsObjName;
     }
 
-    public function getJsScript($bDynamicMode = false)
+    public function getJsScript($bDynamicMode = false, $aParams = [])
     {
-        $aParams = array(
-            'sObjName' => $this->_sJsObjName,
+        $sJsObjName = $this->getJsObjectName();
+        $aJsObjParams = [
+            'sObjName' => $sJsObjName,
             'sSystem' => $this->getSystemName(),
             'iAuthorId' => $this->_getAuthorId(),
             'iObjId' => $this->getId(),
@@ -242,8 +162,11 @@ class BxBaseReport extends BxDolReport
             'sStylePrefix' => $this->_sStylePrefix,
             'aHtmlIds' => $this->_aHtmlIds,
             'sUnreportConfirm' => bx_js_string(_t('_report_do_unreport_confirm'))
-        );
-        $sCode = "var " . $this->_sJsObjName . " = new " . $this->_sJsObjClass . "(" . json_encode($aParams) . ");";
+        ];
+        if(($sK = 'js_params') && isset($aParams[$sK]) && is_array($aParams[$sK]))
+            $aJsObjParams = array_merge($aJsObjParams, $aParams[$sK]);
+
+        $sCode = "var " . $sJsObjName . " = new " . $this->_sJsObjClass . "(" . json_encode($aJsObjParams) . ");";
 
         return $this->_oTemplate->_wrapInTagJsCode($sCode);
     }
@@ -339,7 +262,7 @@ class BxBaseReport extends BxDolReport
                     ]))
                 )
             ),
-            'script' => $this->getJsScript($bDynamicMode)
+            'script' => $this->getJsScript($bDynamicMode, $aParams)
         ));
     }
 
@@ -447,14 +370,131 @@ class BxBaseReport extends BxDolReport
     /**
      * Internal methods.
      */
-    protected function _getDoReport($aParams = array())
+    protected function _report($bPerformed, $aParams, &$oForm)
+    {
+        $iAuthorId = $this->_getAuthorId();
+        $iAuthorNip = bx_get_ip_hash($this->_getAuthorIp());
+
+        $iObjectId = $this->_bApi ? $this->_iId : $oForm->getCleanValue('object_id');
+        $iObjectAuthorId = $this->_oQuery->getObjectAuthorId($iObjectId);
+
+        if(!$this->isAllowedReport(true))
+            return ['code' => 2, 'message' => $this->msgErrAllowedReport()];
+
+        $sType = $this->_bApi ? $aParams['type'] : $oForm->getCleanValue('type');
+        if(!in_array($sType, $this->_aTypes)) 
+            return ['code' => 5, 'message' => _t('_report_err_wrong_type')];
+
+        $sText = $this->_bApi ? $aParams['text'] : $oForm->getCleanValue('text');
+        $sText = bx_process_input($sText, BX_DATA_TEXT_MULTILINE);
+
+        $iId = (int)$oForm->insert(['object_id' => $iObjectId, 'author_id' => $iAuthorId, 'author_nip' => $iAuthorNip, 'type' => $sType, 'text' => $sText,  'date' => time()]);
+        if($iId != 0 && $this->_oQuery->putReport($iObjectId, $iAuthorId)) {
+            if(!empty($this->_sObjectCmts) && ($oCmts = BxDolCmts::getObjectInstance($this->_sObjectCmts, $this->getId()))) {
+                $sCmtText = '_report_comment';
+                if(!empty($sText))
+                    $sCmtText = '_report_comment_with_note';
+
+                $aTypes = BxDolForm::getDataItems('sys_report_types');
+
+                $oCmts->add([
+                    'cmt_author_id' => $iAuthorId,
+                    'cmt_parent_id' => 0,
+                    'cmt_text' => _t($sCmtText, $aTypes[$sType], $sText)
+                ]);
+            }
+
+            $aTemplate = BxDolEmailTemplates::getInstance()->parseTemplate('t_Reported', [
+                'report_type' => $sType,
+                'report_text' => $sText,
+                'report_url' => $this->getBaseUrl(),
+            ]);
+            if($aTemplate)
+                sendMail(getParam('site_email'), $aTemplate['Subject'], $aTemplate['Body']);
+
+            if(($mixedParams = $this->_prepareAuditParams($iObjectId, ['type' => $sType, 'text' => $sText]))) {
+                $iAuditObjectId = (int)$mixedParams['object_id'];
+                $sAuditActionName = $mixedParams['action_name'];
+                unset($mixedParams['object_id'], $mixedParams['action_name']);
+
+                bx_audit($iAuditObjectId, $this->_sSystem, $sAuditActionName, $mixedParams);
+            }
+
+            $aReport = $this->_getReport($iObjectId, true);
+
+            $iBlockContentAfter = (int)getParam('sys_security_block_content_after_n_reports');
+            if ($iBlockContentAfter > 0 && $aReport['count'] >= $iBlockContentAfter){
+                $oModule = BxDolModule::getInstance($this->_aSystem['module_name']);
+                if($oModule)
+                    $oModule->_oDb->updateStatusAdmin($iObjectId, false);
+            }
+
+            $this->_trigger();
+
+            bx_alert($this->_sSystem, 'doReport', $iObjectId, $iAuthorId, ['report_id' => $iId, 'report_author_id' => $iAuthorId, 'object_author_id' => $iObjectAuthorId, 'type' => $sType, 'text' => $sText]);
+            /**
+             * @hooks
+             * @hookdef hook-report-do 'report', 'do' - hook on create new report 
+             * - $unit_name - equals `report`
+             * - $action - equals `do` 
+             * - $object_id - report id 
+             * - $sender_id - profile_id for report's author
+             * - $extra_params - array of additional params with the following array keys:
+             *      - `object_system` - [string] system name, ex: bx_posts
+             *      - `object_id` - [int] reported object id 
+             *      - `object_author_id` - [int] author's profile_id for reported object_id 
+             *      - `type` - [string] report type
+             *      - `text` - [bool] report text
+             * @hook @ref hook-report-do
+             */
+            bx_alert('report', 'do', $iId, $iAuthorId, ['object_system' => $this->_sSystem, 'object_id' => $iObjectId, 'object_author_id' => $iObjectAuthorId, 'type' => $sType, 'text' => $sText]);
+
+            if(($sModule = $this->_aSystem['module_name']) && ($sMethod = 'get_moderators') && bx_is_srv($sModule, $sMethod)) {
+                $aModerators = bx_srv($sModule, $sMethod, [$iObjectId]);
+                if(!empty($aModerators) && is_array($aModerators))
+                    foreach($aModerators as $iModeratorId)
+                        /**
+                         * @hooks
+                         * @hookdef hook-bx_base_general-reported_content '{module_name}', 'reported_content' - hook to notify admins/moderators about newly reported content
+                         * - $unit_name - module name
+                         * - $action - equals `reported_content`
+                         * - $object_id - content id
+                         * - $sender_id - report author profile id
+                         * - $extra_params - array of additional params with the following array keys:
+                         *      - `object_author_id` - [int] admin/moderator profile id
+                         *      - `report_id` - [int] report id
+                         *      - `report_type` - [string] report type
+                         *      - `report_text` - [string] message attached to report
+                         * @hook @ref hook-bx_base_general-reported_content
+                         */
+                        bx_alert($this->_sSystem, 'reported_content', $iObjectId, $iAuthorId, [
+                            'object_author_id' => (int)$iModeratorId,
+
+                            'report_id' => $iId,
+                            'report_type' => $sType, 
+                            'report_text' => $sText
+                        ]);
+            }
+            
+            $aResult = $this->_returnReportData($iObjectId, $iAuthorId, $iId, $aReport, !$bPerformed);
+
+            if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled())
+                $oSockets->sendEvent($this->getSocketName(), $iObjectId, 'reported', json_encode($this->_returnReportDataForSocket($aResult)));
+
+            return $aResult;
+        }
+
+        return ['code' => 3, 'message' => _t('_report_err_cannot_perform_action')];
+    }
+
+    protected function _getDoReport($aParams = [])
     {
     	$bReported = isset($aParams['is_reported']) && $aParams['is_reported'] === true;
         $bShowDoReportAsButtonSmall = isset($aParams['show_do_report_as_button_small']) && $aParams['show_do_report_as_button_small'] == true;
         $bShowDoReportAsButton = !$bShowDoReportAsButtonSmall && isset($aParams['show_do_report_as_button']) && $aParams['show_do_report_as_button'] == true;
         $bDisabled = !$this->isAllowedReport() || ($bReported && !$this->isUndo());
 
-        $sTitle = call_user_func_array('_t', $this->_getTitleDoReport($bReported));
+        $sTitle = call_user_func_array('_t', $this->_getTitleDoReport($bReported, $aParams));
 
         if($this->_bApi)
             return [
@@ -496,26 +536,26 @@ class BxBaseReport extends BxDolReport
         return _t('_report_counter', $iCount);
     }
 
-    protected function _getLabelDoReport($aParams = array())
+    protected function _getLabelDoReport($aParams = [])
     {
     	$bReported = isset($aParams['is_reported']) && $aParams['is_reported'] === true;
-        return $this->_oTemplate->parseHtmlByContent($this->_getTmplContentDoActionLabel(), array(
+        return $this->_oTemplate->parseHtmlByContent($this->_getTmplContentDoActionLabel(), [
             'style_prefix' => $this->_sStylePrefix,
-            'bx_if:show_icon' => array(
+            'bx_if:show_icon' => [
                 'condition' => isset($aParams['show_do_report_icon']) && $aParams['show_do_report_icon'] == true,
-                'content' => array(
+                'content' => [
                     'style_prefix' => $this->_sStylePrefix,
                     'name' => $this->_getIconDoReport($bReported)
-                )
-            ),
-            'bx_if:show_text' => array(
+                ]
+            ],
+            'bx_if:show_text' => [
                 'condition' => isset($aParams['show_do_report_label']) && $aParams['show_do_report_label'] == true,
-                'content' => array(
+                'content' => [
                     'style_prefix' => $this->_sStylePrefix,
-                    'text' => call_user_func_array('_t', $this->_getTitleDoReport($bReported))
-                )
-            )
-        ));
+                    'text' => call_user_func_array('_t', $this->_getTitleDoReport($bReported, $aParams))
+                ]
+            ]
+        ]);
     }
 
     protected function _getReportedBy()

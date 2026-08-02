@@ -341,10 +341,11 @@ import url(../../../../../../../template/css/forms.css);
     min-height: 2.375rem;
 }
 .bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels) b {
-    display: block;
+    display: flex;
+    align-items: center;
     float: left;
     margin: 0.125rem;
-    padding-right: 1.5rem;
+    padding-right: 0.5rem;
     border-radius: 1.25rem;
 
     line-height: 2rem;
@@ -362,23 +363,20 @@ import url(../../../../../../../template/css/forms.css);
 .bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels) b:hover {
     opacity: 0.7;
 }
-.bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels) b:after {
-    font-family: 'sys-user', 'sys-user-fal';
-    content: "\f00d";    
-    position:absolute;    
-    padding:0 0.5em;
-    margin-left: 0.125em;
-    font-size:0.7em;
-    font-weight:bold;
-}
-.bx-dir-rtl .bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels) b:after {
-    margin-left: 0;
-    margin-right: 0.125em;
+.bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels) b .sys-icon {
+    display: inline-block;
+    width: 1.0rem;
+    height: 1.0rem;
+    line-height: 1.0rem;
+    text-align: center;
+    font-size: 0.7em;
+    font-weight: bold;
+    vertical-align: middle;
 }
 .bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels).bx-form-input-disabled b {
     cursor: default;
 }
-.bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels).bx-form-input-disabled b:after{
+.bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels).bx-form-input-disabled b .sys-icon {
     display: none;
 }
 .bx-form-value .bx-form-input-autotoken:not(.bx-form-input-labels) input {
@@ -412,6 +410,15 @@ import url(../../../../../../../template/css/forms.css);
 }
 .bx-form-input-select {
     -webkit-appearance:none;
+}
+
+/* MiniColors plug-in */
+.bx-form-input-wrapper.bx-form-input-wrapper-text .minicolors-theme-bootstrap .minicolors-swatch {
+    top: 0.5rem;
+    left: 0.5rem;
+
+    width: 1.5625rem;
+    height: 1.5625rem;
 }
 
 /* tiny mce */

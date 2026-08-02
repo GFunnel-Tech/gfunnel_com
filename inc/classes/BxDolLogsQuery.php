@@ -21,14 +21,11 @@ class BxDolLogsQuery extends BxDolDb
     static public function getLogsObject($sObject)
     {
         $oDb = BxDolDb::getInstance();
+        $a = $oDb->fromCache('sys_objects_logs', 'getAllWithKey', "SELECT * FROM `sys_objects_logs`", 'object');
+        if ($a && isset($a[$sObject]))
+            return $a[$sObject];
 
-        $sQuery = $oDb->prepare("SELECT * FROM `sys_objects_logs` WHERE `object` = ?", $sObject);
-
-        $aObject = $oDb->getRow($sQuery);
-        if(!$aObject || !is_array($aObject))
-            return false;
-
-        return $aObject;
+        return false;
     }
 }
 

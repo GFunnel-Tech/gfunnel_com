@@ -31,7 +31,7 @@ abstract class ParticipantOptions
      * @param string $beep Whether to play a notification beep to the conference when the participant joins. Can be: `true`, `false`, `onEnter`, or `onExit`. The default value is `true`.
      * @param bool $startConferenceOnEnter Whether to start the conference when the participant joins, if it has not already started. Can be: `true` or `false` and the default is `true`. If `false` and the conference has not started, the participant is muted and hears background music until another participant starts the conference.
      * @param bool $endConferenceOnExit Whether to end the conference when the participant leaves. Can be: `true` or `false` and defaults to `false`.
-     * @param string $waitUrl The URL we should call using the `wait_method` for the music to play while participants are waiting for the conference to start. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * @param string $waitUrl The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      * @param string $waitMethod The HTTP method we should use to call `wait_url`. Can be `GET` or `POST` and the default is `POST`. When using a static audio file, this should be `GET` so that we can cache the file.
      * @param bool $earlyMedia Whether to allow an agent to hear the state of the outbound call, including ringing or disconnect messages. Can be: `true` or `false` and defaults to `true`.
      * @param int $maxParticipants The maximum number of participants in the conference. Can be a positive integer from `2` to `250`. The default value is `250`.
@@ -57,6 +57,7 @@ abstract class ParticipantOptions
      * @param string $callerId The phone number, Client identifier, or username portion of SIP address that made this call. Phone numbers are in [E.164](https://www.twilio.com/docs/glossary/what-e164) format (e.g., +16175551212). Client identifiers are formatted `client:name`. If using a phone number, it must be a Twilio number or a Verified [outgoing caller id](https://www.twilio.com/docs/voice/api/outgoing-caller-ids) for your account. If the `to` parameter is a phone number, `callerId` must also be a phone number. If `to` is sip address, this value of `callerId` should be a username portion to be used to populate the From header that is passed to the SIP endpoint.
      * @param string $callReason The Reason for the outgoing call. Use it to specify the purpose of the call that is presented on the called party's phone. (Branded Calls Beta)
      * @param string $recordingTrack The audio track to record for the call. Can be: `inbound`, `outbound` or `both`. The default is `both`. `inbound` records the audio that is received by Twilio. `outbound` records the audio that is sent from Twilio. `both` records the audio that is received and sent by Twilio.
+     * @param string $recordingConfigurationId The identifier of the configuration to be used when creating and processing the recording
      * @param int $timeLimit The maximum duration of the call in seconds. Constraints depend on account and configuration.
      * @param string $machineDetection Whether to detect if a human, answering machine, or fax has picked up the call. Can be: `Enable` or `DetectMessageEnd`. Use `Enable` if you would like us to return `AnsweredBy` as soon as the called party is identified. Use `DetectMessageEnd`, if you would like to leave a message on an answering machine. For more information, see [Answering Machine Detection](https://www.twilio.com/docs/voice/answering-machine-detection).
      * @param int $machineDetectionTimeout The number of seconds that we should attempt to detect an answering machine before timing out and sending a voice request with `AnsweredBy` of `unknown`. The default timeout is 30 seconds.
@@ -67,6 +68,8 @@ abstract class ParticipantOptions
      * @param string $amdStatusCallbackMethod The HTTP method we should use when calling the `amd_status_callback` URL. Can be: `GET` or `POST` and the default is `POST`.
      * @param string $trim Whether to trim any leading and trailing silence from the participant recording. Can be: `trim-silence` or `do-not-trim` and the default is `trim-silence`.
      * @param string $callToken A token string needed to invoke a forwarded call. A call_token is generated when an incoming call is received on a Twilio number. Pass an incoming call's call_token value to a forwarded call via the call_token parameter when creating a new call. A forwarded call should bear the same CallerID of the original incoming call.
+     * @param string $clientNotificationUrl The URL that we should use to deliver `push call notification`.
+     * @param string $callerDisplayName The name that populates the display name in the From header. Must be between 2 and 255 characters. Only applicable for calls to sip address.
      * @return CreateParticipantOptions Options builder
      */
     public static function create(
@@ -107,6 +110,7 @@ abstract class ParticipantOptions
         string $callerId = Values::NONE,
         string $callReason = Values::NONE,
         string $recordingTrack = Values::NONE,
+        string $recordingConfigurationId = Values::NONE,
         int $timeLimit = Values::INT_NONE,
         string $machineDetection = Values::NONE,
         int $machineDetectionTimeout = Values::INT_NONE,
@@ -116,7 +120,9 @@ abstract class ParticipantOptions
         string $amdStatusCallback = Values::NONE,
         string $amdStatusCallbackMethod = Values::NONE,
         string $trim = Values::NONE,
-        string $callToken = Values::NONE
+        string $callToken = Values::NONE,
+        string $clientNotificationUrl = Values::NONE,
+        string $callerDisplayName = Values::NONE
 
     ): CreateParticipantOptions
     {
@@ -157,6 +163,7 @@ abstract class ParticipantOptions
             $callerId,
             $callReason,
             $recordingTrack,
+            $recordingConfigurationId,
             $timeLimit,
             $machineDetection,
             $machineDetectionTimeout,
@@ -166,7 +173,9 @@ abstract class ParticipantOptions
             $amdStatusCallback,
             $amdStatusCallbackMethod,
             $trim,
-            $callToken
+            $callToken,
+            $clientNotificationUrl,
+            $callerDisplayName
         );
     }
 
@@ -200,7 +209,7 @@ abstract class ParticipantOptions
      * @param string $holdMethod The HTTP method we should use to call `hold_url`. Can be: `GET` or `POST` and the default is `GET`.
      * @param string $announceUrl The URL we call using the `announce_method` for an announcement to the participant. The URL may return an MP3 file, a WAV file, or a TwiML document that contains `<Play>`, `<Say>`, `<Pause>`, or `<Redirect>` verbs.
      * @param string $announceMethod The HTTP method we should use to call `announce_url`. Can be: `GET` or `POST` and defaults to `POST`.
-     * @param string $waitUrl The URL we call using the `wait_method` for the music to play while participants are waiting for the conference to start. The URL may return an MP3 file, a WAV file, or a TwiML document that contains `<Play>`, `<Say>`, `<Pause>`, or `<Redirect>` verbs. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * @param string $waitUrl The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      * @param string $waitMethod The HTTP method we should use to call `wait_url`. Can be `GET` or `POST` and the default is `POST`. When using a static audio file, this should be `GET` so that we can cache the file.
      * @param bool $beepOnExit Whether to play a notification beep to the conference when the participant exits. Can be: `true` or `false`.
      * @param bool $endConferenceOnExit Whether to end the conference when the participant leaves. Can be: `true` or `false` and defaults to `false`.
@@ -256,7 +265,7 @@ class CreateParticipantOptions extends Options
      * @param string $beep Whether to play a notification beep to the conference when the participant joins. Can be: `true`, `false`, `onEnter`, or `onExit`. The default value is `true`.
      * @param bool $startConferenceOnEnter Whether to start the conference when the participant joins, if it has not already started. Can be: `true` or `false` and the default is `true`. If `false` and the conference has not started, the participant is muted and hears background music until another participant starts the conference.
      * @param bool $endConferenceOnExit Whether to end the conference when the participant leaves. Can be: `true` or `false` and defaults to `false`.
-     * @param string $waitUrl The URL we should call using the `wait_method` for the music to play while participants are waiting for the conference to start. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * @param string $waitUrl The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      * @param string $waitMethod The HTTP method we should use to call `wait_url`. Can be `GET` or `POST` and the default is `POST`. When using a static audio file, this should be `GET` so that we can cache the file.
      * @param bool $earlyMedia Whether to allow an agent to hear the state of the outbound call, including ringing or disconnect messages. Can be: `true` or `false` and defaults to `true`.
      * @param int $maxParticipants The maximum number of participants in the conference. Can be a positive integer from `2` to `250`. The default value is `250`.
@@ -282,6 +291,7 @@ class CreateParticipantOptions extends Options
      * @param string $callerId The phone number, Client identifier, or username portion of SIP address that made this call. Phone numbers are in [E.164](https://www.twilio.com/docs/glossary/what-e164) format (e.g., +16175551212). Client identifiers are formatted `client:name`. If using a phone number, it must be a Twilio number or a Verified [outgoing caller id](https://www.twilio.com/docs/voice/api/outgoing-caller-ids) for your account. If the `to` parameter is a phone number, `callerId` must also be a phone number. If `to` is sip address, this value of `callerId` should be a username portion to be used to populate the From header that is passed to the SIP endpoint.
      * @param string $callReason The Reason for the outgoing call. Use it to specify the purpose of the call that is presented on the called party's phone. (Branded Calls Beta)
      * @param string $recordingTrack The audio track to record for the call. Can be: `inbound`, `outbound` or `both`. The default is `both`. `inbound` records the audio that is received by Twilio. `outbound` records the audio that is sent from Twilio. `both` records the audio that is received and sent by Twilio.
+     * @param string $recordingConfigurationId The identifier of the configuration to be used when creating and processing the recording
      * @param int $timeLimit The maximum duration of the call in seconds. Constraints depend on account and configuration.
      * @param string $machineDetection Whether to detect if a human, answering machine, or fax has picked up the call. Can be: `Enable` or `DetectMessageEnd`. Use `Enable` if you would like us to return `AnsweredBy` as soon as the called party is identified. Use `DetectMessageEnd`, if you would like to leave a message on an answering machine. For more information, see [Answering Machine Detection](https://www.twilio.com/docs/voice/answering-machine-detection).
      * @param int $machineDetectionTimeout The number of seconds that we should attempt to detect an answering machine before timing out and sending a voice request with `AnsweredBy` of `unknown`. The default timeout is 30 seconds.
@@ -292,6 +302,8 @@ class CreateParticipantOptions extends Options
      * @param string $amdStatusCallbackMethod The HTTP method we should use when calling the `amd_status_callback` URL. Can be: `GET` or `POST` and the default is `POST`.
      * @param string $trim Whether to trim any leading and trailing silence from the participant recording. Can be: `trim-silence` or `do-not-trim` and the default is `trim-silence`.
      * @param string $callToken A token string needed to invoke a forwarded call. A call_token is generated when an incoming call is received on a Twilio number. Pass an incoming call's call_token value to a forwarded call via the call_token parameter when creating a new call. A forwarded call should bear the same CallerID of the original incoming call.
+     * @param string $clientNotificationUrl The URL that we should use to deliver `push call notification`.
+     * @param string $callerDisplayName The name that populates the display name in the From header. Must be between 2 and 255 characters. Only applicable for calls to sip address.
      */
     public function __construct(
         
@@ -331,6 +343,7 @@ class CreateParticipantOptions extends Options
         string $callerId = Values::NONE,
         string $callReason = Values::NONE,
         string $recordingTrack = Values::NONE,
+        string $recordingConfigurationId = Values::NONE,
         int $timeLimit = Values::INT_NONE,
         string $machineDetection = Values::NONE,
         int $machineDetectionTimeout = Values::INT_NONE,
@@ -340,7 +353,9 @@ class CreateParticipantOptions extends Options
         string $amdStatusCallback = Values::NONE,
         string $amdStatusCallbackMethod = Values::NONE,
         string $trim = Values::NONE,
-        string $callToken = Values::NONE
+        string $callToken = Values::NONE,
+        string $clientNotificationUrl = Values::NONE,
+        string $callerDisplayName = Values::NONE
 
     ) {
         $this->options['statusCallback'] = $statusCallback;
@@ -379,6 +394,7 @@ class CreateParticipantOptions extends Options
         $this->options['callerId'] = $callerId;
         $this->options['callReason'] = $callReason;
         $this->options['recordingTrack'] = $recordingTrack;
+        $this->options['recordingConfigurationId'] = $recordingConfigurationId;
         $this->options['timeLimit'] = $timeLimit;
         $this->options['machineDetection'] = $machineDetection;
         $this->options['machineDetectionTimeout'] = $machineDetectionTimeout;
@@ -389,6 +405,8 @@ class CreateParticipantOptions extends Options
         $this->options['amdStatusCallbackMethod'] = $amdStatusCallbackMethod;
         $this->options['trim'] = $trim;
         $this->options['callToken'] = $callToken;
+        $this->options['clientNotificationUrl'] = $clientNotificationUrl;
+        $this->options['callerDisplayName'] = $callerDisplayName;
     }
 
     /**
@@ -512,9 +530,9 @@ class CreateParticipantOptions extends Options
     }
 
     /**
-     * The URL we should call using the `wait_method` for the music to play while participants are waiting for the conference to start. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      *
-     * @param string $waitUrl The URL we should call using the `wait_method` for the music to play while participants are waiting for the conference to start. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * @param string $waitUrl The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      * @return $this Fluent Builder
      */
     public function setWaitUrl(string $waitUrl): self
@@ -824,6 +842,18 @@ class CreateParticipantOptions extends Options
     }
 
     /**
+     * The identifier of the configuration to be used when creating and processing the recording
+     *
+     * @param string $recordingConfigurationId The identifier of the configuration to be used when creating and processing the recording
+     * @return $this Fluent Builder
+     */
+    public function setRecordingConfigurationId(string $recordingConfigurationId): self
+    {
+        $this->options['recordingConfigurationId'] = $recordingConfigurationId;
+        return $this;
+    }
+
+    /**
      * The maximum duration of the call in seconds. Constraints depend on account and configuration.
      *
      * @param int $timeLimit The maximum duration of the call in seconds. Constraints depend on account and configuration.
@@ -944,6 +974,30 @@ class CreateParticipantOptions extends Options
     }
 
     /**
+     * The URL that we should use to deliver `push call notification`.
+     *
+     * @param string $clientNotificationUrl The URL that we should use to deliver `push call notification`.
+     * @return $this Fluent Builder
+     */
+    public function setClientNotificationUrl(string $clientNotificationUrl): self
+    {
+        $this->options['clientNotificationUrl'] = $clientNotificationUrl;
+        return $this;
+    }
+
+    /**
+     * The name that populates the display name in the From header. Must be between 2 and 255 characters. Only applicable for calls to sip address.
+     *
+     * @param string $callerDisplayName The name that populates the display name in the From header. Must be between 2 and 255 characters. Only applicable for calls to sip address.
+     * @return $this Fluent Builder
+     */
+    public function setCallerDisplayName(string $callerDisplayName): self
+    {
+        $this->options['callerDisplayName'] = $callerDisplayName;
+        return $this;
+    }
+
+    /**
      * Provide a friendly representation
      *
      * @return string Machine friendly representation
@@ -1033,7 +1087,7 @@ class UpdateParticipantOptions extends Options
      * @param string $holdMethod The HTTP method we should use to call `hold_url`. Can be: `GET` or `POST` and the default is `GET`.
      * @param string $announceUrl The URL we call using the `announce_method` for an announcement to the participant. The URL may return an MP3 file, a WAV file, or a TwiML document that contains `<Play>`, `<Say>`, `<Pause>`, or `<Redirect>` verbs.
      * @param string $announceMethod The HTTP method we should use to call `announce_url`. Can be: `GET` or `POST` and defaults to `POST`.
-     * @param string $waitUrl The URL we call using the `wait_method` for the music to play while participants are waiting for the conference to start. The URL may return an MP3 file, a WAV file, or a TwiML document that contains `<Play>`, `<Say>`, `<Pause>`, or `<Redirect>` verbs. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * @param string $waitUrl The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      * @param string $waitMethod The HTTP method we should use to call `wait_url`. Can be `GET` or `POST` and the default is `POST`. When using a static audio file, this should be `GET` so that we can cache the file.
      * @param bool $beepOnExit Whether to play a notification beep to the conference when the participant exits. Can be: `true` or `false`.
      * @param bool $endConferenceOnExit Whether to end the conference when the participant leaves. Can be: `true` or `false` and defaults to `false`.
@@ -1143,9 +1197,9 @@ class UpdateParticipantOptions extends Options
     }
 
     /**
-     * The URL we call using the `wait_method` for the music to play while participants are waiting for the conference to start. The URL may return an MP3 file, a WAV file, or a TwiML document that contains `<Play>`, `<Say>`, `<Pause>`, or `<Redirect>` verbs. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      *
-     * @param string $waitUrl The URL we call using the `wait_method` for the music to play while participants are waiting for the conference to start. The URL may return an MP3 file, a WAV file, or a TwiML document that contains `<Play>`, `<Say>`, `<Pause>`, or `<Redirect>` verbs. The default value is the URL of our standard hold music. [Learn more about hold music](https://www.twilio.com/labs/twimlets/holdmusic).
+     * @param string $waitUrl The URL that Twilio calls using the `wait_method` before the conference has started. The URL may return an MP3 file, a WAV file, or a TwiML document. The default value is the URL of our standard hold music. If you do not want anything to play while waiting for the conference to start, specify an empty string by setting `wait_url` to `''`. For more details on the allowable verbs within the `waitUrl`, see the `waitUrl` attribute in the [<Conference> TwiML instruction](https://www.twilio.com/docs/voice/twiml/conference#attributes-waiturl).
      * @return $this Fluent Builder
      */
     public function setWaitUrl(string $waitUrl): self

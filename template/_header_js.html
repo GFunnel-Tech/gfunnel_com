@@ -1,10 +1,11 @@
 <script language="javascript">
     var sUrlRoot = '<bx_url_root />';
-    var sLang = '__lang_country__';
+    var sLang = '__lang__';
 
     $(document).ready(function () {
-        bx_time('__lang_country__');
+        bx_time('__lang_with_country__');
         bx_redirect_for_external_links($('.bx-def-vanilla-html'));
+        bx_clicked_stack_register();
     });
 
     __service_worker__

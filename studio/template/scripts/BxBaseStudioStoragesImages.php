@@ -68,18 +68,18 @@ class BxBaseStudioStoragesImages extends BxDolStudioStoragesImages
         )));
     }
 
-	protected function _getCellMimeType($mixedValue, $sKey, $aField, $aRow)
+    protected function _getCellMimeType($mixedValue, $sKey, $aField, $aRow)
     {
     	$iWidth = $iHeight = 0;
 
     	$sFileUrl = $this->_oStorage->getFileUrlById($aRow['id']);
-    	if(!empty($sFileUrl))
-    		list($iWidth, $iHeight) = @getimagesize($sFileUrl);
+    	if(!empty($sFileUrl) && ($aSize = @getimagesize($sFileUrl)))
+            list($iWidth, $iHeight) = $aSize;
 
         return parent::_getCellDefault(_t('_adm_strg_txt_size_mime_type', (int)$iWidth, (int)$iHeight, $mixedValue), $sKey, $aField, $aRow);
     }
 
-	protected function _getFormObjectResize($iId)
+    protected function _getFormObjectResize($iId)
     {
     	bx_import('BxTemplStudioFormView');
 

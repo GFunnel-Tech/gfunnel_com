@@ -62,6 +62,9 @@ BxDolCmts.prototype.cmtInit = function()
 
         // check content to show 'See More'
         $this._cmtsInitSeeMore($($this._sRootId));
+
+        // init gallery
+        $this._cmtsInitGallery($($this._sRootId));
     });
 };
 
@@ -472,176 +475,6 @@ BxDolCmts.prototype.showReplacement = function(iCmtId)
     });
 };
 
-BxDolCmts.prototype.showImage = function(eve, oLink)
-{
-    var $this = this;
-    var ePswp = document.querySelectorAll('.pswp.cmts')[0];
-
-    var aItems = []; // more items are added dynamically
-    var oItem = {};
-    var iCount = 0;
-    var options = {
-        shareEl: false,
-        counterEl: false,
-        history: false,
-        loop: false,
-        showHideOpacity: true,
-        index: 0,
-        getThumbBoundsFn: function(index) {
-            var e = $('a[data-file-id] img');
-            if (!e.length)
-                return false;
-
-            return {x:e.offset().left, y:e.offset().top, w:e.width()};
-        }
-    };
-
-    var fnProcessRetina = function (o) {
-        var dpr = ((window.glBxDisableRetina !== undefined && window.glBxDisableRetina) || window.devicePixelRatio === undefined ? 1 : window.devicePixelRatio);
-        if (dpr < 2)
-            return o;
-        o.w *= 2;
-        o.h *= 2;
-        return o;
-    };
-
-    eve.preventDefault ? eve.preventDefault() : eve.returnValue = false;
-
-    // get data for initial item from the attributes of the item which was clicked
-    $.each(oLink.attributes, function(i, attr) {
-        var sName = attr.name;
-        if (sName.indexOf('data-') !== 0)
-            return;
-
-        sName = sName.replace('data-', '');
-        oItem[sName] = attr.value;        
-
-        ++iCount;
-    });
-
-    oItem.msrc = oItem.src;
-    oItem = fnProcessRetina(oItem);
-
-    if(!iCount)
-        return false;
-
-    aItems.push(oItem);
-
-    var fnConverMedia = function (oMedia) {
-        var oMap = {
-            'id': 'file-id',
-            'file' : 'src',
-            'w': 'w',
-            'h': 'h'
-        };
-
-        var o = {};
-        for (var i in oMap)
-            o[oMap[i]] = oMedia[i];
-
-        return fnProcessRetina(o);
-    };
-
-    var fnIndexOfMediaObject = function (oArray, oItem) {
-        var iLength = oArray.length;
-        for (var i=0 ; i < iLength ; ++i)
-            if (oItem['file-id'] == oArray[i]['file-id'])
-                return i;
-
-        return -1;
-    };
-
-    var fnDisableArrows = function (oItem) {
-
-        // disable prev item and action if we are on the first item
-        if (0 == fnIndexOfMediaObject(aItems, oItem)) {
-            $('.pswp.cmts .pswp__button--arrow--left').hide();
-            glSysCmtsPrevFn = glSysCmtsGallery.prev;
-            glSysCmtsGallery.prev = function () { };
-        } 
-        else {
-            $('.pswp.cmts .pswp__button--arrow--left').show();
-            if ('undefined' !== typeof(glSysCmtsPrevFn))
-                glSysCmtsGallery.prev = glSysCmtsPrevFn;
-        }
-
-        // disable next item and action when we are in the last item
-        if ((aItems.length-1) == fnIndexOfMediaObject(aItems, oItem)) {
-            $('.pswp.cmts .pswp__button--arrow--right').hide();
-            glSysCmtsNextFn = glSysCmtsGallery.next;
-            glSysCmtsGallery.next = function () { };
-        } 
-        else {
-            $('.pswp.cmts .pswp__button--arrow--right').show();
-            if ('undefined' !== typeof(glSysCmtsNextFn))
-                glSysCmtsGallery.next = glSysCmtsNextFn;
-        }
-    };
-
-    var fnLoadMoreItem = function (oItemCurrent, bFirstLoad) {
-
-        // load addutional items only for items on the border
-        if (0 != fnIndexOfMediaObject(aItems, oItemCurrent) && (aItems.length-1) != fnIndexOfMediaObject(aItems, oItemCurrent))
-            return;
-
-        var sUrl = bx_append_url_params($this._sActionsUrl, {sys: $this._sSystem, id: $this._iObjId, action: 'GetSiblingFiles', file_id: oItemCurrent['file-id']});
-        $.getJSON(sUrl, function(oData) {
-
-            if ('undefined' !== typeof(oData.error)) {
-                if ('undefined' !== typeof(console))
-                    console.log(oData.error);
-
-                return;
-            }
-
-            var iGoTo = -1;
-            var iLength = aItems.length;
-
-            if (0 == fnIndexOfMediaObject(aItems, oItemCurrent) && 'undefined' !== typeof(oData.prev.file)) {
-                aItems.unshift(fnConverMedia(oData.prev));
-                if (bFirstLoad)
-                    options.index = 1;
-                else
-                    iGoTo = glSysCmtsGallery.getCurrentIndex() + 1;
-            }
-    
-            if ((aItems.length - 1) == fnIndexOfMediaObject(aItems, oItemCurrent) && 'undefined' !== typeof(oData.next.file))
-                aItems.push(fnConverMedia(oData.next));
-
-            if (!bFirstLoad && iLength != aItems.length) {
-                glSysCmtsGallery.invalidateCurrItems();
-                glSysCmtsGallery.updateSize(true);
-
-                if(iGoTo >= 0)
-                    glSysCmtsGallery.goTo(iGoTo);
-            }
-
-            if (bFirstLoad) {
-                glSysCmtsGallery = new PhotoSwipe(ePswp, PhotoSwipeUI_Default, aItems, options);
-                glSysCmtsGallery.init();
-
-                glSysCmtsGallery.listen('beforeChange', function() { 
-                    // load more items if we are on first or on the last item
-                    fnLoadMoreItem(glSysCmtsGallery.currItem, false);
-                });
-
-                glSysCmtsGallery.listen('afterChange', function() {
-                    fnDisableArrows(glSysCmtsGallery.currItem);
-                });
-
-                glSysCmtsGallery.listen('close', function() {
-                });
-
-                fnDisableArrows(glSysCmtsGallery.currItem);
-            }
-        });
-    };
-
-    fnLoadMoreItem(oItem, true);
-
-    return false;
-};
-
 BxDolCmts.prototype.toggleReply = function(oElement, iCmtParentId, iQuote)
 {
     var $this = this;
@@ -776,7 +609,7 @@ BxDolCmts.prototype.showLiveUpdate = function(oData)
     var sId = oButton.attr('id');
     $('#' + sId).remove();
 
-    oButton.prependTo(this._sRootId);
+    oButton.prependTo(this._sRootId).bxProcessHtml();
 };
 
 BxDolCmts.prototype.showLiveUpdateForSocket = function(sData)
@@ -970,6 +803,7 @@ BxDolCmts.prototype._getCmt = function (e, iCmtId)
                     $(this).hide().html(oData.content).bxProcessHtml().bx_anim('show', $this._sAnimationEffect, $this._iAnimationSpeed);
 
                 $this._cmtsInitSeeMore($(this));
+                $this._cmtsInitGallery($(this));
             });
         },
         'json'
@@ -1048,6 +882,7 @@ BxDolCmts.prototype._cmtsReplace = function(oReplace, sContent, onLoad)
             $this._cmtsBlink($(this));
 
             $this._cmtsInitSeeMore($(this));
+            $this._cmtsInitGallery($(this));
 
             if(typeof onLoad == 'function')
                 onLoad();
@@ -1063,6 +898,7 @@ BxDolCmts.prototype._cmtsReplaceContent = function(oParent, sContent, onLoad)
             $this._cmtsBlink($(this));
 
             $this._cmtsInitSeeMore($(this));
+            $this._cmtsInitGallery($(this));
 
             if(typeof onLoad == 'function')
             onLoad();
@@ -1080,6 +916,17 @@ BxDolCmts.prototype._cmtsBlink = function(oParent)
         oParent.find('.' + sBlinkClass).removeClass(sBlinkClass);
     });
 };
+
+BxDolCmts.prototype._cmtsInitGallery = function(oParent) 
+{
+    // init gallery
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: '.pswp-gallery',
+        children: 'a',
+        pswpModule: PhotoSwipe,
+    });
+    lightbox.init();
+}
 
 BxDolCmts.prototype._cmtsInitSeeMore = function(oParent)
 {

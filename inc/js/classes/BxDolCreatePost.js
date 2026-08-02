@@ -91,13 +91,13 @@ BxDolCreatePost.prototype.getForm = function (sModuleName, sModuleUri, oElement)
                         if($(sForm).length == 0)
                             $('.sys-cpf-close').before($('<div class="sys-cpf-form sys-cpf-' + oData.module + '"></div>').hide());
 
-                        $(sForm).html(oData.content).show().siblings('.sys-cpf-close:hidden').show();
+                        $(sForm).html(oData.content).show().bxProcessHtml().siblings('.sys-cpf-close:hidden').show();
                     }, 
                     'json'
                 );
             }
             else 
-                $('.sys-cpf-form.sys-cpf-' + sModuleName).show().siblings('.sys-cpf-close:hidden').show();
+                $('.sys-cpf-form.sys-cpf-' + sModuleName).show().bxProcessHtml().siblings('.sys-cpf-close:hidden').show();
         }
     });
 

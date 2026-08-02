@@ -19,6 +19,7 @@ function BxDolLiveUpdates(oOptions)
     this._iIndex = 0;
     this._iHandler = 0;
     this._bBusy = false;
+    this._lastInactiveRun = 0;
 
     this.init();
 }
@@ -38,30 +39,54 @@ BxDolLiveUpdates.prototype.init = function() {
     });
 };
 
+BxDolLiveUpdates.prototype.getSystemsTransient = function() {
+    return this._aSystemsTransient;
+};
+
+BxDolLiveUpdates.prototype.setValue = function(sSystem, mixedValue) {
+    if(sSystem && this._aSystemsActive[sSystem] != undefined && mixedValue)
+        this._aSystemsActive[sSystem] = mixedValue;
+};
+
 BxDolLiveUpdates.prototype.add = function(oData) {
-	if(!oData)
-		return;
+    if(!oData)
+        return;
 
-	if(oData.name != undefined && oData.value != undefined) {
-		if(!this._aSystemsActive[oData.name])
-			this._aSystemsActive[oData.name] = oData.value;
-	
-		if(!this._aSystemsTransient[oData.name])
-			this._aSystemsTransient[oData.name] = 1;
-	}
+    if(oData.name != undefined && oData.value != undefined) {
+        if(!this._aSystemsActive[oData.name])
+            this._aSystemsActive[oData.name] = oData.value;
 
-	if(oData.hash != undefined)
-		this._sHash = oData.hash;
+        if(!this._aSystemsTransient[oData.name])
+            this._aSystemsTransient[oData.name] = 1;
+    }
+
+    if(oData.hash != undefined)
+        this._sHash = oData.hash;
 };
 
 BxDolLiveUpdates.prototype.destroy = function() {
-	if(this._iHandler)
-		clearInterval(this._iHandler);
+    if(this._iHandler)
+        clearInterval(this._iHandler);
 };
 
 BxDolLiveUpdates.prototype.perform = function() {
-	if(!this._bServerRequesting || this._bBusy || ('undefined' !== typeof(document.hidden) && document.hidden))
+
+    // if request already in progress, skip
+	if (!this._bServerRequesting || this._bBusy) {
 		return;
+    }
+
+    if ('undefined' !== typeof(document.hidden) && document.hidden) {
+        // when hidden → allow execution only every 2h
+        const now = Date.now();
+        if (now - this._lastInactiveRun < 2 * 60 * 60 * 1000) {
+            return; // not yet 2 hours
+        }
+        this._lastInactiveRun = now;
+    } else {
+        // when visible → reset timer
+        this._lastInactiveRun = 0;
+    }
 
 	var $this = this;
 	var oDate = new Date();

@@ -50,21 +50,6 @@ class BxBaseStudioGridNavigation extends BxTemplStudioGrid
 
         return $oForm->genRow($aInputModules);
     }
-
-    public function getSearchInput()
-    {
-        $oForm = new BxTemplStudioFormView(array());
-
-        $aInputSearch = array(
-            'type' => 'text',
-            'name' => 'keyword',
-            'attrs' => array(
-                'id' => 'bx-grid-search-' . $this->_sObject,
-                'onKeyup' => 'javascript:$(this).off(\'keyup\'); ' . $this->getJsObject() . '.onChangeFilter()'
-            )
-        );
-        return $oForm->genRow($aInputSearch);
-    }
 }
 
 /** @} */

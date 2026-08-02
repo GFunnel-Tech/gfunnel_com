@@ -87,8 +87,14 @@ class BxBaseMenuCustom extends BxTemplMenuMoreAuto
     	if(empty($mixedItem))
             return false;
 
-        if($this->_bIsApi)
+        if($this->_bIsApi) {
+            if(is_array($mixedItem))
+                $mixedItem = array_merge($mixedItem, [
+                    'primary' => isset($aItem['primary']) ? $aItem['primary'] : 0,
+                ]);
+
             return $mixedItem;
+        }
 
         $sItem = $sClass = '';
         if(is_array($mixedItem)) 
@@ -143,6 +149,47 @@ class BxBaseMenuCustom extends BxTemplMenuMoreAuto
     protected function _getMenuItemDefaultApi ($aItem)
     {
         return $aItem;
+    }
+    
+    protected function _rewriteMenuItem ($aItem, $aExtrasAddon = [])
+    {
+        $mixedResult = false;
+
+        $aExtras = array_merge([
+            'menu' => $this->_sObject, 
+            'menu_object' => $this, 
+            'item' => $aItem,
+            'res' => &$mixedResult,
+        ], $aExtrasAddon);
+
+        /**
+         * @hooks
+         * @hookdef hook-bx_base_general-menu_custom_item '{module_name}', 'menu_custom_item' - hook to override menu item
+         * - $unit_name - module name
+         * - $action - equals `menu_custom_item`
+         * - $object_id - not used
+         * - $sender_id - not used
+         * - $extra_params - array of additional params with the following array keys:
+         *      - `menu` - [string] menu name
+         *      - `menu_object` - [object] an instance of menu, @see BxDolMenu
+         *      - `item` - [array] menu item array as key&value pairs
+         *      - `module` - [string] module name
+         *      - `content_id` - [int] content id
+         *      - `content_data` - [array] content info array as key&value pairs
+         *      - `res` - [string] by ref, menu item code, can be overridden in hook processing
+         * @hook @ref hook-bx_base_general-menu_custom_item
+         */
+        bx_alert($this->_sModule, 'menu_custom_item', 0, 0, $aExtras);
+        
+        /**
+         * @hooks
+         * @hookdef hook-menu-menu_custom_item 'menu', 'menu_custom_item' - hook to override menu item
+         * It's equivalent to @ref hook-bx_base_general-menu_custom_item
+         * @hook @ref hook-menu-menu_custom_item
+         */
+        bx_alert('menu', 'menu_custom_item', 0, 0, $aExtras);
+
+        return $mixedResult;
     }
 
     protected function _getTmplContentItem()

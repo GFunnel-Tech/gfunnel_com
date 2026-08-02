@@ -69,43 +69,15 @@ class BxBaseCmtsGridAdministration extends BxDolCmtsGridAdministration
 
         return  $this->_getFilterSelectOne($this->_sFilter1Name, $this->_sFilter1Value, $this->_aFilter1Values) . $this->_getSearchInput();
     }
-    
-    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues)
+
+    protected function _getFilterOnChange()
     {
-        if(empty($sFilterName) || empty($aFilterValues))
-            return '';
-
-        foreach($aFilterValues as $sKey => $sValue)
-            $aFilterValues[$sKey] = _t($sValue);
-
-        $aInputModules = array(
-            'type' => 'select',
-            'name' => $sFilterName,
-            'attrs' => array(
-                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
-                'onChange' => 'javascript:' . $this->sJsObject . '.onChangeFilter(this)'
-            ),
-            'value' => $sFilterValue,
-            'values' => $aFilterValues
-        );
-
-        $oForm = new BxTemplFormView(array());
-        return $oForm->genRow($aInputModules);
+        return $this->sJsObject . '.onChangeFilter(this)';
     }
 
-    protected function _getSearchInput()
+    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, $mixedAddSelectOne = true, $bAsArray = false)
     {
-        $aInputSearch = array(
-            'type' => 'text',
-            'name' => 'search',
-            'attrs' => array(
-                'id' => 'bx-grid-search-' . $this->_sObject,
-                'onKeyup' => 'javascript:$(this).off(\'keyup focusout\'); ' . $this->sJsObject . '.onChangeFilter(this)',
-                'onBlur' => 'javascript:' . $this->sJsObject . '.onChangeFilter(this)',
-            )
-        );
-        $oForm = new BxTemplFormView(array());
-        return $oForm->genRow($aInputSearch);
+        return parent::_getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, '_adm_txt_select_module', $bAsArray);
     }
 
     protected function _getCellHeaderCmtModule($sKey, $aField)

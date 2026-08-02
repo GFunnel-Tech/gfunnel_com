@@ -174,6 +174,20 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         return $mixedResult !== false ? $mixedResult : '';
     }
 
+    public function serviceGetBadges($iContentId, $bIsSingle = false, $bIsCompact = false)
+    {
+        $mixedBadges = parent::serviceGetBadges($iContentId, $bIsSingle, $bIsCompact);
+
+        if(($mixedBadge = $this->_oTemplate->getBadge($iContentId))) {
+            if($this->_bIsApi)
+                $mixedBadges[] = $mixedBadge;
+            else
+                $mixedBadges = $mixedBadge . $mixedBadges;
+        }
+
+        return $mixedBadges;
+    }
+
     public function serviceGetSearchResultUnit ($iContentId, $sUnitTemplate = '')
     {
         if(empty($sUnitTemplate))
@@ -367,11 +381,11 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         return '';
     }
 
-    public function serviceProfilesSearch ($sTerm, $iLimit)
+    public function serviceProfilesSearch ($sTerm, $mixedParams)
     {
-        $aRet = array();
+        $aRet = [];
 
-        $a = $this->_oDb->searchByTerm($sTerm, $iLimit);
+        $a = $this->_oDb->searchByTerm($sTerm, $mixedParams);
         foreach ($a as $r) {
             $oProfile = BxDolProfile::getInstance($r['profile_id']);
 
@@ -382,13 +396,13 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
                 $aRet[] = $aData['author_data'];
             }
             else{
-                $aRet[] = array (
+                $aRet[] = [
                     'label' => $this->serviceProfileName($r['content_id']), 
                     'value' => $r['profile_id'], 
                     'url' => $oProfile->getUrl(),
                     'thumb' => $oProfile->getThumb(),
                     'unit' => $oProfile->getUnit(0, ['template' => ['name' => 'unit_wo_info', 'size' => 'icon']])
-                );
+                ];
             }
         }
 
@@ -541,7 +555,8 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
          */
         bx_alert($this->getName(), 'profile_name', $aContentInfo['profile_id'], 0, [
             'info' => $aContentInfo, 
-            'display_name' => &$sDisplayName
+            'display_name' => &$sDisplayName,
+            'display_name_ref' => &$sDisplayName
         ]);
         
         return $sDisplayName;
@@ -654,7 +669,8 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
          */
         bx_alert('system', 'get_participating_profiles', $iProfileId, false, [
             'module' => $this->_oConfig->getName(),
-            'profiles' => &$aRet
+            'profiles' => &$aRet,
+            'profiles_ref' => &$aRet
         ]);
 
         return $aRet;
@@ -1073,7 +1089,12 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     {
         return $this->_serviceEntityForm('editDataForm', $iContentId, $this->_oConfig->CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT_COVER']);
     }
-    
+
+    public function serviceEntityEditBadge($iContentId = 0)
+    {
+        return $this->_serviceEntityForm('editDataForm', $iContentId, $this->_oConfig->CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT_BADGE'], 'checkAllowedChangeBadge');
+    }
+
     public function serviceEntityEditSettings($iContentId = 0)
     {
         $CNF = &$this->_oConfig->CNF;
@@ -1176,6 +1197,8 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
      */
     public function serviceEntitySocialSharing ($mixedContent = false, $aParams = array())
     {
+        $CNF = &$this->_oConfig->CNF;
+
         if(!empty($mixedContent)) {
             if(!is_array($mixedContent))
                $mixedContent = array((int)$mixedContent, array());
@@ -1201,11 +1224,16 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
         list($iContentId, $aContentInfo) = $mixedContent;
 
-		return BxDolAcl::getInstance()->getProfileMembership($aContentInfo['profile_id']);
+        $mixedResult = BxDolAcl::getInstance()->getProfileMembership($aContentInfo['profile_id']);
+
+        return $this->_bIsApi ? [bx_api_get_block('entity_membership', $mixedResult)] : $mixedResult;
     }
 
     public function serviceProfileFriends ($iContentId = 0)
     {
+        if(!$this->_oConfig->isFriends())
+            return false;
+
         $mixedContent = $this->_getContent($iContentId);
         if($mixedContent === false)
             return false;
@@ -1222,6 +1250,9 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
     public function serviceProfileFriendsMutual ($iContentId = 0)
     {
+        if(!$this->_oConfig->isFriends())
+            return false;
+
         $mixedContent = $this->_getContent($iContentId);
         if($mixedContent === false)
             return false;
@@ -1282,7 +1313,7 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
     public function serviceProfileRelations ($iContentId = 0, $aParams = array())
     {
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return false;
 
         $mixedContent = $this->_getContent($iContentId);
@@ -1301,7 +1332,7 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
     public function serviceProfileRelatedMe ($iContentId = 0)
     {
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return false;
 
         $mixedContent = $this->_getContent($iContentId);
@@ -1327,9 +1358,14 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         return isset($CNF['PARAM_ENABLE_ACTIVATION_LETTER']) ? (bool)getParam($CNF['PARAM_ENABLE_ACTIVATION_LETTER']) : true;
     }
 
+    public function serviceIsEnableFriends()
+    {
+        return $this->_oConfig->isFriends();
+    }
+
     public function serviceIsEnableRelations()
     {
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return false;
 
         $sModule = $this->_oConfig->getName();
@@ -1438,38 +1474,51 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         $CNF = &$this->_oConfig->CNF;
         $sModule = $this->_aModule['name'];
 
-        $aAlerts = array();
-        $aHandlers = array();
+        $aResult = parent::serviceGetTimelineData();
+
         if(!empty($CNF['FIELD_PICTURE'])) {
-            $aAlerts = array_merge($aAlerts, array(
-                array('unit' => $sModule, 'action' => 'profile_picture_changed'),
-                array('unit' => $sModule, 'action' => 'profile_picture_deleted')
-            ));
-            $aHandlers = array_merge($aHandlers, array(
-                array('group' => $sModule . '_profile_picture', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'profile_picture_changed', 'module_name' => $sModule, 'module_method' => 'get_timeline_profile_picture', 'module_class' => 'Module',  'groupable' => 0, 'group_by' => ''),
-                array('group' => $sModule . '_profile_picture', 'type' => 'delete', 'alert_unit' => $sModule, 'alert_action' => 'profile_picture_deleted')
-            ));
+            $aResult['handlers'] = array_merge($aResult['handlers'], [
+                ['group' => $sModule . '_profile_picture', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'profile_picture_changed', 'module_name' => $sModule, 'module_method' => 'get_timeline_profile_picture', 'module_class' => 'Module',  'groupable' => 0, 'group_by' => ''],
+                ['group' => $sModule . '_profile_picture', 'type' => 'delete', 'alert_unit' => $sModule, 'alert_action' => 'profile_picture_deleted']
+            ]);
+
+            $aResult['alerts'] = array_merge($aResult['alerts'], [
+                ['unit' => $sModule, 'action' => 'profile_picture_changed'],
+                ['unit' => $sModule, 'action' => 'profile_picture_deleted']
+            ]);
         }
 
         if(!empty($CNF['FIELD_COVER'])) {
-            $aAlerts = array_merge($aAlerts, array(
-                array('unit' => $sModule, 'action' => 'profile_cover_changed'),
-                array('unit' => $sModule, 'action' => 'profile_cover_deleted')
-            ));
-            $aHandlers = array_merge($aHandlers, array(
-                array('group' => $sModule . '_profile_cover', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'profile_cover_changed', 'module_name' => $sModule, 'module_method' => 'get_timeline_profile_cover', 'module_class' => 'Module',  'groupable' => 0, 'group_by' => ''),
-                array('group' => $sModule . '_profile_cover', 'type' => 'delete', 'alert_unit' => $sModule, 'alert_action' => 'profile_cover_deleted')
-            ));
+            $aResult['handlers'] = array_merge($aResult['handlers'], [
+                ['group' => $sModule . '_profile_cover', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'profile_cover_changed', 'module_name' => $sModule, 'module_method' => 'get_timeline_profile_cover', 'module_class' => 'Module',  'groupable' => 0, 'group_by' => ''],
+                ['group' => $sModule . '_profile_cover', 'type' => 'delete', 'alert_unit' => $sModule, 'alert_action' => 'profile_cover_deleted']
+            ]);
+
+            $aResult['alerts'] = array_merge($aResult['alerts'], [
+                ['unit' => $sModule, 'action' => 'profile_cover_changed'],
+                ['unit' => $sModule, 'action' => 'profile_cover_deleted']
+            ]);
         }
 
-    	$aResult = array();
-        if(!empty($aAlerts) && !empty($aHandlers))
-            $aResult = array(
-            	'handlers' => $aHandlers,
-            	'alerts' => $aAlerts
-            );
-
         return $aResult;
+    }
+
+    /**
+     * Entry post for Timeline module
+     */
+    public function serviceGetTimelinePost($aEvent, $aBrowseParams = [])
+    {
+        $mixedResult = parent::serviceGetTimelinePost($aEvent, $aBrowseParams);
+
+        if($mixedResult !== false && ($oAuthor = BxDolProfile::getInstanceByContentAndType($aEvent['object_id'], $this->_aModule['name'])) !== false)
+            $mixedResult['object_owner_id'] = $oAuthor->id();
+
+        /*
+         * Item should be shown to the author only as a 'welcome' item just after join.
+         */
+        $mixedResult['object_privacy_view'] = 2;
+
+        return $mixedResult;
     }
 
     /**
@@ -1559,9 +1608,17 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
         // for groups based profiles we do have a Role permissions which have a higher priority than the site-wide permissions.
         if (method_exists($this, 'isAllowedModuleActionByProfile')) {
-            $bResult = $this->isAllowedModuleActionByProfile($iContentId, $sPostModule, 'post');
+            $iProfileId = $this->_iProfileId;
+
+            if(($sPrivacy = $CNF['OBJECT_PRIVACY_POST'] ?? false)) {
+                $oPrivacy = BxDolPrivacy::getObjectInstance($sPrivacy);
+                if($oPrivacy && !$oPrivacy->check($iContentId, $iProfileId))
+                    return _t('_sys_access_denied_to_private_content');
+            }
+
             // if a profile is having a role and a role is having permissions set then it overrides the site-wide setting.
-            if ($bResult !== NULL) return $bResult;
+            if (($bResult = $this->isAllowedModuleActionByProfile($iContentId, $sPostModule, 'post', $iProfileId)) !== NULL) 
+                return $bResult;
         }
 
         return $this->serviceCheckAllowedWithContent('Post', $iContentId);
@@ -1588,6 +1645,11 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         return $this->serviceCheckAllowedProfileView($iContentId);
     }
 
+    public function serviceCheckSpacePrivacyForProfile($iContentId, $iProfileId = false)
+    {
+        return $this->serviceCheckAllowedWithContentForProfile('View', $iContentId, $iProfileId);
+    }
+
     /**
      * Check if the profile can be viewed.
      * 
@@ -1609,11 +1671,20 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         if(empty($aDataEntry) || !is_array($aDataEntry))
             return _t('_sys_txt_not_found');
 
+        $sCacheKey = $this->getName() . ':' . __CLASS__ . ':serviceCheckAllowedViewForProfile:' . $aDataEntry['id'] . ':' . $iProfileId;
+        $mixedRet = bx_mem_cache_get($sCacheKey);
+        if (null !== $mixedRet)
+            return $mixedRet;
+        
         $oProfile = BxDolProfile::getInstanceByContentAndType($aDataEntry[$this->_oConfig->CNF['FIELD_ID']], $this->getName());
         if ($oProfile && $oProfile->id() == $iProfileId)
-            return CHECK_ACTION_RESULT_ALLOWED;
+            $mixedRet = CHECK_ACTION_RESULT_ALLOWED;
+        else
+            $mixedRet = parent::serviceCheckAllowedViewForProfile ($aDataEntry, $isPerformAction, $iProfileId);
 
-        return parent::serviceCheckAllowedViewForProfile ($aDataEntry, $isPerformAction, $iProfileId);
+        bx_mem_cache_set($sCacheKey, $mixedRet);
+
+        return $mixedRet;
     }
 
     /**
@@ -1753,15 +1824,26 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     {
         $CNF = &$this->_oConfig->CNF;
 
+        $sCacheKey = $this->getName() . ':' . __CLASS__ . ':checkAllowedViewProfileImage:' . $aDataEntry[$CNF['FIELD_ID']];
+        $mixedRet = bx_mem_cache_get($sCacheKey);
+        if (null !== $mixedRet)
+            return $mixedRet;
+
         // check privacy
-        if (empty($CNF['OBJECT_PRIVACY_VIEW']) || isAdmin() || CHECK_ACTION_RESULT_ALLOWED === $this->checkAllowedEditAnyEntry())
-            return CHECK_ACTION_RESULT_ALLOWED;
 
-        $oPrivacy = BxDolPrivacy::getObjectInstance($CNF['OBJECT_PRIVACY_VIEW']);
-        if ($oPrivacy && !$oPrivacy->check($aDataEntry[$CNF['FIELD_ID']]) && !$oPrivacy->isPartiallyVisible($aDataEntry[$CNF['FIELD_ALLOW_VIEW_TO']]))
-            return _t('_sys_access_denied_to_private_content');
+        if (empty($CNF['OBJECT_PRIVACY_VIEW']) || isAdmin() || CHECK_ACTION_RESULT_ALLOWED === $this->checkAllowedEditAnyEntry()) {
+            $mixedRet = CHECK_ACTION_RESULT_ALLOWED;
+        } 
+        elseif (($oPrivacy = BxDolPrivacy::getObjectInstance($CNF['OBJECT_PRIVACY_VIEW'])) && !$oPrivacy->check($aDataEntry[$CNF['FIELD_ID']]) && !$oPrivacy->isPartiallyVisible($aDataEntry[$CNF['FIELD_ALLOW_VIEW_TO']])) {
+            $mixedRet = _t('_sys_access_denied_to_private_content');
+        }
+        else {
+            $mixedRet = CHECK_ACTION_RESULT_ALLOWED;
+        }
 
-        return CHECK_ACTION_RESULT_ALLOWED;
+        bx_mem_cache_set($sCacheKey, $mixedRet);
+
+        return $mixedRet;
     }
 
     /**
@@ -1772,6 +1854,22 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         return $this->checkAllowedViewProfileImage($aDataEntry);
     }
     
+    /**
+     * @return CHECK_ACTION_RESULT_ALLOWED if access is granted or error message if access is forbidden.
+     */
+    public function checkAllowedViewBadgeImage ($aDataEntry, $isPerformAction = false)
+    {
+        $oProfile = BxDolProfile::getInstanceByContentAndType($aDataEntry[$this->_oConfig->CNF['FIELD_ID']], $this->_aModule['name']);
+        if(!$oProfile)
+            return _t('_sys_txt_error_occured');
+
+        $aCheck = checkActionModule($oProfile->id(), 'change badge', $this->_aModule['name'], false);
+        if($aCheck[CHECK_ACTION_RESULT] !== CHECK_ACTION_RESULT_ALLOWED)
+            return $aCheck[CHECK_ACTION_MESSAGE];       
+
+        return $this->checkAllowedViewProfileImage($aDataEntry, $isPerformAction);
+    }
+
     /**
      * @return CHECK_ACTION_RESULT_ALLOWED if access is granted or error message if access is forbidden.
      */
@@ -1809,6 +1907,30 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
             return CHECK_ACTION_RESULT_ALLOWED;
 
         return _t('_sys_txt_access_denied');
+    }
+
+    public function checkAllowedChangeBadge ($aDataEntry, $isPerformAction = false)
+    {
+        if(empty($aDataEntry) || !is_array($aDataEntry))
+            return _t('_sys_txt_not_found');
+
+        // moderator always has access
+        if($this->_isModerator($isPerformAction))
+            return CHECK_ACTION_RESULT_ALLOWED;
+
+        // owner (checked by account instead of author!) always have access
+        $oProfile = BxDolProfile::getInstanceByContentAndType($aDataEntry[$this->_oConfig->CNF['FIELD_ID']], $this->_aModule['name']);
+        if(!$oProfile)
+            return _t('_sys_txt_error_occured');
+
+        if($oProfile->getAccountId() != $this->_iAccountId)
+            return _t('_sys_txt_access_denied');
+
+        $aCheck = checkActionModule($this->_iProfileId, 'change badge', $this->getName(), false);
+        if($aCheck[CHECK_ACTION_RESULT] !== CHECK_ACTION_RESULT_ALLOWED)
+            return $aCheck[CHECK_ACTION_MESSAGE];
+
+        return CHECK_ACTION_RESULT_ALLOWED;
     }
 
     /**
@@ -1901,11 +2023,34 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
         return $this->checkAllowedContact($aDataEntry, $isPerformAction);
     }
 
+    public function checkAllowedFriendsView (&$aDataEntry, $isPerformAction = false)
+    {
+        $sResult = _t('_sys_txt_access_denied');
+        if(!$this->_oConfig->isFriends())
+            return $sResult;
+
+        if(empty($aDataEntry) || !is_array($aDataEntry))
+            return $sResult;
+
+        return CHECK_ACTION_RESULT_ALLOWED;
+    }
+
+    public function checkAllowedFriends (&$aDataEntry, $isPerformAction = false)
+    {
+        if(!$this->_oConfig->isFriends() || ($oProfile = BxDolProfile::getInstance($this->_iProfileId)) === false || !bx_srv($oProfile->getModule(), 'is_enable_friends'))
+            return _t('_sys_txt_access_denied');
+
+        return CHECK_ACTION_RESULT_ALLOWED;
+    }
+
     /**
      * @return CHECK_ACTION_RESULT_ALLOWED if access is granted or error message if access is forbidden.
      */
     public function checkAllowedFriendAdd (&$aDataEntry, $isPerformAction = false)
     {
+        if(!$this->_oConfig->isFriends() || ($oProfile = BxDolProfile::getInstance($this->_iProfileId)) === false || !bx_srv($oProfile->getModule(), 'is_enable_friends'))
+            return _t('_sys_txt_access_denied');
+
         return $this->_checkAllowedConnect ($aDataEntry, $isPerformAction, ['sys_profiles_friends', 'checkAllowedAddConnection'], false, false);
     }
 
@@ -1914,10 +2059,34 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
      */
     public function checkAllowedFriendRemove (&$aDataEntry, $isPerformAction = false)
     {
+        if(!$this->_oConfig->isFriends() || ($oProfile = BxDolProfile::getInstance($this->_iProfileId)) === false || !bx_srv($oProfile->getModule(), 'is_enable_friends'))
+            return _t('_sys_txt_access_denied');
+
         if (CHECK_ACTION_RESULT_ALLOWED === $this->_checkAllowedConnect ($aDataEntry, $isPerformAction, ['sys_profiles_friends', 'checkAllowedRemoveConnection'], false, true, true))
             return CHECK_ACTION_RESULT_ALLOWED;
 
         return $this->_checkAllowedConnect ($aDataEntry, $isPerformAction, ['sys_profiles_friends', 'checkAllowedRemoveConnection'], false, true, false);
+    }
+
+    public function checkAllowedRelations (&$aDataEntry, $isPerformAction = false)
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        $sResult = _t('_sys_txt_access_denied');
+        if(!BxDolConnectionRelation::isEnabled())
+            return $sResult;
+
+        if(($sMsg = $this->checkAllowedView($aDataEntry)) !== CHECK_ACTION_RESULT_ALLOWED)
+            return $sMsg;
+
+        $oProfile = BxDolProfile::getInstanceByContentAndType($aDataEntry[$CNF['FIELD_ID']], $this->_aModule['name']);
+        if(!$oProfile || $oProfile->id() == $this->_iProfileId)
+            return $sResult;
+
+        if(!BxDolConnection::getObjectInstance('sys_profiles_relations')->isRelationAvailable($this->_iProfileId, $oProfile->id()))
+            return $sResult;
+
+        return CHECK_ACTION_RESULT_ALLOWED;
     }
 
     /**
@@ -1926,7 +2095,7 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     public function checkAllowedRelationAdd (&$aDataEntry, $isPerformAction = false)
     {
         $sResult = _t('_sys_txt_access_denied');
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return $sResult;
 
         if(($sMsg = $this->checkAllowedView($aDataEntry)) !== CHECK_ACTION_RESULT_ALLOWED)
@@ -1941,7 +2110,7 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     public function checkAllowedRelationRemove (&$aDataEntry, $isPerformAction = false)
     {
         $sResult = _t('_sys_txt_access_denied');
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return $sResult;
 
         return $this->_checkAllowedConnect ($aDataEntry, $isPerformAction, 'sys_profiles_relations', false, true);
@@ -1950,7 +2119,7 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     public function checkAllowedRelationsView (&$aDataEntry, $isPerformAction = false)
     {
         $sResult = _t('_sys_txt_access_denied');
-        if(!BxDolRelation::isEnabled())
+        if(!BxDolConnectionRelation::isEnabled())
             return $sResult;
 
         $sModule = $this->_oConfig->getName();
@@ -1962,6 +2131,14 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
             return $sResult;
 
         return CHECK_ACTION_RESULT_ALLOWED;
+    }
+
+    public function checkAllowedSubscriptions(&$aDataEntry, $isPerformAction = false)
+    {
+        if(($sMsg = $this->checkAllowedView($aDataEntry)) !== CHECK_ACTION_RESULT_ALLOWED)
+            return $sMsg;
+
+        return $this->_checkAllowedConnect ($aDataEntry, $isPerformAction, ['sys_profiles_subscriptions', 'checkAllowedConnectByAcl'], false, false);
     }
 
     /**
@@ -2081,6 +2258,13 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     }
 
     // ====== COMMON METHODS
+    public function isBadge($aData)
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        return !empty($CNF['FIELD_BADGE']) && $this->checkAllowedViewBadgeImage($aData) === CHECK_ACTION_RESULT_ALLOWED;
+    }
+
     public function isMenuItemVisible($sObject, &$aItem, &$aContentInfo)
     {
         $CNF = &$this->_oConfig->CNF;
@@ -2106,6 +2290,9 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
         if(!$iProfileId && ($oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $sModule)) !== false)
             $iProfileId = $oProfile->id();
+
+        bx_content_cache_del_by_prefix('sprofile_unit_vars:' . $iProfileId . ':');
+        bx_content_cache_del_by_prefix('menu_sys_toolbar_member_p' . $iProfileId);
 
         $aField2Method = [
             $CNF['FIELD_PICTURE'] => 'picture',
@@ -2161,10 +2348,14 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
     {
         $CNF = &$this->_oConfig->CNF;
 
+        $sModule = $this->getName();
         $iContentId = (int)$aContentInfo[$CNF['FIELD_ID']];
+        $iAuthorId = false;
+        if(($oProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $sModule)) !== false)
+            $iAuthorId = $oProfile->id();
 
         $aParams = $this->_alertParams($aContentInfo);
-        
+
         /**
          * @hooks
          * @hookdef hook-bx_base_profile-added '{module_name}', 'added' - hook after profile was added
@@ -2178,7 +2369,7 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
          *      - `privacy_view` - [int] or [string] privacy for view context action, @see BxDolPrivacy
          * @hook @ref hook-bx_base_profile-added
          */
-        bx_alert($this->getName(), 'added', $iContentId, false, $aParams);
+        bx_alert($this->getName(), 'added', $iContentId, $iAuthorId, $aParams);
     }
 
     public function alertAfterEdit($aContentInfo)
@@ -2372,6 +2563,8 @@ class BxBaseModProfileModule extends BxBaseModGeneralModule implements iBxDolCon
 
             $aResult['meta'] = $oMetaMenu->getCodeAPI();
         }
+
+        $this->decodeDataAPICommonFields($aResult, $aData, $aParams);
 
         return $aResult;
     }

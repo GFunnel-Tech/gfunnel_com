@@ -69,7 +69,22 @@ class BxBaseServiceAccount extends BxDol
             else if($mixedResult === true){
                 $sRedirectUrl = BxDolForm::getSubmittedValue('relocate','post');
                 if(empty($sRedirectUrl)){
-                    $sRedirectUrl = '/';
+                    if (!getParam('sys_account_auto_profile_creation')){
+                        
+                        $aModulesProfile = bx_srv('system', 'get_modules_by_type', ['profile']);
+
+                        $sDefaultProfileType = getParam('sys_account_default_profile_type');
+                        if(count($aModulesProfile) == 1)
+                            $sProfileModule = $aModulesProfile[0]['name'];
+                        else if(!empty($sDefaultProfileType)) 
+                            $sProfileModule = $sDefaultProfileType;
+                        
+                        $sRedirectUrl = !empty($sProfileModule) ? bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink(BxDolService::call($sProfileModule, 'profile_create_url', array(false)))) : '/';
+
+                    }
+                    else{
+                        $sRedirectUrl = '/';
+                    }    
                 }
                 else{
                     $parts = parse_url($sRedirectUrl);
@@ -78,9 +93,14 @@ class BxBaseServiceAccount extends BxDol
                     $parts['query'] = http_build_query($query);
                     $sRedirectUrl = $parts['path'] . (!empty($parts['query']) ? '?' . $parts['query'] : '');
                 }
+
                 return [
+                    bx_api_get_block('form', $this->_oAccountForms->getObjectFormAdd()->getCodeAPI(), [
+                        'ext' => [
+                            'request' => ['url' => '/api.php?r=system/create_account_form/TemplServiceAccount', 'immutable' => true]
+                        ]
+                    ]),
                     bx_api_get_block('redirect', ['uri' => $sRedirectUrl]),
-                    //bx_api_get_block('login', ['session' => BxDolSession::getInstance()->getId()], ['id' => 2]),
                 ];
             }
             else
@@ -463,6 +483,10 @@ class BxBaseServiceAccount extends BxDol
                     bx_alert('account', 'before_confirm_phone_send_sms', $oAccount->id(), bx_get_logged_profile_id(), [
                         'phone_number' => &$sPhoneNumber, 
                         'sms_text' => &$sActivationText, 
+
+                        'phone_number_ref' => &$sPhoneNumber, 
+                        'sms_text_ref' => &$sActivationText, 
+
                         'override_result' => &$mixedResult
                     ]);
 
@@ -521,7 +545,7 @@ class BxBaseServiceAccount extends BxDol
          */
         bx_alert('account', 'after_email_confirmation', $mixedAccountId, false, ['override_result' => &$sUrl]);
         if ($bApi){
-            return  [bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl)), 'timeout' => 1000])];
+            return  [bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl))])];
         }
 
         $oTemplate = BxDolTemplate::getInstance();
@@ -602,18 +626,18 @@ class BxBaseServiceAccount extends BxDol
      */
     public function serviceForgotPassword()
     {
-        if(isLogged()){
-            $bApi = bx_is_api();
-            if($bApi) {
-               return [
-                    bx_api_get_msg(_t("_sys_txt_forgot_pasword_logged_in"), ['ext' => ['msg_type' => 'result']]),
-                ];
-            }
-            header('Location: ' . BX_DOL_URL_ROOT);
-            exit;
-        }
-        
         $bApi = bx_is_api();
+
+        if (isLogged() && 'forgot-password' == bx_get('i')) {
+            if (!$bApi) {
+                header('Location: ' . BX_DOL_URL_ROOT);
+                exit;
+            }
+            else
+                return [
+                    ['id' => 2, 'type' => 'redirect', 'data' => ['uri' => '/']],
+                ];
+        }
 
         if (bx_get('key') !== false)
             return $this->resetPassword();
@@ -696,6 +720,10 @@ class BxBaseServiceAccount extends BxDol
                 bx_alert('account', 'before_forgot_password_send_sms', $aAccountInfo['id'], false, [
                     'phone_number' => &$sPhone, 
                     'sms_text' => &$sSmsText, 
+
+                    'phone_number_ref' => &$sPhone, 
+                    'sms_text_ref' => &$sSmsText, 
+
                     'override_result' => &$mixedOverrideResult
                 ]);
 
@@ -712,6 +740,11 @@ class BxBaseServiceAccount extends BxDol
             if($bApi) {
                 return [
                     bx_api_get_msg(strip_tags($sResultMsg)),
+                    bx_api_get_block('form', $oForm->getCodeAPI(), [
+                        'ext' => [
+                            'request' => ['url' => '/api.php?r=system/forgot_password/TemplServiceAccount', 'immutable' => true]
+                        ]
+                    ])
                 ];
             }
         } 
@@ -721,7 +754,6 @@ class BxBaseServiceAccount extends BxDol
             
             if($bApi) {
                 return [
-                    bx_api_get_msg($sResultMsg, ['ext' => ['msg_type' => 'caption']]),
                     bx_api_get_block('form', $oForm->getCodeAPI(), [
                         'ext' => [
                             'request' => ['url' => '/api.php?r=system/forgot_password/TemplServiceAccount', 'immutable' => true]
@@ -817,32 +849,34 @@ class BxBaseServiceAccount extends BxDol
         $oForm->initChecker();
         if($oForm->isSubmittedAndValid()) {
             $sErrorUrl = bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=forgot-password'));
+            if($bApi)
+                $sErrorUrl = bx_api_get_relative_url($sErrorUrl);
 
             // check if key exists
             $oKey = BxDolKey::getInstance();
             $sKey = $oForm->getCleanValue('key');
             if(!$oKey || !$oKey->isKeyExists($sKey))
-                return $bApi ? bx_api_get_msg(_t('_sys_txt_reset_pasword_error_invalid_key', $sErrorUrl)) : MsgBox(_t('_sys_txt_reset_pasword_error_invalid_key', $sErrorUrl));
+                return ($sMsg = _t('_sys_txt_reset_pasword_error_invalid_key', $sErrorUrl)) && $bApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
 
             // check if key data exists
             $aKeyData = $oKey->getKeyData($sKey);
             if(empty($aKeyData['email']))
-                return $bApi ? [bx_api_get_msg(_t('_sys_txt_reset_pasword_error_invalid_key', $sErrorUrl))] : MsgBox(_t('_sys_txt_reset_pasword_error_invalid_key', $sErrorUrl));
+                return ($sMsg = _t('_sys_txt_reset_pasword_error_invalid_key', $sErrorUrl)) && $bApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
 
             // check if account with such email exists
             $iAccountId = $this->_oAccountQuery->getIdByEmail($aKeyData['email']);
             if(empty($iAccountId))
-                return $bApi ? [bx_api_get_msg(_t('_sys_txt_reset_pasword_error_not_found', $sErrorUrl))] : MsgBox(_t('_sys_txt_reset_pasword_error_not_found', $sErrorUrl));;
+                return ($sMsg = _t('_sys_txt_reset_pasword_error_not_found', $sErrorUrl)) && $bApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
 
             $sPassword = $oForm->getCleanValue('password');
             $oAccount = BxDolAccount::getInstance($iAccountId);
             if (!$oAccount || !$oAccount->updatePassword($sPassword))
-                return $bApi ?[ bx_api_get_msg(_t('_sys_txt_reset_pasword_error_occured', $sErrorUrl))] : MsgBox(_t('_sys_txt_reset_pasword_error_occured', $sErrorUrl));
+                return ($sMsg = _t('_sys_txt_reset_pasword_error_occured', $sErrorUrl)) && $bApi ?[ bx_api_get_msg($sMsg)] : MsgBox($sMsg);
 
             $this->_oAccountQuery->unlockAccount($iAccountId);
             $oKey->removeKey($sKey);
 
-            return $bApi ? [bx_api_get_msg(_t('_sys_txt_reset_pasword_success', $sErrorUrl))] : MsgBox(_t('_sys_txt_reset_pasword_success'), 3) . bx_srv('system', 'login_form_only', array('', bx_get_reset_password_redirect($iAccountId)), 'TemplServiceLogin');
+            return ($sMsg = _t('_sys_txt_reset_pasword_success')) && $bApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg, 3) . bx_srv('system', 'login_form_only', array('', bx_get_reset_password_redirect($iAccountId)), 'TemplServiceLogin');
         }
 
         $sTitleReset = _t('_sys_page_title_forgot_password_reset');
@@ -918,6 +952,8 @@ class BxBaseServiceAccount extends BxDol
 
         // login to user's account automatically
         bx_login($aData['account_id'], bx_is_remember_me());
+
+        $oAccount->sendWelcomeEmail();
 
         return (int)$aData['account_id'];
     }

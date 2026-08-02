@@ -14,18 +14,38 @@ class BxDolAIQuery extends BxDolDb
         parent::__construct();
     }
 
-    static public function getModelObject($iId)
+    static protected function _getObject(int $iId, string $sTable): array|bool
     {
         $oDb = BxDolDb::getInstance();
 
-        $aModel = $oDb->getRow("SELECT * FROM `sys_agents_models` WHERE `id` = :id", ['id' => $iId]);
-        if(!$aModel || !is_array($aModel))
+        $a = $oDb->getRow("SELECT * FROM `$sTable` WHERE `id` = :id", ['id' => $iId]);
+        if(!$a || !is_array($a))
             return false;
 
-        return $aModel;
+        return $a;
     }
 
-    static public function getProviderObject($iId)
+    static public function getModelObject(int $iId): array|bool
+    {
+        return self::_getObject($iId, 'sys_agents_models');
+    }
+
+    static public function getVectorStoreObject(int $iId): array|bool
+    {
+        return self::_getObject($iId, 'sys_agents_vector_store');
+    }
+
+    static public function getAgentObject(int $iId): array|bool
+    {
+        return self::_getObject($iId, 'sys_agents_agents');
+    }
+
+    static public function getToolObject(int $iId): array|bool
+    {
+        return self::_getObject($iId, 'sys_agents_tools');
+    }
+
+    static public function getProviderObject(int $iId)
     {
         $oDb = BxDolDb::getInstance();
 
@@ -73,6 +93,14 @@ class BxDolAIQuery extends BxDolDb
         return $aAssistant;
     }
 
+    public function insertModel($aModel)
+    {
+        if(empty($aModel))
+            return false;
+
+        return (int)$this->query("INSERT INTO `sys_agents_models` SET " . $this->arrayToSQL($aModel));
+    }
+
     public function getModelsBy($aParams = [])
     {
         $aMethod = ['name' => 'getAll', 'params' => [0 => 'query']];
@@ -94,22 +122,21 @@ class BxDolAIQuery extends BxDolDb
                 $aMethod['params'][2] = 'title';
                 $aMethod['params'][3] = [];
 
-                if(isset($aParams['for_asst'])) {
-                    $aMethod['params'][3]['for_asst'] = $aParams['for_asst'];
-
-                    $sWhereClause .= " AND `for_asst`=:for_asst";
-                }
-
                 if(isset($aParams['active'])) {
                     $aMethod['params'][3]['active'] = $aParams['active'];
 
                     $sWhereClause .= " AND `active`=:active";
                 }
 
-                if(isset($aParams['hidden'])) {
-                    $aMethod['params'][3]['hidden'] = $aParams['hidden'];
-
-                    $sWhereClause .= " AND `hidden`=:hidden";
+                if(isset($aParams['capabilities'])) {
+                    if (is_array($aParams['capabilities']))
+                    {                        
+                        $sWhereClause .= " AND `capabilities` IN (" . $this->implode_escape($aParams['capabilities']) . ")"; 
+                    }
+                    else {
+                        $aMethod['params'][3]['capabilities'] = $aParams['capabilities'];
+                        $sWhereClause .= " AND `capabilities` = :capabilities";
+                    }
                 }
                 break;
         }
@@ -121,11 +148,11 @@ class BxDolAIQuery extends BxDolDb
         return call_user_func_array([$this, $aMethod['name']], $aMethod['params']);
     }
 
-    public function getAutomatorsBy($aParams = [])
+    public function getAutomatorsBy($aParams = [], $bFromCache = true)
     {
         $aMethod = ['name' => 'getAll', 'params' => [0 => 'query']];
         $sSelectClause = "`taa`.*";
-    	$sJoinClause = $sWhereClause = "";
+    	$sPostfix = $sJoinClause = $sWhereClause = "";
 
         switch($aParams['sample']) {
             case 'id':
@@ -147,23 +174,45 @@ class BxDolAIQuery extends BxDolDb
                 $sJoinClause .= " LEFT JOIN `sys_agents_models` AS `tam` ON `taa`.`model_id`=`tam`.`id`";
                 $sWhereClause .= " AND `taa`.`id`=:id";
                 break;
-            
-            case 'events':
+
+            case 'type':
+                $sPostfix .= '_' . $aParams['type'];
+
                 $aMethod['params'][1] = [
+                    'type' => $aParams['type']
+                ];
+
+                $sWhereClause .= " AND `taa`.`type`=:type";
+
+                if(isset($aParams['active'])) {
+                    $iActive = (int)$aParams['active'];
+                    $sPostfix .= '_' . (!$iActive ? 'in' : '') . 'active';
+
+                    $aMethod['params'][1]['active'] = $iActive;
+                    $sWhereClause .= " AND `taa`.`active`=:active";
+                }
+                break;
+
+            case 'events':
+                $aBindings = [
                     'type' => BX_DOL_AI_AUTOMATOR_EVENT,
                     'alert_unit' => $aParams['alert_unit'],
                     'alert_action' => $aParams['alert_action']
                 ];
+                $sPostfix .= '_' . implode('_', $aBindings);
 
+                $aMethod['params'][1] = $aBindings;
                 $sWhereClause .= " AND `taa`.`type`=:type AND `taa`.`alert_unit`=:alert_unit AND `taa`.`alert_action`=:alert_action";
 
                 if(isset($aParams['active'])) {
-                    $aMethod['params'][1]['active'] = (int)$aParams['active'];
+                    $iActive = (int)$aParams['active'];
+                    $sPostfix .= '_' . (!$iActive ? 'in' : '') . 'active';
 
+                    $aMethod['params'][1]['active'] = $iActive;
                     $sWhereClause .= " AND `taa`.`active`=:active";
                 }
                 break;
-                
+
             case 'schedulers':
                 $aMethod['params'][1] = [
                     'type' => BX_DOL_AI_AUTOMATOR_SCHEDULER,
@@ -243,7 +292,10 @@ class BxDolAIQuery extends BxDolDb
             FROM `sys_agents_automators` AS `taa` " . $sJoinClause . "
             WHERE 1" . $sWhereClause;
 
-        return call_user_func_array([$this, $aMethod['name']], $aMethod['params']);
+        if(!$bFromCache || empty($sPostfix))
+            return call_user_func_array([$this, $aMethod['name']], $aMethod['params']);
+
+        return call_user_func_array([$this, 'fromMemory'], array_merge(['sys_automators' . $sPostfix, $aMethod['name']], $aMethod['params']));
     }
 
     public function updateAutomators($aSetClause, $aWhereClause)
@@ -768,6 +820,251 @@ class BxDolAIQuery extends BxDolDb
             return false;
 
         return (int)$this->query("DELETE FROM `sys_agents_assistants_files` WHERE " . $this->arrayToSQL($aParamsWhere, ' AND ')) > 0;
+    }
+
+    public function getVectorStores (): mixed
+    {
+        $sQuery = "SELECT `id`, `title` FROM `sys_agents_vector_store` WHERE `active` = 1 ORDER BY `title` ASC";
+        return $this->getPairs($sQuery, 'id', 'title'); 
+    }
+
+    public function getVectorStoreById (int $iId): mixed
+    {
+        $sQuery = "SELECT * FROM `sys_agents_vector_store` WHERE `id` = :id";
+        return $this->getRow($sQuery, ['id' => $iId]); 
+    }
+
+    public function insertVectorStore($aVectorStore)
+    {
+        if(empty($aVectorStore) || !is_array($aVectorStore))
+            return false;
+
+        return (int)$this->query("INSERT INTO `sys_agents_vector_store` SET " . $this->arrayToSQL($aVectorStore));
+    }
+
+    public function getVectorStoreDataNum (int $iVectorStoreId): int
+    {
+        $sQuery = "SELECT COUNT(*) FROM `sys_agents_vector_store_data` WHERE `vector_store_id` = :vector_store_id";
+        return (int)$this->getOne($sQuery, ['vector_store_id' => $iVectorStoreId]);
+    }
+
+    public function addVectorStoreData (int $iVectorStoreId, string $sType, string $sName, int $iFileSize, string $sMetadata, string $sSettings, string $sContent): bool
+    {
+        $sQuery = "INSERT INTO `sys_agents_vector_store_data` SET  
+            `vector_store_id` = :vector_store_id,
+            `type` = :type, 
+            `name` = :name, 
+            `size` = :size,
+            `metadata` = :metadata, 
+            `settings` = :settings, 
+            `content` = :content,
+            `added` = :ts
+        ";
+        return $this->query($sQuery, [
+            'vector_store_id' => $iVectorStoreId,
+            'type' => $sType, 
+            'name' => $sName, 
+            'size' => $iFileSize,
+            'metadata' => $sMetadata, 
+            'settings' => $sSettings, 
+            'content' => $sContent,
+            'ts' => time()]) > 0;
+    }
+
+    public function getVectorStoreDataById (int $iId): mixed
+    {
+        $sQuery = "SELECT * FROM `sys_agents_vector_store_data` WHERE `id` = :id";
+        return $this->getRow($sQuery, ['id' => $iId]);
+    }
+
+    static public function getVectorStorePendingData (int $iLimit = 1): mixed
+    {
+        $oDb = BxDolDb::getInstance();
+        $sQuery = "SELECT * FROM `sys_agents_vector_store_data` WHERE `status` = 'pending' ORDER BY `added` ASC LIMIT :limit";
+        return $oDb->getAll($sQuery, ['limit' => $iLimit]);
+    }
+
+    static public function updateVectorStoreDataStatus (int $iId, string $sStatus): mixed
+    {
+        $oDb = BxDolDb::getInstance();
+        $sQuery = "UPDATE `sys_agents_vector_store_data` SET `status` = :status WHERE `id` = :id";
+        return $oDb->query($sQuery, ['status' => $sStatus, 'id' => $iId]);
+    }
+
+    public function getAgentsWithAlert($bActiveOnly = true)
+    {
+        return $this->fromCache('sys_agents_with_alert', 'getAll', "SELECT * FROM `sys_agents_agents` WHERE `trigger` = 'alert' AND `active` = :active", ['active' => $bActiveOnly ? 1 : 0]);
+    }
+
+    public function getAgentsByProfileId($iProfileId, $bActiveOnly = true)
+    {
+        return $this->getAll("SELECT * FROM `sys_agents_agents` WHERE `trigger` = 'message' AND `profile_id` = :profile AND `active` = :active", ['profile' => $iProfileId, 'active' => $bActiveOnly ? 1 : 0]);
+    }
+
+    public function getAgentsByFormObject($sFormObject, $bActiveOnly = true)
+    {
+        return $this->fromMemory('sys_agents_with_form_' . $sFormObject, 'getAll', "SELECT * FROM `sys_agents_agents` WHERE `trigger` = 'form-input' AND `form_object` = :form_object AND `active` = :active", ['form_object' => $sFormObject, 'active' => $bActiveOnly ? 1 : 0]);
+    }
+
+    public function getAgentsBy($aParams = [])
+    {
+        $aMethod = ['name' => 'getAll', 'params' => [0 => 'query']];
+    	$sWhereClause = "";
+
+        switch($aParams['sample']) {
+            case 'id':
+            	$aMethod['name'] = 'getRow';
+            	$aMethod['params'][1] = [
+                    'id' => $aParams['id']
+                ];
+
+                $sWhereClause .= " AND `id`=:id";
+                break;
+
+            case 'all':
+                if(isset($aParams['active'])) {
+                    $aMethod['params'][3]['active'] = $aParams['active'];
+
+                    $sWhereClause .= " AND `active`=:active";
+                }
+                break;
+        }
+
+        $aMethod['params'][0] = "SELECT * 
+            FROM `sys_agents_agents`
+            WHERE 1" . $sWhereClause;
+
+        return call_user_func_array([$this, $aMethod['name']], $aMethod['params']);
+    }
+
+    public function getAgentById(int $iId): mixed
+    {
+        return $this->getAgentsBy(['sample' => 'id', 'id' => $iId]);
+    }
+
+    public function getAgentByTriggerWebhookKey($sKey, $bActiveOnly = true)
+    {
+        return $this->getRow("SELECT * FROM `sys_agents_agents` WHERE `trigger` = 'scheduler' AND `webhook_key` = :key AND `active` = :active", ['key' => $sKey, 'active' => $bActiveOnly ? 1 : 0]);
+    }
+    
+    public function getAgentsByTriggerType($sTrigger, $bActiveOnly = true)
+    {
+        return $this->getAll("SELECT * FROM `sys_agents_agents` WHERE `trigger` = :trigger AND `active` = :active", ['trigger' => $sTrigger, 'active' => $bActiveOnly ? 1 : 0]);
+    }
+
+    public function updateAgentField($iId, $sField, $sValue)
+    {
+        return $this->query("UPDATE `sys_agents_agents` SET `$sField` = :value WHERE `id` = :id", ['value' => $sValue, 'id' => $iId]);
+    }
+
+    public function getToolById (int $iId): mixed
+    {
+        $sQuery = "SELECT * FROM `sys_agents_tools` WHERE `id` = :id";
+        return $this->getRow($sQuery, ['id' => $iId]); 
+    }
+
+    public function insertTool(array $aFields): int
+    {
+        if(empty($aFields) || !is_array($aFields))
+            return false;
+
+        return (int)$this->query("INSERT INTO `sys_agents_tools` SET " . $this->arrayToSQL($aFields));
+    }
+
+    public function getTools()
+    {
+        $sQuery = "SELECT `id`, `title` FROM `sys_agents_tools` WHERE `active` = 1 ORDER BY `title` ASC";
+        return $this->getPairs($sQuery, 'id', 'title'); 
+    }
+
+    public function wipeAgentChatHistory($aAgent) 
+    {
+        $sQuery = "DELETE FROM `sys_agents_chat_history` WHERE `thread_id` LIKE :val";
+        $iAffected = 0;
+        $iAffected += $this->query($sQuery, ['val' => $aAgent['trigger'] . ':' . $aAgent['id'] . ':%']);
+        $iAffected += $this->query($sQuery, ['val' => $aAgent['trigger'] . ':' . $aAgent['id']]);
+        return $iAffected;
+    }
+
+    static public function getAlert($s) {
+        if (!$s)
+            return false;        
+        $a = explode(':', $s);
+        $oDb = BxDolDb::getInstance();
+        return $oDb->getRow("SELECT * FROM `sys_alerts_log` WHERE `unit` = :unit AND `action` = :action", [
+            'unit' => $a[0] ?? '',
+            'action' => $a[1] ?? '',
+        ]);
+    }
+
+    public function getAlerts()
+    {
+        $aValues = [];
+        $aAlerts = $this->getAll("SELECT `unit`, `action`, `counter_24h`, `counter_per_request` FROM `sys_alerts_log` ORDER BY `unit`, `action`");
+        foreach ($aAlerts as $a) {
+            $sKey = $a['unit'] . ':' . $a['action'];
+            $aValues[$sKey] = [
+                'key' => $sKey,
+                'unit' => $a['unit'],
+                'action' => $a['action'],
+                'name' => $a['unit'] . ' - ' . $a['action'],
+                'desc' => $this->getAlertDesc($a['unit'] . ':' . $a['action']),
+                'counter_24h' => $a['counter_24h'],
+                'counter_per_request' => $a['counter_per_request'],
+            ];
+        }
+        return $aValues;
+    }
+
+    public function getFormDisplay($sObject)
+    {
+        $aDisplays = $this->getColumn("SELECT `display_name` FROM `sys_form_displays` WHERE `object` = :object", ['object' => $sObject]);
+        return $aDisplays ? current($aDisplays) : null;
+    }
+
+    public function getFormObjects()
+    {
+        $aValues = [];
+        $aForms = $this->getAll("SELECT `f`.`object`, `f`.`title`, `f`.`module`, `m`.`title` AS `module_title` FROM `sys_objects_form` AS f INNER JOIN `sys_modules` as `m` ON `m`.`name` = `f`.`module` ORDER BY `f`.`module`, `f`.`object` ASC");
+        foreach ($aForms as $r) {
+            if ('system' != $r['module']) {
+                $oModule = BxDolModule::getInstance($r['module']);
+                if (!$oModule || !$oModule->isEnabled())
+                    continue;
+            }
+            
+            $sDisplay = $this->getFormDisplay($r['object']);
+            if (!$sDisplay) 
+                continue;
+            $oForm = BxDolForm::getObjectInstance($r['object'], $sDisplay);
+            $sFormId = $oForm->getId();
+            $aValues[$r['object']] = [
+                'form_id' => $sFormId,
+                'form_object' => $r['object'],
+                'module' => $r['module'],
+                'module_title' => $r['module_title'],
+                'form_title' => _t($r['title']),
+            ];
+        }
+        return $aValues;
+    }
+
+    static public function getAlertDesc($sAlert) 
+    {
+        if (!$sAlert)
+            return '';
+        $oDb = BxDolDb::getInstance();
+        [$sUnit, $sAction] = explode(':', $sAlert);
+        $sDesc = $oDb->getOne("SELECT `description` FROM `sys_alerts_desc` WHERE `unit` = :unit AND `action` = :action LIMIT 1", [
+            'unit' => $sUnit,
+            'action' => $sAction,
+        ]);
+        if (!$sDesc) {
+            $oDb->getOne("SELECT `description` FROM `sys_alerts_desc` WHERE `unit` LIKE '{%}' AND `action` = :action LIMIT 1", [
+                'action' => $sAction,
+            ]);
+        }
+        return $sDesc;
     }
 }
 

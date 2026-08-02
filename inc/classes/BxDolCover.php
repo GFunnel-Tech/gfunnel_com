@@ -149,7 +149,15 @@ class BxDolCover extends BxDolFactory implements iBxDolSingleton
          *      - `cover` - [object] object cover
          * @hook @ref hook-system-set_cover
          */
-        bx_alert('system', 'set_cover', 0, false, array('options' => &$this->_aOptions, 'template_name' => &$this->_sTemplateName, 'cover' => $this));
+        bx_alert('system', 'set_cover', 0, false, array(
+            'options' => &$this->_aOptions, 
+            'template_name' => &$this->_sTemplateName, 
+
+            'options_ref' => &$this->_aOptions, 
+            'template_name_ref' => &$this->_sTemplateName, 
+
+            'cover' => $this
+        ));
     }
 
     /**
@@ -183,7 +191,11 @@ class BxDolCover extends BxDolFactory implements iBxDolSingleton
          *      - `cover` - [object] object cover
          * @hook @ref hook-system-set_cover_image
          */
-        bx_alert('system', 'set_cover_image', 0, false, array('cover_image' => &$this->_sCoverImageUrl, 'cover' => $this));
+        bx_alert('system', 'set_cover_image', 0, false, array(
+            'cover_image' => &$this->_sCoverImageUrl,
+            'cover_image_ref' => &$this->_sCoverImageUrl, 
+            'cover' => $this
+        ));
 
         return true;
     }

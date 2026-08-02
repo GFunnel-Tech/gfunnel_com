@@ -58,7 +58,7 @@ class BxBaseMenuSwitchLanguage extends BxTemplMenu
 
             $aItems[] = array(
                 'id' => $sName,
-                'name' => $sName,
+                'name' => 'lang-' . $sName,
                 'class' => '',
                 'title' => $this->$sMethod($sName, $sLang),
                 'target' => '_self',

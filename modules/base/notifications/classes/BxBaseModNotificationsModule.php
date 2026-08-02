@@ -56,11 +56,6 @@ class BxBaseModNotificationsModule extends BxBaseModGeneralModule
         $this->_iOwnerId = 0;
     }
 
-    public function serviceGetSafeServices()
-    {
-        return array();
-    }
-
     /**
      * @page service Service Calls
      * @section bx_base_notifications Base Notifications
@@ -165,6 +160,11 @@ class BxBaseModNotificationsModule extends BxBaseModGeneralModule
 
         asort($aResults);
         return $aResults;
+    }
+
+    public function serviceCheckAllowedAddInContext($sContextModule)
+    {
+        return _t('_sys_txt_access_denied');
     }
 
     public function isAllowedView($aEvent, $bPerform = false)

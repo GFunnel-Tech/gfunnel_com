@@ -146,11 +146,17 @@ class BxBaseServiceLogin extends BxDol
      */
     public function serviceLoginForm ($sParams = '', $sForceRelocate = '')
     {
-        if (isLogged() && 'login' == bx_get('i')) {
-            if (!bx_is_api()) {
+        $bApi = bx_is_api();
+
+        if(isLogged() && 'login' == bx_get('i')) {
+            if(!$bApi) {
                 header('Location: ' . BX_DOL_URL_ROOT);
                 exit;
             } 
+            else
+                return [
+                    ['id' => 2, 'type' => 'redirect', 'data' => ['uri' => '/']],
+                ];
         }
 
         $oPemalink = BxDolPermalinks::getInstance();
@@ -173,7 +179,19 @@ class BxBaseServiceLogin extends BxDol
          *      - `aAuthTypes` - [array] by ref,  Auth Types, can be overridden in hook processing
          * @hook @ref hook-account-show_login_form
          */
-        bx_alert('profile', 'show_login_form', 0, 0, array('oForm' => &$oForm, 'sParams' => &$sParams, 'sCustomHtmlBefore' => &$sCustomHtmlBefore, 'sCustomHtmlAfter' => &$sCustomHtmlAfter, 'aAuthTypes' => &$aAuthTypes));
+        bx_alert('profile', 'show_login_form', 0, 0, array(
+            'oForm' => &$oForm, 
+            'sParams' => &$sParams, 
+            'sCustomHtmlBefore' => &$sCustomHtmlBefore, 
+            'sCustomHtmlAfter' => &$sCustomHtmlAfter, 
+            'aAuthTypes' => &$aAuthTypes,
+
+            'form_inputs_ref' => &$oForm->aInputs, 
+            'sParams_ref' => &$sParams, 
+            'sCustomHtmlBefore_ref' => &$sCustomHtmlBefore, 
+            'sCustomHtmlAfter_ref' => &$sCustomHtmlAfter, 
+            'aAuthTypes_ref' => &$aAuthTypes,
+        ));
 
         if (isset($oForm->aInputs['relocate'])) {
             if ($sForceRelocate && 0 === mb_stripos($sForceRelocate, BX_DOL_URL_ROOT))
@@ -182,8 +200,7 @@ class BxBaseServiceLogin extends BxDol
                 $oForm->aInputs['relocate']['value'] = BX_DOL_URL_ROOT;
         }
 
-        if (bx_is_api()) {   
-            
+        if ($bApi) {
             if ($oForm->isSubmittedAndValid()) {
                 $oAccount = BxDolAccount::getInstance(trim($oForm->getCleanValue('ID')));
                 bx_login($oAccount->id(), $oForm->getRememberMe());
@@ -282,6 +299,10 @@ class BxBaseServiceLogin extends BxDol
             bx_alert('account', 'before_2fa_send_sms', $oAccount->id(), false, [
                 'phone_number' => &$sPhoneNumber, 
                 'sms_text' => &$sActivationText, 
+
+                'phone_number_ref' => &$sPhoneNumber, 
+                'sms_text_ref' => &$sActivationText, 
+
                 'override_result' => &$mixedOverrideResult
             ]);
 
@@ -333,7 +354,8 @@ class BxBaseServiceLogin extends BxDol
              */
             bx_alert('account', 'login_after', $oAccount->id(),  false, array(
                 'account' => $aAccount,
-                'url_relocate' => &$sUrlRelocate               
+                'url_relocate' => &$sUrlRelocate,
+                'url_relocate_ref' => &$sUrlRelocate,
             ));
 
             BxDolTemplate::getInstance()->setPageNameIndex (BX_PAGE_TRANSITION);
@@ -368,7 +390,7 @@ class BxBaseServiceLogin extends BxDol
 
         if (bx_is_api()) {
             return [
-                ['id' => 2, 'type' => 'redirect', 'data' => ['uri' => '/']],
+                bx_api_get_block('logout', ['uri' => '/'])
             ];
         }
         else {
