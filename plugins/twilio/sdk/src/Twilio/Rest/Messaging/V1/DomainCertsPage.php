@@ -43,7 +43,6 @@ class DomainCertsPage extends Page
         return new DomainCertsInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -53,113 +53,22 @@ class BxBaseMenu extends BxDolMenu
      */
     public function getCode ()
     {
-        $sMenuTitle = isset($this->_aObject['object']) ? $this->_aObject['object'] : 'Menu-' . rand(0, PHP_INT_MAX);
-        if (isset($GLOBALS['bx_profiler']) && $GLOBALS['bx_profiler']->isMenu($sMenuTitle))
-            $sMenuTitle .= rand(0, PHP_INT_MAX);
+        $sMenuTitle = isset($this->_aObject['title']) ? _t($this->_aObject['title']) : 'Menu-' . rand(0, PHP_INT_MAX);
         if (isset($GLOBALS['bx_profiler'])) $GLOBALS['bx_profiler']->beginMenu($sMenuTitle);
-        
-        $sRet = '';
-        $bCacheUsed = false;
-        $sCacheKey = '';
-        $mixedCache = null;
-        // Use cache only if:
-        //  - cache mode is set, AND
-        //  - it's not disabled (`off`), AND
-        //  - it's not "guest cache" while a user is logged in
-        if (isset($this->_aObject['cache']) && !($this->_aObject['cache'] == 'off' || ($this->_aObject['cache'] == 'guest' && isLogged()))) {
-            switch ($this->_aObject['cache']) {
-                case 'global': // one cache for everyone
-                case 'guest': // one cache for guests only
-                    $sCacheKey = "menu_{$this->_sObject}";
-                    break;                
-                case 'per_user': // separate cache for each user
-                    $sCacheKey = "menu_{$this->_sObject}_p" . bx_get_logged_profile_id();
-                    break;                
-                case 'per_acl': // separate cache for each ACL
-                    $aAcl = BxDolAcl::getInstance()->getMemberMembershipInfo(bx_get_logged_profile_id());
-                    $sCacheKey = "menu_{$this->_sObject}" . "_acl" . $aAcl['id'] . '_a' . (isAdmin() ? 1 : 0);
-                    break;
-                default:
-                    trigger_error("Unknown cache mode for menu ({$this->_sObject}): {$this->_aObject['cache']}", E_USER_ERROR);
-                    break;
-            }            
-            $mixedCache = bx_content_cache_get($sCacheKey);
-        }
-        if ($mixedCache !== null) {
-            if ($mixedCache)
-                $this->_addJsCss();
-            $bCacheUsed = true;
-            $sRet = $mixedCache;
-        }
-        else {
 
-            /**
-             * @hooks
-             * @hookdef hook-menu-get_code_before 'menu', 'get_code_before' - hook before menu output
-             * - $unit_name - equals `menu`
-             * - $action - equals `get_code_before` 
-             * - $object_id - not used 
-             * - $sender_id - not used 
-             * - $extra_params - array of additional params with the following array keys:
-             *      - `object_name` - menu object name
-             *      - `object_array` - menu object array
-             *      - `object` - menu object
-             *      - `override_result` - menu code
-             * @hook @ref hook-menu-get_code_before
-             */
-            $mixedRes = null;
-            bx_alert('menu', 'get_code_before', 0, 0, [
-                'object_name' => $this->_sObject, 
-                'object_array' => $this->_aObject, 
-                'object' => $this, 
-                'override_result' => &$mixedRes,
-            ]);
-            if ($mixedRes !== null) {            
-                $sRet = $mixedRes;
-            }
-            else {
-                if(!$this->_iPageType)
-                    $this->_iPageType = BxDolTemplate::getInstance()->getPageType();
+        if(!$this->_iPageType)
+            $this->_iPageType = BxDolTemplate::getInstance()->getPageType();
 
-                $s = '';
-                $aVars = $this->_getTemplateVars ();
-                if (!empty($aVars['bx_repeat:menu_items'])) {
-                    $this->_addJsCss();
-                    $s = $this->_getCode($this->_aObject['template'], $aVars);
-                }
-
-                /**
-                 * @hooks
-                 * @hookdef hook-menu-get_code_after 'menu', 'get_code_after' - hook after menu output
-                 * - $unit_name - equals `menu`
-                 * - $action - equals `get_code_after` 
-                 * - $object_id - not used 
-                 * - $sender_id - not used 
-                 * - $extra_params - array of additional params with the following array keys:
-                 *      - `object_name` - menu object name
-                 *      - `object_array` - menu object array
-                 *      - `object` - menu object
-                 *      - `override_result` - menu code
-                 * @hook @ref hook-menu-get_code_after
-                 */
-                $mixedRes = null;
-                bx_alert('menu', 'get_code_after', 0, 0, [
-                    'object_name' => $this->_sObject, 
-                    'object_array' => $this->_aObject, 
-                    'object' => $this, 
-                    'vars' => $aVars,
-                    'override_result' => &$s,
-                ]);
-                $sRet = $s;
-            }
-
-            if ($sCacheKey)
-                bx_content_cache_set($sCacheKey, $sRet);
+        $s = '';
+        $aVars = $this->_getTemplateVars ();
+        if (!empty($aVars['bx_repeat:menu_items'])) {
+            $this->_addJsCss();
+            $s = $this->_getCode($this->_aObject['template'], $aVars);
         }
 
-        if (isset($GLOBALS['bx_profiler'])) $GLOBALS['bx_profiler']->endMenu($sMenuTitle, $this->_aObject['cache'] ?? 'undefined', $bCacheUsed);
-        
-        return $sRet;
+        if (isset($GLOBALS['bx_profiler'])) $GLOBALS['bx_profiler']->endMenu($sMenuTitle);
+
+        return $s;
     }
 
     /**
@@ -175,8 +84,7 @@ class BxBaseMenu extends BxDolMenu
             $aItems = $aVars['bx_repeat:menu_items'];
 
         return [
-            'object' => $this->_sObject,
-            'title' => _t($this->_aObject['title_public']),
+            'object' => $this->_sObject, 
             'config' => $this->_aObject['config_api'],
             'persistent' => $this->_aObject['persistent'],
             'params' => $this->getContentParams(),
@@ -192,7 +100,6 @@ class BxBaseMenu extends BxDolMenu
     {
         return [
             'object' => $this->_sObject, 
-            'title' => _t($this->_aObject['title_public']),
             'params' => $this->getContentParams()
         ];
     }
@@ -275,39 +182,10 @@ class BxBaseMenu extends BxDolMenu
      */
     protected function getMenuItemsRaw ()
     {
-        if($this->isMultilevel())
+        if($this->_bMultilevel)
             return $this->_oQuery->getMenuItemsHierarchy();
         else 
             return $this->_oQuery->getMenuItems();
-    }
-
-    protected function getMenuItemsRawProfileRelated ()
-    {
-        $oProfile = BxDolProfile::getInstance();
-        if(!$oProfile)
-            return [];
-
-        $aItems = $this->_oQuery->getMenuItemsBy([
-            'type' => 'set_name', 
-            'set_name' => $this->_aObject['set_name']
-        ]);
-
-        $aDuplicates = $this->_oQuery->getMenuItemsBy([
-            'type' => 'set_name_duplicates',
-            'set_name' => $this->_aObject['set_name']
-        ]);
-
-        $sModule = $oProfile->getModule();
-
-        $aResult = [];
-        foreach($aItems as $aItem) {
-            if(in_array($aItem['name'], $aDuplicates) && $aItem['module'] != $sModule)
-                continue;
-            
-            $aResult[$aItem['name']] = $aItem;
-        }
-
-        return $aResult;
     }
 
     protected function _getMenuItem ($a)
@@ -315,8 +193,31 @@ class BxBaseMenu extends BxDolMenu
         if (!$this->_isActive($a) || !$this->_isVisible($a))
             return false;
 
-        if ($this->_bIsApi)
-            return $this->_getMenuItemAPI ($a);
+        if ($this->_bIsApi) {
+            list ($sIcon, $sIconUrl) = $this->_getMenuIcon($a);
+
+            $aResult = [
+                'id' => $a['id'],
+                'name' => $a['name'],
+                'title' => _t($a['title']),
+                'link' => isset($a['link']) ? $a['link'] : '',
+                'icon' => $sIcon ? $sIcon : '',
+                'image' => $sIconUrl ? $sIconUrl : '',
+                'submenu' => !empty($a['submenu_object']) ? $a['submenu_object'] : '',
+                'addon' => $this->_bDisplayAddons ? $this->_getMenuAddon($a) : '',
+                'config' => isset($a['config_api']) ? $a['config_api'] : '',
+                'primary' => isset($a['primary']) ? $a['primary'] : 0,
+            ];
+
+            if(($aMarkers = $this->_getMenuMarkers($a)) && is_array($aMarkers))
+                $this->addMarkers($aMarkers);
+            $aResult = $this->_replaceMarkers($aResult);
+
+            if(!empty($aResult['link']))
+                $aResult['link'] = $this->_oPermalinks->permalink($aResult['link']);
+
+            return $aResult;
+        }
 
         $bIsSelected = $this->_isSelected($a);
         if($bIsSelected)
@@ -325,8 +226,12 @@ class BxBaseMenu extends BxDolMenu
         $a['object'] = $this->_sObject;
 
         $a['title'] = _t($a['title']);
-        $a['title_attr'] = $this->_getMenuTitle($a);
-        $a['info'] = isset($a['info']) ? _t($a['info']) : '';
+        $a['bx_if:title'] = array(
+            'condition' => !empty($a['title']),
+            'content' => array(
+                'title' => $a['title']
+            )
+        );
 
         $this->removeMarker('addon');
 
@@ -348,14 +253,12 @@ class BxBaseMenu extends BxDolMenu
 
         list ($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $this->_getMenuIcon($a);
 
-        if(!isset($a['class_add']))
-            $a['class_add'] = '';
-        if($bIsSelected)
-            $a['class_add'] .= ' bx-menu-tab-active';
+        $a['class_add'] = $bIsSelected ? 'bx-menu-tab-active' : '';
         $a['class_add'] .= $this->_getVisibilityClass($a);
         $a['class_link'] = '';
 
         $a['link'] = isset($a['link']) ? $this->_oPermalinks->permalink($a['link']) : 'javascript:void(0);';
+        $a['title_attr'] = bx_html_attribute(strip_tags($a['title']));
 
         $a['attrs'] = $this->_getMenuAttrs($a);
         $a['attrs_wrp'] = '';
@@ -373,13 +276,10 @@ class BxBaseMenu extends BxDolMenu
                 ]);
         }
 
-        $a['bx_if:image'] = [
+        $a['bx_if:image'] = array (
             'condition' => (bool)$sIconUrl,
-            'content' => [
-                'icon_url' => $sIconUrl,
-                'attrs' => $this->_getMenuIconAttrs('image', $a)
-            ],
-        ];
+            'content' => array('icon_url' => $sIconUrl),
+        );
         $a['bx_if:image_inline'] = array (
             'condition' => false,
             'content' => array('image' => ''),
@@ -396,19 +296,13 @@ class BxBaseMenu extends BxDolMenu
             'condition' => (bool)$sIconA,
             'content' => array('icon-a' => $sIconA),
         );
-        $a['bx_if:title'] = [
-            'condition' => (bool)$a['title'] && (!isset($a['icon_only']) || (int)$a['icon_only'] == 0),
-            'content' => [
+        $a['bx_if:title'] = array (
+            'condition' => (bool)$a['title'],
+            'content' => array(
                 'title' => $a['title'],
                 'title_attr' => $a['title_attr']
-            ],
-        ];
-        $a['bx_if:info'] = [
-            'condition' => (bool)$a['info'],
-            'content' => [
-                'info' => $a['info'],
-            ],
-        ];
+            ),
+        );
 
         $bOnClick = !empty($a['onclick']);
         $aOnClick = $bOnClick ? [
@@ -427,7 +321,7 @@ class BxBaseMenu extends BxDolMenu
         );
 
         $aTmplVarsSubitems = array('subitems' => '');
-        $bTmplVarsSubitems = $this->isMultilevel() && !empty($a['subitems']);
+        $bTmplVarsSubitems = $this->_bMultilevel && !empty($a['subitems']);
         if($bTmplVarsSubitems) {
             $sClassCollpsed = 'bx-mi-collapsed';
             if(($iCollapsed = $this->getUserChoiceCollapsedSubmenu($a)) !== false)
@@ -472,61 +366,7 @@ class BxBaseMenu extends BxDolMenu
 
         return $a;
     }
-
-    protected function _getMenuItemAPI ($a)
-    {
-        list ($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $this->_getMenuIcon($a);
-
-        $aResult = [
-            'id' => $a['id'],
-            'name' => $a['name'],
-            'title' => _t($a['title']),
-            'info' => isset($a['info']) ? _t($a['info']) : '',
-            'link' => isset($a['link']) ? $a['link'] : '',
-            'icon' => $sIcon ? BxDolIconset::getObjectInstance()->getIcon($sIcon) : ($sIconHtml ? $sIconHtml : ''),
-            'image' => $sIconUrl ? $sIconUrl : '',
-            'submenu' => !empty($a['submenu_object']) ? $a['submenu_object'] : '',
-            'addon' => $this->_bDisplayAddons ? $this->_getMenuAddon($a) : '',
-            'hidden_on' => isset($a['hidden_on']) ? $a['hidden_on'] : false,
-            'hidden_on_col' => isset($a['hidden_on_col']) ? $a['hidden_on_col'] : false,
-            'config' => isset($a['config_api']) ? $a['config_api'] : '',
-            'primary' => isset($a['primary']) ? $a['primary'] : 0,
-            'persistent' => isset($a['persistent']) ? $a['persistent'] : 0,
-        ];
-
-        if(!empty($a['onclick']))
-            $aResult = array_merge($aResult, [
-                'display_type' => 'callback',
-                'data' => $this->_getMenuCallbackDataAPI($a)
-            ]);
-
-        $this->_updateVisibilityParamsAPI($aResult);
-
-        if(($aMarkers = $this->_getMenuMarkers($a)) && is_array($aMarkers))
-            $this->addMarkers($aMarkers);
-        $aResult = $this->_replaceMarkers($aResult);
-
-        if(!empty($aResult['link'])) {
-            if(($sSubstr = 'javascript') && substr($aResult['link'], 0, strlen($sSubstr)) == $sSubstr)
-                $aResult['link'] = '';
-            else
-                $aResult['link'] = $this->_oPermalinks->permalink($aResult['link']);
-        }
-
-        if($this->isMultilevel() && !empty($a['subitems'])) {
-            $aSubitems = [];
-            foreach($a['subitems'] as $aSubitem) {
-                $aSubitem = $this->_getMenuItem($aSubitem);
-                if($aSubitem !== false)
-                    $aSubitems[] = $aSubitem;
-            }
-
-            $aResult['subitems'] = $aSubitems;
-        }
-
-        return $aResult;
-    }
-
+    
     protected function _getMenuIcon ($a)
     {
         $sIcon = !empty($a['icon']) ? $a['icon'] : '';
@@ -544,38 +384,15 @@ class BxBaseMenu extends BxDolMenu
 
         return BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon($sIcon);
     }
-
-    protected function _getMenuIconAttrs ($sType, $a)
-    {
-        $sAttrs = '';
-
-        if($sType == 'image' && ($sTitleAttr = $this->_getMenuTitle($a)))
-            $sAttrs .= ' alt="' . $sTitleAttr . '"';
-
-        return $sAttrs;
-    }
-
-    protected function _getMenuTitle($a)
-    {
-        return bx_html_attribute(strip_tags(!empty($a['title_attr']) && ($sTitleAttr = _t($a['title_attr'])) ? $sTitleAttr : $a['title']));
-    }
-
-    protected function _getMenuCallbackDataAPI($a)
-    {
-        return [];
-    }
-
+    
     public function getMenuIconHtml($sIcon)
     {
         list ($sIcon, $sIconUrl, $sIconA, $sIconHtml) = BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon($sIcon);
 
-        $a['bx_if:image'] = [
+        $a['bx_if:image'] = array (
             'condition' => (bool)$sIconUrl,
-            'content' => [
-                'icon_url' => $sIconUrl,
-                'attrs' => ''
-            ],
-        ];
+            'content' => array('icon_url' => $sIconUrl),
+        );
         $a['bx_if:icon'] = array (
             'condition' => (bool)$sIcon,
             'content' => array('icon' => $sIcon),
@@ -627,78 +444,13 @@ class BxBaseMenu extends BxDolMenu
     protected function _getMenuAttrs ($aMenuItem)
     {
         $sAttrs = '';
-        if(($sTitleAttr = $this->_getMenuTitle($aMenuItem)))
-            $sAttrs .= ' title="' . $sTitleAttr . '"';
-
         if(!empty($aMenuItem['target']))
             $sAttrs .= ' target="' . $aMenuItem['target'] . '"';
 
         if($this->_bAddNoFollow && !empty($aMenuItem['link']) && preg_match('@^https?://@', $aMenuItem['link']) && strncmp($aMenuItem['link'], BX_DOL_URL_ROOT, strlen(BX_DOL_URL_ROOT)) !== 0)
             $sAttrs .= ' rel="noreferrer"';
 
-        if(!empty($aMenuItem['area_label']))
-            $sAttrs .= ' area-label="' . bx_html_attribute(_t($aMenuItem['area_label'])) . '"';
-
         return $sAttrs;
-    }
-
-    protected function _addMenuItemsMoreLess($aItems, $iMenuItemsMin)
-    {
-        $iMenuItems = count($aItems);
-        if($iMenuItems <= $iMenuItemsMin)
-            return $aItems;
-
-        $mixedCollpsed = $this->getUserChoiceCollapsed();
-        $bCollpsed = $mixedCollpsed === false || $mixedCollpsed == 1;
-
-        for($i = $iMenuItemsMin; $i < $iMenuItems; $i++)
-            $aItems[$i]['class_add'] .= ' bx-mi-aux' . ($bCollpsed ? ' bx-mi-hidden' : '');
-
-        $aShowMoreLinks = [
-            'more' => ['title' => '_sys_show_more', 'icon' => 'chevron-down', 'class' => $bCollpsed ? '' : 'bx-mi-hidden'],
-            'less' => ['title' => '_sys_show_less', 'icon' => 'chevron-up', 'class' => !$bCollpsed ? '' : 'bx-mi-hidden']
-        ];
-
-        foreach($aShowMoreLinks as $sLink => $aLink)
-            $aItems[] = [
-                'class_add' => 'bx-psmi-show-' . $sLink . ' ' . $aLink['class'],
-                'name' => 'show-' . $sLink,
-                'title' => _t($aLink['title']),
-                'link' => 'javascript:void(0)',
-                'bx_if:onclick' => [
-                    'condition' => true,
-                    'content' => [
-                        'onclick' => 'bx_menu_show_more_less(this, \'' . $this->_sObject . '\', \'.bx-menu-object-' . $this->_sObject . '\')',
-                    ]
-                ],
-                'attrs' => '',
-                'bx_if:image' => [
-                    'condition' => false,
-                    'content' => ['icon_url' => ''],
-                ],
-                'bx_if:image_inline' => [
-                    'condition' => false,
-                    'content' => ['image' => ''],
-                ],
-                'bx_if:icon' => [
-                    'condition' => true,
-                    'content' => ['icon' => $aLink['icon']],
-                ],
-                'bx_if:icon-html' => [
-                    'condition' => false,
-                    'content' => ['icon-a' => ''],
-                ],
-                'bx_if:icon-a' => [
-                    'condition' => false,
-                    'content' => ['icon-a' => ''],
-                ],
-                'bx_if:addon' => [
-                    'condition' => false,
-                    'content' => []
-                ]
-            ];
-
-        return $aItems;
     }
 
     /**

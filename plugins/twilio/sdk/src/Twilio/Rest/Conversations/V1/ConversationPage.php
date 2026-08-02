@@ -43,7 +43,6 @@ class ConversationPage extends Page
         return new ConversationInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

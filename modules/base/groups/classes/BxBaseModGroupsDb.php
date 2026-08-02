@@ -333,7 +333,7 @@ class BxBaseModGroupsDb extends BxBaseModProfileDb
         $sJoinClause = $sWhereClause = $sOrderClause = $sLimitClause = "";
 
         if(!isset($aParams['order']) || empty($aParams['order']))
-            $sOrderClause = "ORDER BY `tp`.`order` ASC";
+            $sOrderClause = "ORDER BY `tp`.`Order` ASC";
 
         switch($aParams['type']) {
             case 'by_id':
@@ -355,23 +355,11 @@ class BxBaseModGroupsDb extends BxBaseModProfileDb
                 break;
 
             case 'by_profile_id':
-                $aMethod['params'][1] = array(
+            	$aMethod['params'][1] = array(
                     'profile_id' => $aParams['profile_id']
                 );
 
                 $sWhereClause .= "AND `tp`.`profile_id`=:profile_id";
-
-                if(!empty($aParams['default'])) {
-                    $aMethod['name'] = 'getRow';
-
-                    $sWhereClause .= " AND `tp`.`default`='1'";
-                }
-
-                if(!empty($aParams['active'])) {
-                    $aMethod['params'][1]['active'] = $aParams['active'];
-
-                    $sWhereClause .= " AND `tp`.`active`=:active";
-                }
                 break;
 
             case 'by_prpp':
@@ -400,11 +388,6 @@ class BxBaseModGroupsDb extends BxBaseModProfileDb
         ));
     }
 
-    public function updatePrices($aSet, $aWhere)
-    {
-        return (int)$this->query("UPDATE `" . $this->_oConfig->CNF['TABLE_PRICES'] . "` SET " . $this->arrayToSQL($aSet) . "  WHERE " . $this->arrayToSQL($aWhere, " AND ")) > 0;
-    }
-    
     public function deletePrices($aWhere)
     {
         return (int)$this->query("DELETE FROM `" . $this->_oConfig->CNF['TABLE_PRICES'] . "` WHERE " . $this->arrayToSQL($aWhere, " AND ")) > 0;
@@ -423,71 +406,31 @@ class BxBaseModGroupsDb extends BxBaseModProfileDb
         $this->query("INSERT `" . $CNF["TABLE_INVITES"] . "` (`key`, `group_profile_id`, `author_profile_id`, `invited_profile_id`, `added`) VALUES (:key, :group_profile_id, :author_profile_id, :invited_profile_id, :added)", $aBindings);
         return (int)$this->lastId();
     }
-
-    public function getInvites($aParams = [])
+    
+    public function getInviteByKey($sKey, $iGroupProfileId)
     {
         $CNF = &$this->_oConfig->CNF;
 
-    	$aMethod = ['name' => 'getAll', 'params' => [0 => 'query']];
-
-        $sSelectClause = "`ti`.*";
-        $sJoinClause = $sWhereClause = $sOrderClause = $sLimitClause = "";
-        switch($aParams['sample']) {
-            case 'key_and_context_pid':
-                $aMethod['name'] = 'getRow';
-                $aMethod['params'][1] = [
-                    'key' => $aParams['key'],
-                    'context_pid' => $aParams['context_pid']
-                ];
-
-                $sWhereClause = " AND `ti`.`key`=:key AND `ti`.`group_profile_id`=:context_pid";
-                break;
-            
-            case 'invited_pid_and_context_pid':
-                $aMethod['name'] = 'getRow';
-                $aMethod['params'][1] = [
-                    'invited_pid' => $aParams['invited_pid'],
-                    'context_pid' => $aParams['context_pid']
-                ];
-
-                $sWhereClause = " AND `ti`.`invited_profile_id`=:invited_pid AND `ti`.`group_profile_id`=:context_pid";
-                break;
-
-            case 'invited_pid':
-                $aMethod['name'] = 'getAllWithKey';
-                $aMethod['params'][1] = 'group_profile_id';
-                $aMethod['params'][2] = [
-                    'invited_pid' => $aParams['invited_pid'],
-                ];
-
-                $sWhereClause = " AND `ti`.`invited_profile_id`=:invited_pid";
-                break;
-        }
-
-        if(!empty($sOrderClause))
-            $sOrderClause = 'ORDER BY ' . $sOrderClause;
-
-        if(!empty($sLimitClause))
-            $sLimitClause = 'LIMIT ' . $sLimitClause;
-
-        $aMethod['params'][0] = "SELECT " . $sSelectClause . " FROM `" . $CNF["TABLE_INVITES"] . "` AS `ti` " . $sJoinClause . " WHERE 1" . $sWhereClause . " " . $sOrderClause . " " . $sLimitClause;
-
-        return call_user_func_array([$this, $aMethod['name']], $aMethod['params']);
-    }
-    
-    public function getInviteByKey($sKey, $iContextPid)
-    {
-        return $this->getInvites(['sample' => 'key_and_context_pid', 'key' => $sKey, 'context_pid' => $iContextPid]);
+        return $this->getRow("SELECT * FROM `" . $CNF["TABLE_INVITES"] . "` WHERE `key` = :key AND group_profile_id = :group_profile_id", [
+            'key' => $sKey,
+            'group_profile_id' => $iGroupProfileId
+        ]);
     }
 
-    public function getInviteByInvited($iInvitedPid, $iContextPid)
+    public function getInviteByInvited($iInvitedProfileId, $iGroupProfileId)
     {
-        return $this->getInvites(['sample' => 'invited_pid_and_context_pid', 'invited_pid' => $iInvitedPid, 'context_pid' => $iContextPid]);
+        $CNF = &$this->_oConfig->CNF; 
+
+        return $this->getRow("SELECT * FROM `" . $CNF["TABLE_INVITES"] . "` WHERE `invited_profile_id` = :invited_profile_id AND group_profile_id = :group_profile_id", [
+            'invited_profile_id' => $iInvitedProfileId,
+            'group_profile_id' => $iGroupProfileId
+        ]);
     }
 
-    public function isInviteByInvited($iInvitedPid, $iContextPid)
+    public function isInviteByInvited($iInvitedProfileId, $iGroupProfileId)
     {
-        return ($aInvite = $this->getInviteByInvited($iInvitedPid, $iContextPid)) && is_array($aInvite);
+        $aInvite = $this->getInviteByInvited($iInvitedProfileId, $iGroupProfileId);
+        return !empty($aInvite) && is_array($aInvite);
     }
 
     public function updateInviteByKey($sKey, $iGroupProfileId, $sColumn, $sValue)

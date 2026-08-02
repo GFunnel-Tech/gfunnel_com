@@ -43,7 +43,6 @@ class SchemaVersionPage extends Page
         return new SchemaVersionInstance($this->version, $payload, $this->solution['id']);
     }
 
-
     /**
      * Provide a friendly representation
      *

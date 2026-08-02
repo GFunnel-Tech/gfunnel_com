@@ -43,7 +43,6 @@ class TrustProductsChannelEndpointAssignmentPage extends Page
         return new TrustProductsChannelEndpointAssignmentInstance($this->version, $payload, $this->solution['trustProductSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

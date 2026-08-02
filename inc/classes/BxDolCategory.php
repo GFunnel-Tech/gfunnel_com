@@ -30,8 +30,6 @@
  */
 class BxDolCategory extends BxDolFactory implements iBxDolFactoryObject
 {
-    protected $_bIsApi;
-
     protected $_sObject;
     protected $_aObject;
 
@@ -42,8 +40,6 @@ class BxDolCategory extends BxDolFactory implements iBxDolFactoryObject
     protected function __construct($aObject)
     {
         parent::__construct();
-
-        $this->_bIsApi = bx_is_api();
 
         $this->_sObject = $aObject['object'];
         $this->_aObject = $aObject;

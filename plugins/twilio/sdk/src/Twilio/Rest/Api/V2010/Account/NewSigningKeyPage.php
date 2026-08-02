@@ -43,7 +43,6 @@ class NewSigningKeyPage extends Page
         return new NewSigningKeyInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

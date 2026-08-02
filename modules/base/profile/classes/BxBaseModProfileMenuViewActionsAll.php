@@ -50,43 +50,6 @@ class BxBaseModProfileMenuViewActionsAll extends BxBaseModGeneralMenuViewActions
         return '';
     }
 
-    protected function _getMenuItemConnection($aItem, $aParams = [])
-    {
-        $sObject = !empty($aParams['object']) ? $aParams['object'] : 'sys_profiles_friends';
-
-        $iId = !empty($aParams['id']) ? (int)$aParams['id'] : '';
-        if(empty($iId))
-            $iId = $this->_aProfileInfo['id'];
-
-        $oObject = !empty($sObject) ? BxDolConnection::getObjectInstance($sObject) : false;
-        if(!$oObject)
-            return '';
-
-        $aObjectOptions = [
-            'dynamic_mode' => $this->_bDynamicMode,
-            'show_do_as_button' => $this->_bShowAsButton,
-            'show_do_label' => $this->_bShowTitle
-        ];
-        if(!empty($aParams['object_options']) && is_array($aParams['object_options']))
-            $aObjectOptions = array_merge($aObjectOptions, $aParams['object_options']);
-
-        if($this->_bIsApi)
-            return [
-                'id' => $aItem['id'],
-                'name' => $aItem['name'],
-                'display_type' => 'element',
-                'data' => array_merge($oObject->getElementApi($iId, false, $aObjectOptions), [
-                    'primary' => !empty($aItem['primary']),
-                ])
-            ];
-
-        $sResult = $oObject->getElement($iId, false, $aObjectOptions);
-        if(empty($sResult))
-            return '';
-
-    	return [$sResult, $this->_sClassMiSa];
-    }
-
     protected function _getMenuItemConnectionApi($sConnection, $sAction, &$aItem)
     {
         if(!isLogged() || (isset($this->_aConnectionToFunctionCheck[$sConnection]) && $this->_oModule->{$this->_aConnectionToFunctionCheck[$sConnection][$sAction]}($this->_aContentInfo) !== CHECK_ACTION_RESULT_ALLOWED))
@@ -116,27 +79,6 @@ class BxBaseModProfileMenuViewActionsAll extends BxBaseModGeneralMenuViewActions
                 'primary' => !empty($aItem['primary']),
             ]
         ];
-    }
-
-    protected function _getMenuItemProfileFriends($aItem, $aParams = [])
-    {
-        return $this->_getMenuItemConnection($aItem, array_merge($aParams, [
-            'object' => 'sys_profiles_friends'
-        ]));
-    }
-
-    protected function _getMenuItemProfileRelations($aItem, $aParams = [])
-    {
-        return $this->_getMenuItemConnection($aItem, array_merge($aParams, [
-            'object' => 'sys_profiles_relations'
-        ]));
-    }
-
-    protected function _getMenuItemProfileSubscriptions($aItem, $aParams = [])
-    {
-        return $this->_getMenuItemConnection($aItem, array_merge($aParams, [
-            'object' => 'sys_profiles_subscriptions'
-        ]));
     }
 
     protected function _getMenuItemProfileFriendAdd($aItem)
@@ -193,10 +135,7 @@ class BxBaseModProfileMenuViewActionsAll extends BxBaseModGeneralMenuViewActions
         $aBadgesList = array_map(function ($aBadge) {
             return [
                 "value" => $aBadge['id'],
-                "label" => $aBadge['text'],
-                "icon" => $aBadge['icon'],
-                "color" => $aBadge['color'],
-                "is_icon_only" => $aBadge['is_icon_only']
+                "label" => $aBadge['text']
             ];
         }, $aBadges);
         

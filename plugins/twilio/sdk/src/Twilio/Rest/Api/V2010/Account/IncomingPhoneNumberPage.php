@@ -43,7 +43,6 @@ class IncomingPhoneNumberPage extends Page
         return new IncomingPhoneNumberInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

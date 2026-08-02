@@ -57,19 +57,12 @@ class AssistantsV1ServiceCreateFeedbackRequest implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
-            'session_id' => $this->sessionId
+        return [
+            'message_id' => $this->messageId,
+            'score' => $this->score,
+            'session_id' => $this->sessionId,
+            'text' => $this->text
         ];
-        if (isset($this->messageId)) {
-            $jsonString['message_id'] = $this->messageId;
-        }
-        if (isset($this->score)) {
-            $jsonString['score'] = $this->score;
-        }
-        if (isset($this->text)) {
-            $jsonString['text'] = $this->text;
-        }
-        return $jsonString;
     }
 }
 

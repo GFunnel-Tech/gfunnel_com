@@ -26,7 +26,7 @@ class BxArtificerTemplate extends BxBaseModGeneralTemplate
 
         switch($sType) {
             case 'head':
-                $sResult .= $this->getJsCode('utils', [
+                $sResult .= $this->_oModule->_oTemplate->getJsCode('utils', [
                     'sColorScheme' => $this->_oConfig->getColorScheme()
                 ]);
 
@@ -38,9 +38,6 @@ class BxArtificerTemplate extends BxBaseModGeneralTemplate
                 break;
 
             case 'footer':
-                $sResult .= $this->addJs([
-                    'modules/base/template/js/|sidebar.js',
-                ], true);
                 break;
         }
 

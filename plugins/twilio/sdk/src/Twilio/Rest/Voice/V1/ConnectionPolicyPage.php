@@ -43,7 +43,6 @@ class ConnectionPolicyPage extends Page
         return new ConnectionPolicyInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

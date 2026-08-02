@@ -43,7 +43,6 @@ class ExportPage extends Page
         return new ExportInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

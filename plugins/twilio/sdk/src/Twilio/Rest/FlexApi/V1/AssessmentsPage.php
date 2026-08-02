@@ -43,7 +43,6 @@ class AssessmentsPage extends Page
         return new AssessmentsInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

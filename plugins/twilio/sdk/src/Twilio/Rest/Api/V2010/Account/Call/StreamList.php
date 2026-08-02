@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Stream;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class StreamList extends ListResource
@@ -51,24 +49,23 @@ class StreamList extends ListResource
             $callSid,
         
         ];
+
         $this->uri = '/Accounts/' . \rawurlencode($accountSid)
         .'/Calls/' . \rawurlencode($callSid)
         .'/Streams.json';
     }
 
     /**
-     * Helper function for Create
+     * Create the StreamInstance
      *
-     
      * @param string $url Relative or absolute URL where WebSocket connection will be established.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return StreamInstance Created StreamInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $url, array $options = []): Response
+    public function create(string $url, array $options = []): StreamInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -480,56 +477,14 @@ class StreamList extends ListResource
                 $options['parameter99Value'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the StreamInstance
-     *
-     
-     * @param string $url Relative or absolute URL where WebSocket connection will be established.
-     
-     * @param array|Options $options Optional Arguments
-     * @return StreamInstance Created StreamInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $url, array $options = []): StreamInstance
-    {
-        $response = $this->_create( $url, $options);
         return new StreamInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['accountSid'],
             $this->solution['callSid']
-        );
-        
-    }
-
-    /**
-     * Create the StreamInstance with Metadata
-     *
-     
-     * @param string $url Relative or absolute URL where WebSocket connection will be established.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $url, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $url, $options);
-        $resource = new StreamInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['accountSid'],
-                        $this->solution['callSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

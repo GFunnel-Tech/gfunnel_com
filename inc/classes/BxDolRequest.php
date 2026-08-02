@@ -132,15 +132,10 @@ class BxDolRequest extends BxDol
         else if(!$bMethod && !$bTerminateOnError)
             return false;
     }
-
     protected static function _require($aModule, $sClass)
     {
         if(isset($GLOBALS['bxDolClasses'][$sClass]))
             return $GLOBALS['bxDolClasses'][$sClass];
-
-        if (($aModule['path'] && !preg_match('/^[A-Za-z0-9_]+\/[A-Za-z0-9_]+\/$/', $aModule['path'])) || !preg_match('/^[A-Za-z0-9_]+$/', $sClass)) {
-            return false;
-        }
 
         if($aModule['path']) {
             $sFile = BX_DIRECTORY_PATH_MODULES . $aModule['path'] . 'classes/' . $sClass . '.php';
@@ -169,9 +164,6 @@ class BxDolRequest extends BxDol
 
         if (!$aModule)
             return false;
-
-        if (isset($aModule['name']) && 'system' == $aModule['name'] && 'Module' == $sClass)
-            $sClass = 'BaseServices';
 
         $sClass = $aModule['class_prefix'] . $sClass;
         if(($oModule = BxDolRequest::_require($aModule, $sClass)) === false)

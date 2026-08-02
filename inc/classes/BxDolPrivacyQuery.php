@@ -43,11 +43,15 @@ class BxDolPrivacyQuery extends BxDolDb
 
     static public function getPrivacyObject($sObject)
     {
-        $a = BxDolDb::getInstance()->fromCache('sys_objects_privacy', 'getAllWithKey', "SELECT * FROM `sys_objects_privacy`", 'object');
-        if ($a && isset($a[$sObject]))
-            return $a[$sObject];
+        $oDb = BxDolDb::getInstance();
 
-        return false;
+        $sQuery = $oDb->prepare("SELECT * FROM `sys_objects_privacy` WHERE `object` = ?", $sObject);
+
+        $aObject = $oDb->getRow($sQuery);
+        if(!$aObject || !is_array($aObject))
+            return false;
+
+        return $aObject;
     }
 
     public function init($aObject = array())

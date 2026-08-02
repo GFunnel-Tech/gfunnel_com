@@ -43,7 +43,6 @@ class WorkersCumulativeStatisticsPage extends Page
         return new WorkersCumulativeStatisticsInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

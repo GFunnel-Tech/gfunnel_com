@@ -43,7 +43,6 @@ class AvailableAddOnPage extends Page
         return new AvailableAddOnInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

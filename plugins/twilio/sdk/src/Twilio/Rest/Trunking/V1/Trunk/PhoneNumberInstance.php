@@ -22,7 +22,6 @@ use Twilio\InstanceResource;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\Deserialize;
-use Twilio\Base\PhoneNumberCapabilities;
 
 
 /**
@@ -30,7 +29,7 @@ use Twilio\Base\PhoneNumberCapabilities;
  * @property string $addressRequirements
  * @property string|null $apiVersion
  * @property bool|null $beta
- * @property PhoneNumberCapabilities|null $capabilities
+ * @property array|null $capabilities
  * @property \DateTime|null $dateCreated
  * @property \DateTime|null $dateUpdated
  * @property string|null $friendlyName
@@ -63,7 +62,7 @@ class PhoneNumberInstance extends InstanceResource
      * @param string $trunkSid The SID of the Trunk to associate the phone number with.
      * @param string $sid The unique string that we created to identify the PhoneNumber resource to delete.
      */
-    public function __construct(Version $version, array $payload, string $trunkSid, ?string $sid = null)
+    public function __construct(Version $version, array $payload, string $trunkSid, string $sid = null)
     {
         parent::__construct($version);
 
@@ -73,7 +72,7 @@ class PhoneNumberInstance extends InstanceResource
             'addressRequirements' => Values::array_get($payload, 'address_requirements'),
             'apiVersion' => Values::array_get($payload, 'api_version'),
             'beta' => Values::array_get($payload, 'beta'),
-            'capabilities' => Deserialize::phoneNumberCapabilities(Values::array_get($payload, 'capabilities')),
+            'capabilities' => Values::array_get($payload, 'capabilities'),
             'dateCreated' => Deserialize::dateTime(Values::array_get($payload, 'date_created')),
             'dateUpdated' => Deserialize::dateTime(Values::array_get($payload, 'date_updated')),
             'friendlyName' => Values::array_get($payload, 'friendly_name'),

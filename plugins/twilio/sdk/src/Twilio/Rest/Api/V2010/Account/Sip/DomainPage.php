@@ -43,7 +43,6 @@ class DomainPage extends Page
         return new DomainInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

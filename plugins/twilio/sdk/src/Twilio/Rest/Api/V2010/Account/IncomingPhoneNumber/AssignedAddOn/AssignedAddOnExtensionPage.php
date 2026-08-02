@@ -43,7 +43,6 @@ class AssignedAddOnExtensionPage extends Page
         return new AssignedAddOnExtensionInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['resourceSid'], $this->solution['assignedAddOnSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

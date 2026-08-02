@@ -43,7 +43,6 @@ class AddressPage extends Page
         return new AddressInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

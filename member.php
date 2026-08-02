@@ -68,8 +68,7 @@ if (isset($_POST['ID'])) { // login form is submitted
 
             bx_alert('account', 'login_after', $oAccount->id(),  false, array(
                 'account' => $aAccount,
-                'url_relocate' => &$sUrlRelocate,
-                'url_relocate_ref' => &$sUrlRelocate,
+                'url_relocate' => &$sUrlRelocate               
             ));
 
             BxDolTemplate::getInstance()->setPageNameIndex (BX_PAGE_TRANSITION);

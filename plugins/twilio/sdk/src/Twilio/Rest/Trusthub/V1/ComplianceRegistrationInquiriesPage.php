@@ -43,7 +43,6 @@ class ComplianceRegistrationInquiriesPage extends Page
         return new ComplianceRegistrationInquiriesInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

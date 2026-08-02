@@ -17,7 +17,6 @@ class Comment extends Model
     'createdAt',
     'type',
     'entityId',
-    'businessEntityId',
   ];
 
 

@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Rest\Preview\Wireless\Sim\UsageList;
 
 
@@ -59,72 +57,35 @@ class SimContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the SimInstance
      *
-     
      * @return SimInstance Fetched SimInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): SimInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new SimInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the SimInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new SimInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the SimInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return SimInstance Updated SimInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): SimInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -162,50 +123,13 @@ class SimContext extends InstanceContext
                 $options['voiceUrl'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the SimInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return SimInstance Updated SimInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): SimInstance
-    {
-        $response = $this->_update($options);
         return new SimInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the SimInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new SimInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

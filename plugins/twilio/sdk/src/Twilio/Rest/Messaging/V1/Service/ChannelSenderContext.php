@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ChannelSenderContext extends InstanceContext
@@ -55,113 +53,36 @@ class ChannelSenderContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the ChannelSenderInstance
      *
-     
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the ChannelSenderInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the ChannelSenderInstance
      *
-     
-     
      * @return ChannelSenderInstance Fetched ChannelSenderInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): ChannelSenderInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new ChannelSenderInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['messagingServiceSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Fetch the ChannelSenderInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new ChannelSenderInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['messagingServiceSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

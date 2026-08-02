@@ -64,18 +64,6 @@ define('BX_CONNECTIONS_CONTENT_TYPE_INITIATORS', 'initiators');
 define('BX_CONNECTIONS_CONTENT_TYPE_COMMON', 'common');
 
 /**
- * Connections trigger type: initiator. 
- * It updates 'Initiator' data with a counter's value of connected 'Content'.
- */
-define('BX_CONNECTIONS_TRIGGER_TYPE_INITIATOR', 'initiator');
-
-/**
- * Connections trigger type: content. 
- * It updates 'Content' data with a counter's value of connected 'Initiators'.
- */
-define('BX_CONNECTIONS_TRIGGER_TYPE_CONTENT', 'content');
-
-/**
  * Connection is usefull when you need to organize some sorts of connections between different content,
  * for example: friends, contacts, favorites, block lists, subscriptions, etc.
  *
@@ -129,16 +117,10 @@ define('BX_CONNECTIONS_TRIGGER_TYPE_CONTENT', 'content');
  */
 class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
 {
-    protected $_oQuery;
-
     protected $_sObject;
     protected $_aObject;
-    protected $_iInitiator;
-    protected $_iContent;
+    protected $_oQuery;
     protected $_sType;
-    protected $_bMutual;
-
-    protected $_aTriggerTypes;
 
     /**
      * Constructor
@@ -152,11 +134,7 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
         $this->_aObject = $aObject;
         $this->_aObject['per_page_default'] = 20;
 
-        $this->_iInitiator = bx_get_logged_profile_id();
         $this->_sType = $aObject['type'];
-        $this->_bMutual = $this->_sType == BX_CONNECTIONS_TYPE_MUTUAL;
-
-        $this->_aTriggerTypes = [BX_CONNECTIONS_TRIGGER_TYPE_INITIATOR, BX_CONNECTIONS_TRIGGER_TYPE_CONTENT];
 
         $this->_oQuery = new BxDolConnectionQuery($aObject);
     }
@@ -240,13 +218,6 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
 
         return $aResult['code'] == 0 ? CHECK_ACTION_RESULT_ALLOWED : $aResult['message'];
     }
-    
-    public function checkAllowedConnectByAcl ($iInitiator, $iContent, $isPerformAction = false)
-    {
-        $aResult = $this->_checkAllowedConnectByAcl($iInitiator, $iContent, $isPerformAction);
-
-        return $aResult['code'] == 0 ? CHECK_ACTION_RESULT_ALLOWED : $aResult['message'];
-    }
 
     public function checkAllowedAddConnection ($iInitiator, $iContent, $isPerformAction = false, $isMutual = false, $isInvertResult = false, $isSwap = false, $isCheckExists = true)
     {
@@ -269,14 +240,10 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
      */
     public function actionAdd ($iContent = 0, $iInitiator = false)
     {
-        if(!$iContent && ($_iContent = bx_get('id')) !== false)
-            $iContent = bx_process_input($_iContent, BX_DATA_INT);
+        if (!$iContent)
+            $iContent = bx_process_input($_POST['id'], BX_DATA_INT);
 
-        if($iInitiator)
-            $this->_iInitiator = $iInitiator;
-        $this->_iContent = $iContent;
-
-        return $this->_action ($this->_iInitiator, $this->_iContent, 'addConnection', '_sys_conn_err_connection_already_exists', true);
+        return $this->_action ($iInitiator ? $iInitiator : bx_get_logged_profile_id(), $iContent, 'addConnection', '_sys_conn_err_connection_already_exists', true);
     }
 
     /**
@@ -286,8 +253,8 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
      */
     public function actionRemove ($iContent = 0, $iInitiator = false)
     {
-        if (!$iContent && ($_iContent = bx_get('id')) !== false)
-            $iContent = bx_process_input($_iContent, BX_DATA_INT);
+        if (!$iContent)
+            $iContent = bx_process_input($_POST['id'], BX_DATA_INT);
 
         if ($iContent != bx_get_logged_profile_id() && BX_CONNECTIONS_TYPE_MUTUAL == $this->_aObject['type']) {
             $a = $this->actionReject($iContent, $iInitiator);
@@ -295,11 +262,7 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
                 return $a;
         }
 
-        if($iInitiator)
-            $this->_iInitiator = $iInitiator;
-        $this->_iContent = $iContent;
-
-        return $this->_action ($this->_iInitiator, $this->_iContent, 'removeConnection', '_sys_conn_err_connection_does_not_exists', false, true);
+        return $this->_action ($iInitiator ? $iInitiator : bx_get_logged_profile_id(), $iContent, 'removeConnection', '_sys_conn_err_connection_does_not_exists', false, true);
     }
 
     /**
@@ -309,14 +272,10 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
      */
     public function actionReject ($iContent = 0, $iInitiator = false)
     {
-        if (!$iContent && ($_iContent = bx_get('id')) !== false)
-            $iContent = bx_process_input($_iContent, BX_DATA_INT);
+        if (!$iContent)
+            $iContent = bx_process_input($_POST['id'], BX_DATA_INT);
 
-        if($iInitiator)
-            $this->_iInitiator = $iInitiator;
-        $this->_iContent = $iContent;
-
-        return $this->_action($this->_iContent, $this->_iInitiator, 'removeConnection', '_sys_conn_err_connection_does_not_exists', false, true);
+        return $this->_action($iContent, $iInitiator ? $iInitiator : bx_get_logged_profile_id(), 'removeConnection', '_sys_conn_err_connection_does_not_exists', false, true);
     }
 
     protected function _action ($iInitiator, $iContent, $sMethod, $sErrorKey, $isMutual = false, $isInvert = false)
@@ -366,19 +325,12 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
         $iMutual = 0;
         $iInitiator = (int)$iInitiator;
         $iContent = (int)$iContent;
-        $iOverrideResult = null;
 
         $aAlertExtras = [
             'initiator' => &$iInitiator,
             'content' => &$iContent,
             'mutual' => &$iMutual,
-
-            'initiator_ref' => &$iInitiator,
-            'content_ref' => &$iContent,
-            'mutual_ref' => &$iMutual,
-
             'object' => $this,
-            'override_result' => &$iOverrideResult,
         ];
         if(!empty($aParams['alert_extras']) && is_array($aParams['alert_extras']))
             $aAlertExtras = array_merge($aAlertExtras, $aParams['alert_extras']);
@@ -391,20 +343,15 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
          * - $object_id - not used
          * - $sender_id - logged in profile id
          * - $extra_params - array of additional params with the following array keys:
-         *      - `initiator` - [int] by ref, profile id who is creating the connection, can be overridden in hook processing
-         *      - `content` - [int] by ref, profile id with whom the connection is creating, can be overridden in hook processing
+         *      - `initiator` - [int] by ref, profile id who created the connection, can be overridden in hook processing
+         *      - `content` - [int] by ref, profile id with whom the connection was created, can be overridden in hook processing
          *      - `mutual` - [int] by ref, if the relation is mutual or not, can be overridden in hook processing
-         *      - `object` - [object] an instance of connection object, @see BxDolConnection
-         *      - `object_name` - [string] connection object name
-         *      - `override_result` - [boolean] by ref, stop adding and return specified result
+         *      - `object` - [object] an instance of relation, @see BxDolConnection
          * @hook @ref hook-bx_dol_connection-connection_before_add
          */
-        bx_alert($this->_sObject, 'connection_before_add', 0, false, $aAlertExtras);
-        bx_alert('system', 'connection_before_add', 0, false, array_merge($aAlertExtras, ['object_name' => $this->_sObject]));
-        if (null !== $aAlertExtras['override_result'])
-            return $aAlertExtras['override_result'];
-
-        if (!$this->_oQuery->addConnection($iInitiator, $iContent, $iMutual))
+        bx_alert($this->_sObject, 'connection_before_add', 0, bx_get_logged_profile_id(), $aAlertExtras);
+        
+        if (!$this->_oQuery->addConnection((int)$iInitiator, (int)$iContent, $iMutual))
             return false;
 
         /**
@@ -413,8 +360,7 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
          * It's equivalent to @ref hook-bx_dol_connection-connection_before_add
          * @hook @ref hook-bx_dol_connection-connection_added
          */
-        bx_alert($this->_sObject, 'connection_added', 0, false, $aAlertExtras);
-        bx_alert('system', 'connection_added', 0, false, array_merge($aAlertExtras, ['object_name' => $this->_sObject]));
+        bx_alert($this->_sObject, 'connection_added', 0, bx_get_logged_profile_id(), $aAlertExtras);
 
         $this->onAdded($iInitiator, $iContent, $iMutual);
 
@@ -423,20 +369,17 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
 
     public function onAdded($iInitiator, $iContent, $iMutual)
     {
-        $this->checkAllowedConnect($iInitiator, $iContent, true, $iMutual, false);
+        $this->checkAllowedConnect ($iInitiator, $iContent, true, $iMutual, false);
 
-        if($this->_isTriggerable($iMutual))
-            $this->_updateTriggerValue($iInitiator, $iContent, 1);
-
+        $bMutual = false;
+        
         /**
          * Call socket.
          */
-        if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled()) {
+        if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled()){
             $aMessageInitiator = $aMessageContent = [
                 'object' => $this->_sObject, 
                 'action' => 'added',
-                'initiator' => $iInitiator,
-                'content' => $iContent,
             ];
 
             if(bx_is_api()) {
@@ -452,8 +395,7 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
             $oSockets->sendEvent('sys_connections', $iInitiator , 'changed', json_encode($aMessageInitiator));
             $oSockets->sendEvent('sys_connections', $iContent , 'changed', json_encode($aMessageContent));
         }
-
-        $bMutual = false;
+        
         if($this->_aObject['type'] == BX_CONNECTIONS_TYPE_ONE_WAY || ($bMutual = ($this->_aObject['type'] == BX_CONNECTIONS_TYPE_MUTUAL && $iMutual))) {
             $oProfileQuery = BxDolProfileQuery::getInstance();
 
@@ -471,6 +413,8 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
                 if(bx_srv($aContent['type'], 'act_as_profile'))
                     BxDolRecommendation::updateData($iContent);
             }
+
+            
         }
     }
 
@@ -482,70 +426,47 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
      */
     public function removeConnection ($iInitiator, $iContent)
     {
-        $iInitiator = (int)$iInitiator;
-        $iContent = (int)$iContent;
-
-        if(!($aConnection = $this->_oQuery->getConnection($iInitiator, $iContent))) // connection doesn't exist
+        if (!($aConnection = $this->_oQuery->getConnection((int)$iInitiator, (int)$iContent))) // connection doesn't exist
             return false;
 
-        $iMutual = isset($aConnection['mutual']) ? $aConnection['mutual'] : 0;
-
-        $aAlertExtras = [
-            'initiator' => &$iInitiator,
-            'content' => &$iContent,
-            'mutual' => &$iMutual,
-
-            'initiator_ref' => &$iInitiator,
-            'content_ref' => &$iContent,
-            'mutual_ref' => &$iMutual,
-
-            'object' => $this,
-        ];
-        if(!empty($aParams['alert_extras']) && is_array($aParams['alert_extras']))
-            $aAlertExtras = array_merge($aAlertExtras, $aParams['alert_extras']);
-
-        /**
-         * @hooks
-         * @hookdef hook-bx_dol_connection-connection_before_remove '{object_name}', 'connection_before_remove' - hook before connection was removed. Connection params can be overridden
-         * - $unit_name - connection object name
-         * - $action - equals `connection_before_remove`
-         * - $object_id - not used
-         * - $sender_id - logged in profile id
-         * - $extra_params - array of additional params with the following array keys:
-         *      - `initiator` - [int] by ref, profile id who is removing the connection, can be overridden in hook processing
-         *      - `content` - [int] by ref, profile id with whom the connection is removing, can be overridden in hook processing
-         *      - `mutual` - [int] by ref, if the relation is mutual or not, can be overridden in hook processing
-         *      - `object` - [object] an instance of relation, @see BxDolConnection
-         * @hook @ref hook-bx_dol_connection-connection_before_remove
-         */
-        bx_alert($this->_sObject, 'connection_before_remove', 0, false, $aAlertExtras);
-        bx_alert('system', 'connection_before_remove', 0, false, array_merge($aAlertExtras, ['object_name' => $this->_sObject]));
-
-        if(!$this->_oQuery->removeConnection($iInitiator, $iContent))
+        if (!$this->_oQuery->removeConnection((int)$iInitiator, (int)$iContent))
             return false;
 
         /**
          * @hooks
          * @hookdef hook-bx_dol_connection-connection_removed '{object_name}', 'connection_removed' - hook after a connection was removed.
-         * It's equivalent to @ref hook-bx_dol_connection-connection_before_remove
+         * - $unit_name - connection object name
+         * - $action - equals `connection_removed`
+         * - $object_id - not used
+         * - $sender_id - logged in profile id
+         * - $extra_params - array of additional params with the following array keys:
+         *      - `initiator` - [int] profile id who created the connection
+         *      - `content` - [int] profile id with whom the connection was created
+         *      - `mutual` - [int] if the relation is mutual or not
+         *      - `object` - [object] an instance of relation, @see BxDolConnection
          * @hook @ref hook-bx_dol_connection-connection_removed
          */
-        bx_alert($this->_sObject, 'connection_removed', 0, false, $aAlertExtras);
-        bx_alert('system', 'connection_removed', 0, false, array_merge($aAlertExtras, ['object_name' => $this->_sObject]));
+        bx_alert($this->_sObject, 'connection_removed', 0, bx_get_logged_profile_id(), array(
+            'initiator' => (int)$iInitiator,
+            'content' => (int)$iContent,
+            'mutual' => isset($aConnection['mutual']) ? $aConnection['mutual'] : 0,
+            'object' => $this,
+        ));
 
-        $this->onRemoved($iInitiator, $iContent, $iMutual);
+        $this->onRemoved($iInitiator, $iContent);
 
         return true;
     }
 
-    public function onRemoved($iInitiator, $iContent, $iMutual)
+    /**
+     * TODO: Improve - add $iMutual like in onAdded
+     */
+    public function onRemoved($iInitiator, $iContent)
     {
-        $this->_updateTriggerValue($iInitiator, $iContent, -1);
-
         /**
          * Call socket.
          */
-        if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled()) {
+        if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled()){
             $aMessageInitiator = $aMessageContent = [
                 'object' => $this->_sObject, 
                 'action' => 'deleted',
@@ -619,9 +540,6 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
      */
     public function getConnectedContentCount ($iInitiator, $isMutual = false, $iFromDate = 0)
     {
-        if($this->_isTriggerable($isMutual) && ($iValue = $this->_getTriggerValueByContentType(BX_CONNECTIONS_CONTENT_TYPE_CONTENT, $iInitiator)) !== false)
-            return $iValue;
-
         return $this->_oQuery->getConnectedContentCount($iInitiator, $isMutual, $iFromDate);
     }
 
@@ -645,9 +563,6 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
      */
     public function getConnectedInitiatorsCount ($iContent, $isMutual = false)
     {
-        if($this->_isTriggerable($isMutual) && ($iValue = $this->_getTriggerValueByContentType(BX_CONNECTIONS_CONTENT_TYPE_INITIATORS, $iContent)) !== false)
-            return $iValue;
-
         return $this->_oQuery->getConnectedInitiatorsCount($iContent, $isMutual);
     }
 
@@ -1202,24 +1117,6 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
         return ['code' => $iCode, 'message' => $sMessage != '' ? $sMessage : null];
     }
 
-    protected function _checkAllowedConnectByAcl ($iInitiator, $iContent, $isPerformAction = false)
-    {
-        $sErr = _t('_sys_txt_access_denied');
-
-        if(!$iInitiator || !$iContent || $iInitiator == $iContent)
-            return ['code' => 1, 'message' => $sErr];
-
-        $oInitiator = BxDolProfile::getInstance($iInitiator);
-        if(!$oInitiator || !BxDolProfile::getInstance($iContent))
-            return ['code' => 2, 'message' => $sErr];
-
-        // check ACL
-        if(($mixedResult = $this->_checkAllowedConnectInitiator($oInitiator, $isPerformAction)) !== CHECK_ACTION_RESULT_ALLOWED)
-            return ['code' => 3, 'message' => $mixedResult];
-
-        return ['code' => 0];
-    }
-
     protected function _checkAllowedConnectInitiator ($oInitiator, $isPerformAction = false)
     {
         $aCheck = checkActionModule($oInitiator->id(), 'connect', 'system', $isPerformAction);
@@ -1232,58 +1129,6 @@ class BxDolConnection extends BxDolFactory implements iBxDolFactoryObject
     protected function _checkAllowedConnectContent ($oContent)
     {
         return $oContent->checkAllowedProfileView();
-    }
-
-    protected function _isTriggerable($mixedMutual)
-    {
-        return $this->_aObject['type'] == BX_CONNECTIONS_TYPE_ONE_WAY || ($this->_aObject['type'] == BX_CONNECTIONS_TYPE_MUTUAL && $mixedMutual);
-    }
-
-    protected function _updateTriggerValue($iInitiator, $iContent, $iValue)
-    {
-        foreach($this->_aTriggerTypes as $sType) {
-            if(empty($this->_aObject['tt_' . $sType]) || empty($this->_aObject['tf_id_' . $sType]) || empty($this->_aObject['tf_count_' . $sType]))
-                continue;
-
-            $iObjectId = $this->_getTriggerObject($sType, $iInitiator, $iContent);
-            if(!$iObjectId)
-                continue;
-
-            $this->_oQuery->updateTriggerValue($sType, $iObjectId, $iValue);
-        }
-    }
-
-    protected function _getTriggerValueByContentType($sContentType, $iParticipantId)
-    {
-        $aCt2Tt = [
-            BX_CONNECTIONS_CONTENT_TYPE_CONTENT => BX_CONNECTIONS_TRIGGER_TYPE_INITIATOR,
-            BX_CONNECTIONS_CONTENT_TYPE_INITIATORS => BX_CONNECTIONS_TRIGGER_TYPE_CONTENT
-        ];
-
-        if(!isset($aCt2Tt[$sContentType]))
-            return false;
-
-        $sTriggerType = $aCt2Tt[$sContentType];
-        if(empty($this->_aObject['tt_' . $sTriggerType]) || empty($this->_aObject['tf_id_' . $sTriggerType]) || empty($this->_aObject['tf_count_' . $sTriggerType]))
-            return false;
-
-        $iObjectId = 0;
-        if((int)$this->_aObject['profile_' . $sTriggerType]) {
-            if(($oParticipant = BxDolProfile::getInstance($iParticipantId)) !== false)
-                $iObjectId = $oParticipant->getContentId();
-        }
-        else
-            $iObjectId = $iParticipantId;
-
-        return $iObjectId ? $this->_oQuery->getTriggerValue($sTriggerType, $iObjectId) : false;
-    }
-
-    /**
-     * Should be overwritten in Connection class which uses triggerable fields.
-     */
-    protected function _getTriggerObject($sType, $iInitiator, $iContent)
-    {
-        return false;
     }
 }
 

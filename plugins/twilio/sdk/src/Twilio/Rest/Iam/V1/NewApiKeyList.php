@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -41,21 +39,21 @@ class NewApiKeyList extends ListResource
         // Path Solution
         $this->solution = [
         ];
+
         $this->uri = '/Keys';
     }
 
     /**
-     * Helper function for Create
+     * Create the NewApiKeyInstance
      *
      * @param string $accountSid The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Payments resource.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return NewApiKeyInstance Created NewApiKeyInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $accountSid, array $options = []): Response
+    public function create(string $accountSid, array $options = []): NewApiKeyInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -69,50 +67,12 @@ class NewApiKeyList extends ListResource
                 Serialize::jsonObject($options['policy']),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the NewApiKeyInstance
-     *
-     * @param string $accountSid The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Payments resource.
-     
-     * @param array|Options $options Optional Arguments
-     * @return NewApiKeyInstance Created NewApiKeyInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $accountSid, array $options = []): NewApiKeyInstance
-    {
-        $response = $this->_create( $accountSid, $options);
         return new NewApiKeyInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the NewApiKeyInstance with Metadata
-     *
-     * @param string $accountSid The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Payments resource.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $accountSid, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $accountSid, $options);
-        $resource = new NewApiKeyInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

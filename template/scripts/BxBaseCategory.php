@@ -67,17 +67,9 @@ class BxBaseCategory extends BxDolCategory
 
     public function getCategoryIcon($sValue)
     {
-        $a = BxDolForm::getDataItems($this->_aObject['list_name'], false, BX_DATA_VALUES_ALL);
-        if(!$a || !isset($a[$sValue]))
-            return '';
-
-        $aData = $this->_getCategoryData($a[$sValue]);
-        if(empty($aData) || !is_array($aData))
-            return '';
-
-        return $this->_getCategoryIcon($aData);
+        return 'star';
     }
-
+            
     public function getCategoryTitle($sValue)
     {
     	$a = BxDolForm::getDataItems($this->_aObject['list_name']);
@@ -96,7 +88,7 @@ class BxBaseCategory extends BxDolCategory
             'context' => isset($aParams['context_id']) ? '&context_id=' . $aParams['context_id'] : ''
         ]);
 
-        if($this->_bIsApi)
+        if (bx_is_api())
             return bx_api_get_relative_url($s);
 
         return $s;
@@ -124,11 +116,11 @@ class BxBaseCategory extends BxDolCategory
         $aContextInfo = bx_get_page_info();
 
         $mProfileContextId = false;
-        if($aContextInfo !== false)
+        if ($aContextInfo !== false)
             $mProfileContextId = $aContextInfo['context_profile_id'];
 
-        $a = BxDolForm::getDataItems($this->_aObject['list_name'], false, BX_DATA_VALUES_ALL);
-        if(!$a)
+        $a = BxDolForm::getDataItems($this->_aObject['list_name']);
+        if (!$a)
             return $bAsArray ? [] : '';
 
         $aVars = [
@@ -142,75 +134,34 @@ class BxBaseCategory extends BxDolCategory
             ]
         ];
 
-        foreach ($a as $sValue => $aCategory) {
-            if(!is_numeric($sValue) && !$sValue)
+        foreach ($a as $sValue => $sName) {
+            if (!is_numeric($sValue) && !$sValue)
                 continue;
-
+            
             $iNum = $this->getItemsNum($sValue, ['context_id' => $mProfileContextId]);
-            if(!$bDisplayEmptyCats && !$iNum)
+            if (!$bDisplayEmptyCats && !$iNum)
                 continue;
-
-            $aData = $this->_getCategoryData($aCategory);
-
-            $sIconType = $this->_getCategoryIconType($aData);
-            $sIcon = $this->_getCategoryIcon($aData);
-            $bIcon = !empty($sIcon);
-
-            $aVars['bx_repeat:cats'][] = array_merge([
+            
+            $aVars['bx_repeat:cats'][] = [
                 'url' => $this->getCategoryUrl($sValue, ($mProfileContextId ? ['context_id' => $mProfileContextId] : [])),
-                'name' => _t($aCategory['LKey']),
+                'name' => $sName,
                 'value' => $sValue,
-                'num' => $iNum
-            ], !$this->_bIsApi ? [
-                'bx_if:show_icon' => [
-                    'condition' => $bIcon,
-                    'content' => [
-                        'bx_if:show_icon_font' => [
-                            'condition' => $bIcon && $sIconType == 'icon',
-                            'content' => [
-                                'icon_name' => $sIcon,
-                            ]
-                        ],
-                        'bx_if:show_icon_html' => [
-                            'condition' => $bIcon && in_array($sIconType, ['emoji', 'image']),
-                            'content' => [
-                                'icon_code' => $sIcon,
-                            ]
-                        ],
-                    ]
-                ],
-                'selected_class' => $sValue == bx_get('category') ? 'bx-menu-tab-active' : '',
-            ] : [
-                'icon_type' => $sIconType,
-                'icon' => $sIcon
-            ]);
+                'num' => $iNum,
+                'icon' => $this->getCategoryIcon($sValue),
+                'selected_class' => $sValue == bx_get('category') ? 'bx-category-list-item-selected' : '',
+            ];
         }
 
-        if($this->_bIsApi)
+        if(bx_is_api())
             return [bx_api_get_block('categories_list',  $aVars['bx_repeat:cats'])];
 
-        if($bAsArray)
+        if ($bAsArray)
             return $aVars;
 
-        return !empty($aVars['bx_repeat:cats']) ? $this->_oTemplate->parseHtmlByName('category_list.html', $aVars) : '';
-    }
+        if (!$aVars['bx_repeat:cats'])
+            return '';
 
-    protected function _getCategoryIconType($aData)
-    {
-        return !empty($aData['use']) ? $aData['use'] : '';
-    }
-
-    protected function _getCategoryIcon($aData)
-    {
-        return !empty($aData['use']) && !empty($aData[$aData['use']]) ? $aData[$aData['use']] : '';
-    }
-    
-    protected function _getCategoryData($aCategory)
-    {
-        if(is_array($aCategory['Data']))
-            return $aCategory['Data'];
-
-        return !empty($aCategory['Data']) && bx_is_serialized($aCategory['Data']) ? unserialize($aCategory['Data']) : [];
+        return $this->_oTemplate->parseHtmlByName('category_list.html', $aVars);
     }
 }
 

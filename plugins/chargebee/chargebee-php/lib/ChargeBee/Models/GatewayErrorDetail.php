@@ -24,7 +24,6 @@ class GatewayErrorDetail extends Model
     'processorErrorCode',
     'processorErrorMessage',
     'errorCauseId',
-    'processorAdviceCode',
   ];
 
 

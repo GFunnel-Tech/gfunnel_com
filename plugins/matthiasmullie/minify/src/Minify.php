@@ -13,7 +13,6 @@
 namespace MatthiasMullie\Minify;
 
 use MatthiasMullie\Minify\Exceptions\IOException;
-use MatthiasMullie\Minify\Exceptions\PatternMatchException;
 use Psr\Cache\CacheItemInterface;
 
 /**
@@ -231,7 +230,7 @@ abstract class Minify
      * Save to file.
      *
      * @param string $content The minified data
-     * @param string $path The path to save the minified data to
+     * @param string $path    The path to save the minified data to
      *
      * @throws IOException
      */
@@ -250,7 +249,7 @@ abstract class Minify
      * If $replacement is a string, it must be plain text. Placeholders like $1 or \2 don't work.
      * If you need that functionality, use a callback instead.
      *
-     * @param string $pattern PCRE pattern
+     * @param string          $pattern     PCRE pattern
      * @param string|callable $replacement Replacement value for matched pattern
      */
     protected function registerPattern($pattern, $replacement = '')
@@ -266,9 +265,23 @@ abstract class Minify
      */
     protected function stripMultilineComments()
     {
+        // First extract comments we want to keep, so they can be restored later
+        // PHP only supports $this inside anonymous functions since 5.4
         $minifier = $this;
-        // Pattern for matching comments that we want to preserve
-        $keepPattern = '/^
+        $callback = function ($match) use ($minifier) {
+            $count = count($minifier->extracted);
+            $placeholder = '/*' . $count . '*/';
+            $minifier->extracted[$placeholder] = $match[0];
+
+            return $placeholder;
+        };
+        $this->registerPattern('/
+            # optional newline
+            \n?
+
+            # start comment
+            \/\*
+
             # comment content
             (?:
                 # either starts with an !
@@ -280,24 +293,14 @@ abstract class Minify
                 # there is either a @license or @preserve tag
                 @(?:license|preserve)
             )
-            /ixs';
-        $callback = function ($match) use ($minifier, $keepPattern) {
-            if (preg_match($keepPattern, $match[1])) {
-                // Preserve the comment
-                $count = count($minifier->extracted);
-                $placeholder = '/*' . $count . '*/';
-                $minifier->extracted[$placeholder] = $match[0];
-            } else {
-                // Discard the comment but keep any single line feed
-                $placeholder = strncmp($match[0], "\n", 1) === 0 || substr($match[0], -1) === "\n"
-                    ? "\n"
-                    : '';
-            }
 
-            return $placeholder;
-        };
+            # then match to the end of the comment
+            .*?\*\/\n?
 
-        $this->registerPattern('/\n?\/\*(.*?)\*\/\n?/s', $callback);
+            /ixs', $callback);
+
+        // Then strip all other comments
+        $this->registerPattern('/\/\*.*?\*\//s', '');
     }
 
     /**
@@ -311,8 +314,6 @@ abstract class Minify
      * @param string $content The content to replace patterns in
      *
      * @return string The (manipulated) content
-     *
-     * @throws PatternMatchException
      */
     protected function replace($content)
     {
@@ -340,8 +341,7 @@ abstract class Minify
                 }
 
                 $match = null;
-                $matchResult = preg_match($pattern, $content, $match, PREG_OFFSET_CAPTURE, $processedOffset);
-                if ($matchResult) {
+                if (preg_match($pattern, $content, $match, PREG_OFFSET_CAPTURE, $processedOffset)) {
                     $matches[$i] = $match;
 
                     // we'll store the match position as well; that way, we
@@ -349,11 +349,6 @@ abstract class Minify
                     // the first (we'll still know where those others are)
                     $positions[$i] = $match[0][1];
                 } else {
-                    if ($matchResult === false) {
-                        throw PatternMatchException::fromLastError(
-                            "Failed to match pattern '$pattern' at $processedOffset"
-                        );
-                    }
                     // if the pattern couldn't be matched, there's no point in
                     // executing it again in later runs on this same content;
                     // ignore this one until we reach end of content
@@ -395,7 +390,7 @@ abstract class Minify
      * If it's a string, just pass it through.
      *
      * @param string|callable $replacement Replacement value
-     * @param array $match Match data, in PREG_OFFSET_CAPTURE form
+     * @param array           $match       Match data, in PREG_OFFSET_CAPTURE form
      *
      * @return string
      */
@@ -450,11 +445,6 @@ abstract class Minify
         };
 
         /*
-         * Quantifier {0,65535} is used instead of *? to avoid exceeding
-         * backtrack limit with large strings. 65535 is the maximum allowed
-         * (see https://www.php.net/manual/en/regexp.reference.repetition.php)
-         * and should be well sufficient for string representations here.
-         *
          * The \\ messiness explained:
          * * Don't count ' or " as end-of-string if it's escaped (has backslash
          * in front of it)
@@ -466,8 +456,7 @@ abstract class Minify
          * considered as escape-char (times 2) and to get it in the regex,
          * escaped (times 2)
          */
-
-        $this->registerPattern('/([' . $chars . '])(.{0,65535}?(?<!\\\\)(\\\\\\\\)*+)\\1/s', $callback);
+        $this->registerPattern('/([' . $chars . '])(.*?(?<!\\\\)(\\\\\\\\)*+)\\1/s', $callback);
     }
 
     /**
@@ -543,8 +532,8 @@ abstract class Minify
      * Attempts to write $content to the file specified by $handler. $path is used for printing exceptions.
      *
      * @param resource $handler The resource to write to
-     * @param string $content The content to write
-     * @param string $path The path to the file (for exception printing only)
+     * @param string   $content The content to write
+     * @param string   $path    The path to the file (for exception printing only)
      *
      * @throws IOException
      */

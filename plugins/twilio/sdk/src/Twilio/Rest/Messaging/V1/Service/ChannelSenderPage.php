@@ -43,7 +43,6 @@ class ChannelSenderPage extends Page
         return new ChannelSenderInstance($this->version, $payload, $this->solution['messagingServiceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

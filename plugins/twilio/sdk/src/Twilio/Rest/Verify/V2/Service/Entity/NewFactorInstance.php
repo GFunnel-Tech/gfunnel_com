@@ -31,7 +31,6 @@ use Twilio\Deserialize;
  * @property string|null $entitySid
  * @property string|null $identity
  * @property array|null $binding
- * @property array|null $options
  * @property \DateTime|null $dateCreated
  * @property \DateTime|null $dateUpdated
  * @property string|null $friendlyName
@@ -63,7 +62,6 @@ class NewFactorInstance extends InstanceResource
             'entitySid' => Values::array_get($payload, 'entity_sid'),
             'identity' => Values::array_get($payload, 'identity'),
             'binding' => Values::array_get($payload, 'binding'),
-            'options' => Values::array_get($payload, 'options'),
             'dateCreated' => Deserialize::dateTime(Values::array_get($payload, 'date_created')),
             'dateUpdated' => Deserialize::dateTime(Values::array_get($payload, 'date_updated')),
             'friendlyName' => Values::array_get($payload, 'friendly_name'),

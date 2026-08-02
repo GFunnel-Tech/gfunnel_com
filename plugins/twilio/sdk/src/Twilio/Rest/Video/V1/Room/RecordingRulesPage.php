@@ -43,7 +43,6 @@ class RecordingRulesPage extends Page
         return new RecordingRulesInstance($this->version, $payload, $this->solution['roomSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

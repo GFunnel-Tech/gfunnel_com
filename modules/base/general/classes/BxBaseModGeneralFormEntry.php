@@ -102,32 +102,17 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         }
     }
 
-    protected function _isModeAdd($sDisplay = '')
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-        
-        if(!$sDisplay && !empty($this->aParams['display']))
-            $sDisplay = $this->aParams['display'];
-
-        return isset($CNF['OBJECT_FORM_ENTRY_DISPLAY_ADD']) && $sDisplay == $CNF['OBJECT_FORM_ENTRY_DISPLAY_ADD'];
-    }
-
-    protected function _isModeEdit($sDisplay = '')
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        if(!$sDisplay && !empty($this->aParams['display']))
-            $sDisplay = $this->aParams['display'];
-
-        return isset($CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT']) && $sDisplay == $CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT'];
-    }
-
     protected function _isChangeUserForAdmins($sDisplay)
     {
+        $CNF = &$this->_oModule->_oConfig->CNF;
+
         if(!$this->_bAllowChangeUserForAdmins)
             return false;
 
-        if($this->_isModeAdd($sDisplay) || $this->_isModeEdit($sDisplay))
+        if(isset($CNF['OBJECT_FORM_ENTRY_DISPLAY_ADD']) && $sDisplay == $CNF['OBJECT_FORM_ENTRY_DISPLAY_ADD'])
+            return true;
+
+        if(isset($CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT']) && $sDisplay == $CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT'])
             return true;
 
         return false;
@@ -139,12 +124,8 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         
         if(!$bDynamicMode && bx_is_dynamic_request())
             $bDynamicMode = true;
-
-        $this->_replaceMarkersInControls();
-
+       
         $sResult = parent::getCode($bDynamicMode);
-        if($this->isViewMode() && !$sResult)
-            return $sResult;
 
         $aPrivacyFields = $this->_getPrivacyFields();
         foreach($aPrivacyFields as $sField => $sObject)
@@ -152,22 +133,12 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
 
         if(isset($CNF['PARAM_MULTICAT_ENABLED']) && $CNF['PARAM_MULTICAT_ENABLED'] === true) {
             $sInclude2 = '';
-            $sInclude2 .= $this->_oModule->_oTemplate->addJs(['BxDolCategories.js'], $bDynamicMode);
-            $sInclude2 .= $this->_oModule->_oTemplate->addCss(['categories.css'], $bDynamicMode);
+            $sInclude2 .= $this->_oModule->_oTemplate->addJs(array('BxDolCategories.js'), $bDynamicMode);
+            $sInclude2 .= $this->_oModule->_oTemplate->addCss(array('categories.css'), $bDynamicMode);
 
             $sResult .= ($bDynamicMode ? $sInclude2 : '') . $this->_oModule->_oTemplate->getJsCode('categories');
         }
-
-        if(($sKey = 'PARAM_POLL_ENABLED') && isset($CNF[$sKey]) && $CNF[$sKey] === true) {
-            $iContentId = $this->_isModeEdit() ? $this->_iContentId : 0;
-
-            $sResult .= $this->addCssJsPolls($bDynamicMode) . $this->_oModule->_oTemplate->getJsCode('poll', [
-                'js_object' => $this->_oModule->_oConfig->getJsObjectPoll($iContentId),
-                'iParentContentId' => $iContentId,
-                'sParentFormId' => $this->getId()
-            ]);
-        }
-
+        
         return $sResult;
     }
     
@@ -391,7 +362,7 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
      */
     public function isTrackFieldChanged($sField, $bReturnValues = false)
     {
-        if(!isset($this->_aTrackFieldsChanges[$sField]) || $this->_aTrackFieldsChanges[$sField]['result'] === false)
+        if(!isset($this->_aTrackFieldsChanges[$sField]) || $this->_aTrackFieldsChanges[$sField] === false)
             return false;
 
         return $bReturnValues ? $this->_aTrackFieldsChanges[$sField] : true;
@@ -404,12 +375,7 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         $bValues = $aValues && !empty($aValues['id']);
         
         $this->_iContentId = isset($aValues['id']) ? $aValues['id'] : false;
-
-        if (!empty($CNF['URI_VIEW_ENTRY']) && $this->_iContentId)
-            $this->addMarkers([
-                'edit_cancel_url' => bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $this->_iContentId))
-            ]);
-
+        
         if (!empty($CNF['FIELD_LOCATION_PREFIX']) && isset($this->aInputs[$CNF['FIELD_LOCATION_PREFIX']]) && isset($aValues[$CNF['FIELD_ID']]) && !empty($CNF['OBJECT_METATAGS']) && ($oMetatags = BxDolMetatags::getObjectInstance($CNF['OBJECT_METATAGS'])) && $oMetatags->locationsIsEnabled())
             $this->aInputs[$CNF['FIELD_LOCATION_PREFIX']]['value'] = $oMetatags->locationsString($aValues[$CNF['FIELD_ID']], false);
 
@@ -422,11 +388,6 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
             }
 
             $this->aInputs[$CNF['FIELD_PHOTO']]['ghost_template'] = $this->_oModule->_oTemplate->parseHtmlByName($this->_sGhostTemplate, $this->_getPhotoGhostTmplVars($aContentInfo));
-        }
-
-        if (isset($CNF['FIELD_POLL']) && isset($this->aInputs[$CNF['FIELD_POLL']])) {
-            if ($bValues)
-                $this->aInputs[$CNF['FIELD_POLL']]['content_id'] = $aValues['id'];
         }
 
         if (isset($CNF['FIELD_LABELS']) && isset($this->aInputs[$CNF['FIELD_LABELS']]) && !empty($CNF['OBJECT_METATAGS']) && ($oMetatags = BxDolMetatags::getObjectInstance($CNF['OBJECT_METATAGS'])) && $oMetatags->keywordsIsEnabled() && !empty($aValues['id'])) {
@@ -494,15 +455,14 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         if (isset($CNF['FIELD_CHANGED']) && empty($aValsToAdd[$CNF['FIELD_CHANGED']]) && empty($this->getCleanValue($CNF['FIELD_CHANGED'])))
             $aValsToAdd[$CNF['FIELD_CHANGED']] = time();
 
-        if (($sKey = 'FIELD_THUMB') && isset($CNF[$sKey]) && ($aThumb = bx_get($CNF[$sKey])) !== false && $this->_oModule->checkAllowedSetThumb() === CHECK_ACTION_RESULT_ALLOWED) {
-            $aThumb = bx_process_input ($aThumb, BX_DATA_INT);
-
-            $aValsToAdd[$CNF[$sKey]] = 0;
+        if (CHECK_ACTION_RESULT_ALLOWED === $this->_oModule->checkAllowedSetThumb() && isset($CNF['FIELD_THUMB'])) {
+            $aThumb = isset($_POST[$CNF['FIELD_THUMB']]) ? bx_process_input ($_POST[$CNF['FIELD_THUMB']], BX_DATA_INT) : false;
+            $aValsToAdd[$CNF['FIELD_THUMB']] = 0;
             if (!empty($aThumb)){
                 if(is_array($aThumb) && ($iFileThumb = array_pop($aThumb)))
-                   $aValsToAdd[$CNF[$sKey]] = $iFileThumb;
-                else
-                   $aValsToAdd[$CNF[$sKey]] = $aThumb;
+                   $aValsToAdd[$CNF['FIELD_THUMB']] = $iFileThumb;
+               else
+                   $aValsToAdd[$CNF['FIELD_THUMB']] = $aThumb;
             }
         }
 
@@ -594,10 +554,6 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         if(($iContextNid = $this->getCleanValue('context_nid')) !== false)
             $this->_processContextAfterAdd($iContentId, $iContextNid, (int)$this->getCleanValue('context_usage'));
 
-        // invalidate menu profile stats cache
-        if (isset($aContentInfo[$CNF['FIELD_AUTHOR']]));
-            bx_content_cache_del("menu_sys_profile_stats_p" . $iAuthor);
-
         return $iContentId;
     }
 
@@ -629,15 +585,15 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         if(isset($CNF['FIELD_CHANGED']) && empty($aValsToAdd[$CNF['FIELD_CHANGED']]) && empty($this->getCleanValue($CNF['FIELD_CHANGED'])))
             $aValsToAdd[$CNF['FIELD_CHANGED']] = time();
 
-        if(($sKey = 'FIELD_THUMB') && isset($CNF[$sKey]) && ($aThumb = bx_get($CNF[$sKey])) !== false && $this->_oModule->checkAllowedSetThumb($iContentId) === CHECK_ACTION_RESULT_ALLOWED) {
+        if(CHECK_ACTION_RESULT_ALLOWED === $this->_oModule->checkAllowedSetThumb($iContentId) && isset($CNF['FIELD_THUMB']) && ($aThumb = bx_get($CNF['FIELD_THUMB'])) !== false) {
             $aThumb = bx_process_input($aThumb, BX_DATA_INT);
 
-            $aValsToAdd[$CNF[$sKey]] = 0;
+            $aValsToAdd[$CNF['FIELD_THUMB']] = 0;
             if(!empty($aThumb)) {
                 if(is_array($aThumb) && ($iFileThumb = array_pop($aThumb)))
-                   $aValsToAdd[$CNF[$sKey]] = $iFileThumb;
-                else
-                   $aValsToAdd[$CNF[$sKey]] = $aThumb;
+                   $aValsToAdd[$CNF['FIELD_THUMB']] = $iFileThumb;
+               else
+                   $aValsToAdd[$CNF['FIELD_THUMB']] = $aThumb;
             }
         }
 
@@ -704,20 +660,7 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
 
         return $mixedResult;
     }
-
-    public function getCleanValue($sName)
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        $mixedValue = parent::getCleanValue($sName);
-        if($this->_bIsApi && !empty($mixedValue)) {
-            if(($sF = 'FIELD_POLL') && isset($CNF[$sF]) && strcmp($sName, $CNF[$sF]) == 0)
-                $mixedValue = explode(',', $mixedValue);
-        }
-
-        return $mixedValue;
-    }
-
+    
     function getHtmlEditorQueryParams($aInput)
     {
         $aQueryParams = parent::getHtmlEditorQueryParams($aInput);
@@ -829,10 +772,6 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         
         BxDolFormQuery::removeFormField($this->id, $iContentId);
 
-        // invalidate menu profile stats cache
-        if (isset($aContentInfo[$CNF['FIELD_AUTHOR']]));
-            bx_content_cache_del("menu_sys_profile_stats_p" . $aContentInfo[$CNF['FIELD_AUTHOR']]);
-
         return parent::delete($iContentId);
     }
 
@@ -843,7 +782,9 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
 
     public function processFiles ($sFieldFile, $iContentId = 0, $isAssociateWithContent = false)
     {
-        if(!isset($this->aInputs[$sFieldFile]))
+        $CNF = &$this->_oModule->_oConfig->CNF;
+
+        if (!isset($this->aInputs[$sFieldFile]))
             return true;
 
         $mixedFileIds = $this->getCleanValue($sFieldFile);
@@ -857,70 +798,18 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         $iProfileId = $this->getContentOwnerProfileId($iContentId);
 
         $aGhostFiles = $oStorage->getGhosts ($iProfileId, $isAssociateWithContent ? 0 : $iContentId, true, $this->_isAdmin($iContentId));
-        if(!empty($aGhostFiles) && is_array($aGhostFiles))
-            foreach($aGhostFiles as $aFile) {
-                if(is_array($mixedFileIds) && !in_array($aFile['id'], $mixedFileIds))
-                    continue;
-
-                if($aFile['private'])
-                    $oStorage->setFilePrivate ($aFile['id'], 1);
-
-                if($iContentId)
-                    $this->_associalFileWithContent($oStorage, $aFile['id'], $iProfileId, $iContentId, $sFieldFile);
-            }
-
-        if($this->_bAllowChangeUserForAdmins && ($this->_oModule->_isModerator() || $this->_oModule->_isAdministrator()) && ($iLoggedId = bx_get_logged_profile_id()) != $iProfileId) {
-            $aGhostFiles = $oStorage->getGhosts($iLoggedId, $isAssociateWithContent ? 0 : $iContentId, true, $this->_isAdmin($iContentId));
-            if(!empty($aGhostFiles) && is_array($aGhostFiles))
-                foreach($aGhostFiles as $aFile) {
-                    if(is_array($mixedFileIds) && !in_array($aFile['id'], $mixedFileIds))
-                        continue;
-
-                    if($aFile['private'])
-                        $oStorage->setFilePrivate ($aFile['id'], 1);
-
-                    if($iContentId)
-                        $this->_associalFileWithContent($oStorage, $aFile['id'], $iProfileId, $iContentId, $sFieldFile);
-                }
-        }
-
-        if($iContentId)
-            $this->_processTrackFields($iContentId);
-
-        return true;
-    }
-
-    public function processFileDeletion ($sFieldFile, $iFileId)
-    {
-        if(!isset($this->aInputs[$sFieldFile], $this->aInputs[$sFieldFile]['storage_object']))
-            return false;
-
-        return $this->_deleteFile($iFileId, $this->aInputs[$sFieldFile]['storage_object']);
-    }
-
-    public function processPolls ($sFieldPoll, $iContentId = 0)
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        if (!isset($this->aInputs[$sFieldPoll]))
+        if (!$aGhostFiles)
             return true;
 
-        $aPollIds = $this->getCleanValue($sFieldPoll);
-        if(empty($aPollIds) || !is_array($aPollIds))
-            return true;
+        foreach ($aGhostFiles as $aFile) {
+            if (is_array($mixedFileIds) && !in_array($aFile['id'], $mixedFileIds))
+                continue;
 
-        $iProfileId = $this->getContentOwnerProfileId($iContentId);
+            if ($aFile['private'])
+                $oStorage->setFilePrivate ($aFile['id'], 1);
 
-        $aPollsDbIds = $this->_oModule->_oDb->getPolls(array('type' => 'content_id_ids', 'content_id' => $iContentId));
-
-        //--- Remove deleted
-        $this->_oModule->_oDb->deletePollsByIds(array_diff($aPollsDbIds, $aPollIds));
-
-        //--- Add new
-        if($iContentId) {
-            $aPollsAddIds = array_diff($aPollIds, $aPollsDbIds);
-            foreach($aPollsAddIds as $iPollId)
-                $this->_oModule->_oDb->updatePolls(array($CNF['FIELD_POLL_CONTENT_ID'] => $iContentId), array($CNF['FIELD_POLL_ID'] => $iPollId, $CNF['FIELD_POLL_CONTENT_ID'] => 0));
+            if ($iContentId)
+                $this->_associalFileWithContent($oStorage, $aFile['id'], $iProfileId, $iContentId, $sFieldFile);
         }
 
         return true;
@@ -930,14 +819,15 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
     {
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        if(!$iFileId)
+        if (!$iFileId)
             return true;
 
-        $oStorage = BxDolStorage::getObjectInstance($sStorage ?: $CNF['OBJECT_STORAGE']);
-        if(!$oStorage)
+		$sStorage = !empty($sStorage) ? $sStorage : $CNF['OBJECT_STORAGE'];
+		$oStorage = BxDolStorage::getObjectInstance($sStorage);
+        if (!$oStorage)
             return false;
 
-        if(!$oStorage->getFile($iFileId))
+        if (!$oStorage->getFile($iFileId))
             return true;
 
         $iProfileId = bx_get_logged_profile_id();
@@ -954,15 +844,7 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
 
         return parent::addCssJs ();
     }
-
-    function addCssJsPolls($bDynamicMode = false)
-    {
-        $sInclude = '';
-        $sInclude .= $this->_oModule->_oTemplate->addCss(['polls.css'], $bDynamicMode);
-        $sInclude .= $this->_oModule->_oTemplate->addJs(['modules/base/general/js/|polls.js'], $bDynamicMode);
-        return $bDynamicMode ? $sInclude : '';
-    }
-
+    
     function genViewRowValue(&$aInput)
     {
         $s = parent::genViewRowValue($aInput);
@@ -976,7 +858,7 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
     function genViewRowWrapped(&$aInput)
     {
         $sResult = parent::genViewRowWrapped($aInput);
-        if(empty($aInput['rateable']))
+        if(!$aInput['rateable'])
             return $sResult;
 
         $sValue = $this->genViewRowValue($aInput);
@@ -1017,20 +899,16 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
             return;
 
         if(!is_array($mixedContent)) {
-            $mixedContent = $this->_oModule->_oDb->getEntriesBy(['type' => 'id', 'id' => (int)$mixedContent]);
+            $mixedContent = $this->_oModule->_oDb->getContentInfoById((int)$mixedContent);
             if(empty($mixedContent) || !is_array($mixedContent))
                 return;
         }
 
         foreach($this->_aTrackFieldsChanges as $sField => $aValues)
-            if($mixedContent[$sField] != $aValues['old'])
-                $this->_aTrackFieldsChanges[$sField] = array_merge($this->_aTrackFieldsChanges[$sField], [
-                    'new' => $mixedContent[$sField],
-                    'result' => true
-                ]);
+            if($mixedContent[$sField] == $aValues['old'])
+                $this->_aTrackFieldsChanges[$sField] = false;
             else
-                $this->_aTrackFieldsChanges[$sField]['result'] = false;
-                
+                $this->_aTrackFieldsChanges[$sField]['new'] = $mixedContent[$sField];
     }
 
     protected function _processMetas(&$aValsToAdd)
@@ -1237,37 +1115,27 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
      * 
      */
     
-    protected function processMulticatBefore($sFieldName, &$aValsToAdd)
-    {
-        if(!isset($this->aInputs[$sFieldName]))
-            return;
-
-        if($this->_bIsApi && is_string($this->aInputs[$sFieldName]['value']))
-            $this->aInputs[$sFieldName]['value'] = explode(',', $this->aInputs[$sFieldName]['value']);
-
-        $this->aInputs[$sFieldName]['value'] = array_unique(array_filter($this->aInputs[$sFieldName]['value'], function($sTmp) {
-           return trim($sTmp);
-        }));
-
-        $aValsToAdd[$sFieldName] = implode(',', $this->aInputs[$sFieldName]['value']);
+    protected function processMulticatBefore($sFieldName, &$aValsToAdd){
+        if (isset($this->aInputs[$sFieldName])){
+            $this->aInputs[$sFieldName]['value'] = array_unique(array_filter($this->aInputs[$sFieldName]['value'], function($sTmp){
+               return trim($sTmp);
+            }));  
+            $aValsToAdd[$sFieldName] = implode(',', $this->aInputs[$sFieldName]['value']);
+        }
     }
     
-    protected function processMulticatAfter($sFieldName, $iContentId)
-    {
-        if(!isset($this->aInputs[$sFieldName]))
-            return;
-
+    protected function processMulticatAfter($sFieldName, $iContentId){
         $CNF = &$this->_oModule->_oConfig->CNF;
-
-        $sModule = $this->_oModule->getName();
-        $bAutoActivation = (($sKey = 'PARAM_MULTICAT_AUTO_ACTIVATION_FOR_CATEGORIES') && isset($CNF[$sKey]) && getParam($CNF[$sKey]) == 'on');
-
-        $oCategories = BxDolCategories::getInstance();
-        $oCategories->delete($sModule, $iContentId);
-        foreach($this->aInputs[$sFieldName]['value'] as  $sValue)
-            $oCategories->add($sModule, bx_get_logged_profile_id(), $sValue, $iContentId, $bAutoActivation);
+        $bAutoActivation = (isset($CNF['PARAM_MULTICAT_AUTO_ACTIVATION_FOR_CATEGORIES']) && getParam($CNF['PARAM_MULTICAT_AUTO_ACTIVATION_FOR_CATEGORIES']) == 'on') ? true : false;
+		$oCategories = BxDolCategories::getInstance();
+        if (isset($this->aInputs[$sFieldName])){
+            $oCategories->delete($this->_oModule->getName(), $iContentId);
+            foreach($this->aInputs[$sFieldName]['value'] as  $sValue) {
+                $oCategories->add($this->_oModule->getName(), bx_get_logged_profile_id(), $sValue, $iContentId, $bAutoActivation);
+            }
+        }
     }
-
+    
     protected function genCustomViewRowValueMulticat(&$aInput)
     {
 		$oCategories = BxDolCategories::getInstance();
@@ -1295,63 +1163,35 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
     
     protected function genCustomInputMulticat(&$aInput)
     {
-        $aValuesForSelect = BxDolCategories::getInstance()->getData([
-            'type' => 'by_module_and_author', 
-            'module' => $this->_oModule->getName(), 
-            'author' => bx_get_logged_profile_id()
-        ]);
+        $sJsObject = $this->_oModule->_oConfig->getJsObject('categories');
+		$aValuesForSelect = BxDolCategories::getInstance()->getData(array('type' => 'by_module_and_author', 'module' => $this->_oModule->getName(), 'author' => bx_get_logged_profile_id()));
         
+        $aSelectedItems = array();
+        if (isset($aInput['value']) && is_array($aInput['value']))
+		    $aInput['value'] = array_filter($aInput['value']);
         
-        if(isset($aInput['value']) && is_array($aInput['value']))
-            $aInput['value'] = array_filter($aInput['value']);
-        
-        $aValues = [];
         if(!empty($aInput['value'])) {
             if (!is_array($aInput['value']))
-                $aValues = BxDolCategories::getInstance()->getData([
-                    'type' => 'by_module_and_object', 
-                    'module' => $this->_oModule->getName(), 
-                    'object_id' => (!empty($aInput['content_id']) ? (int)$aInput['content_id'] : 0 )
-                ]);
+                $aValues = BxDolCategories::getInstance()->getData(array('type' => 'by_module_and_object', 'module' => $this->_oModule->getName(), 'object_id' => (!empty($aInput['content_id']) ? (int)$aInput['content_id'] : 0 )));
             else
                 $aValues = $aInput['value'];
             
             $aValues = array_filter($aValues);
-            foreach($aValues as $sValue)
-                if(!array_key_exists($sValue, $aValuesForSelect))
-                    $aValuesForSelect[$sValue] = [
-                        'key' => $sValue, 
-                        'value' => $sValue
-                    ];
+            foreach($aValues as $sValue) {
+                if (!array_key_exists($sValue, $aValuesForSelect)){
+                    $aValuesForSelect[$sValue] = array('key' => $sValue, 'value' => $sValue);
+                }
+            }
+            foreach($aValues as $sValue) {
+                $sInput = $this->genCustomInputMulticatSelect($aInput, $aValuesForSelect, $sValue);
+                $aSelectedItems[] = array('js_object' => $sJsObject, 'select_cat' => $sInput);
+            }
         }
-
-        if($this->_bIsApi) {
-            array_walk($aValuesForSelect, function(&$aValue, $sKey) {
-                $aValue['value'] = _t($aValue['key']);
-            });
-
-            return array_merge($aInput, [
-                'type' => 'select_multiple',
-                'values' => array_values($aValuesForSelect),
-                'value' => $aValues
-            ]);
+        else{
+            $aSelectedItems = array(
+                array('js_object' => $sJsObject, 'select_cat' => $this->genCustomInputMulticatSelect($aInput, $aValuesForSelect))
+            );
         }
-
-        $sJsObject = $this->_oModule->_oConfig->getJsObject('categories');
-
-        $aSelectedItems = [];
-        if(!empty($aValues))
-            foreach($aValues as $sValue)
-                $aSelectedItems[] = [
-                    'js_object' => $sJsObject, 
-                    'select_cat' => $this->genCustomInputMulticatSelect($aInput, $aValuesForSelect, $sValue)
-                ];
-        else
-            $aSelectedItems[] = [
-                'js_object' => $sJsObject, 
-                'select_cat' => $this->genCustomInputMulticatSelect($aInput, $aValuesForSelect)
-            ];
-
         return $this->_oModule->_oTemplate->parseHtmlByName('form_categories.html', array(
             'bx_repeat:items' => $aSelectedItems,
             'js_object' => $sJsObject, 
@@ -1421,40 +1261,10 @@ class BxBaseModGeneralFormEntry extends BxTemplFormView
         }
         return $this->genCustomInputUsernamesSuggestions($aInput);
     }
-
-    protected function genCustomInputPolls ($aInput)
-    {
-        $mixedResult = $this->_oModule->_oTemplate->getPollField(!empty($aInput['content_id']) ? (int)$aInput['content_id'] : 0);
-
-        $sModule = $this->_oModule->getName();
-        return $this->_bIsApi ? array_merge($aInput, [
-            'type' => 'polls',
-            'value' => implode(',', array_column($mixedResult, 'id')),
-            'values' => $mixedResult,
-            'request_get' => '/api.php?r=' . $sModule . '/get_poll_form',
-            'request_submit' => '/api.php?r=' . $sModule . '/submit_poll_form',
-            'request_remove' => '/api.php?r=' . $sModule . '/delete_poll',
-            'request_results' => '/api.php?r=' . $sModule . '/get_block_poll_results',
-        ]) : $mixedResult;
-    }
-
+    
     protected function _isMulticatEnabled(){
         $CNF = $this->_oModule->_oConfig->CNF;
         return isset($CNF['PARAM_MULTICAT_ENABLED']) && $CNF['PARAM_MULTICAT_ENABLED'] === true && isset($CNF['FIELD_MULTICAT']);
-    }
-
-    protected function _replaceMarkersInControls($sKey = 'controls')
-    {
-        if(!isset($this->aInputs[$sKey]) || !is_array($this->aInputs[$sKey])) 
-            return;
-
-        array_walk($this->aInputs[$sKey], function(&$aItem, $mKey) {
-            if(!is_int($mKey))
-                return;
-
-            if(!empty($aItem['attrs']) && is_array($aItem['attrs']))
-                $aItem['attrs'] = $this->_replaceMarkers($aItem['attrs']);
-        });
     }
 }
 

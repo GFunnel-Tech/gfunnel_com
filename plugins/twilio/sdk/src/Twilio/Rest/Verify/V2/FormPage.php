@@ -43,7 +43,6 @@ class FormPage extends Page
         return new FormInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

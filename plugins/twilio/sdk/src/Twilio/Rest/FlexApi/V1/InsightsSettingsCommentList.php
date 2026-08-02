@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class InsightsSettingsCommentList extends ListResource
@@ -40,23 +38,8 @@ class InsightsSettingsCommentList extends ListResource
         // Path Solution
         $this->solution = [
         ];
+
         $this->uri = '/Insights/QualityManagement/Settings/CommentTags';
-    }
-
-    /**
-     * Helper function for Fetch
-     *
-     * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' , 'Authorization' => $options['authorization']]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
     }
 
     /**
@@ -68,33 +51,15 @@ class InsightsSettingsCommentList extends ListResource
      */
     public function fetch(array $options = []): InsightsSettingsCommentInstance
     {
-        $response = $this->_fetch($options);
+
+        $options = new Values($options);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' , 'Authorization' => $options['authorization']]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new InsightsSettingsCommentInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Fetch the InsightsSettingsCommentInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new InsightsSettingsCommentInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

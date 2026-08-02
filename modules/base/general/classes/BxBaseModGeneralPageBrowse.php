@@ -23,8 +23,6 @@ class BxBaseModGeneralPageBrowse extends BxTemplPage
         parent::__construct($aObject, $oTemplate);
 
         $this->_oModule = BxDolModule::getInstance($this->MODULE);
-        
-        $CNF = &$this->_oModule->_oConfig->CNF;
 
         // select module submenu
         if (isset($this->_oModule->_oConfig->CNF['OBJECT_MENU_SUBMENU'])){
@@ -32,22 +30,6 @@ class BxBaseModGeneralPageBrowse extends BxTemplPage
             if($oMenuSubmenu)
                 $oMenuSubmenu->setObjectSubmenu($this->_oModule->_oConfig->CNF['OBJECT_MENU_SUBMENU']);
         }
-
-        $aMarkers = ['category_name' => ''];
-        if(($mixedCategory = bx_get('category')) !== false) {
-            if(!empty($CNF['OBJECT_CATEGORY']) && is_numeric($mixedCategory)) {
-                $mixedCategory = bx_process_input($mixedCategory, BX_DATA_INT);
-
-                $aMarkers = [
-                    'category_id' => bx_process_output($mixedCategory, BX_DATA_INT),
-                    'category_name' => bx_process_output(BxDolCategory::getObjectInstance($CNF['OBJECT_CATEGORY'])->getCategoryTitle($mixedCategory), BX_DATA_TEXT),
-                ];
-            }
-            else
-                $aMarkers['category_name'] = bx_process_output(_t($mixedCategory), BX_DATA_TEXT);
-        }
-        
-        $this->addMarkers($aMarkers);
     }
 
 }

@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ToolContext extends InstanceContext
@@ -50,165 +48,57 @@ class ToolContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the ToolInstance
      *
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the ToolInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the ToolInstance
      *
-     
      * @return ToolInstance Fetched ToolInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): ToolInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new ToolInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['id']
         );
-        
     }
 
-    /**
-     * Fetch the ToolInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new ToolInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['id']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Update
-     *
-     
-     * @param ?AssistantsV1ServiceUpdateToolRequest $assistantsV1ServiceUpdateToolRequest
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(?AssistantsV1ServiceUpdateToolRequest $assistantsV1ServiceUpdateToolRequest = null): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/json', 'Accept' => 'application/json' ]);
-        $data = $assistantsV1ServiceUpdateToolRequest ? $assistantsV1ServiceUpdateToolRequest->toArray() : [];
-        return $this->version->handleRequest('PUT', $this->uri, [], $data, $headers, "update");
-    }
 
     /**
      * Update the ToolInstance
      *
-     
-     * @param ?AssistantsV1ServiceUpdateToolRequest $assistantsV1ServiceUpdateToolRequest
      * @return ToolInstance Updated ToolInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function update(?AssistantsV1ServiceUpdateToolRequest $assistantsV1ServiceUpdateToolRequest = null): ToolInstance
+    public function update(): ToolInstance
     {
-        $response = $this->_update($assistantsV1ServiceUpdateToolRequest);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $data = $assistantsV1ServiceUpdateToolRequest->toArray();
+        $headers['Content-Type'] = 'application/json';
+        $payload = $this->version->update('PUT', $this->uri, [], $data, $headers);
+
         return new ToolInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['id']
-        );
-        
-    }
-
-    /**
-     * Update the ToolInstance with Metadata
-     *
-     
-     * @param ?AssistantsV1ServiceUpdateToolRequest $assistantsV1ServiceUpdateToolRequest
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(?AssistantsV1ServiceUpdateToolRequest $assistantsV1ServiceUpdateToolRequest = null): ResourceMetadata
-    {
-        $response = $this->_update($assistantsV1ServiceUpdateToolRequest);
-        $resource = new ToolInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['id']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

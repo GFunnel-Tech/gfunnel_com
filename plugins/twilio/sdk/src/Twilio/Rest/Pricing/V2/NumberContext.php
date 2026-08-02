@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class NumberContext extends InstanceContext
@@ -51,16 +49,15 @@ class NumberContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the NumberInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return NumberInstance Fetched NumberInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): NumberInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -68,50 +65,13 @@ class NumberContext extends InstanceContext
                 $options['originationNumber'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the NumberInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return NumberInstance Fetched NumberInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): NumberInstance
-    {
-        $response = $this->_fetch($options);
         return new NumberInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['destinationNumber']
-        );
-        
-    }
-
-    /**
-     * Fetch the NumberInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new NumberInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['destinationNumber']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

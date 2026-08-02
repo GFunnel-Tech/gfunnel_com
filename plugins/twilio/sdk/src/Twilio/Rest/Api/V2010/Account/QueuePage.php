@@ -43,7 +43,6 @@ class QueuePage extends Page
         return new QueueInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

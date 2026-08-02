@@ -10,7 +10,6 @@ function BxDolStudioPageAgents(oOptions)
     BxDolStudioPage.call(this, oOptions);
 
     this.sPageUrl = oOptions.sPageUrl;
-    this.sActionUrl = oOptions.sActionUrl;
     this.sObjName = oOptions.sObjName == undefined ? 'oBxDolStudioPageAgents' : oOptions.sObjName;
 
     this.sActionUrlCmts = oOptions.sActionUrlCmts == undefined ? this.sActionUrl : oOptions.sActionUrlCmts;
@@ -27,68 +26,6 @@ function BxDolStudioPageAgents(oOptions)
 
 BxDolStudioPageAgents.prototype = Object.create(BxDolStudioPage.prototype);
 BxDolStudioPageAgents.prototype.constructor = BxDolStudioPageAgents;
-
-BxDolStudioPageAgents.prototype.agentActivate = function(oSource) {
-    var oDate = new Date();
-    var oAgent = $(oSource).parents('.bx-agt-agent:first');
-
-    jQuery.get(
-        this.sActionUrl,
-        {
-            agt_action: 'agent-activate',
-            agt_value: parseInt(oAgent.attr('data-id')),
-            _t: oDate.getTime()
-        },
-        function(oData) {
-            processJsonData(oData);
-        },
-        'json'
-    );
-};
-
-BxDolStudioPageAgents.prototype.agentCheckName = function(oSource, sTitleId, sNameId, iId) {
-    var oDate = new Date();
-    var oForm = jQuery(oSource).parents('.bx-form-advanced:first');
-
-    var oName = oForm.find("[name='" + sNameId + "']");
-    var sName = oName.val();
-    var bName = sName.length != 0;
-
-    var oTitle = oForm.find("[name='" + sTitleId + "']");
-    var sTitle = oTitle.val();
-    var bTitle = sTitle.length != 0;
-
-    if(!bName && !bTitle)
-        return;
-
-    var sTitleCheck = '';
-    if(bName)
-        sTitleCheck = sName;
-    else if(bTitle) {
-        sTitleCheck = sTitle;
-
-        sTitle = sTitle.replace(/[^A-Za-z0-9_]/g, '-');
-        sTitle = sTitle.replace(/[-]{2,}/g, '-');
-        oName.val(sTitle.toLowerCase());
-    }
-
-    jQuery.get(
-        this.sActionUrl,
-        {
-            agt_action: 'agent-check-name',
-            agt_value: sTitleCheck,
-            id: iId && parseInt(iId) > 0 ? iId : 0,
-            _t: oDate.getTime()
-        },
-        function(oData) {
-            if(!oData || oData.name == undefined)
-                return;
-
-            oName.val(oData.name);
-        },
-        'json'
-    );
-};
 
 BxDolStudioPageAgents.prototype.onChangeAutomatorType = function(oSelect) {
     var aHide = [];
@@ -183,20 +120,6 @@ BxDolStudioPageAgents.prototype.assistantAdd = function(oButton, sName) {
 
 BxDolStudioPageAgents.prototype.assistantDelete = function(oButton) {
     $(oButton).parents('.bx-form-input-assistant:first').remove();
-};
-
-BxDolStudioPageAgents.prototype.toolAdd = function(oButton, sName) {
-    var oButton = $(oButton);
-
-    var oSubentry = oButton.parents('#bx-form-element-' + sName).find('.bx-form-input-tools:first').clone();
-    oSubentry.find("select").val('');
-    oSubentry.find("input[type = 'hidden']").remove();
-
-    oButton.parents('.bx-form-input-tools-add:first').before(oSubentry);
-};
-
-BxDolStudioPageAgents.prototype.toolDelete = function(oButton) {
-    $(oButton).parents('.bx-form-input-tools:first').remove();
 };
 
 BxDolStudioPageAgents.prototype._getDefaultData = function() {

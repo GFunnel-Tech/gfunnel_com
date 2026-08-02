@@ -43,7 +43,6 @@ class HighriskSpecialPrefixPage extends Page
         return new HighriskSpecialPrefixInstance($this->version, $payload, $this->solution['isoCode']);
     }
 
-
     /**
      * Provide a friendly representation
      *

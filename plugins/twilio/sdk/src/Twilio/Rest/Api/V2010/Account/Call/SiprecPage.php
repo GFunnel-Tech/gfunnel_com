@@ -43,7 +43,6 @@ class SiprecPage extends Page
         return new SiprecInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['callSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -43,7 +43,6 @@ class InstalledAddOnUsagePage extends Page
         return new InstalledAddOnUsageInstance($this->version, $payload, $this->solution['installedAddOnSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

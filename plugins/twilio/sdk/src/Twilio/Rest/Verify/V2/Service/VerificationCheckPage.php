@@ -43,7 +43,6 @@ class VerificationCheckPage extends Page
         return new VerificationCheckInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

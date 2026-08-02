@@ -43,7 +43,6 @@ class AuthTypeRegistrationsPage extends Page
         return new AuthTypeRegistrationsInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['domainSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

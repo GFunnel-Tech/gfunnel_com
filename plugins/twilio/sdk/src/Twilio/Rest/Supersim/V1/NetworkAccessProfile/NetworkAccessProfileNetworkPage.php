@@ -43,7 +43,6 @@ class NetworkAccessProfileNetworkPage extends Page
         return new NetworkAccessProfileNetworkInstance($this->version, $payload, $this->solution['networkAccessProfileSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

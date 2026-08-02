@@ -43,7 +43,6 @@ class SubscribedTrackPage extends Page
         return new SubscribedTrackInstance($this->version, $payload, $this->solution['roomSid'], $this->solution['participantSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -132,13 +132,15 @@
 }
 
 div.bx-grid-drag-handle {
-    display: none;
+    display:none;
+    width:16px;
+    height:16px;
 
-    color: #666666;
-    line-height: 1.125rem;
-    font-size: 0.875rem;
+    color:#666666;
+    line-height:18px;
+    font-size:14px;
 
-    cursor: move;
+    cursor:move;
 }
 
 

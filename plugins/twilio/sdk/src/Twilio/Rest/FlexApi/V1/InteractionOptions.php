@@ -23,39 +23,21 @@ abstract class InteractionOptions
     /**
      * @param array $routing The Interaction's routing logic.
      * @param string $interactionContextSid The Interaction context sid is used for adding a context lookup sid
-     * @param string $webhookTtid The unique identifier for Interaction level webhook
      * @return CreateInteractionOptions Options builder
      */
     public static function create(
         
         array $routing = Values::ARRAY_NONE,
-        string $interactionContextSid = Values::NONE,
-        string $webhookTtid = Values::NONE
+        string $interactionContextSid = Values::NONE
 
     ): CreateInteractionOptions
     {
         return new CreateInteractionOptions(
             $routing,
-            $interactionContextSid,
-            $webhookTtid
+            $interactionContextSid
         );
     }
 
-
-    /**
-     * @param string $webhookTtid The unique identifier for Interaction level webhook
-     * @return UpdateInteractionOptions Options builder
-     */
-    public static function update(
-        
-        string $webhookTtid = Values::NONE
-
-    ): UpdateInteractionOptions
-    {
-        return new UpdateInteractionOptions(
-            $webhookTtid
-        );
-    }
 
 }
 
@@ -64,18 +46,15 @@ class CreateInteractionOptions extends Options
     /**
      * @param array $routing The Interaction's routing logic.
      * @param string $interactionContextSid The Interaction context sid is used for adding a context lookup sid
-     * @param string $webhookTtid The unique identifier for Interaction level webhook
      */
     public function __construct(
         
         array $routing = Values::ARRAY_NONE,
-        string $interactionContextSid = Values::NONE,
-        string $webhookTtid = Values::NONE
+        string $interactionContextSid = Values::NONE
 
     ) {
         $this->options['routing'] = $routing;
         $this->options['interactionContextSid'] = $interactionContextSid;
-        $this->options['webhookTtid'] = $webhookTtid;
     }
 
     /**
@@ -103,18 +82,6 @@ class CreateInteractionOptions extends Options
     }
 
     /**
-     * The unique identifier for Interaction level webhook
-     *
-     * @param string $webhookTtid The unique identifier for Interaction level webhook
-     * @return $this Fluent Builder
-     */
-    public function setWebhookTtid(string $webhookTtid): self
-    {
-        $this->options['webhookTtid'] = $webhookTtid;
-        return $this;
-    }
-
-    /**
      * Provide a friendly representation
      *
      * @return string Machine friendly representation
@@ -126,41 +93,4 @@ class CreateInteractionOptions extends Options
     }
 }
 
-
-class UpdateInteractionOptions extends Options
-    {
-    /**
-     * @param string $webhookTtid The unique identifier for Interaction level webhook
-     */
-    public function __construct(
-        
-        string $webhookTtid = Values::NONE
-
-    ) {
-        $this->options['webhookTtid'] = $webhookTtid;
-    }
-
-    /**
-     * The unique identifier for Interaction level webhook
-     *
-     * @param string $webhookTtid The unique identifier for Interaction level webhook
-     * @return $this Fluent Builder
-     */
-    public function setWebhookTtid(string $webhookTtid): self
-    {
-        $this->options['webhookTtid'] = $webhookTtid;
-        return $this;
-    }
-
-    /**
-     * Provide a friendly representation
-     *
-     * @return string Machine friendly representation
-     */
-    public function __toString(): string
-    {
-        $options = \http_build_query(Values::of($this->options), '', ' ');
-        return '[Twilio.FlexApi.V1.UpdateInteractionOptions ' . $options . ']';
-    }
-}
 

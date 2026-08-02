@@ -43,7 +43,6 @@ class RateLimitPage extends Page
         return new RateLimitInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -43,7 +43,6 @@ class ConfiguredPluginPage extends Page
         return new ConfiguredPluginInstance($this->version, $payload, $this->solution['configurationSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

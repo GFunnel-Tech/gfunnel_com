@@ -43,7 +43,6 @@ class SentencePage extends Page
         return new SentenceInstance($this->version, $payload, $this->solution['transcriptSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

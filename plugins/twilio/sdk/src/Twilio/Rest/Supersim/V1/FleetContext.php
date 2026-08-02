@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class FleetContext extends InstanceContext
@@ -51,72 +49,35 @@ class FleetContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the FleetInstance
      *
-     
      * @return FleetInstance Fetched FleetInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): FleetInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new FleetInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the FleetInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new FleetInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the FleetInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return FleetInstance Updated FleetInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): FleetInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -136,50 +97,13 @@ class FleetContext extends InstanceContext
                 $options['dataLimit'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the FleetInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return FleetInstance Updated FleetInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): FleetInstance
-    {
-        $response = $this->_update($options);
         return new FleetInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the FleetInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new FleetInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

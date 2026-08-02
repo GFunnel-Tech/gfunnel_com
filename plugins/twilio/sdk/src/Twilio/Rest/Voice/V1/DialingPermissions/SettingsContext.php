@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -47,19 +45,6 @@ class SettingsContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the SettingsInstance
      *
      * @return SettingsInstance Fetched SettingsInstance
@@ -67,56 +52,16 @@ class SettingsContext extends InstanceContext
      */
     public function fetch(): SettingsInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new SettingsInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Fetch the SettingsInstance with Metadata
-     *
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new SettingsInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 
-
-    /**
-     * Helper function for Update
-     *
-     * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $data = Values::of([
-            'DialingPermissionsInheritance' =>
-                Serialize::booleanToString($options['dialingPermissionsInheritance']),
-        ]);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
 
     /**
      * Update the SettingsInstance
@@ -127,33 +72,20 @@ class SettingsContext extends InstanceContext
      */
     public function update(array $options = []): SettingsInstance
     {
-        $response = $this->_update($options);
+
+        $options = new Values($options);
+
+        $data = Values::of([
+            'DialingPermissionsInheritance' =>
+                Serialize::booleanToString($options['dialingPermissionsInheritance']),
+        ]);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
+
         return new SettingsInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Update the SettingsInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new SettingsInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

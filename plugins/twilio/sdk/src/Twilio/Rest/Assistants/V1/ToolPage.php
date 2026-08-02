@@ -43,7 +43,6 @@ class ToolPage extends Page
         return new ToolInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

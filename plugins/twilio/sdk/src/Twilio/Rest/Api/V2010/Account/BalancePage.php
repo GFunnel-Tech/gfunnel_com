@@ -43,7 +43,6 @@ class BalancePage extends Page
         return new BalanceInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

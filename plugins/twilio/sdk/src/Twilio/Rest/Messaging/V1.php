@@ -23,7 +23,6 @@ use Twilio\Rest\Messaging\V1\DeactivationsList;
 use Twilio\Rest\Messaging\V1\DomainCertsList;
 use Twilio\Rest\Messaging\V1\DomainConfigList;
 use Twilio\Rest\Messaging\V1\DomainConfigMessagingServiceList;
-use Twilio\Rest\Messaging\V1\DomainValidateDnList;
 use Twilio\Rest\Messaging\V1\ExternalCampaignList;
 use Twilio\Rest\Messaging\V1\LinkshorteningMessagingServiceList;
 use Twilio\Rest\Messaging\V1\LinkshorteningMessagingServiceDomainAssociationList;
@@ -39,7 +38,6 @@ use Twilio\Version;
  * @property DomainCertsList $domainCerts
  * @property DomainConfigList $domainConfig
  * @property DomainConfigMessagingServiceList $domainConfigMessagingService
- * @property DomainValidateDnList $domainValidateDns
  * @property ExternalCampaignList $externalCampaign
  * @property LinkshorteningMessagingServiceList $linkshorteningMessagingService
  * @property LinkshorteningMessagingServiceDomainAssociationList $linkshorteningMessagingServiceDomainAssociation
@@ -59,7 +57,6 @@ class V1 extends Version
     protected $_domainCerts;
     protected $_domainConfig;
     protected $_domainConfigMessagingService;
-    protected $_domainValidateDns;
     protected $_externalCampaign;
     protected $_linkshorteningMessagingService;
     protected $_linkshorteningMessagingServiceDomainAssociation;
@@ -117,14 +114,6 @@ class V1 extends Version
             $this->_domainConfigMessagingService = new DomainConfigMessagingServiceList($this);
         }
         return $this->_domainConfigMessagingService;
-    }
-
-    protected function getDomainValidateDns(): DomainValidateDnList
-    {
-        if (!$this->_domainValidateDns) {
-            $this->_domainValidateDns = new DomainValidateDnList($this);
-        }
-        return $this->_domainValidateDns;
     }
 
     protected function getExternalCampaign(): ExternalCampaignList

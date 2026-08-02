@@ -24,37 +24,32 @@ class BxDolPageQuery extends BxDolDb
     static public function getPageObject ($sObject)
     {
         $oDb = BxDolDb::getInstance();
+        $sQuery = $oDb->prepare("SELECT `o`.*, `l`.`template`, `l`.`cells_number` FROM `sys_objects_page` AS `o` INNER JOIN `sys_pages_layouts` AS `l` ON (`l`.`id` = `o`.`layout_id`) WHERE `o`.`object` = ?", $sObject);
+        $aObject = $oDb->getRow($sQuery);
+        if (!$aObject || !is_array($aObject))
+            return false;
 
-        $a = $oDb->fromCache('sys_pages_objects_data', 'getAllWithKey', "SELECT `o`.*, `l`.`template`, `l`.`cells_number` FROM `sys_objects_page` AS `o` INNER JOIN `sys_pages_layouts` AS `l` ON (`l`.`id` = `o`.`layout_id`)", 'object');
-        if (isset($a[$sObject]))
-            return $a[$sObject];
-
-        return false;
+        return $aObject;
     }
 
     static public function getPageObjectNameByURI($sURI, $sModule = false, $bSearchRedirects = false)
     {
         $oDb = BxDolDb::getInstance();
-        $sObject = false;
+        $a = array('uri' => $sURI);
+        $sQuery = "SELECT `object` FROM `sys_objects_page` WHERE `uri` = :uri";
         if ($sModule) {
-            $sObject = $oDb->getOne("SELECT `object` FROM `sys_objects_page` WHERE `uri` = :uri AND `module` = :module", ['uri' => $sURI, 'module' => $sModule]);
-        } 
-        else {
-            $aUri2Object = $oDb->fromCache('sys_pages_uri_object_map', 'getPairs', "SELECT `uri`, `object` FROM `sys_objects_page`", 'uri', 'object');
-            if (isset($aUri2Object[$sURI]))
-                $sObject = $aUri2Object[$sURI];
+            $a['module'] = $sModule;
+            $sQuery .= " AND `module` = :module";
         }
+        $sObject = $oDb->getOne($sQuery, $a);
 
         if ($bSearchRedirects && !$sObject) {
+            $sQuery = "SELECT `p`.`object` FROM `sys_objects_page` AS `p` INNER JOIN `sys_seo_uri_rewrites` AS `r` ON (`p`.`uri` = `r`.`uri_orig`) WHERE `r`.`uri_rewrite` = :uri";
             if ($sModule) {
-                $sQuery = "SELECT `p`.`object` FROM `sys_objects_page` AS `p` INNER JOIN `sys_seo_uri_rewrites` AS `r` ON (`p`.`uri` = `r`.`uri_orig`) WHERE `r`.`uri_rewrite` = :uri AND `module` = :module";
-                $sObject = $oDb->getOne($sQuery, ['uri' => $sURI, 'module' => $sModule]);
+                $a['module'] = $sModule;
+                $sQuery .= " AND `module` = :module";
             }
-            else {
-                $aUriRewrite2Object = $oDb->fromCache('sys_pages_urirewrite_object_map', 'getPairs', "SELECT `r`.`uri_rewrite`, `p`.`object` FROM `sys_objects_page` AS `p` INNER JOIN `sys_seo_uri_rewrites` AS `r` ON (`p`.`uri` = `r`.`uri_orig`)", 'uri_rewrite', 'object');
-                if (isset($aUriRewrite2Object[$sURI]))
-                    $sObject = $aUriRewrite2Object[$sURI];
-            }            
+            $sObject = $oDb->getOne($sQuery, $a);
         }
 
         return $sObject;
@@ -106,10 +101,9 @@ class BxDolPageQuery extends BxDolDb
 
     static public function getPageType($iId)
     {
-        $aPageTypes = BxDolDb::getInstance()->fromCache('pages_types', 'getAllWithKey', "SELECT * FROM `sys_pages_types`", 'id');
-        if(isset($aPageTypes[$iId]))
-            return $aPageTypes[$iId];
-        return false;
+        return BxDolDb::getInstance()->getRow("SELECT * FROM `sys_pages_types` WHERE `id`=:id LIMIT 1", [
+            'id' => $iId
+        ]);
     }
 
     static public function getPageTypes()
@@ -117,21 +111,13 @@ class BxDolPageQuery extends BxDolDb
         return BxDolDb::getInstance()->getAll("SELECT * FROM `sys_pages_types` WHERE 1");
     }
 
-    public function getPageLayoutColumns($iLayoutId)
-    {
-        return $this->getAllWithKey('SELECT * FROM `sys_pages_layout_columns` WHERE `layout_id`=:layout_id', 'index', [
-            'layout_id' => $iLayoutId
-        ]);
-    }
-
     public function getPageBlocks($bIsApi = false)
     {
         $sActiveClause = $bIsApi ? "`active_api` = 1" : "`active` = 1";
-        $aLayoutColumns = $bIsApi ? $this->getPageLayoutColumns($this->_aObject['layout_id']) : [];
-        
+
         $aRet = [];
         for($i = 1; $i <= $this->_aObject['cells_number']; ++$i)
-            $aRet['cell_' . ($bIsApi && isset($aLayoutColumns[$i]) ? $aLayoutColumns[$i]['name'] : $i)] = $this->getAll("SELECT * FROM `sys_pages_blocks` WHERE `object` = :object AND `cell_id` = :cell_id AND " . $sActiveClause . " ORDER BY `order` ASC", [
+            $aRet['cell_'.$i] = $this->getAll("SELECT * FROM `sys_pages_blocks` WHERE `object` = :object AND `cell_id` = :cell_id AND " . $sActiveClause . " ORDER BY `order` ASC", [
                 'object' => $this->_aObject['object'],
                 'cell_id' => $i
             ]);
@@ -197,21 +183,13 @@ class BxDolPageQuery extends BxDolDb
     static public function getSeoUriRewrites()
     {
         $oDb = BxDolDb::getInstance();
-        return $oDb->fromCache('sys_seo_uri_rewrites', 'getPairs', 'SELECT `uri_orig`, `uri_rewrite` FROM `sys_seo_uri_rewrites`', 'uri_orig', 'uri_rewrite');
+        return $oDb->fromMemory('sys_seo_uri_rewrites', 'getPairs', 'SELECT `uri_orig`, `uri_rewrite` FROM `sys_seo_uri_rewrites`', 'uri_orig', 'uri_rewrite');
     }
 
     static public function getSeoLink($sModule, $sPageUri, $aCond = [])
     {
         $oDb = BxDolDb::getInstance();
-        $sWhere = " 1 "; 
-        
-        foreach ($aCond as $k => $v) {
-            if (($k === 'param_name' || $k === 'param_value') && get_mb_len($v) > 32) {
-                $v = get_mb_substr($v, 0, 32);
-                $aCond[$k] = $v;
-            }
-        }
-
+        $sWhere = " 1 ";
         if ($aCond)
             $sWhere = $oDb->arrayToSQL($aCond, " AND ");
         return $oDb->getRow("SELECT `uri`, `param_name`, `param_value` FROM `sys_seo_links` WHERE " . $sWhere . " AND `module` = :module AND `page_uri` = :page_uri", [

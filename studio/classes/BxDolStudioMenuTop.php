@@ -61,14 +61,12 @@ class BxDolStudioMenuTop extends BxDol implements iBxDolSingleton
             'menu_items' => []
         ];
 
-        $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'] = [];
-        if(!$this->aVisible[BX_DOL_STUDIO_MT_LEFT])
-            $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items']['launcher'] = [
-                'name' => 'launcher',
-                'icon' => 'wi-home.svg',
-                'link' => '{url_studio}',
-                'title' => '_adm_tmi_cpt_launcher'
-            ];
+        $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items']['launcher'] = [
+            'name' => 'launcher',
+            'icon' => 'wi-home.svg',
+            'link' => '{url_studio}',
+            'title' => '_adm_tmi_cpt_launcher'
+        ];
 
         //--- Get Featured
         $aMenuItems = array();
@@ -106,15 +104,6 @@ class BxDolStudioMenuTop extends BxDol implements iBxDolSingleton
             );
         }
 
-        $aMenuItems['divider'] = [
-            'class' => 'bx-menu-item-divider',
-            'name' => 'divider',
-            'icon' => '',
-            'link' => '',
-            'onclick' => '',
-            'title' => ''
-        ];
-        
         //--- Get History
         $aHistory = self::historyGetList();
         if(!empty($aHistory) && is_array($aHistory))
@@ -130,10 +119,7 @@ class BxDolStudioMenuTop extends BxDol implements iBxDolSingleton
             if(count($aMenuItems) > BxTemplStudioMenuTop::$iToolbarLength)
                 $aMenuItems = array_slice($aMenuItems, 0, BxTemplStudioMenuTop::$iToolbarLength);
 
-            if(($sKey = 'launcher') && isset($this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'][$sKey]))
-                $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'] = bx_array_insert_after($aMenuItems, $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'], $sKey);
-            else 
-                $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'] = $aMenuItems;
+            $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'] = bx_array_insert_after($aMenuItems, $this->aItems[BX_DOL_STUDIO_MT_CENTER]['menu_items'], 'launcher');
         }
     }
 

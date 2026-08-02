@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ValidationRequestList extends ListResource
@@ -45,22 +43,22 @@ class ValidationRequestList extends ListResource
             $accountSid,
         
         ];
+
         $this->uri = '/Accounts/' . \rawurlencode($accountSid)
         .'/OutgoingCallerIds.json';
     }
 
     /**
-     * Helper function for Create
+     * Create the ValidationRequestInstance
      *
      * @param string $phoneNumber The phone number to verify in [E.164](https://www.twilio.com/docs/glossary/what-e164) format, which consists of a + followed by the country code and subscriber number.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return ValidationRequestInstance Created ValidationRequestInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $phoneNumber, array $options = []): Response
+    public function create(string $phoneNumber, array $options = []): ValidationRequestInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -78,52 +76,13 @@ class ValidationRequestList extends ListResource
                 $options['statusCallbackMethod'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the ValidationRequestInstance
-     *
-     * @param string $phoneNumber The phone number to verify in [E.164](https://www.twilio.com/docs/glossary/what-e164) format, which consists of a + followed by the country code and subscriber number.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ValidationRequestInstance Created ValidationRequestInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $phoneNumber, array $options = []): ValidationRequestInstance
-    {
-        $response = $this->_create( $phoneNumber, $options);
         return new ValidationRequestInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['accountSid']
-        );
-        
-    }
-
-    /**
-     * Create the ValidationRequestInstance with Metadata
-     *
-     * @param string $phoneNumber The phone number to verify in [E.164](https://www.twilio.com/docs/glossary/what-e164) format, which consists of a + followed by the country code and subscriber number.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $phoneNumber, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $phoneNumber, $options);
-        $resource = new ValidationRequestInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['accountSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

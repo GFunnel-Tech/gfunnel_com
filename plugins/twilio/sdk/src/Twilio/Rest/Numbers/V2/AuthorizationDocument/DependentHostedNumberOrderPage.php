@@ -43,7 +43,6 @@ class DependentHostedNumberOrderPage extends Page
         return new DependentHostedNumberOrderInstance($this->version, $payload, $this->solution['signingDocumentSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

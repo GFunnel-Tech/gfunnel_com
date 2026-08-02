@@ -43,7 +43,6 @@ class RegulationPage extends Page
         return new RegulationInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

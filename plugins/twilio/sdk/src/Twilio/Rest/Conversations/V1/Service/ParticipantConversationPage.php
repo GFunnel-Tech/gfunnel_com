@@ -43,7 +43,6 @@ class ParticipantConversationPage extends Page
         return new ParticipantConversationInstance($this->version, $payload, $this->solution['chatServiceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

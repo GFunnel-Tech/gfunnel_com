@@ -43,7 +43,6 @@ class BuildPage extends Page
         return new BuildInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

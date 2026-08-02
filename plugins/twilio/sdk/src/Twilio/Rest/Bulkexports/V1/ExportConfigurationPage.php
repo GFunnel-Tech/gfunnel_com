@@ -43,7 +43,6 @@ class ExportConfigurationPage extends Page
         return new ExportConfigurationInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

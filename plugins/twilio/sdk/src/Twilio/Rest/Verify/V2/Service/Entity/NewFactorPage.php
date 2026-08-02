@@ -43,7 +43,6 @@ class NewFactorPage extends Page
         return new NewFactorInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['identity']);
     }
 
-
     /**
      * Provide a friendly representation
      *

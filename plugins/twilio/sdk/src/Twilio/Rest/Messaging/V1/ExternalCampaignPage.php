@@ -43,7 +43,6 @@ class ExternalCampaignPage extends Page
         return new ExternalCampaignInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

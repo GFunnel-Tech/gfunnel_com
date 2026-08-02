@@ -43,7 +43,6 @@ class InteractionPage extends Page
         return new InteractionInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

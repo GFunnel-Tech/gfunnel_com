@@ -17,12 +17,12 @@ $aConfig = array(
     'name' => 'bx_artificer',
     'title' => 'Artificer',
     'note' => 'Design template',
-    'version' => '15.0.5',
+    'version' => '14.0.9',
     'vendor' => 'UNA INC',
     'help_url' => 'http://feed.una.io/?section={module_name}',
 
     'compatible_with' => array(
-        '15.0.0-RC1'
+        '14.0.0-RC5'
     ),
 
     /**

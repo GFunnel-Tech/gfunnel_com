@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Rest\Supersim\V1\NetworkAccessProfile\NetworkAccessProfileNetworkList;
 
 
@@ -59,72 +57,35 @@ class NetworkAccessProfileContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the NetworkAccessProfileInstance
      *
-     
      * @return NetworkAccessProfileInstance Fetched NetworkAccessProfileInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): NetworkAccessProfileInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new NetworkAccessProfileInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the NetworkAccessProfileInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new NetworkAccessProfileInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the NetworkAccessProfileInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return NetworkAccessProfileInstance Updated NetworkAccessProfileInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): NetworkAccessProfileInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -132,50 +93,13 @@ class NetworkAccessProfileContext extends InstanceContext
                 $options['uniqueName'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the NetworkAccessProfileInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return NetworkAccessProfileInstance Updated NetworkAccessProfileInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): NetworkAccessProfileInstance
-    {
-        $response = $this->_update($options);
         return new NetworkAccessProfileInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the NetworkAccessProfileInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new NetworkAccessProfileInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

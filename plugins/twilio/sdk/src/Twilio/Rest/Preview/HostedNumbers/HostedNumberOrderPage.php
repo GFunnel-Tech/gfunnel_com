@@ -43,7 +43,6 @@ class HostedNumberOrderPage extends Page
         return new HostedNumberOrderInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

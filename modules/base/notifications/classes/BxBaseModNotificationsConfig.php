@@ -9,8 +9,6 @@
  * @{
  */
 
-bx_import('BxDolPrivacy');
-
 class BxBaseModNotificationsConfig extends BxBaseModGeneralConfig
 {
     protected $_oDb;
@@ -24,6 +22,7 @@ class BxBaseModNotificationsConfig extends BxBaseModGeneralConfig
     protected $_aHandlersHidden;
 
     protected $_aPerPage;
+    protected $_aHtmlIds;
 	
     protected $_sAnimationEffect;
     protected $_iAnimationSpeed;
@@ -50,12 +49,11 @@ class BxBaseModNotificationsConfig extends BxBaseModGeneralConfig
         $this->_aHandlersHidden = [];
         $this->_aHandlers = [];
 
-        $this->_aPerPage = [];
+        $this->_aJsClasses = [];
+        $this->_aJsObjects = [];
 
-        $this->_aHtmlIds = [
-            'general' => $this->_aHtmlIds,
-            'poll' => $this->_aHtmlIdsPoll
-        ];
+        $this->_aPerPage = [];
+        $this->_aHtmlIds = [];
 
         $this->_sAnimationEffect = 'fade';
         $this->_iAnimationSpeed = 'slow';
@@ -192,28 +190,12 @@ class BxBaseModNotificationsConfig extends BxBaseModGeneralConfig
         return isset($this->_aPerPage[$sType]) ? $this->_aPerPage[$sType] : $this->_aPerPage['default'];
     }
 
-    public function getHtmlIds($sKey, $sSubKey = '')
+    public function getHtmlIds($sType, $sKey = '')
     {
-        if(empty($sSubKey)) {
-            if((($s = 'general') && isset($this->_aHtmlIds[$s][$sKey])) || (($s = 'poll') && isset($this->_aHtmlIds[$s][$sKey])))
-                return $this->_aHtmlIds[$s][$sKey];
+        if(empty($sKey))
+            return isset($this->_aHtmlIds[$sType]) ? $this->_aHtmlIds[$sType] : array();
 
-            return isset($this->_aHtmlIds[$sKey]) ? $this->_aHtmlIds[$sKey] : [];
-        }
-
-        return isset($this->_aHtmlIds[$sKey][$sSubKey]) ? $this->_aHtmlIds[$sKey][$sSubKey] : '';
-    }
-
-    public function getHtmlIdsList($sKey)
-    {
-        $aResult = [];
-        if(!empty($this->_aHtmlIds['general']) && is_array($this->_aHtmlIds['general']))
-            $aResult = $this->_aHtmlIds['general'];
-
-        if(!empty($this->_aHtmlIds[$sKey]) && is_array($this->_aHtmlIds[$sKey]))
-            $aResult = array_merge($aResult, $this->_aHtmlIds[$sKey]);
-
-        return $aResult;
+        return isset($this->_aHtmlIds[$sType][$sKey]) ? $this->_aHtmlIds[$sType][$sKey] : '';
     }
 
     public function getAnimationEffect()

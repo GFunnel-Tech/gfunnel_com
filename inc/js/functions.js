@@ -221,46 +221,6 @@ function closeDynamicPopupBlock() {
     $('#dynamicPopup').dolPopupHide();
 }
 
-function loadDynamicBlockAsync(iBlockID, sUrl, fCallback, bLoading, bLazyLoad) {
-    if(!sUrl)
-        sUrl = document.location.href;
-
-    var fLoadBlock = function(iBlockID, sUrl) {
-        if(fCallback == undefined || fCallback == true)
-            fCallback = onAsyncBlockLoad;
-
-        getHtmlData($('#bx-page-block-' + iBlockID), bx_append_url_params(sUrl, 'dynamic=tab&pageBlock=' + iBlockID), fCallback, 'post', false, {
-            includedCss: JSON.stringify(aIncludedCss), 
-            includedJs: JSON.stringify(aIncludedJs)
-        }, (bLoading != undefined && bLoading == true));
-    };
-
-    if(bLazyLoad == undefined || bLazyLoad == true) {
-        const oObserver = new IntersectionObserver((aEntries, obs) => {
-            aEntries.forEach(oEntry => {
-                if(oEntry.isIntersecting) {
-                    const oElement = oEntry.target;
-
-                    fLoadBlock(iBlockID, sUrl);
-
-                    obs.unobserve(oElement);
-                }
-            });
-        }, {
-            root: null,        // viewport
-            threshold: 0.1     // trigger when 10% visible
-        });
-
-        document.querySelectorAll('.bx-db-placeholder-async').forEach(oElement => {
-            oObserver.observe(oElement);
-        });
-    }
-    else
-        $(document).ready(function() {
-            fLoadBlock(iBlockID, sUrl);
-        });
-}
-
 function onAsyncBlockLoad() {
     var oBlock = $(this);
 
@@ -460,16 +420,9 @@ function bx_center_content (sSel, sBlockStyle, bListenOnResize) {
 function bx_menu_popup (o, e, options, vars) {
     var options = options || {};
     var vars = vars || {};
-
+    var o = $.extend({}, $.fn.dolPopupDefaultOptions, {id: o, url: bx_append_url_params('menu.php', $.extend({o:o}, vars)), cssClass: 'bx-popup-menu'}, options);
     if ('undefined' == typeof(e))
         e = window;
-
-    var o = $.extend({}, $.fn.dolPopupDefaultOptions, {
-        id: o, 
-        url: bx_append_url_params('menu.php', $.extend({o:o}, vars)), 
-        cssClass: 'bx-popup-menu'
-    }, options);
-
     $(e).dolPopupAjax(o);
 }
 
@@ -484,11 +437,8 @@ function bx_menu_popup_inline (jSel, e, options) {
         $(jSel).dolPopupHide(); 
     else {
         var options = options || {};
-
-        var bElement = e != undefined && $(e).length != 0;
-
         var o = $.extend({}, $.fn.dolPopupDefaultOptions, options, {
-            pointer: bElement ? {el:$(e)} : false, 
+            pointer: e != undefined && $(e).length != 0 ? {el:$(e)} : false, 
             cssClass: 'bx-popup-menu',
             onShow: function(oPopup) {
                 oPopup.find('a').each(function () {
@@ -497,7 +447,7 @@ function bx_menu_popup_inline (jSel, e, options) {
                         $(jSel).dolPopupHide();
                     });
                 });
-            },
+            }
         });
 
         $(jSel).dolPopup(o);
@@ -512,7 +462,7 @@ function bx_menu_popup_inline (jSel, e, options) {
  * @param oVars - additional GET variables
  */
 function bx_menu_slide (sObject, oElement, sPosition, oOptions, oVars) {
-    var oVars = oVars || {};
+	var oVars = oVars || {};
     var oOptions = oOptions || {};
     oOptions = $.extend({}, {parent: 'body', container: '.bx-sliding-menu-content'}, oOptions);
 
@@ -646,7 +596,6 @@ function bx_menu_slide_inline (sMenu, e, sPosition) {
 
     if (eSlider.is(':visible')) {
         fClose();
-        $(e).focus();
 
         $(document).off('click.bx-sliding-menu touchend.bx-sliding-menu');
         $(window).off('resize.bx-sliding-menu');
@@ -658,7 +607,6 @@ function bx_menu_slide_inline (sMenu, e, sPosition) {
         $(window).off('resize.bx-sliding-menu');
 
         fOpen();
-        eSlider.find('.bx-popup-content a:first').focus();
         eSlider.find('a').each(function () {
             $(this).off('click.bx-sliding-menu');
             $(this).on('click.bx-sliding-menu', function () {
@@ -833,27 +781,6 @@ function bx_set_acl_level (iProfileId, iAclLevel, mixedLoadingElement) {
     }, 'json');
 }
 
-/**
- * Reset ACL level for specified profile to Standard.
- * @param iProfileId - profile id to reset acl level for
- */
-function bx_reset_acl_level (iProfileId, mixedLoadingElement) {
-    var bBulk = !$.isNumeric(iProfileId);
-    var iAclCard = !bBulk && $('#sys-acl-profile-' + iProfileId).length > 0 ? 1 : 0;
-
-    var fPerform = function() {
-        var bLoading = typeof(mixedLoadingElement) != 'undefined';
-        if(bLoading)
-            bx_loading($(mixedLoadingElement), true);
-
-        $.post(sUrlRoot + 'menu.php', {o:'sys_set_acl_level', profile_id: iProfileId, level_id: 3, card: iAclCard}, function(oData) {
-            bx_on_set_acl_level(oData, mixedLoadingElement);
-        }, 'json');
-    };
-
-    bx_confirm(_t('_Are_you_sure'), fPerform);
-}
-
 function bx_on_set_acl_level(oData, oLoadingElement) {
     if(typeof(oLoadingElement) != 'undefined')
         bx_loading($(oLoadingElement), false);
@@ -982,45 +909,6 @@ function bx_approve(oSource,  sModule, iContentId, oOptions, oVars) {
         },
         'json'
     );
-}
-
-function bx_showcase_init(sSelWrapper, sSelItem) {
-    var oWrapper = $(sSelWrapper);
-
-    if(oWrapper.closest('.bx-popup-wrapper').length != 0)
-        return;
-
-    oWrapper.each(function() {
-        var sClassEnabled = 'bx-sc-enabled';
-        var oShowcase = $(this);
-        var oCells = oShowcase.find(sSelItem);
-
-        if(oCells.width() * oCells.length <= oShowcase.parent().width()) {
-            if(oShowcase.hasClass('flickity-enabled'))
-                oShowcase.flickity('destroy').removeClass(sClassEnabled);
-
-            return;
-        }
-
-        if(oShowcase.hasClass('flickity-enabled'))
-            return;
-
-        var oShowcaseOptions = {
-            cellSelector: sSelItem,
-            cellAlign: 'left',
-            imagesLoaded: true,
-            wrapAround: true,
-            pageDots: false
-        };
-
-        var iGroupCells = oShowcase.attr('bx-sc-group-cells');
-        if(iGroupCells != undefined)
-            oShowcaseOptions.groupCells = parseInt(iGroupCells);
-
-        oShowcase.on('ready.flickity', function() {
-            $(this).addClass(sClassEnabled);
-        }).flickity(oShowcaseOptions);
-    });
 }
 
 function validateLoginForm(eForm) {
@@ -1320,20 +1208,13 @@ function bx_search_extnded_sort(obj, url){
     location.href = url + '&sort=' +$(obj).val();
 }
 
-function bx_search_on_type (e, n, sFormSel, sResultsContSel, sLoadingContSel, bSortResults, iMinLen, onComplete, onCancel) {
+function bx_search_on_type (e, n, sFormSel, sResultsContSel, sLoadingContSel, bSortResults, iMinLen, onComplete) {
     var oForm = $(e.target).parents(sFormSel + ':first');
 
-    if ('undefined' != typeof(e)) {
-        if(e.keyCode == 13) {
-            oForm.find('input[name=live_search]').val(0);
-            oForm.submit();
-            return false;
-        }
-
-        if(e.keyCode == 27) { 
-            if(typeof onCancel === 'function')
-                onCancel(oForm);
-        }
+    if ('undefined' != typeof(e) && 13 == e.keyCode) {
+        oForm.find('input[name=live_search]').val(0);
+        oForm.submit();
+        return false;
     }
 
     iMinLen = typeof(iMinLen) != 'undefined' ? parseInt(iMinLen) : 0;
@@ -1479,7 +1360,7 @@ function bx_autocomplete_fields(iId, sUrl, sName, bShowImg, bOnlyOnce, onSelect)
 			else if(bShowImg && item.thumb != undefined)
 				sImage = '<img class="bx-def-thumb bx-def-icon-size bx-def-margin-sec-right" src="' + item.thumb + '">';
 
-			$(this).before('<b class="val bx-def-color-bg-hl bx-def-round-corners">' + sImage + item.label + '<i class="sys-icon times ltr:ml-1 rtl:mr-1"></i><input type="hidden" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="' + sName + (bOnlyOnce ? '' : '[]') + '" value="' + item.value + '" /></b>');
+			$(this).before('<b class="val bx-def-color-bg-hl bx-def-round-corners">' + sImage + item.label + '<input type="hidden" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="' + sName + (bOnlyOnce ? '' : '[]') + '" value="' + item.value + '" /></b>');
 		}
 
 		if (!bOnlyOnce)
@@ -1770,18 +1651,12 @@ function bx_redirect_for_external_links (e)
     $(aExclude).each(function () {
         sPattern += ':not([href^="' + this + '"])';
     });
-    if ('undefined' !== typeof(aDolOptions.sys_storage_s3_endpoint) && aDolOptions.sys_storage_s3_endpoint.length)
-        sPattern += ':not([href^="https://' + aDolOptions.sys_storage_s3_endpoint + '"])';
-
     sPattern += ":is([href^='http://'],[href^='https://'])";
 
     if ('undefined' === typeof(e))
         e = $('document');
 
     e.find(sPattern).each(function() {
-        if ($(this).attr('href').match(/s3\.amazonaws\.com/))
-            return;
-            
         $(this).on('contextmenu', function(e) {
             e.preventDefault();
         });
@@ -1819,46 +1694,6 @@ function bx_agents_action(oElement, sTool, sAction, aParams)
         },
         'json'
     );
-}
-
-function bx_get_focusable(oContext = 'document')
-{
-    return Array.from(oContext.querySelectorAll('button, [href], input:not([type="hidden"]), textarea, select, [tabindex]:not(.bx-focus-trap, [tabindex="-1"])')).filter(function(oElement) { 
-        return !$(oElement).closest(':hidden').length; 
-    });
-}
-
-function bx_clicked_stack_register()
-{
-    const iStackMaxLenth = 3;
-
-    $('a,button').filter(function(iIndex, oElement) {
-        return !$(oElement).closest('.bx-sidebar').length;
-    }).on('click', function() {
-        if(typeof window.glClickedStack === 'undefined')
-            window.glClickedStack = [];    
-
-        window.glClickedStack.push(this);
-
-        if(window.glClickedStack && window.glClickedStack.length > iStackMaxLenth)
-            window.glClickedStack = window.glClickedStack.slice(-iStackMaxLenth);
-    });
-}
-
-function bx_clicked_stack_lenth()
-{
-    return window.glClickedStack ? window.glClickedStack.length : 0;
-}
-
-function bx_clicked_stack_get()
-{
-    const iLenth = bx_clicked_stack_lenth();
-    return iLenth > 0 ? window.glClickedStack[iLenth - 1] : false;
-}
-
-function bx_clicked_stack_pop()
-{
-    return window.glClickedStack && window.glClickedStack.length > 0 ? window.glClickedStack.pop() : false;
 }
 
 /** @} */

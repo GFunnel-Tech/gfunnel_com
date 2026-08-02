@@ -150,68 +150,93 @@ class BxBaseAuditGrid extends BxDolAuditGrid
             $this->_getFilterButton();
     }
     
-    protected function _getFilterDatePicker($sFilterName, $sFilterValue, $bAsArray = false)
+    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues)
     {
-        $aInputDatePicker = parent::_getFilterDatePicker($sFilterName, $sFilterValue, true);
-        if(!$aInputDatePicker)
-            return $aInputDatePicker;
+        if(empty($sFilterName) || empty($aFilterValues))
+            return '';
 
-        $aInputButton['tr_attrs'] ??= [];
-        $aInputButton['tr_attrs']['class'] = 'bx-grid-controls-filter-datepicker';
+		foreach($aFilterValues as $sKey => $sValue)
+			$aFilterValues[$sKey] = _t($sValue);
 
-        if($bAsArray)
-            return $aInputDatePicker;
+        $aInputModules = array(
+            'type' => 'select',
+            'name' => $sFilterName,
+            'attrs' => array(
+                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
+               // 'onChange' => 'javascript:' . $this->sJsObject . '.onChangeFilter(this)'
+            ),
+            'value' => $sFilterValue,
+            'values' => $aFilterValues
+        );
 
-        $oForm = new BxTemplFormView([]);
-        return $oForm->genRow($aInputDatePicker);
+        $oForm = new BxTemplFormView(array());
+        return $oForm->genRow($aInputModules);
     }
-
-    protected function _getFilterButton($bAsArray = false)
+    
+    protected function _getFilterLabel($sFilterValue)
     {
-        $aInputButton = parent::_getFilterButton(true);
+        $aInputModules = array(
+            'type' => 'value',
+            'value' => $sFilterValue,
+            'tr_attrs' => array('class' => 'bx-grid-controls-filter-label'),
+        );
 
-        $aInputButton['tr_attrs'] ??= [];
-        $aInputButton['tr_attrs']['class'] = 'bx-grid-controls-filter-button';
+        $oForm = new BxTemplFormView(array());
+        return $oForm->genRow($aInputModules, true);
+    }
+    
+    protected function _getFilterDatePicker($sFilterName, $sFilterValue)
+    {
+        if(empty($sFilterName))
+            return '';
         
-        $aInputButton['attrs'] ??= [];
-        $aInputButton['attrs']['onClick'] = 'javascript:' . $this->sJsObject . '.onChangeFilter(this)';
+        $aInputModules = array(
+            'type' => 'datepicker',
+            'name' => $sFilterName,
+            'attrs' => array(
+                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
+            ),
+            'tr_attrs' => array('class' => 'bx-grid-controls-filter-datepicker'),
+            'value' => $sFilterValue,
+        );
 
-        if($bAsArray)
-            return $aInputButton;
-
-        $oForm = new BxTemplFormView([]);
-        return $oForm->genRow($aInputButton);
+        $oForm = new BxTemplFormView(array());
+        return $oForm->genRow($aInputModules, true);
     }
-
-    protected function _getFilterLabel($sFilterValue, $bAsArray = false)
+    
+    protected function _getFilterButton()
     {
-        $aInputLabel = parent::_getFilterLabel($sFilterValue, true);
+        $aInputModules = array(
+            'type' => 'button',
+            'name' => 'button',
+            'attrs' => array(
+                'id' => 'bx-grid-button-' . $this->_sObject,
+                'onClick' => 'javascript:' . $this->sJsObject . '.onChangeFilter(this)',
+            ),
+            'tr_attrs' => array('class' => 'bx-grid-controls-filter-button'),
+            'value' => _t('_Search'),
+        );
 
-        $aInputLabel['tr_attrs'] ??= [];
-        $aInputLabel['tr_attrs']['class'] = 'bx-grid-controls-filter-label';
-
-        if($bAsArray)
-            return $aInputLabel;
-
-        $oForm = new BxTemplFormView([]);
-        return $oForm->genRow($aInputLabel);
+        $oForm = new BxTemplFormView(array());
+        return $oForm->genRow($aInputModules, true);
     }
-
+    
     public function performActionShowStat()
     {
-        $aTmp2 = bx_get('ids');
-        $sData = $aTmp2[0];
+		$aTmp2 = bx_get('ids');
+		$sData = $aTmp2[0];
         $aData = json_decode($sData, true);
         $sContentInfo = '';
-        if (isset($aData['display_info'])) {
+        if (isset($aData['display_info'])){
             foreach($aData['display_info'] as $sKey => $sValue)
                 $sContentInfo .= $sKey . ': ' . $sValue;
         }
-
-        $sContent = BxTemplStudioFunctions::getInstance()->popupBox('sys-audit-content-info', _t('_sys_audit_content_info_popup_title'), $sContentInfo);
-
-        echoJson(array('popup' => $sContent));
-    }
+		
+		$sContent = BxTemplStudioFunctions::getInstance()->popupBox('sys-audit-content-info', _t('_sys_audit_content_info_popup_title'), $sContentInfo);
+        
+		echoJson(array('popup' => $sContent));
+	}
+    
 }
 
 /** @} */

@@ -43,7 +43,6 @@ class WorkerPage extends Page
         return new WorkerInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

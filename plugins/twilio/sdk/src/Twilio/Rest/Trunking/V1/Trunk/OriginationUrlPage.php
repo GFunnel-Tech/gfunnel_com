@@ -43,7 +43,6 @@ class OriginationUrlPage extends Page
         return new OriginationUrlInstance($this->version, $payload, $this->solution['trunkSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

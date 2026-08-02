@@ -43,7 +43,6 @@ class DomainConfigPage extends Page
         return new DomainConfigInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

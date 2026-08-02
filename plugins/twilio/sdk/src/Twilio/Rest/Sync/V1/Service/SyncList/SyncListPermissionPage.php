@@ -43,7 +43,6 @@ class SyncListPermissionPage extends Page
         return new SyncListPermissionInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['listSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

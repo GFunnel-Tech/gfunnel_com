@@ -25,7 +25,6 @@ abstract class WebChannelsOptions
      * @param string $chatFriendlyName The Conversation's friendly name. See the [Conversation resource](https://www.twilio.com/docs/conversations/api/conversation-resource) for an example.
      * @param string $customerFriendlyName The Conversation participant's friendly name. See the [Conversation Participant Resource](https://www.twilio.com/docs/conversations/api/conversation-participant-resource) for an example.
      * @param string $preEngagementData The pre-engagement data.
-     * @param string $identity The Identity of the guest user. See the [Conversation User Resource](https://www.twilio.com/docs/conversations/api/user-resource) for an example.
      * @param string $uiVersion The Ui-Version HTTP request header
      * @return CreateWebChannelsOptions Options builder
      */
@@ -34,7 +33,6 @@ abstract class WebChannelsOptions
         string $chatFriendlyName = Values::NONE,
         string $customerFriendlyName = Values::NONE,
         string $preEngagementData = Values::NONE,
-        string $identity = Values::NONE,
         string $uiVersion = Values::NONE
 
     ): CreateWebChannelsOptions
@@ -43,7 +41,6 @@ abstract class WebChannelsOptions
             $chatFriendlyName,
             $customerFriendlyName,
             $preEngagementData,
-            $identity,
             $uiVersion
         );
     }
@@ -56,7 +53,6 @@ class CreateWebChannelsOptions extends Options
      * @param string $chatFriendlyName The Conversation's friendly name. See the [Conversation resource](https://www.twilio.com/docs/conversations/api/conversation-resource) for an example.
      * @param string $customerFriendlyName The Conversation participant's friendly name. See the [Conversation Participant Resource](https://www.twilio.com/docs/conversations/api/conversation-participant-resource) for an example.
      * @param string $preEngagementData The pre-engagement data.
-     * @param string $identity The Identity of the guest user. See the [Conversation User Resource](https://www.twilio.com/docs/conversations/api/user-resource) for an example.
      * @param string $uiVersion The Ui-Version HTTP request header
      */
     public function __construct(
@@ -64,14 +60,12 @@ class CreateWebChannelsOptions extends Options
         string $chatFriendlyName = Values::NONE,
         string $customerFriendlyName = Values::NONE,
         string $preEngagementData = Values::NONE,
-        string $identity = Values::NONE,
         string $uiVersion = Values::NONE
 
     ) {
         $this->options['chatFriendlyName'] = $chatFriendlyName;
         $this->options['customerFriendlyName'] = $customerFriendlyName;
         $this->options['preEngagementData'] = $preEngagementData;
-        $this->options['identity'] = $identity;
         $this->options['uiVersion'] = $uiVersion;
     }
 
@@ -108,18 +102,6 @@ class CreateWebChannelsOptions extends Options
     public function setPreEngagementData(string $preEngagementData): self
     {
         $this->options['preEngagementData'] = $preEngagementData;
-        return $this;
-    }
-
-    /**
-     * The Identity of the guest user. See the [Conversation User Resource](https://www.twilio.com/docs/conversations/api/user-resource) for an example.
-     *
-     * @param string $identity The Identity of the guest user. See the [Conversation User Resource](https://www.twilio.com/docs/conversations/api/user-resource) for an example.
-     * @return $this Fluent Builder
-     */
-    public function setIdentity(string $identity): self
-    {
-        $this->options['identity'] = $identity;
         return $this;
     }
 

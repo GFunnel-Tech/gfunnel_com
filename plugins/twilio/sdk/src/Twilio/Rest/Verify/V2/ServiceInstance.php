@@ -28,12 +28,8 @@ use Twilio\Rest\Verify\V2\Service\VerificationCheckList;
 use Twilio\Rest\Verify\V2\Service\VerificationList;
 use Twilio\Rest\Verify\V2\Service\AccessTokenList;
 use Twilio\Rest\Verify\V2\Service\RateLimitList;
-use Twilio\Rest\Verify\V2\Service\NewVerifyFactorList;
 use Twilio\Rest\Verify\V2\Service\WebhookList;
-use Twilio\Rest\Verify\V2\Service\NewFactorList;
 use Twilio\Rest\Verify\V2\Service\MessagingConfigurationList;
-use Twilio\Rest\Verify\V2\Service\ApproveChallengeList;
-use Twilio\Rest\Verify\V2\Service\NewChallengeList;
 
 
 /**
@@ -52,7 +48,6 @@ use Twilio\Rest\Verify\V2\Service\NewChallengeList;
  * @property array|null $totp
  * @property string|null $defaultTemplateSid
  * @property array|null $whatsapp
- * @property array|null $passkeys
  * @property bool|null $verifyEventSubscriptionEnabled
  * @property \DateTime|null $dateCreated
  * @property \DateTime|null $dateUpdated
@@ -66,12 +61,8 @@ class ServiceInstance extends InstanceResource
     protected $_verifications;
     protected $_accessTokens;
     protected $_rateLimits;
-    protected $_newVerifyFactors;
     protected $_webhooks;
-    protected $_newFactors;
     protected $_messagingConfigurations;
-    protected $_approveChallenge;
-    protected $_newChallenge;
 
     /**
      * Initialize the ServiceInstance
@@ -80,7 +71,7 @@ class ServiceInstance extends InstanceResource
      * @param mixed[] $payload The response payload
      * @param string $sid The Twilio-provided string that uniquely identifies the Verification Service resource to delete.
      */
-    public function __construct(Version $version, array $payload, ?string $sid = null)
+    public function __construct(Version $version, array $payload, string $sid = null)
     {
         parent::__construct($version);
 
@@ -101,7 +92,6 @@ class ServiceInstance extends InstanceResource
             'totp' => Values::array_get($payload, 'totp'),
             'defaultTemplateSid' => Values::array_get($payload, 'default_template_sid'),
             'whatsapp' => Values::array_get($payload, 'whatsapp'),
-            'passkeys' => Values::array_get($payload, 'passkeys'),
             'verifyEventSubscriptionEnabled' => Values::array_get($payload, 'verify_event_subscription_enabled'),
             'dateCreated' => Deserialize::dateTime(Values::array_get($payload, 'date_created')),
             'dateUpdated' => Deserialize::dateTime(Values::array_get($payload, 'date_updated')),
@@ -208,14 +198,6 @@ class ServiceInstance extends InstanceResource
     }
 
     /**
-     * Access the newVerifyFactors
-     */
-    protected function getNewVerifyFactors(): NewVerifyFactorList
-    {
-        return $this->proxy()->newVerifyFactors;
-    }
-
-    /**
      * Access the webhooks
      */
     protected function getWebhooks(): WebhookList
@@ -224,35 +206,11 @@ class ServiceInstance extends InstanceResource
     }
 
     /**
-     * Access the newFactors
-     */
-    protected function getNewFactors(): NewFactorList
-    {
-        return $this->proxy()->newFactors;
-    }
-
-    /**
      * Access the messagingConfigurations
      */
     protected function getMessagingConfigurations(): MessagingConfigurationList
     {
         return $this->proxy()->messagingConfigurations;
-    }
-
-    /**
-     * Access the approveChallenge
-     */
-    protected function getApproveChallenge(): ApproveChallengeList
-    {
-        return $this->proxy()->approveChallenge;
-    }
-
-    /**
-     * Access the newChallenge
-     */
-    protected function getNewChallenge(): NewChallengeList
-    {
-        return $this->proxy()->newChallenge;
     }
 
     /**

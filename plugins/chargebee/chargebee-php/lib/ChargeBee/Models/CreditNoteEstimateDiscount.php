@@ -9,7 +9,6 @@ class CreditNoteEstimateDiscount extends Model
   protected $allowed = [
     'amount',
     'description',
-    'lineItemId',
     'entityType',
     'discountType',
     'entityId',

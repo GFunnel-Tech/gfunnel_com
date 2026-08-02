@@ -6,8 +6,6 @@ require_once('./inc/header.inc.php');
 require_once(BX_DIRECTORY_PATH_INC . "profiles.inc.php");
 require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
 
-bx_import('BxDolLanguages');
-
 header('Content-Type: application/json');
 
 bx_api_check_access();
@@ -18,56 +16,7 @@ if (bx_get('cnf') ){
    exit();
 }
 
-if(($sGooType = bx_get('goo')) !== false && ($oLf = BxDolLocationField::getObjectInstance('sys_google')) !== false) {
-    $aResponse = false;
-    switch($sGooType) {
-        case 'list': 
-            if(($sValue = bx_get('input')) === false)
-                break;
-
-            $aResponse = $oLf->getAutocomplete($sValue);
-            break;
-        
-        case 'place': 
-            if(($sPlaceId = bx_get('place_id')) === false)
-                break;
-            
-            $aResponse = $oLf->getPlace($sPlaceId);
-            if(empty($aResponse) || !is_array($aResponse))
-                break;
-
-            $aLocation = $aResponse['geometry']['location'];
-            $aAddress = $aResponse['address_components'];
-
-            $oFind = function($sType) use ($aAddress) {
-                foreach($aAddress as $aItem) {
-                    if(in_array($sType, $aItem['types']))
-                        return trim($aItem['short_name']);
-                }
-
-                return '';
-            };
-
-            $aResponse = [
-                'lat' => $aLocation['lat'],
-                'lng' => $aLocation['lng'],
-                'location_string'=> $aResponse['formatted_address'],
-                'country' => $oFind('country'),
-                'state' => $oFind('administrative_area_level_1'),
-                'city' => $oFind('locality')?: $oFind('administrative_area_level_2'),
-                'street' => $oFind('route'),
-                'street_number' => $oFind('street_number'),
-                'zip' => $oFind('postal_code'),
-            ];
-            break;
-    }
-
-    if(!$aResponse)
-        $aResponse = ['error' => _t('_sys_location_undefined')];
-
-    echo json_encode($aResponse);
-    exit;
-}
+// prepare params
 
 $aRequest = isset($_GET['r']) ? explode('/', $_GET['r']) : [];
 

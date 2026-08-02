@@ -43,7 +43,6 @@ class SessionPage extends Page
         return new SessionInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

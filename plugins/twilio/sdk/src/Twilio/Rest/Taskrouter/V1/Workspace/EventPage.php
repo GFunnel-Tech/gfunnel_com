@@ -43,7 +43,6 @@ class EventPage extends Page
         return new EventInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

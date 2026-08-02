@@ -43,7 +43,6 @@ class BucketPage extends Page
         return new BucketInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['rateLimitSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

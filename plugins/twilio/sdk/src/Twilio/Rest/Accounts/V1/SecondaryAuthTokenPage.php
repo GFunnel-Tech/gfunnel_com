@@ -43,7 +43,6 @@ class SecondaryAuthTokenPage extends Page
         return new SecondaryAuthTokenInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

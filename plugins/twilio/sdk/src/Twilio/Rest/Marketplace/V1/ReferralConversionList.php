@@ -20,8 +20,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ReferralConversionList extends ListResource
@@ -39,63 +37,28 @@ class ReferralConversionList extends ListResource
         // Path Solution
         $this->solution = [
         ];
-        $this->uri = '/ReferralConversion';
-    }
 
-    /**
-     * Helper function for Create
-     *
-     * @param CreateReferralConversionRequest $createReferralConversionRequest
-     
-     * @return Response Created Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _create(CreateReferralConversionRequest $createReferralConversionRequest): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/json', 'Accept' => 'application/json' ]);
-        $data = $createReferralConversionRequest->toArray();
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
+        $this->uri = '/ReferralConversion';
     }
 
     /**
      * Create the ReferralConversionInstance
      *
      * @param CreateReferralConversionRequest $createReferralConversionRequest
-     
      * @return ReferralConversionInstance Created ReferralConversionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function create(CreateReferralConversionRequest $createReferralConversionRequest): ReferralConversionInstance
     {
-        $response = $this->_create( $createReferralConversionRequest);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $data = $createReferralConversionRequest->toArray();
+        $headers['Content-Type'] = 'application/json';
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
+
         return new ReferralConversionInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the ReferralConversionInstance with Metadata
-     *
-     * @param CreateReferralConversionRequest $createReferralConversionRequest
-     
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(CreateReferralConversionRequest $createReferralConversionRequest): ResourceMetadata
-    {
-        $response = $this->_create( $createReferralConversionRequest);
-        $resource = new ReferralConversionInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

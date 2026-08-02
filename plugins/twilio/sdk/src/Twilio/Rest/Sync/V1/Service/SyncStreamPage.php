@@ -43,7 +43,6 @@ class SyncStreamPage extends Page
         return new SyncStreamInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -43,7 +43,6 @@ class AccountPage extends Page
         return new AccountInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

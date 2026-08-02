@@ -43,7 +43,6 @@ class SinkPage extends Page
         return new SinkInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

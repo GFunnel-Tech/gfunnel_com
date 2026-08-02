@@ -43,7 +43,6 @@ class DeploymentPage extends Page
         return new DeploymentInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['environmentSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -43,7 +43,6 @@ class PrebuiltOperatorPage extends Page
         return new PrebuiltOperatorInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

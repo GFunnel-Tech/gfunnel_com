@@ -43,7 +43,6 @@ class PluginConfigurationArchivePage extends Page
         return new PluginConfigurationArchiveInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

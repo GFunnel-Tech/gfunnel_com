@@ -43,7 +43,6 @@ class ServicePage extends Page
         return new ServiceInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

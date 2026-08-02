@@ -43,7 +43,6 @@ class SchemaPage extends Page
         return new SchemaInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

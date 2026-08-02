@@ -398,25 +398,6 @@ class BxDolPrivacy extends BxDolFactory implements iBxDolFactoryObject
     }
 
     /**
-     * Checks if this privacy object allows to add content in specified context.
-     * 
-     * @param type $sContext - context module name
-     * @return boolean
-     */
-    public function isAllowedAddInContext($sContext)
-    {
-        $bSpaces = !empty($this->_aObject['spaces']);
-
-        if($bSpaces && $this->_aObject['spaces'] == 'all') 
-            return true;
-
-        if($bSpaces && in_array($sContext, explode(',', $this->_aObject['spaces'])))
-            return true;
-
-        return false;
-    }
-
-    /**
      * Note. Is used when privacy group is processing after the main form submit.
      */
     public function addGroupCustom($aGroup, $aItems = [])
@@ -606,7 +587,7 @@ class BxDolPrivacy extends BxDolFactory implements iBxDolFactoryObject
         
         return $aValues;
     }
-
+    
     /**
      * Get database field name for action.
      *
@@ -616,12 +597,12 @@ class BxDolPrivacy extends BxDolFactory implements iBxDolFactoryObject
      */
     public static function getFieldName($sObject, $sAction = '')
     {
-        $oPrivacy = BxDolPrivacy::getObjectInstance($sObject);
+    	$oPrivacy = BxDolPrivacy::getObjectInstance($sObject);
         if(empty($oPrivacy))
             return '';
 
-        if(empty($sAction))
-            $sAction = $oPrivacy->_aObject['action'];
+		if(empty($sAction))
+			$sAction = $oPrivacy->_aObject['action'];
 
         return $oPrivacy->convertActionToField($sAction);
     }
@@ -758,14 +739,14 @@ class BxDolPrivacy extends BxDolFactory implements iBxDolFactoryObject
         ));
         return $bRv;
     }
-
+    
     public function checkSpace($aObject, $iViewerId)
     {
         $oProfile = BxDolProfile::getInstance(-$aObject['group_id']);
         if (!$oProfile)
             return false;
 
-        return CHECK_ACTION_RESULT_ALLOWED === bx_srv($oProfile->getModule(), 'check_space_privacy_for_profile', [$oProfile->getContentId(), $iViewerId]);
+        return CHECK_ACTION_RESULT_ALLOWED === BxDolService::call($oProfile->getModule(), 'check_space_privacy', array($oProfile->getContentId()));
     }
 
     public function checkMeOnly($iOwnerId, $iViewerId)
@@ -861,9 +842,9 @@ class BxDolPrivacy extends BxDolFactory implements iBxDolFactoryObject
         return $this->_oDb->getObjectInfo($sAction, $iObjectId);
     }
 
-    protected function getPrivacyGroupsForContentPublic($iProfileIdOwner = 0, $aCustomGroups = array())
+	protected function getPrivacyGroupsForContentPublic($iProfileIdOwner = 0, $aCustomGroups = array())
     {
-        $aGroups = array(BX_DOL_PG_ALL);
+    	$aGroups = array(BX_DOL_PG_ALL);
         if(isLogged()) {
             $iProfileIdLogged = bx_get_logged_profile_id();
             if($iProfileIdLogged == $iProfileIdOwner)
@@ -955,7 +936,7 @@ class BxDolPrivacy extends BxDolFactory implements iBxDolFactoryObject
 
     public function isAllowedRelations($iUserId)
     {
-        return BxDolConnectionRelation::isEnabled();
+        return BxDolRelation::isEnabled();
     }
 
     public function isAllowedMemberships($iUserId)

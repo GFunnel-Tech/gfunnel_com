@@ -43,7 +43,6 @@ class SinkTestPage extends Page
         return new SinkTestInstance($this->version, $payload, $this->solution['sid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

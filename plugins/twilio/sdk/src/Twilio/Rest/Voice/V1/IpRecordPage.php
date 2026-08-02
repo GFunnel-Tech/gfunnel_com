@@ -43,7 +43,6 @@ class IpRecordPage extends Page
         return new IpRecordInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

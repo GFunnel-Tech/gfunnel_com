@@ -18,8 +18,6 @@ interface iBxBaseModPaymentProvider
 
 class BxBaseModPaymentProvider extends BxDol
 {
-    protected $_bIsApi;
-
     protected $MODULE;
     protected $_oModule;
 
@@ -48,8 +46,6 @@ class BxBaseModPaymentProvider extends BxDol
     public function __construct($aConfig)
     {
         parent::__construct();
-
-        $this->_bIsApi = bx_is_api();
 
         $this->_oModule = BxDolModule::getInstance($this->MODULE);
 
@@ -95,20 +91,20 @@ class BxBaseModPaymentProvider extends BxDol
 
     public function isActive()
     {
-        return in_array($this->getOption('active'), ['on', 1]);
+    	return $this->getOption('active') == 'on';
     }
 
     public function isHidden()
     {
-        return is_array($this->getOption('hidden'), ['on', 1]);
+    	return $this->getOption('hidden') == 'on';
     }
 
     public function getOption($sName)
     {
-        if(substr($sName, 0, strlen($this->_sPrefix)) != $this->_sPrefix)
+    	if(substr($sName, 0, strlen($this->_sPrefix)) != $this->_sPrefix)
             $sName = $this->_sPrefix . $sName;
 
-        return isset($this->_aOptions[$sName]) ? $this->_aOptions[$sName]['value'] : false;
+        return isset($this->_aOptions[$sName]) ? $this->_aOptions[$sName]['value'] : '';
     }
 
     public function setOption($sName, $mixedValue, $bSave = false)
@@ -199,9 +195,9 @@ class BxBaseModPaymentProvider extends BxDol
      * @throws Exception $e 
      *
      */
-    protected function log($mixedContents, $sTitle = '', $iLevel = BX_LOG_DEBUG)
+    protected function log($mixedContents, $sTitle = '')
     {
-        $this->_oModule->log($mixedContents, $this->_sName, $sTitle, $iLevel);
+        $this->_oModule->log($mixedContents, $this->_sName, $sTitle);
     }
 }
 

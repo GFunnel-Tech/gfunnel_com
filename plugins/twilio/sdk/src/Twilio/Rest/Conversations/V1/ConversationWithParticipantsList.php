@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -41,19 +39,20 @@ class ConversationWithParticipantsList extends ListResource
         // Path Solution
         $this->solution = [
         ];
+
         $this->uri = '/ConversationWithParticipants';
     }
 
     /**
-     * Helper function for Create
+     * Create the ConversationWithParticipantsInstance
      *
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return ConversationWithParticipantsInstance Created ConversationWithParticipantsInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(array $options = []): Response
+    public function create(array $options = []): ConversationWithParticipantsInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -83,46 +82,12 @@ class ConversationWithParticipantsList extends ListResource
                 Serialize::map($options['participant'], function ($e) { return $e; }),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' , 'X-Twilio-Webhook-Enabled' => $options['xTwilioWebhookEnabled']]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' , 'X-Twilio-Webhook-Enabled' => $options['xTwilioWebhookEnabled']]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the ConversationWithParticipantsInstance
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ConversationWithParticipantsInstance Created ConversationWithParticipantsInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(array $options = []): ConversationWithParticipantsInstance
-    {
-        $response = $this->_create($options);
         return new ConversationWithParticipantsInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the ConversationWithParticipantsInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_create($options);
-        $resource = new ConversationWithParticipantsInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

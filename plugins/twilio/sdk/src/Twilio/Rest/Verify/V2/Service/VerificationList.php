@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -46,25 +44,23 @@ class VerificationList extends ListResource
             $serviceSid,
         
         ];
+
         $this->uri = '/Services/' . \rawurlencode($serviceSid)
         .'/Verifications';
     }
 
     /**
-     * Helper function for Create
+     * Create the VerificationInstance
      *
-     
      * @param string $to The phone number or [email](https://www.twilio.com/docs/verify/email) to verify. Phone numbers must be in [E.164 format](https://www.twilio.com/docs/glossary/what-e164).
-     
      * @param string $channel The verification method to use. One of: [`email`](https://www.twilio.com/docs/verify/email), `sms`, `whatsapp`, `call`, `sna` or `auto`.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return VerificationInstance Created VerificationInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $to, string $channel, array $options = []): Response
+    public function create(string $to, string $channel, array $options = []): VerificationInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -106,58 +102,13 @@ class VerificationList extends ListResource
                 $options['tags'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the VerificationInstance
-     *
-     
-     * @param string $to The phone number or [email](https://www.twilio.com/docs/verify/email) to verify. Phone numbers must be in [E.164 format](https://www.twilio.com/docs/glossary/what-e164).
-     
-     * @param string $channel The verification method to use. One of: [`email`](https://www.twilio.com/docs/verify/email), `sms`, `whatsapp`, `call`, `sna` or `auto`.
-     
-     * @param array|Options $options Optional Arguments
-     * @return VerificationInstance Created VerificationInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $to, string $channel, array $options = []): VerificationInstance
-    {
-        $response = $this->_create( $to,  $channel, $options);
         return new VerificationInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid']
-        );
-        
-    }
-
-    /**
-     * Create the VerificationInstance with Metadata
-     *
-     
-     * @param string $to The phone number or [email](https://www.twilio.com/docs/verify/email) to verify. Phone numbers must be in [E.164 format](https://www.twilio.com/docs/glossary/what-e164).
-     
-     * @param string $channel The verification method to use. One of: [`email`](https://www.twilio.com/docs/verify/email), `sms`, `whatsapp`, `call`, `sna` or `auto`.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $to, string $channel, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $to,  $channel, $options);
-        $resource = new VerificationInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

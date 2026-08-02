@@ -43,7 +43,6 @@ class KeyPage extends Page
         return new KeyInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

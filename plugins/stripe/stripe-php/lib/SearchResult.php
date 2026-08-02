@@ -16,7 +16,6 @@ namespace Stripe;
  * the `expand` parameter contains `total_count`.
  *
  * @template TStripeObject of StripeObject
- *
  * @template-implements \IteratorAggregate<TStripeObject>
  *
  * @property string $object
@@ -63,19 +62,16 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
         $this->filters = $filters;
     }
 
-    /**
-     * @return mixed
-     */
     #[\ReturnTypeWillChange]
     public function offsetGet($k)
     {
         if (\is_string($k)) {
             return parent::offsetGet($k);
         }
-        $msg = "You tried to access the {$k} index, but SearchResult "
-                   . 'types only support string keys. (HINT: Search calls '
-                   . 'return an object with a `data` (which is the data '
-                   . "array). You likely want to call ->data[{$k}])";
+        $msg = "You tried to access the {$k} index, but SearchResult " .
+                   'types only support string keys. (HINT: Search calls ' .
+                   'return an object with a `data` (which is the data ' .
+                   "array). You likely want to call ->data[{$k}])";
 
         throw new Exception\InvalidArgumentException($msg);
     }
@@ -84,9 +80,9 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      * @param null|array $params
      * @param null|array|string $opts
      *
-     * @return SearchResult<TStripeObject>
-     *
      * @throws Exception\ApiErrorException
+     *
+     * @return SearchResult<TStripeObject>
      */
     public function all($params = null, $opts = null)
     {
@@ -95,9 +91,9 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
 
         list($response, $opts) = $this->_request('get', $url, $params, $opts);
         $obj = Util\Util::convertToStripeObject($response, $opts);
-        if (!$obj instanceof SearchResult) {
-            throw new Exception\UnexpectedValueException(
-                'Expected type ' . SearchResult::class . ', got "' . \get_class($obj) . '" instead.'
+        if (!($obj instanceof \Stripe\SearchResult)) {
+            throw new \Stripe\Exception\UnexpectedValueException(
+                'Expected type ' . \Stripe\SearchResult::class . ', got "' . \get_class($obj) . '" instead.'
             );
         }
         $obj->setFilters($params);
@@ -129,8 +125,6 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *    iterate across all objects across all pages. As page boundaries are
      *    encountered, the next page will be fetched automatically for
      *    continued iteration.
-     *
-     * @throws Exception\ApiErrorException
      */
     public function autoPagingIterator()
     {
@@ -183,8 +177,6 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      * @param null|array|string $opts
      *
      * @return SearchResult<TStripeObject>
-     *
-     * @throws Exception\ApiErrorException
      */
     public function nextPage($params = null, $opts = null)
     {

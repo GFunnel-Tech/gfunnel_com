@@ -43,7 +43,6 @@ class NetworkPage extends Page
         return new NetworkInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

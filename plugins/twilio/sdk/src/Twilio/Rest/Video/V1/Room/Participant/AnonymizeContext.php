@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class AnonymizeContext extends InstanceContext
@@ -55,62 +53,22 @@ class AnonymizeContext extends InstanceContext
     }
 
     /**
-     * Helper function for Update
-     *
-     
-     
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], [], $headers, "update");
-    }
-
-    /**
      * Update the AnonymizeInstance
      *
-     
-     
      * @return AnonymizeInstance Updated AnonymizeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function update(): AnonymizeInstance
     {
-        $response = $this->_update();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], [], $headers);
+
         return new AnonymizeInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['roomSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the AnonymizeInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_update();
-        $resource = new AnonymizeInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['roomSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

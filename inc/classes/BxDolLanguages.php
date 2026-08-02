@@ -281,7 +281,7 @@ class BxDolLanguages extends BxDolFactory implements iBxDolSingleton
         else
             $fPrice = sprintf("%." . $iPrecision . "f", (float)$fPrice);
 
-        return $this->_t('_sys_currency', html_entity_decode($sSign), $fPrice);
+        return $this->_t('_sys_currency', $sSign, $fPrice);
     }
 
     function _t_format_extensions ($mixedExtensions)
@@ -468,29 +468,9 @@ function bx_lang_code()
     return $sResult;
 }
 
-function bx_lang_code_with_country()
-{
-    $oLanguages = BxDolLanguages::getInstance();
-
-    $sName = $oLanguages->getCurrentLanguage();
-    $sCountry = '';
-    if(strpos($sName, '-') !== false)
-        list($sName, $sCountry) = explode('-', $sName);
-
-    if(($sCountryDb = $oLanguages->getLangCountryCode()))
-        $sCountry = $sCountryDb;
-
-    return $sName . ($sCountry ? '-' . $sCountry : '');
-}
-
 function bx_lang_country()
 {
-    $oLanguages = BxDolLanguages::getInstance();
-
-    if(($sCountryDb = $oLanguages->getLangCountryCode()))
-        return $sCountryDb;
-
-    $sResult = $oLanguages->getCurrentLanguage();
+    $sResult = bx_lang_name();
     if(strpos($sResult, '-') !== false)
         list($sCode, $sResult) = explode('-', $sResult);
 

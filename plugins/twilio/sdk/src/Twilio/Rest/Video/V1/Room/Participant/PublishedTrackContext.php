@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class PublishedTrackContext extends InstanceContext
@@ -60,67 +58,23 @@ class PublishedTrackContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the PublishedTrackInstance
      *
-     
-     
-     
      * @return PublishedTrackInstance Fetched PublishedTrackInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): PublishedTrackInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new PublishedTrackInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['roomSid'],
             $this->solution['participantSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Fetch the PublishedTrackInstance with Metadata
-     *
-     
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new PublishedTrackInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['roomSid'],
-                        $this->solution['participantSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

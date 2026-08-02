@@ -40,27 +40,20 @@ class BxBaseReportsGrid extends BxTemplGrid
             $this->_aQueryAppend[$this->_sFilter1Name] = $this->_sFilter1Value;
         }
 
-        $this->_aReportSystemInfo = [];
-        if(($sObject = bx_get('object')) !== false)
-            $this->setObject($sObject);
+        if (bx_get('object')){
+            $this->setObject(bx_get('object'));
+        }
     }
-
+    
     public function getCode($isDisplayHeader = true)
     {
-        if(!$this->_aReportSystemInfo)
-            return '';
-
         return $this->getJsCode() . parent::getCode($isDisplayHeader);
     }
     
     public function setObject($sObjectName)
     {
-        $oReport = BxDolReport::getObjectInstance($sObjectName, 0, false);
-        if(!$oReport->isProcessible())
-            return;
-
+        $oReport = BxDolReport::getObjectInstance($sObjectName, -1, false);
         $this->_aReportSystemInfo = $oReport->getSystemInfo();
-
         $this->_aOptions['table'] = $this->_aReportSystemInfo['table_track'];
         $this->_aQueryAppend['object'] = $sObjectName;
     }
@@ -258,14 +251,43 @@ class BxBaseReportsGrid extends BxTemplGrid
         return  $this->_getFilterSelectOne($this->_sFilter1Name, $this->_sFilter1Value, $this->_aFilter1Values) . $this->_getSearchInput();
     }
 
-    protected function _getFilterOnChange()
+    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues)
     {
-        return $this->sJsObject . '.onChangeFilter(this)';
+        if(empty($sFilterName) || empty($aFilterValues))
+            return '';
+        
+        foreach($aFilterValues as $sKey => $sValue)
+            $aFilterValues[$sKey] = _t($sValue);
+
+        $aInputModules = array(
+            'type' => 'select',
+            'name' => $sFilterName,
+            'attrs' => array(
+                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
+                'onChange' => 'javascript:' . $this->sJsObject . '.onChangeFilter(this)'
+            ),
+            'value' => $sFilterValue,
+            'values' => array_merge(array('' => 'All'), $aFilterValues)
+        );
+
+        $oForm = new BxTemplFormView(array());
+        return $oForm->genRow($aInputModules);
     }
 
-    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, $mixedAddSelectOne = true, $bAsArray = false)
+    protected function _getSearchInput()
     {
-        return parent::_getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, '_all', $bAsArray);
+        $aInputSearch = array(
+            'type' => 'text',
+            'name' => 'search',
+            'attrs' => array(
+                'id' => 'bx-grid-search-' . $this->_sObject,
+                'onKeyup' => 'javascript:$(this).off(\'keyup focusout\'); ' . $this->sJsObject . '.onChangeFilter(this)',
+                'onBlur' => 'javascript:' . $this->sJsObject . '.onChangeFilter(this)',
+            )
+        );
+
+        $oForm = new BxTemplFormView(array());
+        return $oForm->genRow($aInputSearch);
     }
 
     protected function _getDataSql ($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage)

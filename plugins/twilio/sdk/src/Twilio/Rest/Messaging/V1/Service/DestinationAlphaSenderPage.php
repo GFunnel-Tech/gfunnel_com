@@ -43,7 +43,6 @@ class DestinationAlphaSenderPage extends Page
         return new DestinationAlphaSenderInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

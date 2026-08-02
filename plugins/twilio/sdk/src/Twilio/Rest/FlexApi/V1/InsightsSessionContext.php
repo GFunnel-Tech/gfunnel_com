@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class InsightsSessionContext extends InstanceContext
@@ -46,22 +44,6 @@ class InsightsSessionContext extends InstanceContext
     }
 
     /**
-     * Helper function for Create
-     *
-     * @param array|Options $options Optional Arguments
-     * @return Response Created Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _create(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' , 'Authorization' => $options['authorization']]);
-        return $this->version->handleRequest('POST', $this->uri, [], [], $headers, "create");
-    }
-
-    /**
      * Create the InsightsSessionInstance
      *
      * @param array|Options $options Optional Arguments
@@ -70,33 +52,15 @@ class InsightsSessionContext extends InstanceContext
      */
     public function create(array $options = []): InsightsSessionInstance
     {
-        $response = $this->_create($options);
+
+        $options = new Values($options);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' , 'Authorization' => $options['authorization']]);
+        $payload = $this->version->create('POST', $this->uri, [], [], $headers);
+
         return new InsightsSessionInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the InsightsSessionInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_create($options);
-        $resource = new InsightsSessionInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

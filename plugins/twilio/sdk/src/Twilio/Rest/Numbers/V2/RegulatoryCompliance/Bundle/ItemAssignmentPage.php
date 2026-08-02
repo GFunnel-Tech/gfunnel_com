@@ -43,7 +43,6 @@ class ItemAssignmentPage extends Page
         return new ItemAssignmentInstance($this->version, $payload, $this->solution['bundleSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

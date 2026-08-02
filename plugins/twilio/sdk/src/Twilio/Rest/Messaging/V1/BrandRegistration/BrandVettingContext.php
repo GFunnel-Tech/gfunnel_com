@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class BrandVettingContext extends InstanceContext
@@ -55,62 +53,22 @@ class BrandVettingContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the BrandVettingInstance
      *
-     
-     
      * @return BrandVettingInstance Fetched BrandVettingInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): BrandVettingInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new BrandVettingInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['brandSid'],
             $this->solution['brandVettingSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the BrandVettingInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new BrandVettingInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['brandSid'],
-                        $this->solution['brandVettingSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

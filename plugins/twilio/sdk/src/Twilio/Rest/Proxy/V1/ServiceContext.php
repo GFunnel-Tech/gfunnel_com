@@ -23,22 +23,24 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
-use Twilio\Rest\Proxy\V1\Service\SessionList;
 use Twilio\Rest\Proxy\V1\Service\PhoneNumberList;
+use Twilio\Rest\Proxy\V1\Service\ShortCodeList;
+use Twilio\Rest\Proxy\V1\Service\SessionList;
 
 
 /**
- * @property SessionList $sessions
  * @property PhoneNumberList $phoneNumbers
+ * @property ShortCodeList $shortCodes
+ * @property SessionList $sessions
  * @method \Twilio\Rest\Proxy\V1\Service\SessionContext sessions(string $sid)
+ * @method \Twilio\Rest\Proxy\V1\Service\ShortCodeContext shortCodes(string $sid)
  * @method \Twilio\Rest\Proxy\V1\Service\PhoneNumberContext phoneNumbers(string $sid)
  */
 class ServiceContext extends InstanceContext
     {
-    protected $_sessions;
     protected $_phoneNumbers;
+    protected $_shortCodes;
+    protected $_sessions;
 
     /**
      * Initialize the ServiceContext
@@ -63,120 +65,49 @@ class ServiceContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the ServiceInstance
      *
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the ServiceInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the ServiceInstance
      *
-     
      * @return ServiceInstance Fetched ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): ServiceInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new ServiceInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the ServiceInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new ServiceInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the ServiceInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return ServiceInstance Updated ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): ServiceInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -198,68 +129,16 @@ class ServiceContext extends InstanceContext
                 $options['chatInstanceSid'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the ServiceInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ServiceInstance Updated ServiceInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): ServiceInstance
-    {
-        $response = $this->_update($options);
         return new ServiceInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
     }
 
-    /**
-     * Update the ServiceInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new ServiceInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Access the sessions
-     */
-    protected function getSessions(): SessionList
-    {
-        if (!$this->_sessions) {
-            $this->_sessions = new SessionList(
-                $this->version,
-                $this->solution['sid']
-            );
-        }
-
-        return $this->_sessions;
-    }
 
     /**
      * Access the phoneNumbers
@@ -274,6 +153,36 @@ class ServiceContext extends InstanceContext
         }
 
         return $this->_phoneNumbers;
+    }
+
+    /**
+     * Access the shortCodes
+     */
+    protected function getShortCodes(): ShortCodeList
+    {
+        if (!$this->_shortCodes) {
+            $this->_shortCodes = new ShortCodeList(
+                $this->version,
+                $this->solution['sid']
+            );
+        }
+
+        return $this->_shortCodes;
+    }
+
+    /**
+     * Access the sessions
+     */
+    protected function getSessions(): SessionList
+    {
+        if (!$this->_sessions) {
+            $this->_sessions = new SessionList(
+                $this->version,
+                $this->solution['sid']
+            );
+        }
+
+        return $this->_sessions;
     }
 
     /**

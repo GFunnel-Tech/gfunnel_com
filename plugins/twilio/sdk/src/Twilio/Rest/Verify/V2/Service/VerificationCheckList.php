@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class VerificationCheckList extends ListResource
@@ -45,21 +43,21 @@ class VerificationCheckList extends ListResource
             $serviceSid,
         
         ];
+
         $this->uri = '/Services/' . \rawurlencode($serviceSid)
         .'/VerificationCheck';
     }
 
     /**
-     * Helper function for Create
+     * Create the VerificationCheckInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return VerificationCheckInstance Created VerificationCheckInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(array $options = []): Response
+    public function create(array $options = []): VerificationCheckInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -77,50 +75,13 @@ class VerificationCheckList extends ListResource
                 $options['snaClientToken'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the VerificationCheckInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return VerificationCheckInstance Created VerificationCheckInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(array $options = []): VerificationCheckInstance
-    {
-        $response = $this->_create($options);
         return new VerificationCheckInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid']
-        );
-        
-    }
-
-    /**
-     * Create the VerificationCheckInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_create($options);
-        $resource = new VerificationCheckInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

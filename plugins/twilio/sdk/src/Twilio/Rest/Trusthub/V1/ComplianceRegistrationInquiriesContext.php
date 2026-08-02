@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -52,16 +50,15 @@ class ComplianceRegistrationInquiriesContext extends InstanceContext
     }
 
     /**
-     * Helper function for Update
+     * Update the ComplianceRegistrationInquiriesInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return ComplianceRegistrationInquiriesInstance Updated ComplianceRegistrationInquiriesInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): ComplianceRegistrationInquiriesInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -71,50 +68,13 @@ class ComplianceRegistrationInquiriesContext extends InstanceContext
                 $options['themeSetId'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the ComplianceRegistrationInquiriesInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ComplianceRegistrationInquiriesInstance Updated ComplianceRegistrationInquiriesInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): ComplianceRegistrationInquiriesInstance
-    {
-        $response = $this->_update($options);
         return new ComplianceRegistrationInquiriesInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['registrationId']
-        );
-        
-    }
-
-    /**
-     * Update the ComplianceRegistrationInquiriesInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new ComplianceRegistrationInquiriesInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['registrationId']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

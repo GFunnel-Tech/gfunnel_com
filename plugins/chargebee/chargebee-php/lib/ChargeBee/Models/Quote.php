@@ -34,11 +34,11 @@ class Quote extends Model
     'updatedAt',
     'vatNumberPrefix',
     'lineItems',
-    'lineItemTiers',
-    'lineItemDiscounts',
-    'lineItemTaxes',
     'discounts',
+    'lineItemDiscounts',
     'taxes',
+    'lineItemTaxes',
+    'lineItemTiers',
     'taxCategory',
     'currencyCode',
     'notes',
@@ -49,8 +49,6 @@ class Quote extends Model
     'contractTermTerminationFee',
     'businessEntityId',
     'deleted',
-    'totalContractValue',
-    'totalDiscount',
   ];
 
 

@@ -43,7 +43,6 @@ class LastMonthPage extends Page
         return new LastMonthInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

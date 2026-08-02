@@ -43,7 +43,6 @@ class ParticipantPage extends Page
         return new ParticipantInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['conferenceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

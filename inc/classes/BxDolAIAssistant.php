@@ -96,14 +96,13 @@ class BxDolAIAssistant extends BxDol
             'onclick' => "javascrip:bx_agents_action(this, 'asst', 'ask', {id: " . $this->_iId . ", text: '" . $sText . "'})"
         ]);
     }
-
-    public function getAskChat($sName = '', $sDescription = '', $sText = '', $oTemplate = false)
+    
+    public function getAskChat($sName = '', $sText = '', $oTemplate = false)
     {
         if(!$oTemplate)
             $oTemplate = BxDolTemplate::getInstance();
 
         $bName = !empty($sName);
-        $bDescription = !empty($sDescription);
         $bText = !empty($sText);
 
         $iChatId = 0;
@@ -114,22 +113,13 @@ class BxDolAIAssistant extends BxDol
         }
 
         if(empty($iChatId)) {
-            if(!$bName) {
-                if($bDescription)
-                    $sName = strmaxtextlen(_t($sDescription), 8);
-                else if($bText)
-                    $sName = strmaxtextlen($sText, 8);
-                else
-                    $sName = genRndPwd();
-
-                $sName = self::getChatName($sName);
-            }
+            if(!$bName)
+                $sName = self::getChatName($bText ? strmaxtextlen($sText, 8) : genRndPwd());
 
             $iChatId = $this->_oDb->insertChat([
                 'name' => $sName,
                 'type' => BX_DOL_AI_ASST_TYPE_TRANSIENT,
                 'assistant_id' => $this->_iId, 
-                'description' => $sDescription,
                 'added' => time(),
             ]);
         }
@@ -153,7 +143,7 @@ class BxDolAIAssistant extends BxDol
     
     public function getAskBlock($aParams = [])
     {
-        return $this->getAskChat('sys_block_assistant', '_sys_agents_assistants_chat_dsc_block');
+        return $this->getAskChat();
     }
 
     public function deleteChat($mixedChat)
@@ -258,7 +248,6 @@ class BxDolAIAssistant extends BxDol
             'name' => self::getChatName(strmaxtextlen($sText, 8)),
             'type' => BX_DOL_AI_ASST_TYPE_TRANSIENT,
             'assistant_id' => $this->_iId, 
-            'description' => '_sys_agents_assistants_chat_dsc_live_search',
             'added' => time(),
         ]);
 
@@ -299,7 +288,7 @@ class BxDolAIAssistant extends BxDol
         ];
 
         switch($sAction) {
-            case 'add_knowledge':
+            case 'add_knowledge';
                 $aForm['inputs'] = [
                     'id' => [
                         'type' => 'hidden',

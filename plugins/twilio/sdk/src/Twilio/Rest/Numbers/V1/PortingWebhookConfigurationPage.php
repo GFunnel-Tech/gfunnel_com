@@ -43,7 +43,6 @@ class PortingWebhookConfigurationPage extends Page
         return new PortingWebhookConfigurationInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

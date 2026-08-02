@@ -43,7 +43,6 @@ class NumberPage extends Page
         return new NumberInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

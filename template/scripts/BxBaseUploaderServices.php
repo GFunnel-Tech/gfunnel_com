@@ -53,7 +53,7 @@ class BxBaseUploaderServices extends BxDol
         else
             $iContentId = bx_process_input($iContentId, BX_DATA_INT);
 
-        $iProfileId = (int)bx_get_logged_profile_id();
+        
         $isPrivate = (int)bx_get('p') ? 1 : 0;
 
         $oUploader = BxDolUploader::getObjectInstance($sUploaderObject, $sStorageObject, $sUniqId);
@@ -64,7 +64,7 @@ class BxBaseUploaderServices extends BxDol
 
             case 'restore_ghosts':
                 $sImagesTranscoder = bx_process_input(bx_get('img_trans'));
-                $oData = $oUploader->getGhostsWithOrder($iProfileId, $sFormat, $sImagesTranscoder, $iContentId);
+                $oData = $oUploader->getGhostsWithOrder((int)bx_get_logged_profile_id(), $sFormat, $sImagesTranscoder, $iContentId);
                 $aRv = isset($oData['g']) ? [$oData['g'], $oData['o']] : [];
                 return $aRv;
                 break;
@@ -72,20 +72,19 @@ class BxBaseUploaderServices extends BxDol
             case 'delete':
                 header('Content-type: text/html; charset=utf-8');
                 $iFileId = bx_process_input(bx_get('id'), BX_DATA_INT);
-                return $oUploader->deleteGhost($iFileId, $iProfileId);
+                return $oUploader->deleteGhost($iFileId, bx_get_logged_profile_id());
                 break;
 
             case 'upload':
-                if(($aFile = $_FILES['file'] ?? false)) {
-                    $aResult = $oUploader->handleUploads($iProfileId, $aFile, $isMultiple, $iContentId, $isPrivate);
-                    if(($iId = (int)($aResult['id'] ?? 0)) && ($sImagesTranscoder = bx_get('img_trans')) !== false) {
-                        $aGhosts = $oUploader->getGhosts($iProfileId, 'array', bx_process_input($sImagesTranscoder), $iContentId);
-                        if(isset($aGhosts[$iId]))
-                            $aResult['ghost'] = $aGhosts[$iId];
-                    }
+                $iProfileId = (int)bx_get_logged_profile_id();
 
-                    return $aResult;
+                $aResult = $oUploader->handleUploads($iProfileId, isset($_FILES['f']) ? $_FILES['f'] : null, $isMultiple, $iContentId, $isPrivate);
+                if(isset($aResult['id']) && ($iId = (int)$aResult['id']) && ($sImagesTranscoder = bx_get('img_trans')) !== false) {
+                    $aGhosts = $oUploader->getGhosts($iProfileId, 'array', bx_process_input($sImagesTranscoder), $iContentId);
+                    if(isset($aGhosts[$iId]))
+                        $aResult['ghost'] = $aGhosts[$iId];
                 }
+                return $aResult;
                 break;
 
             case 'upload_inline':
@@ -93,6 +92,8 @@ class BxBaseUploaderServices extends BxDol
                 $sFile = bx_process_input(bx_get('f'));
 
                 $oStorage = BxDolStorage::getObjectInstance($sStorageObject);
+                
+                $iProfileId = bx_get_logged_profile_id();
 
                 if (!($iId = $oStorage->storeFileFromForm($_FILES['file'], false, $iProfileId))) {
                     return array('error' => '1');

@@ -43,7 +43,6 @@ class EligibilityPage extends Page
         return new EligibilityInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

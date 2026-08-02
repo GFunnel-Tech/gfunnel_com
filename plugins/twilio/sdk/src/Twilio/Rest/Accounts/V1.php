@@ -22,7 +22,6 @@ use Twilio\Rest\Accounts\V1\AuthTokenPromotionList;
 use Twilio\Rest\Accounts\V1\BulkConsentsList;
 use Twilio\Rest\Accounts\V1\BulkContactsList;
 use Twilio\Rest\Accounts\V1\CredentialList;
-use Twilio\Rest\Accounts\V1\MessagingGeopermissionsList;
 use Twilio\Rest\Accounts\V1\SafelistList;
 use Twilio\Rest\Accounts\V1\SecondaryAuthTokenList;
 use Twilio\Version;
@@ -32,7 +31,6 @@ use Twilio\Version;
  * @property BulkConsentsList $bulkConsents
  * @property BulkContactsList $bulkContacts
  * @property CredentialList $credentials
- * @property MessagingGeopermissionsList $messagingGeopermissions
  * @property SafelistList $safelist
  * @property SecondaryAuthTokenList $secondaryAuthToken
  */
@@ -42,7 +40,6 @@ class V1 extends Version
     protected $_bulkConsents;
     protected $_bulkContacts;
     protected $_credentials;
-    protected $_messagingGeopermissions;
     protected $_safelist;
     protected $_secondaryAuthToken;
 
@@ -87,14 +84,6 @@ class V1 extends Version
             $this->_credentials = new CredentialList($this);
         }
         return $this->_credentials;
-    }
-
-    protected function getMessagingGeopermissions(): MessagingGeopermissionsList
-    {
-        if (!$this->_messagingGeopermissions) {
-            $this->_messagingGeopermissions = new MessagingGeopermissionsList($this);
-        }
-        return $this->_messagingGeopermissions;
     }
 
     protected function getSafelist(): SafelistList

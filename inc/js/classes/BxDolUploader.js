@@ -149,7 +149,7 @@ BxDolUploaderBase.prototype.cancelAll = function () {
 }
 
 BxDolUploaderBase.prototype.restoreGhosts = function (bInitReordering, onComplete) {
-    var sUrl = this._getUrlWithStandardParams() + '&img_trans=' + this._sImagesTranscoder + '&a=restore_ghosts&f=json' + '&c=' + this._iContentId + '&m=' + (this._isMultiple ? 1 : 0) + '&l=' + (this._isLatest ? 1 : 0) + '&_t=' + escape(new Date());
+    var sUrl = this._getUrlWithStandardParams() + '&img_trans=' + this._sImagesTranscoder + '&a=restore_ghosts&f=json' + '&c=' + this._iContentId + '&l=' + (this._isLatest ? 1 : 0) + '&_t=' + escape(new Date());
     var $this = this;
 
     bInitReordering = bInitReordering !== undefined ? bInitReordering : this._isReordering;
@@ -170,7 +170,7 @@ BxDolUploaderBase.prototype.restoreGhosts = function (bInitReordering, onComplet
                     $this.showGhost(iFileId, oVars);
                 });
 
-            $('#' + $this._sResultContainerId).bx_show_more_check_overflow().bxProcessHtml();
+            $('#' + $this._sResultContainerId).bx_show_more_check_overflow();
 
             if(bInitReordering) {
                 var sClassGhost = 'bx-uploader-ghost';

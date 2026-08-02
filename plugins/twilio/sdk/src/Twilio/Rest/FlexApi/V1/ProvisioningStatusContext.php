@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ProvisioningStatusContext extends InstanceContext
@@ -45,19 +43,6 @@ class ProvisioningStatusContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the ProvisioningStatusInstance
      *
      * @return ProvisioningStatusInstance Fetched ProvisioningStatusInstance
@@ -65,32 +50,13 @@ class ProvisioningStatusContext extends InstanceContext
      */
     public function fetch(): ProvisioningStatusInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new ProvisioningStatusInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Fetch the ProvisioningStatusInstance with Metadata
-     *
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new ProvisioningStatusInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

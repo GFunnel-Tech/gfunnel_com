@@ -20,8 +20,8 @@ import url(../../../../../../../template/css/common.css);
     clear:both;
 }
 
-.bx-tag-link b,
-.bx-tag-link s {
+.bx-tag b,
+.bx-tag s {
     text-decoration: none;
     font-weight: normal;
 }
@@ -87,11 +87,6 @@ import url(../../../../../../../template/css/common.css);
     overflow: hidden;
 }
 
-.bx-dbt-cnt {
-    display: flex;
-    flex-direction: column;
-}
-
 .bx-db-menu {
     -webkit-flex: 1 2 auto;
     -ms-flex: 1 2 auto;
@@ -102,11 +97,6 @@ import url(../../../../../../../template/css/common.css);
 
 .bx-media-phone .bx-db-menu {
     max-width: 65%;
-}
-
-.bx-dbc-notitle .bx-db-menu,
-.bx-media-phone .bx-dbc-notitle .bx-db-menu {
-    max-width: none;
 }
 
 /*-- START FROM HERE --*/
@@ -286,10 +276,6 @@ body.bx-popup-lock {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
-.bx-popup-image-wrapper .bx-def-border-radius-block {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0
-}
 
 
 /*--- Loading indicator ---*/
@@ -352,10 +338,8 @@ button.bx-btn:focus .bx-loading-ajax-btn {
 .bx-show-more {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
-}
-.bx-show-more a {
-    display: flex;
-    justify-content: center;
+
+    text-align: center
 }
 
 /*-- Flickity: Tailwind overwrite --*/

@@ -41,9 +41,8 @@ class BxDolReportQuery extends BxDolObjectQuery
         if(!empty($iPerPage))
             $sLimitClause = $this->prepareAsString(" LIMIT ?, ?", $iStart, $iPerPage);
 
-        return $this->getAll("SELECT * FROM `{$this->_sTableTrack}` WHERE `object_id` = :object_id ORDER BY `date` DESC" . $sLimitClause, [
-            'object_id' => $iObjectId
-        ]);
+        $sQuery = $this->prepare("SELECT `author_id`, `type`, `text`, `id`, `date` FROM `{$this->_sTableTrack}` WHERE `object_id`=? ORDER BY `date` DESC" . $sLimitClause, $iObjectId);
+        return $this->getAll($sQuery);
     }
 
     public function getReport($iObjectId)

@@ -84,9 +84,9 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
         $sAction = 'edit';
 
         $iId = $this->_getId();
-        $aAssistant = $this->_oDb->getAssistantsBy(['sample' => 'id', 'id' => $iId]);
+        $aHelper = $this->_oDb->getAssistantsBy(['sample' => 'id', 'id' => $iId]);
 
-        $aForm = $this->_getFormEdit($sAction, $aAssistant);
+        $aForm = $this->_getFormEdit($sAction, $aHelper);
         $oForm = new BxTemplFormView($aForm);
         $oForm->initChecker();
 
@@ -94,7 +94,7 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
             $aValsToAdd = [];
 
             $sName = $oForm->getCleanValue($this->_sFieldName);
-            if($aAssistant[$this->_sFieldName] != $sName) {
+            if($aHelper[$this->_sFieldName] != $sName) {
                 $sName = BxDolAIAssistant::getName($sName);
                 BxDolForm::setSubmittedValue($this->_sFieldName, $sName, $oForm->aFormAttrs['method']);
             }
@@ -107,18 +107,11 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
 
                 $aValsToAdd['profile_id'] = $iProfileId;
             }
-
-            $aRes = [];
-            $aResError = ['msg' => _t('_sys_txt_error_occured')];
-
-            $oAIModel = BxDolAI::getInstance()->getModelObject($aAssistant['model_id']);
-            if(($sKey = 'ai_asst_id') && !empty($aAssistant[$sKey]) && !$oAIModel->editAssistant($aAssistant[$sKey], ['name' => $sName, 'prompt' => $oForm->getCleanValue('prompt')]))
-                return echoJson($aResError);
-
+            
             if($oForm->update($iId, $aValsToAdd) !== false)
                 $aRes = ['grid' => $this->getCode(false), 'blink' => $iId];
             else
-                $aRes = $aResError;
+                $aRes = ['msg' => _t('_sys_txt_error_occured')];
 
             return echoJson($aRes);
         } 
@@ -153,6 +146,25 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
         return echoJson(['popup' => ['html' => $sContent, 'options' => []]]);
     }
 
+    protected function _getCellModelId($mixedValue, $sKey, $aField, $aRow)
+    {
+        $aModel = $this->_oDb->getModelsBy(['sample' => 'id', 'id' => $mixedValue]);
+        if(!empty($aModel) && is_array($aModel))
+            $mixedValue = $aModel['title'];
+
+        return parent::_getCellDefault($mixedValue, $sKey, $aField, $aRow);
+    }
+
+    protected function _getCellProfileId($mixedValue, $sKey, $aField, $aRow)
+    {
+        return parent::_getCellDefault(BxDolProfile::getInstanceMagic($mixedValue)->getDisplayName(), $sKey, $aField, $aRow);
+    }
+
+    protected function _getCellAdded($mixedValue, $sKey, $aField, $aRow)
+    {
+        return parent::_getCellDefault(bx_time_js($mixedValue), $sKey, $aField, $aRow);
+    }
+
     protected function _getActionChats($sType, $sKey, $a, $isSmall = false, $isDisabled = false, $aRow = [])
     {
     	$a['attr'] = array_merge($a['attr'], [
@@ -169,6 +181,26 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
     	]);
 
     	return $this->_getActionDefault ($sType, $sKey, $a, $isSmall, $isDisabled, $aRow);
+    }
+
+    protected function _addJsCss()
+    {
+        parent::_addJsCss();
+
+        $this->_oTemplate->addJs(['jquery.form.min.js']);
+
+        $oForm = new BxTemplStudioFormView([]);
+        $oForm->addCssJs();
+    }
+    
+    protected function _isCheckboxDisabled($aRow)
+    {
+        return false;
+    }
+
+    protected function _getActionsDisabledBehavior($aRow)
+    {
+        return false;
     }
 
     protected function _delete ($mixedId)
@@ -203,23 +235,15 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
         return $mixedResult;
     }
 
-    protected function _getFormEdit($sAction, $aAssistant = [])
+    protected function _getFormEdit($sAction, $aHelper = [])
     {
-        $aForm = $this->_getForm($sAction, $aAssistant);
-        $aForm['form_attrs']['action'] .= '&id=' . $aAssistant['id'];
-
-        if(!isset($aForm['inputs']['model_id']['attrs']))
-            $aForm['inputs']['model_id']['attrs'] = [];
-
-        $aForm['inputs']['model_id']['attrs'] = array_merge($aForm['inputs']['model_id']['attrs'], [
-            'disabled' => 'disabled'
-        ]);
-        unset($aForm['inputs']['model_id']['db']);
+        $aForm = $this->_getForm($sAction, $aHelper);
+        $aForm['form_attrs']['action'] .= '&id=' . $aHelper['id'];
 
         return $aForm;
     }
 
-    protected function _getForm($sAction, $aAssistant = [])
+    protected function _getForm($sAction, $aHelper = [])
     {
         $sJsObject = $this->getPageJsObject();
 
@@ -242,7 +266,7 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
                     'name' => 'name',
                     'required' => '1',
                     'caption' => _t('_sys_agents_assistants_field_name'),
-                    'value' => isset($aAssistant['name']) ? $aAssistant['name'] : '',
+                    'value' => isset($aHelper['name']) ? $aHelper['name'] : '',
                     'required' => '1',
                     'checker' => [
                         'func' => 'Avail',
@@ -258,7 +282,7 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
                     'name' => 'model_id',
                     'caption' => _t('_sys_agents_assistants_field_model_id'),
                     'info' => '',
-                    'value' => isset($aAssistant['model_id']) ? $aAssistant['model_id'] : BxDolAI::getDefaultModel(),
+                    'value' => isset($aHelper['model_id']) ? $aHelper['model_id'] : BxDolAI::getDefaultModel(),
                     'values' => $this->_oDb->getModelsBy(['sample' => 'all_pairs', 'for_asst' => 1, 'active' => 1, 'hidden' => 0]),
                     'required' => '1',
                     'db' => [
@@ -270,7 +294,7 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
                     'name' => 'profile_id',
                     'caption' => _t('_sys_agents_assistants_field_profile_id'),
                     'info' => _t('_sys_agents_assistants_field_profile_id_inf'),
-                    'value' => isset($aAssistant['profile_id']) ? $aAssistant['profile_id'] : 0,
+                    'value' => isset($aHelper['profile_id']) ? $aHelper['profile_id'] : 0,
                     'values' => bx_srv('system', 'get_options_agents_profile', [], 'TemplServices'),
                     'required' => '0',
                     'db' => [
@@ -281,7 +305,7 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
                     'type' => 'textarea',
                     'name' => 'description',
                     'caption' => _t('_sys_agents_assistants_field_description'),
-                    'value' => isset($aAssistant['description']) ? $aAssistant['description'] : '',
+                    'value' => isset($aHelper['description']) ? $aHelper['description'] : '',
                     'required' => '1',
                     'checker' => [
                         'func' => 'Avail',
@@ -296,7 +320,7 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
                     'type' => 'textarea',
                     'name' => 'prompt',
                     'caption' => _t('_sys_agents_assistants_field_prompt'),
-                    'value' => isset($aAssistant['prompt']) ? $aAssistant['prompt'] : '',
+                    'value' => isset($aHelper['prompt']) ? $aHelper['prompt'] : '',
                     'required' => '1',
                     'checker' => [
                         'func' => 'Avail',
@@ -307,11 +331,37 @@ class BxBaseStudioAgentsAssistants extends BxDolStudioAgentsAssistants
                         'pass' => 'Xss',
                     ]
                 ],
-                'submit' => $this->_getFormControls(),
+                'submit' => [
+                    'type' => 'input_set',
+                    0 => [
+                        'type' => 'submit',
+                        'name' => 'do_submit',
+                        'value' => _t('_sys_submit'),
+                    ],
+                    1 => [
+                        'type' => 'reset',
+                        'name' => 'close',
+                        'value' => _t('_sys_close'),
+                        'attrs' => ['class' => 'bx-def-margin-sec-left', 'onclick' => '$(\'.bx-popup-applied:visible\').dolPopupHide();'],
+                    ],
+                ],
             ],
         ];
 
         return $aForm;
+    }
+    
+    protected function _getId()
+    {
+        $aIds = bx_get('ids');
+        if(!empty($aIds) && is_array($aIds))
+            return array_shift($aIds);
+
+        $iId = (int)bx_get('id');
+        if(!$iId)
+            return false;
+
+        return $iId;
     }
 }
 

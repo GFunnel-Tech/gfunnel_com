@@ -32,7 +32,7 @@ class BxBaseSearchExtendedForm extends BxTemplFormView
         //--- Process field with 'Location' type. 
         if($bType && $this->aInputs[$sName]['type'] == 'location') {
             $aLocation = BxDolMetatags::locationsRetrieveFromForm($sName, $this);
-            if ($aLocation && !bx_is_empty_array($aLocation)) {
+            if ($aLocation) {
                 return [
                     'string' => parent::getCleanValue($sName),
                     'array' => $aLocation,
@@ -43,7 +43,7 @@ class BxBaseSearchExtendedForm extends BxTemplFormView
         //--- Process field with 'Location Radius' type. 
         if($bType && $this->aInputs[$sName]['type'] == 'location_radius') {
             $aLocation = BxDolMetatags::locationsRetrieveFromForm($sName, $this);
-            if ($aLocation && !bx_is_empty_array($aLocation)) {
+            if ($aLocation) {
                 $aLocation[] = (int)$this->getLocationVal($this->aInputs[$sName], 'rad');
                 return [
                     'string' => parent::getCleanValue($sName),
@@ -196,39 +196,6 @@ class BxBaseSearchExtendedForm extends BxTemplFormView
             $aInput['values'] = array_combine($aLabels, $aLabels);       
 
         return $this->genInputCheckboxSet($aInput);
-    }
-
-    protected function genCustomInputAllowViewTo (&$aInput)
-    {
-        $iProfileId = bx_get_logged_profile_id();
-        $oConnection = BxDolConnection::getObjectInstance('sys_profiles_subscriptions');
-
-        $aModules = bx_srv('system', 'get_modules_by_type', ['context']);
-
-        $aValues = [
-            ['key' => 0, 'value' => _t('_sys_please_select')],
-            ['key' => 3, 'value' => _t('_sys_ps_group_title_public')]
-        ];
-        foreach($aModules as $aModule) {
-            $aItems = $oConnection->getConnectedContentByType($iProfileId, $aModule['name']);
-            if($aItems && is_array($aItems)) {
-                $aValues[] = [
-                    'type' => 'group_header', 
-                    'value' => mb_strtoupper(bx_srv($aModule['name'], 'get_space_title'))
-                ];
-
-                foreach($aItems as $iItem)
-                    if(($oProfile = BxDolProfile::getInstance($iItem)) !== false && ($sDisplayName = $oProfile->getDisplayName()))
-                        $aValues[] = ['key' => -$iItem, 'value' => $sDisplayName];
-
-                $aValues[] = [
-                    'type' => 'group_end'
-                ];
-            }
-        }
-
-        $aInput['values'] = $aValues;
-        return $this->{'genInput' . ($aInput['type'] == 'hidden' ? 'Standard' : 'Select')}($aInput);
     }
 
     function addCssJsCore ()

@@ -216,16 +216,6 @@ class BxBaseModPaymentModule extends BxBaseModGeneralModule
         return $aResult;
     }
 
-    public function _isModeratorForProfile($isPerformAction = false, $iProfileId = false)
-    {
-        return BxDolAcl::getInstance()->isMemberLevelInSet([MEMBERSHIP_ID_MODERATOR, MEMBERSHIP_ID_ADMINISTRATOR], $iProfileId) || (($oProfile = BxDolProfile::getInstance()) !== false && isAdmin($oProfile->getAccountId()));
-    }
-
-    public function _isAdministratorForProfile($isPerformAction = false, $iProfileId = false)
-    {
-        return BxDolAcl::getInstance()->isMemberLevelInSet([MEMBERSHIP_ID_ADMINISTRATOR], $iProfileId) || (($oProfile = BxDolProfile::getInstance()) !== false && isAdmin($oProfile->getAccountId()));
-    }
-
     public function isSingleSeller()
     {
         return $this->_oConfig->isSingleSeller();
@@ -447,7 +437,7 @@ class BxBaseModPaymentModule extends BxBaseModGeneralModule
     	return BxDolService::call($mixedModule, 'cancel_subscription_item', $aParams);
     }
 
-    public function log($mixedContents, $sSection = '', $sTitle = '', $iLevel = BX_LOG_DEBUG)
+    public function log($mixedContents, $sSection = '', $sTitle = '')
     {
         if(is_array($mixedContents))
             $mixedContents = var_export($mixedContents, true);	
@@ -459,7 +449,7 @@ class BxBaseModPaymentModule extends BxBaseModGeneralModule
 
         $sTitle .= "\n";
 
-        bx_log('sys_payments', ":\n[" . $sSection . "] " . $sTitle . $mixedContents, $iLevel);
+        bx_log('sys_payments', ":\n[" . $sSection . "] " . $sTitle . $mixedContents);
     }
 }
 

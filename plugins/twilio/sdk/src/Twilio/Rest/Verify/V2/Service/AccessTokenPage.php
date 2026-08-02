@@ -43,7 +43,6 @@ class AccessTokenPage extends Page
         return new AccessTokenInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

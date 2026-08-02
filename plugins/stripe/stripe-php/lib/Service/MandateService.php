@@ -4,23 +4,18 @@
 
 namespace Stripe\Service;
 
-/**
- * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
- * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- */
-class MandateService extends AbstractService
+class MandateService extends \Stripe\Service\AbstractService
 {
     /**
      * Retrieves a Mandate object.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @return \Stripe\Mandate
+     * @param null|array $params
+     * @param null|array|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Mandate
      */
     public function retrieve($id, $params = null, $opts = null)
     {

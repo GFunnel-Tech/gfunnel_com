@@ -43,7 +43,6 @@ class FlowRevisionPage extends Page
         return new FlowRevisionInstance($this->version, $payload, $this->solution['sid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

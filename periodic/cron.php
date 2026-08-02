@@ -122,7 +122,7 @@ function runJob($aJob)
     } else if (!empty($aJob['service_call']) && BxDolService::isSerializedService($aJob['service_call'])) {
         BxDolService::callSerialized($aJob['service_call']);
     }
-    bx_log('sys_cron_jobs', $aJob['name'] . ' / timing: ' . (microtime(true) - $fStart) . ' / memory: ' . memory_get_usage(), BX_LOG_INFO);
+    bx_log('sys_cron_jobs', $aJob['name'] . ' / timing: ' . (microtime(true) - $fStart) . ' / memory: ' . memory_get_usage());
     $oDb->updateJob($aJob['id'], array('timing' => microtime(true) - $fStart));
 }
 
@@ -159,15 +159,10 @@ foreach($aJobs as $aRow) {
             runJob($aRow);
 }
 
-// run agents (schedulers)
-$oAi = BxDolAI::getInstance();
-$aAgents = $oAi->getAgentsByTriggerType('scheduler');
-foreach($aAgents as $aAgent) {
-    if(checkCronJob($aAgent['scheduler_cron'], $aDate))
-        $oAi->callAgent('scheduler', $aAgent);
-}
-
 // run automators (schedulers)
+bx_import('BxDolAI');
+$oAi = BxDolAI::getInstance();
+
 $aAutomators = $oAi->getAutomatorsScheduler();
 foreach($aAutomators as $aAutomator) {
     if(checkCronJob($aAutomator['params']['scheduler_time'], $aDate))

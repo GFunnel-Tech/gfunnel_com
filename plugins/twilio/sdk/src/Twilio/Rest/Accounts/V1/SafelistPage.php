@@ -43,7 +43,6 @@ class SafelistPage extends Page
         return new SafelistInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

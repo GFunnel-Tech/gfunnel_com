@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class NewKeyList extends ListResource
@@ -45,29 +43,9 @@ class NewKeyList extends ListResource
             $accountSid,
         
         ];
+
         $this->uri = '/Accounts/' . \rawurlencode($accountSid)
         .'/Keys.json';
-    }
-
-    /**
-     * Helper function for Create
-     *
-     * @param array|Options $options Optional Arguments
-     * @return Response Created Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _create(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $data = Values::of([
-            'FriendlyName' =>
-                $options['friendlyName'],
-        ]);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
     }
 
     /**
@@ -79,35 +57,21 @@ class NewKeyList extends ListResource
      */
     public function create(array $options = []): NewKeyInstance
     {
-        $response = $this->_create($options);
+
+        $options = new Values($options);
+
+        $data = Values::of([
+            'FriendlyName' =>
+                $options['friendlyName'],
+        ]);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
+
         return new NewKeyInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['accountSid']
-        );
-        
-    }
-
-    /**
-     * Create the NewKeyInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_create($options);
-        $resource = new NewKeyInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['accountSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

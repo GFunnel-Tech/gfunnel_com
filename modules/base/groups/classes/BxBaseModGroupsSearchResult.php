@@ -38,11 +38,11 @@ class BxBaseModGroupsSearchResult extends BxBaseModProfileSearchResult
         
         return $aResult;
     }
-
-    public function processingAPI ($bForceGetData = false) 
+    
+    public function processingAPI () 
     {
-        $aResult = parent::processingAPI($bForceGetData);
-
+        $aResult = parent::processingAPI();
+        
         switch($this->_sMode) {
             case 'created_entries':
                 if(isset($this->_aParams['author']))
@@ -109,14 +109,15 @@ class BxBaseModGroupsSearchResult extends BxBaseModProfileSearchResult
     {
         $CNF = &$this->oModule->_oConfig->CNF;
 
-        if(!($oProfileAuthor = BxDolProfile::getInstance((int)$aParams['author']))) 
-            return !($this->isError = true);
+        $oProfileAuthor = BxDolProfile::getInstance((int)$aParams['author']);
+        if (!$oProfileAuthor) 
+            return false;
 
         $iProfileAuthor = $oProfileAuthor->id();
         $this->aCurrent['restriction']['owner']['value'] = $iProfileAuthor;
 
         if(!empty($aParams['per_page']))
-            $this->aCurrent['paginate']['perPage'] = is_numeric($aParams['per_page']) ? (int)$aParams['per_page'] : (int)getParam($aParams['per_page']);
+        	$this->aCurrent['paginate']['perPage'] = is_numeric($aParams['per_page']) ? (int)$aParams['per_page'] : (int)getParam($aParams['per_page']);
 
         $this->sBrowseUrl = 'page.php?i=' . $CNF['URI_JOINED_ENTRIES'] . '&profile_id={profile_id}';
         $this->aCurrent['title'] = _t($CNF['T']['txt_all_entries_by_author']);
@@ -129,8 +130,9 @@ class BxBaseModGroupsSearchResult extends BxBaseModProfileSearchResult
     {
         $CNF = &$this->oModule->_oConfig->CNF;
 
-        if(!($oProfileAuthor = BxDolProfile::getInstance((int)$aParams['user']))) 
-            return !($this->isError = true);
+        $oProfileAuthor = BxDolProfile::getInstance((int)$aParams['user']);
+        if (!$oProfileAuthor) 
+            return false;
 
         $iListId = 0;
         if(isset($aParams['list_id']))
@@ -139,16 +141,16 @@ class BxBaseModGroupsSearchResult extends BxBaseModProfileSearchResult
         $iProfileAuthor = $oProfileAuthor->id();
         $oFavorite = $this->oModule->getObjectFavorite();
         if(!$oFavorite || (!$oFavorite->isPublic() && $iProfileAuthor != bx_get_logged_profile_id())) 
-            return !($this->isError = true);
+            return false;
 
         $aConditions = $oFavorite->getConditionsTrack($CNF['TABLE_ENTRIES'], 'id', $iProfileAuthor, $iListId);
         if(!empty($aConditions) && is_array($aConditions)) {
             if(empty($this->aCurrent['restriction']) || !is_array($this->aCurrent['restriction']))
-                $this->aCurrent['restriction'] = [];
+                $this->aCurrent['restriction'] = array();
             $this->aCurrent['restriction'] = array_merge($this->aCurrent['restriction'], $aConditions['restriction']);
 
             if(empty($this->aCurrent['join']) || !is_array($this->aCurrent['join']))
-                $this->aCurrent['join'] = [];
+                $this->aCurrent['join'] = array();
             $this->aCurrent['join'] = array_merge($this->aCurrent['join'], $aConditions['join']);
         }
 
@@ -159,46 +161,21 @@ class BxBaseModGroupsSearchResult extends BxBaseModProfileSearchResult
         return true;
     }
 
-    protected function _updateCurrentForJoinedEntries($sMode, $aParams, &$oJoinedProfile)
-    {
-        $CNF = &$this->oModule->_oConfig->CNF;
-
-        if(!($oJoinedProfile = BxDolProfile::getInstance((int)$aParams['joined_profile'])))
-            return !($this->isError = true);
-
-        $sDbPrefix = $this->oModule->_oConfig->getDbPrefix();
-
-        $this->aCurrent['join']['fans'] = [
-            'type' => 'INNER',
-            'table' => $sDbPrefix . 'fans',
-            'mainField' => 'id',
-            'onField' => 'content',
-            'joinFields' => ['initiator'],
-        ];
-
-        $this->aCurrent['restriction']['fans'] = ['value' => $oJoinedProfile->id(), 'field' => 'initiator', 'operator' => '=', 'table' => $sDbPrefix . 'fans'];
-
-        $this->sBrowseUrl = 'page.php?i=' . $CNF['URI_JOINED_ENTRIES'] . '&profile_id={profile_id}';
-        $this->aCurrent['title'] = ($sKey = 'txt_joined_entries') && !empty($CNF['T'][$sKey]) ? _t($CNF['T'][$sKey]) : '';
-        $this->aCurrent['rss']['link'] = 'modules/?r=' . $this->oModule->_oConfig->getUri() . '/rss/' . $sMode . '/' . $oJoinedProfile->id();
-
-        return true;
-    }
-
     protected function _updateCurrentForContext($sMode, $aParams, &$oProfileContext)
     {
         $CNF = &$this->oModule->_oConfig->CNF;
-
-        if(!($oProfileContext = BxDolProfile::getInstance((int)$aParams['context'])))
-            return !($this->isError = true);
+        
+        $oProfileContext = BxDolProfile::getInstance((int)$aParams['context']);
+        if (!$oProfileContext) 
+            return false;
 
         $iProfileIdContext = $oProfileContext->id();
-        $this->aCurrent['restriction']['context'] = [
+        $this->aCurrent['restriction']['context'] = array(
             'value' => -$iProfileIdContext,
             'field' => $CNF['FIELD_ALLOW_VIEW_TO'],
             'operator' => '=',
             'table' => $CNF['TABLE_ENTRIES']
-        ];
+        );
 
         if(!empty($aParams['per_page']))
             $this->aCurrent['paginate']['perPage'] = is_numeric($aParams['per_page']) ? (int)$aParams['per_page'] : (int)getParam($aParams['per_page']);
@@ -206,30 +183,6 @@ class BxBaseModGroupsSearchResult extends BxBaseModProfileSearchResult
         $this->sBrowseUrl = 'page.php?i=' . $CNF['URI_ENTRIES_BY_CONTEXT'] . '&profile_id={profile_id}';
         $this->aCurrent['title'] = _t($CNF['T']['txt_all_entries_by_context']);
         $this->aCurrent['rss']['link'] = 'modules/?r=' . $this->oModule->_oConfig->getUri() . '/rss/' . $sMode . '/' . $iProfileIdContext;
-
-        return true;
-    }
-    
-    protected function _updateCurrentForFollowedEntries($sMode, $aParams, &$oJoinedProfile)
-    {
-        $CNF = &$this->oModule->_oConfig->CNF;
-
-        if(!($oJoinedProfile = BxDolProfile::getInstance((int)$aParams['followed_profile'])))
-            return !($this->isError = true);
-
-        $this->aCurrent['join']['followed'] = [
-            'type' => 'INNER',
-            'table' => 'sys_profiles_conn_subscriptions',
-            'mainField' => 'id',
-            'onField' => 'content',
-            'joinFields' => ['initiator'],
-        ];
-
-        $this->aCurrent['restriction']['followed'] = ['value' => $oJoinedProfile->id(), 'field' => 'initiator', 'operator' => '=', 'table' => 'sys_profiles_conn_subscriptions'];
-
-        $this->sBrowseUrl = 'page.php?i=' . $CNF['URI_FOLLOWED_ENTRIES'] . '&profile_id={profile_id}';
-        $this->aCurrent['title'] = ($sKey = 'txt_followed_entries') && !empty($CNF['T'][$sKey]) ? _t($CNF['T'][$sKey]) : '';
-        $this->aCurrent['rss']['link'] = 'modules/?r=' . $this->oModule->_oConfig->getUri() . '/rss/' . $sMode . '/' . $oJoinedProfile->id();
 
         return true;
     }

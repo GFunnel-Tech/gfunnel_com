@@ -174,7 +174,6 @@ class BxDolCmtsQuery extends BxDolDb
         $sQuery = "SELECT 
                 `ti`.`cmt_id` AS `cmt_id`, 
                 `ti`.`system_id` AS `cmt_system_id`, 
-                `to`.`Name` AS `system_name`,
                 `to`.`Table` AS `cmt_table` 
             FROM `" . BxDolCmts::$sTableIds . "` AS `ti` 
             INNER JOIN  `" . BxDolCmts::$sTableSystems . "` AS `to` ON  `ti`.`system_id` = `to`.`ID`
@@ -190,8 +189,7 @@ class BxDolCmtsQuery extends BxDolDb
                 `ti`.`rate`, `ti`.`votes`,
                 `ti`.`rrate`, `ti`.`rvotes`,
                 `ti`.`score`, `ti`.`sc_up`, `ti`.`sc_down`,
-                `ti`.`reports`,
-                :system_name AS `system_name`
+                `ti`.`reports` 
             FROM `" . $aData['cmt_table'] . "` AS `tc`
             LEFT JOIN `" . BxDolCmts::$sTableIds . "` AS `ti` ON `ti`.`system_id` = :cmt_system_id AND `tc`.`cmt_id` = `ti`.`cmt_id` 
             WHERE `tc`.`cmt_id` = :cmt_id 
@@ -199,8 +197,7 @@ class BxDolCmtsQuery extends BxDolDb
 
         return $oDb->getRow($sQuery, array(
             'cmt_id' => $aData['cmt_id'],
-            'cmt_system_id' => $aData['cmt_system_id'],
-            'system_name' => $aData['system_name']
+            'cmt_system_id' => $aData['cmt_system_id']
         ));
     }
 
@@ -310,10 +307,7 @@ class BxDolCmtsQuery extends BxDolDb
             'system' => $this->_oMain->getSystemInfo(), 
             'join_clause' => &$sJoinClause, 
             'where_clause' => &$sWhereClause, 
-            'params' => &$aBindings,
-            'join_clause_ref' => &$sJoinClause, 
-            'where_clause_ref' => &$sWhereClause, 
-            'params_ref' => &$aBindings
+            'params' => &$aBindings
         ]);
         
         $sQuery = "SELECT
@@ -371,11 +365,7 @@ class BxDolCmtsQuery extends BxDolDb
             'select_clause' => &$sSelectClause, 
             'join_clause' => &$sJoinClause, 
             'where_clause' => &$sWhereClause,  
-            'params' => &$aBindings,
-            'select_clause_ref' => &$sSelectClause, 
-            'join_clause_ref' => &$sJoinClause, 
-            'where_clause_ref' => &$sWhereClause,  
-            'params_ref' => &$aBindings
+            'params' => &$aBindings
         ]);
         
         $sQuery = "SELECT
@@ -489,13 +479,7 @@ class BxDolCmtsQuery extends BxDolDb
             'where_clause' => &$sWhereClause, 
             'order_clause' => &$sOrder, 
             'limit_clause' => &$sLimit, 
-            'params' => &$aBindings,
-            'select_clause_ref' => &$sQuery, 
-            'join_clause_ref' => &$sJoin, 
-            'where_clause_ref' => &$sWhereClause, 
-            'order_clause_ref' => &$sOrder, 
-            'limit_clause_ref' => &$sLimit, 
-            'params_ref' => &$aBindings
+            'params' => &$aBindings
         ]);
 
         $sQuery = $sQuery . $sJoin . " WHERE `{$this->_sTable}`.`cmt_object_id`=:cmt_object_id AND (ISNULL(`p`.`status`) OR `p`.`status`='active' OR `{$this->_sTable}`.`cmt_replies`!=0)" . $sWhereClause . $sOrder . $sLimit;
@@ -627,16 +611,41 @@ class BxDolCmtsQuery extends BxDolDb
                 elseif (!empty($aParams['per_page']))
                     $sLimitClause = $this->prepareAsString("?", $aParams['per_page']);
 
-                BxDolSearchExtended::processParams($aParams['search_params'], [
-                    'table' => $this->_sTable,
-                    'bindings' => &$aMethod['params'][1],
-                    'where_clause' => &$sWhereClause,
-                    'bindings_ref' => &$aMethod['params'][1],
-                    'where_clause_ref' => &$sWhereClause
-                ]);
+                $sWhereConditions = "1";
+                foreach($aParams['search_params'] as $sSearchParam => $aSearchParam) {
+                    $sSearchValue = "";
+                    switch ($aSearchParam['operator']) {
+                        case 'like':
+                            $sSearchValue = " LIKE " . $this->escape("%" . $aSearchParam['value'] . "%");
+                            break;
+
+                        case 'in':
+                            $sSearchValue = " IN (" . $this->implode_escape($aSearchParam['value']) . ")";
+                            break;
+
+                        case 'and':
+                            $iResult = 0;
+                            if (is_array($aSearchParam['value']))
+                                foreach ($aSearchParam['value'] as $iValue)
+                                    $iResult |= pow (2, $iValue - 1);
+                            else 
+                                $iResult = (int)$aSearchParam['value'];
+
+                            $sSearchValue = " & " . $iResult . "";
+                            break;
+
+                        default:
+                             $sSearchValue = " " . $aSearchParam['operator'] . " :" . $sSearchParam;
+                             $aMethod['params'][1][$sSearchParam] = $aSearchParam['value'];                             
+                    }
+
+                    $sWhereConditions .= " AND `{$this->_sTable}`.`" . $sSearchParam . "`" . $sSearchValue;
+                }
 
                 if(($oCf = $this->_oMain->getObjectContentFilter()) !== false)
-                    $sWhereClause .= $oCf->getSQLParts($this->_sTable, 'cmt_cf');
+                    $sWhereConditions .= $oCf->getSQLParts($this->_sTable, 'cmt_cf');
+
+                $sWhereClause .= " AND (" . $sWhereConditions . ")"; 
 
                 $sOrderClause .=  "`{$this->_sTable}`.`cmt_time` ASC";
                 break;

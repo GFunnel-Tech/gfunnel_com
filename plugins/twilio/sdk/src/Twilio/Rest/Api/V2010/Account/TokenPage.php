@@ -43,7 +43,6 @@ class TokenPage extends Page
         return new TokenInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

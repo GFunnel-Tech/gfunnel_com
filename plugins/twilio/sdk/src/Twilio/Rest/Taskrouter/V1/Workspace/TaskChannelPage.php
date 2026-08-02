@@ -43,7 +43,6 @@ class TaskChannelPage extends Page
         return new TaskChannelInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

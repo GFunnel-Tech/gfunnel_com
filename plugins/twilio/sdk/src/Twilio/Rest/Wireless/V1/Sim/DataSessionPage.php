@@ -43,7 +43,6 @@ class DataSessionPage extends Page
         return new DataSessionInstance($this->version, $payload, $this->solution['simSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

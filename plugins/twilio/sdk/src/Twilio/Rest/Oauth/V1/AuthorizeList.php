@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class AuthorizeList extends ListResource
@@ -40,19 +38,20 @@ class AuthorizeList extends ListResource
         // Path Solution
         $this->solution = [
         ];
+
         $this->uri = '/authorize';
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the AuthorizeInstance
      *
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return AuthorizeInstance Fetched AuthorizeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): AuthorizeInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -68,46 +67,12 @@ class AuthorizeList extends ListResource
                 $options['state'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the AuthorizeInstance
-     *
-     * @param array|Options $options Optional Arguments
-     * @return AuthorizeInstance Fetched AuthorizeInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): AuthorizeInstance
-    {
-        $response = $this->_fetch($options);
         return new AuthorizeInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Fetch the AuthorizeInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new AuthorizeInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

@@ -43,7 +43,6 @@ class AssistantsKnowledgePage extends Page
         return new AssistantsKnowledgeInstance($this->version, $payload, $this->solution['assistantId']);
     }
 
-
     /**
      * Provide a friendly representation
      *

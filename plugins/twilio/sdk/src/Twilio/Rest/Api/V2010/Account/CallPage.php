@@ -43,7 +43,6 @@ class CallPage extends Page
         return new CallInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

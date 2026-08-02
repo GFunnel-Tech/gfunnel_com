@@ -13,8 +13,6 @@ class ItemPriceTier extends Model
     'startingUnitInDecimal',
     'endingUnitInDecimal',
     'priceInDecimal',
-    'pricingType',
-    'packageSize',
   ];
 
 }

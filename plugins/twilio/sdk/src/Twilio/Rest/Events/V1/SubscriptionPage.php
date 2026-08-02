@@ -43,7 +43,6 @@ class SubscriptionPage extends Page
         return new SubscriptionInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

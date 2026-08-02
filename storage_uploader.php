@@ -36,9 +36,6 @@ if (!$oUploader) {
     exit;
 }
 
-if(($bM = bx_get('m')) !== false)
-    $oUploader->setMultiple((bool)$bM);
-
 $sAction = bx_process_input(bx_get('a'));
 
 switch ($sAction) {

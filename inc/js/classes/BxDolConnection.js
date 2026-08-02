@@ -6,86 +6,30 @@
  * @{
  */
 
-function BxDolConnection(oOptions)
+function BxDolConnection(options)
 {
-    this._sSystem = oOptions.sSystem;
-    this._iContentId = oOptions.iContentId; // profile or content ID to connect with
-    this._sContentType = oOptions.sContentType; 
-    this._bIsMutual = oOptions.bIsMutual; 
-
-    this._sObjName = undefined == oOptions.sObjName ? 'oConnection' : oOptions.sObjName; // javascript object name, to run current object instance from onTimer
+    this._sObjName = undefined == options.sObjName ? 'oConnection' : options.sObjName; // javascript object name, to run current object instance from onTimer
+    this._sSystem = options.sSystem; // current comment system
+    this._iObjId = options.iObjId; // this object id comments
+    this._sContentType = options.sContentType; 
+    this._bIsMutual = options.bIsMutual; 
+    
     this._sActionsUri = 'conn.php';
-    this._sActionsUrl = oOptions.sRootUrl + this._sActionsUri; // actions url address
+    this._sActionsUrl = options.sRootUrl + this._sActionsUri; // actions url address
 
     this._sAnimationEffect = 'fade';
     this._iAnimationSpeed = 'slow';
-    this._sSP = undefined == oOptions.sStylePrefix ? 'bx-view' : oOptions.sStylePrefix;
-    this._aHtmlIds = oOptions.aHtmlIds;
-    this._aRequestParams = oOptions.aRequestParams;
+    this._sSP = undefined == options.sStylePrefix ? 'bx-view' : options.sStylePrefix;
+    this._aHtmlIds = options.aHtmlIds;
 }
-
-BxDolConnection.prototype.connect = function(oLink, sAction, iContentId, bConfirm) {
-    var $this = this;
-    var oData = this._getDefaultParams();
-    oData['act'] = sAction;
-    oData['out'] = 'eval';
-
-    if(!iContentId)
-        iContentId = this._iContentId;
-
-    var fPerform = function() {
-        bx_loading_btn(oLink, 1);
-
-        $.post(
-            $this._sActionsUrl, 
-            oData,
-            function (oData) {
-                bx_loading_btn(oLink, 0);
-
-                $(oLink).parents('.bx-popup-applied:first:visible').dolPopupHide();
-
-                if(typeof(oData) != 'object')
-                    return;
-
-                if(oData.err)
-                    bx_alert(oData.msg);
-                else {
-                    if(oData.eval != undefined)
-                        eval(oData.eval);
-                    else if(!loadDynamicBlockAuto(oLink))
-                        location.reload();
-                }
-            },
-            'json'
-        );
-    };
-
-    if (typeof(bConfirm) != 'undefined' && bConfirm)
-    	bx_confirm(_t('_Are_you_sure'), fPerform);
-    else
-    	fPerform();
-};
-
-BxDolConnection.prototype.onConnect = function(oData) {
-    if(oData.data != 'undefined')
-        $('#' + this._aHtmlIds['main'] + this._iContentId).replaceWith(oData.data).bxProcessHtml();
-};
-
-BxDolConnection.prototype.toggleConnectPopup = function(oLink, iContentId) {
-    if(!iContentId)
-        iContentId = this._iContentId;
-
-    bx_menu_popup_inline('#' + this._aHtmlIds['do_popup'] + iContentId, oLink);
-};
 
 BxDolConnection.prototype.toggleByPopup = function(oLink) {
     var $this = this;
     var oData = this._getDefaultParams();
     oData['act'] = 'GetConnected';
-    oData['fmt'] = 'html';
 
     $(oLink).dolPopupAjax({
-        id: this._aHtmlIds['by_popup'] + this._iContentId, 
+        id: this._aHtmlIds['by_popup'], 
         url: bx_append_url_params(this._sActionsUri, oData)
     });
 };
@@ -94,6 +38,7 @@ BxDolConnection.prototype.getUsers = function(oLink, iStart, iPerPage) {
     var $this = this;
     var oData = this._getDefaultParams();
     oData['act'] = 'GetUsers';
+    oData['fmt'] = 'json';
     oData['start'] = iStart;
     oData['per_page'] = iPerPage;
 
@@ -135,11 +80,11 @@ BxDolConnection.prototype._getDefaultParams = function() {
     var oDate = new Date();
     return {
         obj: this._sSystem,
-        id: this._iContentId,
+        id: this._iObjId,
         mutual: this._bIsMutual,
         content_type: this._sContentType,
-        params: $.param(this._aRequestParams),
         _t: oDate.getTime(),
+        fmt: 'html'
     };
 };
 

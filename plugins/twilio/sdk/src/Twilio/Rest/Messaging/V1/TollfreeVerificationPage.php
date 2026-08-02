@@ -43,7 +43,6 @@ class TollfreeVerificationPage extends Page
         return new TollfreeVerificationInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -66,14 +66,11 @@ class BxBaseMenuSetAclLevel extends BxTemplMenu
                     'o' => 'sys_set_acl_level', 
                 ]);
 
-                $oProfile = BxDolProfile::getInstance($mixedProfileId);
-                $bProfile = $oProfile !== false;
-
-                $oForm->aInputs['profile_id']['value'] = $bProfile ? $oProfile->id() : $mixedProfileId;
+                $oForm->aInputs['profile_id']['value'] = $mixedProfileId;
                 $oForm->aInputs['card']['value'] = 0;
 
                 $oAcl = BxDolAcl::getInstance();
-                $aAclLevels = $oAcl->getMembershipsBy(['type' => 'all_active_not_automatic_pair', 'available_to' => $bProfile ? $oProfile->getModule() : '']);
+                $aAclLevels = $oAcl->getMembershipsBy(array('type' => 'all_active_not_automatic_pair'));
 		foreach ($aAclLevels as $k => $s)
                     $oForm->aInputs['level_id']['values'][] = ['key' => $k, 'value' => _t($s)];
 
@@ -158,21 +155,8 @@ class BxBaseMenuSetAclLevel extends BxTemplMenu
                 continue;
 
             $iSet += 1;
-            if($bAclCard) {
-                $aCards['card_' . $iProfileId] = $oAcl->getProfileMembership($iProfileId);
-
-                if(($aMembership = $oAcl->getMemberMembershipInfo($iProfileId))) {
-                    $aMembershipInfo = $oAcl->getMembershipInfo($aMembership['id']);
-
-                    $sContent = $this->_oTemplate->parseHtmlByName('menu_meta_item.html', [
-                        'icon' => $this->_oTemplate->getImage($aMembershipInfo['icon'], ['class' => 'bx-acl-m-thumbnail']), 
-                        'caption' => _t($aMembership['name'])
-                    ]);
-
-                    $aCards['label_' . $iProfileId] = $this->_oTemplate->parseTag('span', $sContent, ['id' => 'sys-mi-acl-' . $iProfileId]);
-                }
-                
-            }
+            if($bAclCard)
+                $aCards[$iProfileId] = $oAcl->getProfileMembership($iProfileId);
 
             checkActionModule($iPerformerId, 'set acl level', 'system', true); // perform action
         }

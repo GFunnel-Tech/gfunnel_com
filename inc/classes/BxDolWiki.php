@@ -42,8 +42,6 @@
  */
 class BxDolWiki extends BxDolFactory implements iBxDolFactoryObject
 {
-    protected $_bIsApi;
-
     protected $_sObject;
     protected $_aObject;
     protected $_oQuery;
@@ -58,8 +56,6 @@ class BxDolWiki extends BxDolFactory implements iBxDolFactoryObject
     protected function __construct($aObject)
     {
         parent::__construct();
-
-        $this->_bIsApi = bx_is_api();
 
         $this->_sObject = $aObject['object'];
         $this->_aObject = $aObject;
@@ -156,7 +152,7 @@ class BxDolWiki extends BxDolFactory implements iBxDolFactoryObject
         $aWikiVer = $this->_oQuery->getBlockContent ($iBlockId, $sLang, $iRevision);
         $aWikiLatest = $this->_oQuery->getBlockContent ($iBlockId, $sLang);
         if ($aWikiVer) {
-            if ($this->_bProcessMarkdown && !$this->_bIsApi) {
+            if ($this->_bProcessMarkdown) {
                 $oParsedown = new BxDolParsedown();
                 $oParsedown->setSafeMode($aWikiVer['unsafe'] ? false : true);
                 $s = $oParsedown->text($aWikiVer['content']);
@@ -174,8 +170,7 @@ class BxDolWiki extends BxDolFactory implements iBxDolFactoryObject
             $s = _t('_sys_wiki_error_no_revs');
         }
 
-        $sControls = '';
-        if (!$this->_bIsApi && ($aWikiVer || $this->isAllowed('edit'))) {
+        if ($aWikiVer || (!$aWikiVer && $this->isAllowed('edit'))) {
             $sControls = BxDolService::call('system', 'wiki_controls', array($this, $aWikiVer, $aWikiLatest, $iBlockId), 'TemplServiceWiki');
         }
 

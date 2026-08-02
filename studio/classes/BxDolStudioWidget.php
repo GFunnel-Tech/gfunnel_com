@@ -14,6 +14,8 @@ class BxDolStudioWidget extends BxTemplStudioPage
 {
     protected $sPage;
     protected $sPageDefault = BX_DOL_STUDIO_WGT_TYPE_DEFAULT;
+    
+    protected $aActions;
 
     public function __construct($mixedPageName)
     {
@@ -21,8 +23,7 @@ class BxDolStudioWidget extends BxTemplStudioPage
 
         $this->sPage = $this->sPageDefault;
 
-        if(!$this->bPage)
-            return;
+        $this->aActions = array();
 
         if(!$this->bPageMultiple) {
             $this->sPageRssHelpId = $this->aPage['name'];

@@ -43,7 +43,6 @@ class ApplicationPage extends Page
         return new ApplicationInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

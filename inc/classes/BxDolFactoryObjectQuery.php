@@ -20,22 +20,16 @@ class BxDolFactoryObjectQuery extends BxDolDb
         $this->_aObject = $aObject;
     }
 
-    static public function getObjectFromTable($sObject, $sTable, $bUseCache = false)
+    static public function getObjectFromTable($sObject, $sTable)
     {
         $oDb = BxDolDb::getInstance();
-        $aObject = false;
-        if ($bUseCache) {
-            $a = BxDolDb::getInstance()->fromCache($sTable, 'getAllWithKey', "SELECT * FROM `$sTable`", 'object');
-            if ($a && isset($a[$sObject]))
-                $aObject = $a[$sObject];
-        }
-        else {
-            $sQuery = $oDb->prepare("SELECT * FROM `$sTable` WHERE `object` = ?", $sObject);
 
-            $aObject = $oDb->getRow($sQuery);
-            if(!$aObject || !is_array($aObject))
-                $aObject = false;
-        }
+        $sQuery = $oDb->prepare("SELECT * FROM `$sTable` WHERE `object` = ?", $sObject);
+
+        $aObject = $oDb->getRow($sQuery);
+        if(!$aObject || !is_array($aObject))
+            return false;
+
         return $aObject;
     }
 

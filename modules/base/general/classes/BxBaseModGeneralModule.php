@@ -33,7 +33,9 @@ class BxBaseModGeneralModule extends BxDolModule
 
         $this->_bIsApi = bx_is_api();
         $this->_iProfileId = bx_get_logged_profile_id();
-        $this->_aSearchableNamesExcept = [];
+        $this->_aSearchableNamesExcept = array(
+            'allow_view_to'
+        );
 
         $this->_aFormParams = array(
             'display' => false, 
@@ -143,7 +145,6 @@ class BxBaseModGeneralModule extends BxDolModule
 
     public function actionUpdateImagePosition($iContentId, $sFiledName, $sH, $sV)
     {
-        // TODO: check permissions
         $this->serviceUpdateImagePosition($iContentId, $sFiledName, $sH, $sV);
     }
 
@@ -237,9 +238,6 @@ class BxBaseModGeneralModule extends BxDolModule
         $this->_rss($aArgs);
     }
 
-    /**
-     * Attach link
-     */
     public function actionGetAttachLinkForm()
     {
         $CNF = &$this->_oConfig->CNF;
@@ -310,152 +308,6 @@ class BxBaseModGeneralModule extends BxDolModule
             $aResult = ['code' => 1, 'message' => _t(!empty($CNF['txt_link_form_err_delete']) ? $CNF['txt_link_form_err_delete'] : $this->getName() . '_form_post_input_link_err_delete')];
 
         echoJson($aResult);
-    }
-
-    /**
-     * Attach poll
-     */
-    public function actionEmbedPoll($iPollId = 0)
-    {
-        if(empty($iPollId) && bx_get('poll_id') !== false)
-            $iPollId = (int)bx_get('poll_id');
-
-        $aParams = bx_get_with_prefix('param');
-        array_walk($aParams, function(&$sValue) {
-            $sValue = bx_process_input($sValue);
-        });
-
-        $this->_oTemplate->embedPollItem($iPollId, $aParams);
-    }
-
-    public function actionEmbedPolls($iId = 0)
-    {
-        list($iContentId, $aContentInfo) = $this->_getContent($iId);
-        if($iContentId === false)
-            return;
-
-        $aParams = bx_get_with_prefix('param');
-        array_walk($aParams, function(&$sValue) {
-            $sValue = bx_process_input($sValue);
-        });
-
-        $this->_oTemplate->embedPollItems($aContentInfo, $aParams);
-    }
-
-    public function actionGetPoll()
-    {
-        $iPollId = (int)bx_get('poll_id');
-        $sView = bx_process_input(bx_get('view'));
-
-        $sMethod = 'serviceGetBlockPoll' . bx_gen_method_name($sView);
-        if(!method_exists($this, $sMethod))
-            return echoJson(array());
-
-        $aBlock = $this->$sMethod($iPollId, true);
-        if(empty($aBlock) || !is_array($aBlock))
-            return echoJson(array());
-
-        return echoJson(array(
-            'content' => $aBlock['content']
-        ));
-    }
-    public function actionDeletePoll()
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        $iId = bx_process_input(bx_get('id'), BX_DATA_INT);
-        if(empty($iId))
-            return echoJson([]);
-
-        $aResult = [];
-        if($this->serviceDeletePoll($iId))
-            $aResult = ['code' => 0];
-        else
-            $aResult = ['code' => 1, 'message' => _t($CNF['txt_err_cannot_perform_action'])];
-
-        echoJson($aResult);
-    }
-
-    public function actionGetPollForm()
-    {
-        echo $this->_oTemplate->getPollForm((int)bx_get('parent_cid'));
-    }
-
-    public function actionSubmitPollForm()
-    {
-        echoJson($this->getPollForm((int)bx_get('parent_cid')));
-    }
-
-    public function serviceGetPollForm()
-    {
-        if(!$this->_bIsApi)
-            return false;
-
-        $aResult = $this->getPollForm();
-
-        if(isset($aResult['code'])) {
-            if((int)$aResult['code'] == 0) {
-                return [
-                    'id' => $aResult['id'],
-                    'item' => $aResult['item']
-                ];
-            }
-            else
-                return isset($aResult['message']) ? [bx_api_get_msg($aResult['message'])] : [];
-        }
-        else if(isset($aResult['form'])) {
-            $sModule = $this->getName();
-
-            return [bx_api_get_block('form', $aResult['form'], [
-                'ext' => [
-                    'name' => $sModule, 
-                    'request' => ['url' => '/api.php?r=' . $sModule . '/submit_poll_form', 'immutable' => true]
-                ]
-            ])];
-        }
-    }
-
-    public function serviceSubmitPollForm()
-    {
-        if(!$this->_bIsApi)
-            return false;
-
-        return $this->serviceGetPollForm();
-    }
-
-    public function serviceDeletePoll($iId)
-    {
-        return $this->_oDb->deletePolls([$this->_oConfig->CNF['FIELD_POLL_ID'] => $iId]);
-    }
-
-    public function getPollForm($iParentCid = 0)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        if(empty($CNF['OBJECT_FORM_POLL']))
-            return ['code' => 1, 'message' => '_sys_txt_error_occured'];
-
-        $iProfileId = bx_get_logged_profile_id();
-
-        $oForm = BxDolForm::getObjectInstance($CNF['OBJECT_FORM_POLL'], $CNF['OBJECT_FORM_POLL_DISPLAY_ADD'], $this->_oTemplate);
-        $oForm->setParentContentId($iParentCid);
-
-        $oForm->initChecker();
-        if($oForm->isSubmittedAndValid()) {
-            $iId = $oForm->insert();
-            if($iId)
-                return ['code' => 0, 'id' => $iId, 'item' => $this->_oTemplate->getPollItem($iId, $iProfileId, [
-                    'parent_cid' => $iParentCid,
-                    'manage' => true
-                ])];
-            else
-                return ['code' => 2, 'message' => '_sys_txt_error_entry_creation'];
-        }
-
-        return [
-            'form' => $oForm->{'getCode' . ($this->_bIsApi ? 'API' : '')}(), 
-            'form_id' => $oForm->id
-        ];
     }
 
     public function actionGetCreatePostForm()
@@ -718,12 +570,6 @@ class BxBaseModGeneralModule extends BxDolModule
             'EntityEdit' => '',
             'EntityDelete' => '',
             'UpdateImage' => '',
-            // polls
-            'GetPollForm' => '',
-            'SubmitPollForm' => '',
-            'DeletePoll' => '',
-            'GetBlockPollAnswers' => '',
-            'GetBlockPollResults' => '',
             // page blocks
             'EntityTextBlock' => '',
             'EntityInfo' => '',
@@ -763,11 +609,6 @@ class BxBaseModGeneralModule extends BxDolModule
         return isset($this->_oConfig->CNF['ICON']) ? $this->_oConfig->CNF['ICON'] : '';
     }
 
-    public function serviceGetModerators($iContentId)
-    {
-        return $this->getModerators($iContentId);
-    }
-
     public function serviceGetAuthor ($iContentId)
     {
         $mixedResult = $this->_getFieldValue('FIELD_AUTHOR', $iContentId);
@@ -795,61 +636,6 @@ class BxBaseModGeneralModule extends BxDolModule
      * @page service Service Calls
      * @section bx_base_general Base General
      * @subsection bx_base_general-other Other
-     * @subsubsection bx_base_general-get_link_add get_link_add
-     * 
-     * @code bx_srv('bx_posts', 'get_link_add', [...]); @endcode
-     * 
-     * Get add entry URL.
-     * 
-     * @see BxBaseModGeneralModule::serviceGetLinkAdd
-     */
-    /** 
-     * @ref bx_base_general-get_link_add "get_link_add"
-     */
-    public function serviceGetLinkAdd ()
-    {
-        $sUri = $this->_oConfig->getEntryUri('add');
-        if(!$sUri)
-            return '';         
-
-        return bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $sUri));
-    }
-
-    /**
-     * @page service Service Calls
-     * @section bx_base_general Base General
-     * @subsection bx_base_general-other Other
-     * @subsubsection bx_base_general-get_link_edit get_link_edit
-     * 
-     * @code bx_srv('bx_posts', 'get_link_edit', [...]); @endcode
-     * 
-     * Get edit entry URL for the specified content.
-     * @param $iContentId content id
-     * 
-     * @see BxBaseModGeneralModule::serviceGetLinkEdit
-     */
-    /** 
-     * @ref bx_base_general-get_link_edit "get_link_edit"
-     */
-    public function serviceGetLinkEdit ($iContentId)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        $sUri = $this->_oConfig->getEntryUri('edit');        
-        if(!$sUri)
-            return '';
-
-        $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
-        if(empty($aContentInfo))
-            return '';
-
-        return bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $sUri . '&id=' . $aContentInfo[$CNF['FIELD_ID']]));
-    }
-
-    /**
-     * @page service Service Calls
-     * @section bx_base_general Base General
-     * @subsection bx_base_general-other Other
      * @subsubsection bx_base_general-get_link get_link
      * 
      * @code bx_srv('bx_posts', 'get_link', [...]); @endcode
@@ -865,16 +651,14 @@ class BxBaseModGeneralModule extends BxDolModule
     public function serviceGetLink ($iContentId)
     {
         $CNF = &$this->_oConfig->CNF;
-
-        $sUri = $this->_oConfig->getEntryUri('view');        
-        if(!$sUri)
+        if(empty($CNF['URI_VIEW_ENTRY']))
             return '';
 
         $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
         if(empty($aContentInfo))
             return '';
 
-        return bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $sUri . '&id=' . $aContentInfo[$CNF['FIELD_ID']]));
+        return bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aContentInfo[$CNF['FIELD_ID']]));
     }
 
     public function serviceGetTitle ($iContentId)
@@ -1137,19 +921,13 @@ class BxBaseModGeneralModule extends BxDolModule
         if(!empty($CNF['FIELD_LABELS']) && array_key_exists($CNF['FIELD_LABELS'], $aInputs) && !in_array($CNF['FIELD_LABELS'], $this->_aSearchableNamesExcept))
             $aResult[$CNF['FIELD_LABELS']] = [
                 'type' => 'checkbox_set', 
-                'caption' => $CNF['T']['form_field_labels'] ?? '_sys_form_input_labels',
+                'caption' => isset($CNF['T']['form_field_labels']) ? $CNF['T']['form_field_author'] : '_sys_form_input_labels',
                 'info' => '',
             	'value' => '',
                 'values' => '',
                 'pass' => '',
                 'search_operator' => 'like'
             ];
-
-        if(($sField = $CNF['FIELD_ALLOW_VIEW_TO'] ?? '') != '' && array_key_exists($sField, $aInputs) && !in_array($sField, $this->_aSearchableNamesExcept)) 
-            $aInputs[$sField] = array_merge($aInputs[$sField], [
-                'search_type' => 'select',
-                'search_operator' => '='
-            ]);
 
         foreach($aInputs as $aInput){
             if(in_array($aInput['type'], BxDolSearchExtended::$SEARCHABLE_TYPES) && !in_array($aInput['name'], $this->_aSearchableNamesExcept)) {
@@ -1263,11 +1041,6 @@ class BxBaseModGeneralModule extends BxDolModule
 
         $this->_oDb->updateEntriesBy([$CNF[$sFieldNamePos] => $sValue], [$CNF['FIELD_ID'] => $iContentId]);
 
-        if($this instanceof BxBaseModProfileModule) {
-            $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
-            bx_content_cache_del_by_prefix('sprofile_unit_vars:' . $aContentInfo['profile_id'] . ':');
-        }
-
         return true;
     }
 
@@ -1320,20 +1093,12 @@ class BxBaseModGeneralModule extends BxDolModule
 
     public function serviceGetMenuAddonManageTools()
     {
-        return 0;
+    	return 0;
     }
 
     public function serviceGetMenuAddonManageToolsProfileStats($iProfileId = 0)
     {
-        return 0;
-    }
-
-    public function serviceGetObjectBrowse($sMode, $aParams = false, $sClassSearchResult = 'SearchResult')
-    {
-        if(empty($aParams) || !is_array($aParams))
-            $aParams = [];
-
-        return $this->getObjectBrowse($sMode, array_merge(['mode' => $sMode], $aParams), $sClassSearchResult);
+    	return 0;
     }
 
     /**
@@ -1363,11 +1128,8 @@ class BxBaseModGeneralModule extends BxDolModule
         if($this->_bIsApi && is_string($aParams)){
             $aParams = json_decode($aParams, true);
             if (isset($aParams['params'])) {
-                if(($sK = 'type') && isset($aParams['params'][$sK]))
-                    $aParams['mode'] = $aParams['params'][$sK];
-
-                if(($sK = 'class_search_result') && isset($aParams['params'][$sK]))
-                    $aParams[$sK] = $aParams['params'][$sK];
+                if(isset($aParams['params']['type']))
+                    $aParams['mode'] = $aParams['params']['type'];
 
                 if(isset($aParams['params']['filters'])) {
                     foreach($aParams['params']['filters'] as $sKey => $sValue)
@@ -1377,6 +1139,9 @@ class BxBaseModGeneralModule extends BxDolModule
                         'values' => $aParams['params']['filters']
                     ];
                 }
+
+                if(isset($aParams['params']['validate']) && !is_array($aParams['params']['validate']))
+                    $aParams['params']['validate'] = !empty($aParams['params']['validate']) ? explode(',', $aParams['params']['validate']) : [];
             }
         }
 
@@ -1553,36 +1318,6 @@ class BxBaseModGeneralModule extends BxDolModule
      * @page service Service Calls
      * @section bx_base_general Base General
      * @subsection bx_base_general-browsing Browsing
-     * @subsubsection bx_base_general-browse_multi_category category
-     * 
-     * @code bx_srv('bx_posts', 'browse_multi_category', [...]); @endcode
-     * 
-     * Display entries in multi category
-     * @param $sUnitView browsing unity view, 
-     *                   such as: full, extended, gallery, showcase
-     * @param $bEmptyMessage display or not "empty" message when there is no content
-     * @param $bAjaxPaginate use AJAX paginate or not
-     * 
-     * @see BxBaseModGeneralModule::serviceBrowseMultiCategory BxBaseModGeneralModule::serviceBrowse
-     */
-    /** 
-     * @ref bx_base_general-browse_multi_category "browse_multi_category"
-     */
-    public function serviceBrowseMultiCategory($sUnitView = false, $bEmptyMessage = true, $bAjaxPaginate = true, $aParams = [])
-    {
-        $sType = 'multi_category';
-
-        $aParams = array_merge(['category' => bx_process_input(bx_get('category'))], $aParams);
-        if($sUnitView)
-            $aParams['unit_view'] = $sUnitView;
-
-        return $this->_serviceBrowse($sType, $aParams, BX_DB_PADDING_DEF, $bEmptyMessage, $bAjaxPaginate);
-    }
-
-    /**
-     * @page service Service Calls
-     * @section bx_base_general Base General
-     * @subsection bx_base_general-browsing Browsing
      * @subsubsection bx_base_general-browse_favorite_list_actions browse_favorite_list_actions
      * 
      * @code bx_srv('bx_posts', 'browse_favorite_list_actions', [...]); @endcode
@@ -1689,12 +1424,7 @@ class BxBaseModGeneralModule extends BxDolModule
     {
         return $this->_serviceBrowseWithParam ('context', 'profile_id', $iProfileId, $aParams);
     }
-
-    public function serviceBrowseFollowedContexts ($iProfileId = 0, $aParams = [])
-    {
-        return $this->_serviceBrowseWithParam ('followed_contexts', 'profile_id', $iProfileId, $aParams);
-    }
-
+    
     public function _serviceBrowseWithParam ($sParamName, $sParamGet, $sParamVal, $aParams = array())
     {
         if(!$sParamVal)
@@ -1723,9 +1453,7 @@ class BxBaseModGeneralModule extends BxDolModule
         $oObject = null;
 
         bx_alert('system', 'get_forms_helper', 0, 0, [
-            'module' => $this->getName(),
             'class' => &$sClass,
-            'class_ref' => &$sClass,
             'object' => &$oObject
         ]);
 
@@ -1737,32 +1465,22 @@ class BxBaseModGeneralModule extends BxDolModule
         return new $sClass($this);
     }
 
-    public function serviceFormsHelper()
+    public function serviceFormsHelper ()
     {
         return $this->getFormsHelper();
     }
 
-    /**
+	/**
      * Add entry using provided fields' values.
-     * @return array with result: 
-     * 'code' is 0 on success or non-zero on error, 
-     * 'message' is error message in case of error, 
-     * 'content' is content info array in case of success
+     * @return array with result: 'code' is 0 on success or non-zero on error, 'message' is error message in case of error, 'content' is content info array in case of success
      */
-    public function serviceEntityAdd($iProfile, $aValues, $sDisplay = false)
+    public function serviceEntityAdd ($iProfile, $aValues, $sDisplay = false)
     {
         $oFormsHelper = $this->getFormsHelper();
         return $oFormsHelper->addData($iProfile, $aValues, $sDisplay);
     }
 
-    public function serviceEntityAddForcedly($iProfile, $aValues, $sDisplay = false)
-    {
-        $oFormsHelper = $this->getFormsHelper();
-        $oFormsHelper->setValidMode(true);
-        return $oFormsHelper->addData($iProfile, $aValues, $sDisplay);
-    }
-
-    /**
+	/**
      * Perform redirect after content creation
      * @return nothing, rediret header is sent
      */    
@@ -2193,28 +1911,7 @@ class BxBaseModGeneralModule extends BxDolModule
     {
         return $this->_serviceTemplateFunc ('entryAttachments', $iContentId);
     }
-
-    /**
-     * @page service Service Calls
-     * @section bx_base_general Base General
-     * @subsection bx_base_general-page_blocks Page Blocks
-     * @subsubsection bx_base_general-entity_polls entity_polls
-     * 
-     * @code bx_srv('bx_posts', 'entity_polls', [...]); @endcode
-     * 
-     * Display polls for the specified post
-     * @param $iContentId content ID
-     * 
-     * @see BxBaseModGeneralModule::serviceEntityPolls
-     */
-    /** 
-     * @ref bx_base_general-entity_polls "entity_polls"
-     */
-    public function serviceEntityPolls ($iContentId = 0)
-    {
-        return $this->_serviceTemplateFunc ('entryPolls', $iContentId);
-    }
-
+    
     /**
      * Delete content entry
      * @param $iContentId content id 
@@ -2232,10 +1929,10 @@ class BxBaseModGeneralModule extends BxDolModule
      * @param $aValues key value pairs to update
      * @return error message or empty string on success
      */
-    public function serviceEditEntity ($iContentId, $aValues, $sDisplay = false)
+    public function serviceEditEntity ($iContentId, $aValues)
     {
         $oFormsHelper = $this->getFormsHelper();
-        return $oFormsHelper->editData($iContentId, $aValues, $sDisplay);
+        return $oFormsHelper->editData($iContentId, $aValues);
     }
 
     /**
@@ -2515,122 +2212,74 @@ class BxBaseModGeneralModule extends BxDolModule
     public function serviceBrowseByLabel()
     {   
         $CNF = &$this->_oConfig->CNF;
-        if(empty($CNF['OBJECT_METATAGS']))
+        if (empty($CNF['OBJECT_METATAGS']))
             return '';
-
-        $sMode = 'recent';
-        if(bx_srv('system', 'is_module_content', [$this->_aModule['name']]))
-           $sMode = 'public';
-
-        $o = $this->getObjectBrowse($sMode);
-        $o->setDesignBoxTemplateId(BX_DB_PADDING_DEF);
+        
+		$sMode = 'recent';
+		if(bx_srv('system', 'is_module_content', [$this->_aModule['name']]))
+		   $sMode = 'public';
+		   
+		$sClassSearchResult ='SearchResult';
+		
+		bx_import($sClassSearchResult, $this->_aModule['name']);
+        $sClass = $this->_aModule['class_prefix'] . $sClassSearchResult;
+		
+        $o = new $sClass($sMode, false);
+		$o->setDesignBoxTemplateId(BX_DB_PADDING_DEF);
         $o->setDisplayEmptyMsg(true);
         $o->setAjaxPaginate(false);
-        $o->setUnitParams(['context' => $sMode]);
-
-        if(($mixedLabel = bx_get('label')) !== false) {
-            $sLabel = '';
-            if(is_numeric($mixedLabel) && ($aLabel = BxDolLabel::getInstance()->getLabels(['type' => 'id', 'id' => (int)$mixedLabel])) && is_array($aLabel))
-                $sLabel = $aLabel['value'];
-            else
-                $sLabel = bx_process_url_param($mixedLabel, "/^[\d\w\s_-]+$/");
-
-            if($sLabel)
-                BxDolMetatags::getObjectInstance($CNF['OBJECT_METATAGS'])->keywordsSetSearchCondition($o, $sLabel);
-        }
-
-        if($o->isError)
+        $o->setUnitParams(array('context' => $sMode));
+		
+		if (bx_get('label')){
+			$iLabelId = (int)bx_get('label');
+			$oLabel = BxDolLabel::getInstance();
+			$aLabel = $oLabel->getLabels(array('type' => 'id', 'id' => $iLabelId));
+			$oMetatags = BxDolMetatags::getObjectInstance($CNF['OBJECT_METATAGS']);
+			$sTmp =$oMetatags->keywordsSetSearchCondition($o, $aLabel['value']);
+		}
+		
+        if ($o->isError)
             return '';
 
-        if($s = $o->processing())
+        if ($s = $o->processing())
             return $s;
         else
             return '';
-    }
+	}
     
     public function serviceBrowseByCategories($sUnitView, $bEmptyMessage, $bAjaxPaginate, $sMode, $iPerPage)
     {   
-        $o = $this->getObjectBrowse($sMode, ['unit_view' => $sUnitView]);
-        $o->setDesignBoxTemplateId(BX_DB_PADDING_DEF);
-        $o->setDisplayEmptyMsg($bEmptyMessage);
+        $CNF = &$this->_oConfig->CNF;
+        $sClassSearchResult ='SearchResult';
+		
+		bx_import($sClassSearchResult, $this->_aModule['name']);
+        $sClass = $this->_aModule['class_prefix'] . $sClassSearchResult;
+        $o = new $sClass($sMode, array('unit_view' => $sUnitView, 'paginate' => array('perPage' => 10, 'start' => 0, 'num' => 11)));
+		$o->setDesignBoxTemplateId(BX_DB_PADDING_DEF);
         $o->setAjaxPaginate($bAjaxPaginate);
         $o->setCategoryObject('multi');
-
-        $aCategories = BxDolCategories::getInstance()->getData([
-            'type' => 'by_module_with_num', 
-            'module' => $this->_aModule['name']
-        ]);
-
-        $aCategoriesOutput = [];
-        foreach($aCategories as $aCategory) {
-            if($aCategory['num'] > 0) {
-                $o->setCustomSearchCondition(['keyword' => $aCategory['value']]);
-                $o->setPaginatePerPage($iPerPage);
-                if(!$o->isError){
+        
+        $aCategoriesOutput = array();
+		$aCategories = BxDolCategories::getInstance()->getData(array('type' => 'by_module_with_num', 'module' => $this->_aModule['name']));
+        
+        foreach($aCategories as $aCategory){
+            if ($aCategory['num'] > 0){
+                $o->setCustomSearchCondition(array('keyword' => $aCategory['value']));
+                $o->setPaginatePerPage(2);
+                if (!$o->isError){
                     $aResult = $o->processing();
-                    if($aResult && $aResult['content'] != '')
-                        $aCategoriesOutput[] = [
-                            'name' => _t($aCategory['value']), 
-                            'url' => '', 
-                            'content' => $aResult['content']
-                        ];
+                    if ($aResult && $aResult['content'] != '')
+                        $aCategoriesOutput[] =  array('name' => _t($aCategory['value']), 'url' => '', 'content' => $aResult['content']);
                 }
             }
         }
 
-        return $this->_oTemplate->parseHtmlByName('browse_by_categories.html', [
+        return $this->_oTemplate->parseHtmlByName('browse_by_categories.html', array(
             'bx_repeat:categories' => $aCategoriesOutput,
-        ]);
-    }
+        ));
 
-    /**
-     * @page service Service Calls
-     * @section bx_base_general Base General
-     * @subsection bx_base_general-polls Polls Blocks
-     * @subsubsection bx_base_general-get_block_poll_answers get_block_poll_answers
-     * 
-     * @code bx_srv('bx_posts', 'get_block_poll_answers', [...]); @endcode
-     * 
-     * Get block with poll answers
-     * @param $iPollId poll ID
-     * 
-     * @see BxBaseModGeneralModule::serviceGetBlockPollAnswers
-     */
-    /** 
-     * @ref bx_base_general-get_block_poll_answers "get_block_poll_answers"
-     */
-    public function serviceGetBlockPollAnswers($iPollId, $bForceDisplay = false)
-    {
-        if(!$iPollId)
-            return false;
-
-        if(!$bForceDisplay && $this->isPollPerformed($iPollId))
-            return $this->serviceGetBlockPollResults($iPollId);
-
-        return $this->_serviceTemplateFunc('entryPollAnswers', $iPollId, 'getPollInfoById');
-    }
-
-    /**
-     * @page service Service Calls
-     * @section bx_base_general Base General
-     * @subsection bx_base_general-polls Polls Blocks
-     * @subsubsection bx_base_general-get_block_poll_results get_block_poll_results
-     * 
-     * @code bx_srv('bx_posts', 'get_block_poll_results', [...]); @endcode
-     * 
-     * Get block with poll results
-     * @param $iPollId poll ID
-     * 
-     * @see BxBaseModGeneralModule::serviceGetBlockPollResults
-     */
-    /** 
-     * @ref bx_base_general-get_block_poll_results "get_block_poll_results"
-     */
-    public function serviceGetBlockPollResults($iPollId)
-    {
-        return $this->_serviceTemplateFunc('entryPollResults', $iPollId, 'getPollInfoById');
-    }
-
+	}
+    
     /**
      * Data for Notifications module
      */
@@ -2668,7 +2317,6 @@ class BxBaseModGeneralModule extends BxDolModule
 
                 //--- Moderation related: For 'admins'.
                 ['group' => $sModule . '_object_pending_approval', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'pending_approval', 'module_name' => $sModule, 'module_method' => 'get_notifications_post_pending_approval', 'module_class' => 'Module', 'module_event_privacy' => $sEventPrivacy],
-                ['group' => $sModule . '_object_reported', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'reported_content', 'module_name' => $sModule, 'module_method' => 'get_notifications_post_reported', 'module_class' => 'Module', 'module_event_privacy' => $sEventPrivacy],
             ],
             'settings' => [
                 ['group' => 'content', 'unit' => $sModule, 'action' => 'added', 'types' => ['follow_member', 'follow_context']],
@@ -2682,7 +2330,6 @@ class BxBaseModGeneralModule extends BxDolModule
 
                 //--- Moderation related: For 'admins'.
                 ['group' => 'action_required', 'unit' => $sModule, 'action' => 'pending_approval', 'types' => ['personal']],
-                ['group' => 'action_required', 'unit' => $sModule, 'action' => 'reported_content', 'types' => ['personal']],
             ],
             'alerts' => [
                 ['unit' => $sModule, 'action' => 'added'],
@@ -2708,7 +2355,6 @@ class BxBaseModGeneralModule extends BxDolModule
 
                 //--- Moderation related: For 'admins'.
                 ['unit' => $sModule, 'action' => 'pending_approval'],
-                ['unit' => $sModule, 'action' => 'reported_content'],
             ]
         ];
 
@@ -2775,16 +2421,6 @@ class BxBaseModGeneralModule extends BxDolModule
 
     public function serviceGetNotificationsPostPendingApproval($aEvent)
     {
-        return $this->serviceGetNotificationsPostForModeration($aEvent);
-    }
-
-    public function serviceGetNotificationsPostReported($aEvent)
-    {
-        return $this->serviceGetNotificationsPostForModeration($aEvent);
-    }
-
-    public function serviceGetNotificationsPostForModeration($aEvent)
-    {
         $aResult = $this->serviceGetNotificationsPost($aEvent);
 
         /**
@@ -2817,9 +2453,9 @@ class BxBaseModGeneralModule extends BxDolModule
      */
     public function serviceGetNotificationsComment($aEvent)
     {
-        $CNF = &$this->_oConfig->CNF;
+    	$CNF = &$this->_oConfig->CNF;
 
-        $iContentId = (int)$aEvent['object_id'];
+    	$iContentId = (int)$aEvent['object_id'];
         $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
         if(empty($aContentInfo) || !is_array($aContentInfo))
             return [];
@@ -2841,8 +2477,7 @@ class BxBaseModGeneralModule extends BxDolModule
             'entry_summary' => $sEntrySummary,
             'entry_author' => $aContentInfo[$CNF['FIELD_AUTHOR']],
             'subentry_sample' => $CNF['T']['txt_sample_comment_single'],
-            'subentry_url' => $oComment->getItemUrl($iCommentId, '{bx_url_root}'),
-            'subentry_url_api' => $oComment->getItemUrlApi($iCommentId, '{bx_url_root}'),
+            'subentry_url' => bx_absolute_url($oComment->getViewUrl($iCommentId, false), '{bx_url_root}'),
             'subentry_summary' => $oComment->getViewText($iCommentId),
             'lang_key' => '', //may be empty or not specified. In this case the default one from Notification module will be used.
         ];
@@ -2853,32 +2488,31 @@ class BxBaseModGeneralModule extends BxDolModule
      */
     public function serviceGetNotificationsReply($aEvent)
     {
-        $CNF = &$this->_oConfig->CNF;
+    	$CNF = &$this->_oConfig->CNF;
 
-        $oComment = BxDolCmts::getObjectInstance($CNF['OBJECT_COMMENTS'], 0, false);
+    	$oComment = BxDolCmts::getObjectInstance($CNF['OBJECT_COMMENTS'], 0, false);
         if(!$oComment || !$oComment->isEnabled())
             return [];
 
-        $iParentId = (int)$aEvent['object_id'];
-        $aParentInfo = $oComment->getQueryObject()->getCommentsBy(['type' => 'id', 'id' => $iParentId]);
+    	$iParentId = (int)$aEvent['object_id'];
+        $aParentInfo = $oComment->getQueryObject()->getCommentsBy(array('type' => 'id', 'id' => $iParentId));
         if(empty($aParentInfo) || !is_array($aParentInfo))
             return [];
 
         $iObjectId = (int)$aParentInfo['cmt_object_id'];
         $oComment->init($iObjectId);
+
         $iCommentId = (int)$aEvent['subobject_id'];
 
         return [
             'object_id' => $iObjectId,
             'entry_sample' => '_cmt_txt_sample_comment_single',
-            'entry_url' => $oComment->getItemUrl($iParentId, '{bx_url_root}'),
-            'entry_url_api' => $oComment->getItemUrlApi($iParentId, '{bx_url_root}'),
+            'entry_url' => bx_absolute_url($oComment->getViewUrl($iParentId, false), '{bx_url_root}'),
             'entry_caption' => strmaxtextlen($aParentInfo['cmt_text'], 20, '...'),
             'entry_summary' => $oComment->getViewText($iParentId),
             'entry_author' => (int)$aParentInfo['cmt_author_id'],
             'subentry_sample' => '_cmt_txt_sample_reply_to',
-            'subentry_url' => $oComment->getItemUrl($iCommentId, '{bx_url_root}'),
-            'subentry_url_api' => $oComment->getItemUrlApi($iCommentId, '{bx_url_root}'),
+            'subentry_url' => bx_absolute_url($oComment->getViewUrl($iCommentId, false), '{bx_url_root}'),
             'subentry_summary' => $oComment->getViewText($iCommentId),
             'lang_key' => '', //may be empty or not specified. In this case the default one from Notification module will be used.
         ];
@@ -3355,18 +2989,12 @@ class BxBaseModGeneralModule extends BxDolModule
             return $sResult;
 
         if(empty($aBadges) || !is_array($aBadges))
-            return $this->_bIsApi ? [] : '';
+            return '';
 
-        if($this->_bIsApi) {
-            foreach($aBadges as &$aBadge)
-                if(($mixedIcon = $aBadge['icon']) && is_numeric($mixedIcon) && (int)$mixedIcon > 0)
-                    $aBadge['icon_url'] = $this->_oTemplate->getIcon($aBadge['icon'], ['wrap_in_tag' => false]);
-                else
-                    $aBadge['icon'] = $mixedIcon;
-
+        if (bx_is_api()){
             return $aBadges;
         }
-
+        
         if($bIsSingle)
             return BxDolService::call('system', 'get_badge', array($aBadges[0], $bIsCompact), 'TemplServices');
 
@@ -3388,20 +3016,51 @@ class BxBaseModGeneralModule extends BxDolModule
      * @code bx_srv('bx_posts', 'categories_multi_list', [...]); @endcode
      * 
      * Display multi-categorories block with number of posts in each category
-     * @param $bAsArray boolean reature as array or not.
+     * @param $bDisplayEmptyCats display empty categories
      * 
      * @see BxBaseModGeneralModule::serviceCategoriesMultiList
      */
     /** 
      * @ref bx_base_general-categories_multi_list "categories_multi_list"
      */
-    public function serviceCategoriesMultiList($bAsArray = false)
+    public function serviceCategoriesMultiList($bDisplayEmptyCats = true)
     {
-        $oCategories = BxDolCategories::getInstance();
-        $oCategories->setModule($this->getName());
-        $mixedResult = $oCategories->getCategoriesList($bAsArray || $this->_bIsApi);
+        $aContextInfo = bx_get_page_info();
 
-        return !$this->_bIsApi ? $mixedResult : [bx_api_get_block('categories_list',  $mixedResult)];
+        $mProfileContextId = false;
+        if ($aContextInfo !== false)
+            $mProfileContextId = $aContextInfo['context_profile_id'];
+        
+        $oCategories = BxDolCategories::getInstance();
+        if ($mProfileContextId)
+            $aCats = $oCategories->getData([
+                'type' => 'by_module&context_with_num', 
+                'module' => $this->getName(), 
+                'context_id' => $mProfileContextId
+            ]);
+        else{
+            $aCats = $oCategories->getData([
+                'type' => 'by_module_with_num', 
+                'module' => $this->getName()
+            ]);
+        }
+        $aVars = array('bx_repeat:cats' => array());
+        foreach ($aCats as $oCat) {
+            $sValue = $oCat['value'];
+            $iNum = $oCat['num'];
+            
+            $aVars['bx_repeat:cats'][] = array(
+                'url' => $oCategories->getUrl($this->getName(), $sValue, $mProfileContextId ? '&context_id=' . $mProfileContextId : ''),
+                'name' => _t($sValue),
+                'value' => $sValue,
+                'num' => $iNum,
+            );
+        }
+        
+        if (!$aVars['bx_repeat:cats'])
+            return '';
+
+        return $this->_oTemplate->parseHtmlByName('category_list_multi.html', $aVars);
     }
 
     /**
@@ -3492,16 +3151,6 @@ class BxBaseModGeneralModule extends BxDolModule
         if ($aCheck[CHECK_ACTION_RESULT] !== CHECK_ACTION_RESULT_ALLOWED)
             return $aCheck[CHECK_ACTION_MESSAGE];
         return CHECK_ACTION_RESULT_ALLOWED;
-    }
-
-    public function serviceCheckAllowedAddInContext($sContextModule)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        if(($sKey = 'OBJECT_PRIVACY_VIEW') && !empty($CNF[$sKey]) && ($oPrivacy = BxDolPrivacy::getObjectInstance($CNF[$sKey])) !== false && !$oPrivacy->isAllowedAddInContext($sContextModule))
-            return _t('_sys_txt_access_denied');
-
-        return CHECK_ACTION_RESULT_ALLOWED;   
     }
 
     /**
@@ -3709,125 +3358,100 @@ class BxBaseModGeneralModule extends BxDolModule
         if(empty($aDataEntry) || !is_array($aDataEntry))
             return _t('_sys_txt_not_found');
 
-        if(!empty($iProfileId) && abs($aDataEntry[$CNF['FIELD_AUTHOR']]) == (int)$iProfileId)
+        // moderator and owner always have access
+        if(!empty($iProfileId) && (abs($aDataEntry[$CNF['FIELD_AUTHOR']]) == (int)$iProfileId || $this->_isModeratorForProfile($isPerformAction, $iProfileId)))
             return CHECK_ACTION_RESULT_ALLOWED;
 
-        // below goes mem cached response for current page load
+        // check ACL
+        $aCheck = checkActionModule($iProfileId, 'view entry', $this->getName(), $isPerformAction);
+        if($aCheck[CHECK_ACTION_RESULT] !== CHECK_ACTION_RESULT_ALLOWED)
+            return $aCheck[CHECK_ACTION_MESSAGE];
 
-        $sCacheKey = $this->getName() . ':' . __CLASS__ . ':_checkAllowedViewForProfile:' . $aDataEntry[$CNF['FIELD_ID']] . ':' . $iProfileId;        
-        $mixedRet = bx_mem_cache_get($sCacheKey);
-        if (null !== $mixedRet)
-            return $mixedRet;
-
-        $mixedRet = CHECK_ACTION_RESULT_ALLOWED;
-
-        if (empty($iProfileId) || !$this->_isModeratorForProfile($isPerformAction, $iProfileId)) { // skip checking if moderator
-            $aCheck = checkActionModule($iProfileId, 'view entry', $this->getName(), $isPerformAction); 
-            if ($aCheck[CHECK_ACTION_RESULT] !== CHECK_ACTION_RESULT_ALLOWED) { // check ACL
-                $mixedRet = $aCheck[CHECK_ACTION_MESSAGE];
-            } elseif(!empty($CNF['OBJECT_PRIVACY_VIEW'])) { // check privacy
-                $oPrivacy = BxDolPrivacy::getObjectInstance($CNF['OBJECT_PRIVACY_VIEW']);
-                if ($oPrivacy && !$oPrivacy->check($aDataEntry[$CNF['FIELD_ID']], $iProfileId))
-                    $mixedRet = _t('_sys_access_denied_to_private_content');
-            }
+        // check privacy
+        if(!empty($CNF['OBJECT_PRIVACY_VIEW'])) {
+            $oPrivacy = BxDolPrivacy::getObjectInstance($CNF['OBJECT_PRIVACY_VIEW']);
+            if ($oPrivacy && !$oPrivacy->check($aDataEntry[$CNF['FIELD_ID']], $iProfileId))
+                return _t('_sys_access_denied_to_private_content');
         }
 
-        bx_mem_cache_set($sCacheKey, $mixedRet);
-
-        return $mixedRet;
-    }
-    
-    public function getObjectBrowse ($sMode, $aParams = false, $sClass = 'SearchResult')
-    {
-        $oObject = null;
-
-        bx_alert('system', 'get_object_browse', 0, 0, [
-            'module' => $this->getName(),
-            'mode' => &$sMode,
-            'params' => &$aParams,
-            'class' => &$sClass,
-            'object' => &$oObject,
-
-            'mode_ref' => &$sMode,
-            'params_ref' => &$aParams,
-            'class_ref' => &$sClass,
-            'object_ref' => &$oObject
-        ]);
-
-        if($oObject !== null) 
-            return $oObject;
-
-        if($aParams === false || !is_array($aParams))
-            $aParams = [];
-        $aParams['class_search_result'] ??= $sClass;
-
-        bx_import($sClass, $this->_aModule);
-        $sClass = $this->_aModule['class_prefix'] . $sClass;
-        return new $sClass($sMode, $aParams);
+        return CHECK_ACTION_RESULT_ALLOWED;
     }
 
     public function _serviceBrowse ($sMode, $aParams = false, $iDesignBox = BX_DB_PADDING_DEF, $bDisplayEmptyMsg = false, $bAjaxPaginate = true, $sClassSearchResult = 'SearchResult')
     {
-        if(CHECK_ACTION_RESULT_ALLOWED !== ($sMsg = $this->checkAllowedBrowse()))
-            return $this->_bIsApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
+        if (CHECK_ACTION_RESULT_ALLOWED !== ($sMsg = $this->checkAllowedBrowse()))
+            return bx_is_api() ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
 
-        $o = $this->getObjectBrowse($sMode, $aParams, $sClassSearchResult);
+        bx_import($sClassSearchResult, $this->_aModule);
+        $sClass = $this->_aModule['class_prefix'] . $sClassSearchResult;
+        $o = new $sClass($sMode, $aParams);
+
         $o->setDesignBoxTemplateId($iDesignBox);
         $o->setDisplayEmptyMsg($bDisplayEmptyMsg);
         $o->setAjaxPaginate($bAjaxPaginate);
         $o->setUnitParams(array('context' => $sMode));
-        if(isset($aParams['condition']) && is_array($aParams['condition']))
+        if (isset($aParams['condition']) && is_array($aParams['condition']))
             $o->setCustomCurrentCondition($aParams['condition']);
 
-        if($o->isError)
+        if ($o->isError)
             return '';
 
-        if($this->_bIsApi) {
-            $aBlock = BxDolPage::getBlockProcessing();
-
-            $sContentType = 'browse';
-            if(($aConfigApi = $aBlock['config_api'] ?? false) && is_array($aConfigApi))
-                $sContentType = $aConfigApi['content_type'] ?? $sContentType;
-
-            $bBrowseSimple = $sContentType == 'browse_simple';
-
-            $a = $o->processingAPI($bBrowseSimple);
-            if($a && is_array($a))
-                $a['hide_empty_msg'] = !(bool)$bDisplayEmptyMsg;
-
-            return !$bBrowseSimple || $a['data'] ? [bx_api_get_block($sContentType, $a)] : [];
-        }
+        if ($s = $o->processing())
+            return bx_is_api() ? [bx_api_get_block('browse', $s)] : $s;
         else
-            return ($s = $o->processing()) ? $s : '';
+            return '';
     }
 
     /**
      * Shows a list of profiles.
      */
-    protected function _serviceBrowseQuick($aProfiles, $iStart = 0, $iLimit = 4, $aAdditionalParams = [])
+    protected function _serviceBrowseQuick($aProfiles, $iStart = 0, $iLimit = 4, $aAdditionalParams = array())
     {
-        return bx_srv('system', 'browse_quick', [$aProfiles, $iStart, $iLimit, ['additional_params' => $aAdditionalParams]], 'TemplServiceProfiles');
+        // get paginate object
+        $oPaginate = new BxTemplPaginate(array(
+            'on_change_page' => "return !loadDynamicBlockAutoPaginate(this, '{start}', '{per_page}', " . bx_js_string(json_encode($aAdditionalParams)) . ");",
+            'num' => count($aProfiles),
+            'per_page' => $iLimit,
+            'start' => $iStart,
+        ));
+
+        // remove last item from connection array, because we've got one more item for pagination calculations only
+        if (count($aProfiles) > $iLimit)
+            array_pop($aProfiles);
+
+        // get profiles HTML
+        $s = '';
+        foreach ($aProfiles as $mixedProfile) {
+            $bProfile = is_array($mixedProfile);
+
+            $oProfile = BxDolProfile::getInstance($bProfile ? (int)$mixedProfile['id'] : (int)$mixedProfile);
+            if(!$oProfile)
+                continue;
+
+            $aUnitParams = array('template' => array('name' => 'unit', 'size' => 'thumb'));
+            if(BxDolModule::getInstance($oProfile->getModule()) instanceof BxBaseModGroupsModule)
+                $aUnitParams['template']['name'] = 'unit_wo_cover';
+
+            if($bProfile && is_array($mixedProfile['info']))
+                $aUnitParams['template']['vars'] = $mixedProfile['info'];
+
+            $s .= $oProfile->getUnit(0, $aUnitParams);
+        }
+
+        $aTmplVarsPaginate = [];
+        if($iStart || $oPaginate->getNum() > $iLimit)
+            $aTmplVarsPaginate = ['paginate' => $oPaginate->getSimplePaginate()];
+
+        return $this->_oTemplate->parseHtmlByName('browse_quick.html', array(
+            'code' => $s,
+            'bx_if:show_paginate' => [
+                'condition' => !empty($aTmplVarsPaginate),
+                'content' => $aTmplVarsPaginate
+            ]
+        ));
     }
 
     // ====== COMMON METHODS
-    public function isPollPerformed($iObjectId, $iAuthorId = 0, $iAuthorIp = 0)
-    {
-        if(empty($iAuthorId)) {
-            $iAuthorId = bx_get_logged_profile_id();
-            $iAuthorIp = bx_get_ip_hash(getVisitorIP());
-        }
-
-        return $this->_oDb->isPollPerformed($iObjectId, $iAuthorId, $iAuthorIp);
-    }
-
-    public function getPollPerformedValue($iObjectId, $iAuthorId = 0)
-    {
-        if(empty($iAuthorId))
-            $iAuthorId = bx_get_logged_profile_id();
-
-        return $this->_oDb->getPollPerformedValue($iObjectId, $iAuthorId);
-    }
-
     public function onPublished($iContentId)
     {
         $CNF = &$this->_oConfig->CNF;
@@ -3928,23 +3552,13 @@ class BxBaseModGeneralModule extends BxDolModule
     }
 
     public function processMetasAdd($iContentId)
-    {        
-        return $this->processMetas('add', $iContentId);
-    }
-
-    public function processMetasEdit($iContentId, $oForm)
-    {
-        return $this->processMetas('edit', $iContentId, $oForm);
-    }
-
-    public function processMetas($aAction, $iContentId, $oForm = false)
     {
         $CNF = &$this->_oConfig->CNF;
 
-        if(empty($CNF['OBJECT_METATAGS']))
+        if(empty($CNF['OBJECT_METATAGS'])) 
             return false;
 
-        $aContentInfo = $this->_oDb->getContentInfoById($iContentId, true);
+        $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
 
         $bFldStatus = !empty($CNF['FIELD_STATUS']);
         $bFldStatusAdmin = !empty($CNF['FIELD_STATUS_ADMIN']);
@@ -3953,15 +3567,57 @@ class BxBaseModGeneralModule extends BxDolModule
             return false;
 
         $oMetatags = BxDolMetatags::getObjectInstance($CNF['OBJECT_METATAGS']);
-        $oMetatags->metaAddAuto($iContentId, $aContentInfo, $CNF, $CNF['OBJECT_FORM_ENTRY_DISPLAY_' . strtoupper($aAction)]);
+        $oMetatags->metaAddAuto($iContentId, $aContentInfo, $CNF, $CNF['OBJECT_FORM_ENTRY_DISPLAY_ADD']);
 
-        if($oMetatags->locationsIsEnabled() && ($sKey = 'FIELD_LOCATION') && !empty($CNF[$sKey]) && !empty($aContentInfo[$CNF[$sKey]])) {
+        $sKey = 'FIELD_LOCATION';
+        if($oMetatags->locationsIsEnabled() && !empty($CNF[$sKey]) && !empty($aContentInfo[$CNF[$sKey]])) {
             $aLocation = unserialize($aContentInfo[$CNF[$sKey]]);
             if(!empty($aLocation) && is_array($aLocation))
                 call_user_func_array(array($oMetatags, 'locationsAdd'), array_merge(array($iContentId), array_values($aLocation)));
         }
 
-        if($oMetatags->keywordsIsEnabled() && ($sKey = 'FIELD_LABELS') && !empty($CNF[$sKey]) && !empty($aContentInfo[$CNF[$sKey]])) {
+        $sKey = 'FIELD_LABELS';
+        if($oMetatags->keywordsIsEnabled() && !empty($CNF[$sKey]) && !empty($aContentInfo[$CNF[$sKey]])) {
+            $aLabels = unserialize($aContentInfo[$CNF[$sKey]]);
+            if(!empty($aLabels) && is_array($aLabels))
+                foreach ($aLabels as $sLabel) {
+                    if(!preg_match("/(\pL[\pL\pN_]+)/u", $sLabel)) 
+                        continue;
+
+                    $oMetatags->keywordsAddOne($iContentId, $sLabel, false);
+                }
+        }
+        
+        return true;
+    }
+
+    public function processMetasEdit($iContentId, $oForm)
+    {
+        $CNF = &$this->_oConfig->CNF;
+
+        if(empty($CNF['OBJECT_METATAGS']))
+            return false;
+
+        $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
+
+        $bFldStatus = isset($CNF['FIELD_STATUS']);
+        $bFldStatusAdmin = isset($CNF['FIELD_STATUS_ADMIN']);
+        $bContentInfo = $aContentInfo && (!$bFldStatus || ($bFldStatus && $aContentInfo[$CNF['FIELD_STATUS']] == 'active')) && (!$bFldStatusAdmin || ($bFldStatusAdmin && $aContentInfo[$CNF['FIELD_STATUS_ADMIN']] == 'active'));
+        if(!$bContentInfo)
+            return false;
+
+        $oMetatags = BxDolMetatags::getObjectInstance($CNF['OBJECT_METATAGS']);
+        $oMetatags->metaAddAuto($iContentId, $aContentInfo, $CNF, $CNF['OBJECT_FORM_ENTRY_DISPLAY_EDIT']);
+
+        $sKey = 'FIELD_LOCATION';
+        if($oMetatags->locationsIsEnabled() && !empty($CNF[$sKey]) && !empty($aContentInfo[$CNF[$sKey]])) {
+            $aLocation = unserialize($aContentInfo[$CNF[$sKey]]);
+            if(!empty($aLocation) && is_array($aLocation))
+                call_user_func_array(array($oMetatags, 'locationsAdd'), array_merge(array($iContentId), array_values($aLocation)));
+        }
+
+        $sKey = 'FIELD_LABELS';
+        if($oMetatags->keywordsIsEnabled() && !empty($CNF[$sKey]) && !empty($aContentInfo[$CNF[$sKey]])) {
             $aLabels = unserialize($aContentInfo[$CNF[$sKey]]);
             if(!empty($aLabels) && is_array($aLabels))
                 foreach ($aLabels as $sLabel) {
@@ -4173,16 +3829,9 @@ class BxBaseModGeneralModule extends BxDolModule
         return $oActions->{bx_is_api() ? 'getCodeAPI' : 'getCode'}();
     }
 
-    public function setProfileId($i)
-    {
-        $iOldProfileId = $this->_iProfileId;
-        $this->_iProfileId = $i;
-        return $iOldProfileId;
-    }
-    
     public function getProfileId()
     {
-        return $this->_iProfileId;
+    	return bx_get_logged_profile_id();
     }
 
     public function getProfileInfo($iUserId = false)
@@ -4297,35 +3946,6 @@ class BxBaseModGeneralModule extends BxDolModule
         return true;
     }
 
-    public function getModerators($mixedContentInfo)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        $sModule = $this->_oConfig->getName();
-
-        if(!is_array($mixedContentInfo))
-            $mixedContentInfo = $this->_oDb->getContentInfoById((int)$mixedContentInfo);
-
-        $aModerators = [];
-        if(getParam('sys_notify_to_approve_by_role') == 'on' && bx_srv('system', 'is_module_content', [$sModule]) && ($sField = 'FIELD_ALLOW_VIEW_TO') && !empty($CNF[$sField]) && (int)$mixedContentInfo[$CNF[$sField]] < 0) {
-            $iContextProfileId = abs((int)$mixedContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']]);
-            $oContextProfile = BxDolProfile::getInstance($iContextProfileId);
-
-            $aModerators = bx_srv($oContextProfile->getModule(), 'get_admins_to_manage_content', [$iContextProfileId]);
-        }
-
-        if(empty($aModerators))
-            $aModerators = BxDolAclQuery::getInstance()->getProfilesByAction([
-                MEMBERSHIP_ACTION_EDIT_ANY_ENTRY, 
-                MEMBERSHIP_ACTION_DELETE_ANY_ENTRY
-            ], [
-                'module' => $sModule, 
-                'ids_only' => true
-            ]);
-
-        return $aModerators;
-    }
-
     public function _isModerator ($isPerformAction = false)
     {
         return $this->_isModeratorForProfile($isPerformAction, $this->_iProfileId);
@@ -4382,7 +4002,6 @@ class BxBaseModGeneralModule extends BxDolModule
             'data' => $aData,
             'params' => $aParams,
             'data_api' => &$aDataApi,
-            'data_api_ref' => &$aDataApi,
         ];
 
         /**
@@ -4415,19 +4034,6 @@ class BxBaseModGeneralModule extends BxDolModule
     public function decodeDataAPI($aData, $aParams = [])
     {
         return $aData;
-    }
-
-    protected function decodeDataAPICommonFields(&$aResult, $aData, $aParams) 
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        if (!empty($CNF['FIELD_LABELS'])) {
-            $aResult[$CNF['FIELD_LABELS']] = empty($aData[$CNF['FIELD_LABELS']]) ? [] : unserialize($aData[$CNF['FIELD_LABELS']]);
-        }
-
-        if (!empty($CNF['FIELD_LOCATION'])) {
-            $aResult[$CNF['FIELD_LOCATION']] = empty($aData[$CNF['FIELD_LOCATION']]) ? [] : unserialize($aData[$CNF['FIELD_LOCATION']]);
-        }
     }
 
     // ====== PROTECTED METHODS
@@ -4539,12 +4145,8 @@ class BxBaseModGeneralModule extends BxDolModule
             'content_id' => $iContentId,
             'content_info' => $aContentInfo,
             'form' => $oForm,
-
             'email_template' => &$sETemplate,
-            'email_params' => &$aEParams,
-
-            'email_template_ref' => &$sETemplate,
-            'email_params_ref' => &$aEParams
+            'email_params' => &$aEParams
         ]);
 
         return sendMailTemplate($sETemplate, 0, $aContentInfo[$CNF['FIELD_AUTHOR']], $aEParams);
@@ -4557,11 +4159,28 @@ class BxBaseModGeneralModule extends BxDolModule
         if(empty($CNF['PARAM_AUTO_APPROVE']) || getParam($CNF['PARAM_AUTO_APPROVE']) == 'on')
             return;
 
-        $aRecipients = $this->getModerators($aContentInfo);
+        $aRecipients = [];
+        if(getParam('sys_notify_to_approve_by_role') == 'on' && bx_srv('system', 'is_module_content', [$this->_oConfig->getName()]) && !empty($CNF['FIELD_ALLOW_VIEW_TO']) && (int)$aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']] < 0) {
+            $iContextProfileId = abs((int)$aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']]);
+            $oContextProfile = BxDolProfile::getInstance($iContextProfileId);
+
+            $aRecipients = bx_srv($oContextProfile->getModule(), 'get_admins_to_manage_content', [$iContextProfileId]);
+        }
+
+        $sModule = $this->getName();
+
+        if(empty($aRecipients))
+            $aRecipients = BxDolAclQuery::getInstance()->getProfilesByAction([
+                MEMBERSHIP_ACTION_EDIT_ANY_ENTRY, 
+                MEMBERSHIP_ACTION_DELETE_ANY_ENTRY
+            ], [
+                'module' => $sModule, 
+                'ids_only' => true
+            ]);
+
         if(empty($aRecipients))
             return;
 
-        $sModule = $this->_oConfig->getName();
         foreach($aRecipients as $iRecipientId)
             /**
              * @hooks
@@ -4581,15 +4200,19 @@ class BxBaseModGeneralModule extends BxDolModule
 
     protected function _rss ($aArgs, $sClass = 'SearchResult')
     {
+        $sMode = array_shift($aArgs);
+
         if (CHECK_ACTION_RESULT_ALLOWED !== ($sMsg = $this->checkAllowedBrowse())) {
             $this->_oTemplate->displayAccessDenied ($sMsg);
             exit;
         }
 
-        $sMode = array_shift($aArgs);
         $aParams = $this->_buildRssParams($sMode, $aArgs);
 
-        $o = $this->getObjectBrowse($sMode, $aParams, $sClass);
+        bx_import ($sClass, $this->_aModule);
+        $sClass = $this->_aModule['class_prefix'] . $sClass;
+        $o = new $sClass($sMode, $aParams);
+
         if ($o->isError)
             $this->_oTemplate->displayPageNotFound ();
         else
@@ -4715,54 +4338,52 @@ class BxBaseModGeneralModule extends BxDolModule
     protected function _getImagesForTimelinePost($aEvent, $aContentInfo, $sUrl, $aBrowseParams = array())
     {
         $CNF = &$this->_oConfig->CNF;
-
-        if($this->_bIsApi) {
+        if (bx_is_api()){
             $aResult = [];
-
             if(isset($CNF['FIELD_COVER']) && !empty($aContentInfo[$CNF['FIELD_COVER']])) {
                 $aResult[] = bx_api_get_image($CNF['OBJECT_STORAGE'], (int)$aContentInfo[$CNF['FIELD_COVER']]);
             }
-
-            if((($sK = $CNF['FIELD_THUMB'] ?? false) && !empty($aContentInfo[$sK])) || (($sK = $CNF['FIELD_PICTURE'] ?? false) && !empty($aContentInfo[$sK]))) {
-                $aResult[] = bx_api_get_image($CNF['OBJECT_STORAGE'], (int)$aContentInfo[$sK]);
+            
+            if(isset($CNF['FIELD_THUMB']) && !empty($aContentInfo[$CNF['FIELD_THUMB']])) {
+                $aResult[] = bx_api_get_image($CNF['OBJECT_STORAGE'], (int)$aContentInfo[$CNF['FIELD_THUMB']]);
             }
-
             return $aResult;
         }
+        else{
+            $iImageId = 0;
+            $sImageSm = $sImageMd = $sImageXl = '';
+            if(isset($CNF['FIELD_COVER']) && !empty($aContentInfo[$CNF['FIELD_COVER']])) {
+                $iImageId = (int)$aContentInfo[$CNF['FIELD_COVER']];
+                $sImageSm = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_MINIATURE', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
+                $sImageMd = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_GALLERY', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
+                $sImageXl = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_COVER']);
+            }
 
-        $iImageId = 0;
-        $sImageSm = $sImageMd = $sImageXl = '';
-        if(isset($CNF['FIELD_COVER']) && !empty($aContentInfo[$CNF['FIELD_COVER']])) {
-            $iImageId = (int)$aContentInfo[$CNF['FIELD_COVER']];
-            $sImageSm = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_MINIATURE', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
-            $sImageMd = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_GALLERY', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
-            $sImageXl = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_COVER']);
+            if($sImageMd == '' && isset($CNF['FIELD_THUMB']) && !empty($aContentInfo[$CNF['FIELD_THUMB']])) {
+                $iImageId = (int)$aContentInfo[$CNF['FIELD_THUMB']];
+                $sImageSm = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_MINIATURE', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
+                $sImageMd = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_GALLERY', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
+                $sImageXl = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_COVER']);
+            }
+
+            if(empty($sImageMd))
+                return [];
+
+            if($sImageSm == '')
+                $sImageSm = $sImageMd;
+
+            if($sImageXl == '')
+                $sImageXl = $sImageMd;
+
+            return [[
+                'id' => $iImageId, 
+                'url' => $sUrl, 
+                'src' => $sImageMd, 
+                'src_small' => $sImageSm, 
+                'src_medium' => $sImageMd, 
+                'src_orig' => $sImageXl
+            ]];
         }
-
-        if($sImageMd == '' && (($sK = $CNF['FIELD_THUMB'] ?? false) && !empty($aContentInfo[$sK])) || (($sK = $CNF['FIELD_PICTURE'] ?? false) && !empty($aContentInfo[$sK]))) {
-            $iImageId = (int)$aContentInfo[$sK];
-            $sImageSm = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_MINIATURE', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
-            $sImageMd = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_GALLERY', 'OBJECT_IMAGES_TRANSCODER_THUMB']);
-            $sImageXl = $this->_oConfig->getImageUrl($iImageId, ['OBJECT_IMAGES_TRANSCODER_COVER']);
-        }
-
-        if(empty($sImageMd))
-            return [];
-
-        if($sImageSm == '')
-            $sImageSm = $sImageMd;
-
-        if($sImageXl == '')
-            $sImageXl = $sImageMd;
-
-        return [[
-            'id' => $iImageId, 
-            'url' => $sUrl, 
-            'src' => $sImageMd, 
-            'src_small' => $sImageSm, 
-            'src_medium' => $sImageMd, 
-            'src_orig' => $sImageXl
-        ]];
     }
 
     protected function _getImagesForTimelinePostAttach($aEvent, $aContentInfo, $sUrl, $aBrowseParams = array())
@@ -4802,12 +4423,9 @@ class BxBaseModGeneralModule extends BxDolModule
         if (!$oCmts || !$oCmts->isEnabled())
             return false;
         
-        if($this->_bIsApi)
-            return [
-                'title' => $oCmts->getCommentsBlockTitle(),
-                'content' => [bx_srv('system', 'get_data_api', [['module' => $sObject, 'object_id' => $iId]], 'TemplCmtsServices')]
-            ];
-
+        if (bx_is_api()){
+            return [bx_srv('system', 'get_data_api', [['module' => $sObject, 'object_id' => $iId]], 'TemplCmtsServices')];
+        }
         return $oCmts->getCommentsBlock([], ['in_designbox' => false, 'show_empty' => false]);
     }
 

@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -52,72 +50,35 @@ class DomainConfigContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the DomainConfigInstance
      *
-     
      * @return DomainConfigInstance Fetched DomainConfigInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): DomainConfigInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new DomainConfigInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['domainSid']
         );
-        
-    }
-
-    /**
-     * Fetch the DomainConfigInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new DomainConfigInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['domainSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the DomainConfigInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return DomainConfigInstance Updated DomainConfigInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): DomainConfigInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -131,50 +92,13 @@ class DomainConfigContext extends InstanceContext
                 Serialize::booleanToString($options['disableHttps']),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the DomainConfigInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return DomainConfigInstance Updated DomainConfigInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): DomainConfigInstance
-    {
-        $response = $this->_update($options);
         return new DomainConfigInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['domainSid']
-        );
-        
-    }
-
-    /**
-     * Update the DomainConfigInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new DomainConfigInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['domainSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

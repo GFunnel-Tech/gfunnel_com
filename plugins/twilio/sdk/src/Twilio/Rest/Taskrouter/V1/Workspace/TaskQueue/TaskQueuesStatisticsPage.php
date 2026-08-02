@@ -43,7 +43,6 @@ class TaskQueuesStatisticsPage extends Page
         return new TaskQueuesStatisticsInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

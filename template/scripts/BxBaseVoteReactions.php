@@ -60,7 +60,7 @@ class BxBaseVoteReactions extends BxDolVoteReactions
             $iValue = $this->getValue();
 
         $sResult = '';
-        if($this->_bQuickMode || $this->_bSingleMode)
+        if($this->_bQuickMode)
             $sResult = $this->getJsClickDo($this->_aDataList[$this->_sDefault]['name'], $iValue);
         else
             $sResult = $this->getJsObjectName() . '.toggleDoPopup(this, ' . $iValue . ')';
@@ -382,8 +382,7 @@ class BxBaseVoteReactions extends BxDolVoteReactions
     protected function _prepareParamsData($aParams)
     {
         return parent::_prepareParamsData(array_merge([
-            'bQuickMode' => $this->_bQuickMode,
-            'bSingleMode' => $this->_bSingleMode
+            'bQuickMode' => $this->_bQuickMode
         ], $aParams));
     }
 

@@ -12,7 +12,6 @@ class Configuration extends Model
   protected $allowed = [
     'domain',
     'productCatalogVersion',
-    'chargebeeResponseSchemaType',
   ];
 
 

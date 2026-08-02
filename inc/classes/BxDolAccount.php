@@ -11,14 +11,9 @@ bx_import('BxDolAcl');
 
 class BxDolAccount extends BxDolFactory implements iBxDolSingleton
 {
-    protected $_bIsApi;
-
     protected $_iAccountID;
     protected $_aInfo;
     protected $_oQuery;
-
-    protected $_sImageField;
-    protected $_aImageTranscoders;
 
     /**
      * Constructor
@@ -32,19 +27,8 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
 
         parent::__construct();
 
-        $this->_bIsApi = bx_is_api();
-
         $this->_iAccountID = $iAccountId; // since constructor is protected $iAccountId is always valid
         $this->_oQuery = BxDolAccountQuery::getInstance();
-
-        $this->_sImageField = 'picture';
-        $this->_aImageTranscoders = [
-            'icon' => 'sys_accounts_icon',
-            'thumb' => 'sys_accounts_thumb',
-            'ava' => 'sys_accounts_avatar',
-            'ava_big' => 'sys_accounts_avatar_big',
-            'picture' => 'sys_accounts_picture'
-        ];
     }
 
     /**
@@ -404,7 +388,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
         $ret = null;
         /**
          * @hooks
-         * @hookdef hook-account-before_switch_context 'account', 'before_switch_context' - hook before switch profile_id from current logged user
+         * @hookdef hook-account-before_switch_context 'account', 'before_switch_context' - hook before switch profile_id frof current logged user
          * - $unit_name - equals `account`
          * - $action - equals `before_switch_context` 
          * - $object_id - account id 
@@ -425,7 +409,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
         
         /**
          * @hooks
-         * @hookdef hook-account-switch_context 'account', 'switch_context' - hook before switch profile_id from current logged user
+         * @hookdef hook-account-switch_context 'account', 'switch_context' - hook before switch profile_id frof current logged user
          * - $unit_name - equals `account`
          * - $action - equals `switch_context` 
          * - $object_id - account id 
@@ -471,38 +455,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
 
         return $bResult;
     }
-
-    /**
-     * Send "welcome" email
-     */
-    public function sendWelcomeEmail($iAccountId = false)
-    {
-        if(getParam('sys_account_welcome_letter') != 'on')
-            return false;
-
-        $iAccountId = (int)$iAccountId;
-        if(!$iAccountId)
-            $iAccountId = $this->_iAccountID;
-
-        $aAccountInfo = $this->getInfo($iAccountId);
-        if(empty($aAccountInfo) || !is_array($aAccountInfo))
-            return false;
-
-        if((int)$aAccountInfo['welcome_sent'] != 0)
-            return true;
-
-        $sEmailTemplate = 't_Welcome';
-        $aEmailReplaceVars = [
-            'name' => $this->getDisplayName($iAccountId),
-        ];
-
-        $bResult = sendMailTemplate($sEmailTemplate, $iAccountId, (int)$aAccountInfo['profile_id'], $aEmailReplaceVars, BX_EMAIL_SYSTEM);
-        if($bResult)
-            $this->_oQuery->updateWelcomeSent(1, $iAccountId);
-
-        return $bResult;
-    }
-
+    
     public function sendResetPasswordEmail($iAccountId = false)
     {
         $iAccountId = (int)$iAccountId;
@@ -561,7 +514,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
          *      - `display_name` - [string] by ref, account display name,  can be overridden in hook processing
          * @hook @ref hook-account-account_name
          */
-        bx_alert('account', 'account_name', $iAccountId, 0, array('info' => $aInfo, 'display_name' => &$sDisplayName, 'display_name_ref' => &$sDisplayName));
+        bx_alert('account', 'account_name', $iAccountId, 0, array('info' => $aInfo, 'display_name' => &$sDisplayName));
 
         return bx_process_output($sDisplayName);
     }
@@ -579,6 +532,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
      */
     public function getUnit($iAccountId = false, $aParams = array())
     {
+        
         $sTemplate = 'unit';
         $sTemplateSize = false;
         $aTemplateVars = array();
@@ -596,74 +550,29 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
                     $aTemplateVars = $aParams['template']['vars'];
             }
         }
-
         $sTemplate = 'account_' . $sTemplate . '.html';
         if(empty($sTemplateSize))
             $sTemplateSize = 'thumb';
 
         $sTitle = $this->getDisplayName($iAccountId);
-        $aInfo = $this->getInfo($iAccountId);
 
-        $sImageUrl = $this->_getImageUrl($sTemplateSize, $aInfo);
-        $bImageUrl = !empty($sImageUrl);
-
-        $aTmplVars = [
+        $aTmplVars = array(
             'size' => $sTemplateSize,
+            'color' => implode(', ', BxDolTemplate::getColorCode(($iAccountId ? $iAccountId : $this->_iAccountID), 1.0)),
+            'letter' => mb_strtoupper(mb_substr($sTitle, 0, 1)),
             'content_url' => $this->getUrl($iAccountId),
             'title' => $sTitle,
             'title_attr' => bx_html_attribute($sTitle),
-            'bx_if:show_thumb_image' => [
-                'condition' => $bImageUrl,
-                'content' => [
-                    'size' => $sTemplateSize,
-                    'url' => $sImageUrl
-                ]
-            ],
-            'bx_if:show_thumb_letter' => [
-                'condition' => !$bImageUrl,
-                'content' => [
-                    'size' => $sTemplateSize,
-                    'color' => implode(', ', BxDolTemplate::getColorCode(($iAccountId ? $iAccountId : $this->_iAccountID), 1.0)),
-                    'letter' => mb_strtoupper(mb_substr($sTitle, 0, 1)),
-                ]
-            ],
-            'bx_if:show_online' => [
+            'bx_if:show_online' => array(
                 'condition' => $this->isOnline($iAccountId),
-                'content' => []
-            ]
-        ];
+                'content' => array()
+            )
+        );
 
         if(!empty($aTemplateVars) && is_array($aTemplateVars))
             $aTmplVars = array_merge ($aTmplVars, $aTemplateVars);
 
         return BxDolTemplate::getInstance()->parseHtmlByName($sTemplate, $aTmplVars);
-    }
-    
-    public function getUnitApi($iAccountId = false, $aParams = array())
-    {
-        if(!$iAccountId)
-            $iAccountId = $this->_iAccountID;
-
-        $sModule = 'system';
-
-        $iAuthorId = 0;
-        $aAuthorData = [];
-        if(($oProfile = BxDolProfile::getInstanceByContentAndType($iAccountId, $sModule)) !== false) {
-            $iAuthorId = $oProfile->id();
-            $aAuthorData = BxDolProfile::getData($iAuthorId);
-        }
-
-        $aInfo = $this->getInfo($iAccountId);
-
-        return [
-            'id' => $aInfo['id'], 
-            'module' => $sModule,
-            'module_title' => $sModule,
-            'added' => $aInfo['added'],
-            'author' => $iAuthorId,
-            'author_data' => $aAuthorData,
-            'title' => $this->getDisplayName($iAccountId),
-        ];
     }
 
     /**
@@ -671,14 +580,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
      */
     public function getPicture($iAccountId = false)
     {
-        if($this->_bIsApi)
-            return '';
-
-        $sImageUrl = $this->_getImageUrl('picture', $iAccountId);
-        if(!$sImageUrl)
-            $sImageUrl = BxDolTemplate::getInstance()->getImageUrl('account.svg');
-
-        return $sImageUrl;
+        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
     }
 
     /**
@@ -686,14 +588,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
      */
     public function getAvatarBig($iAccountId = false)
     {
-        if($this->_bIsApi)
-            return '';
-
-        $sImageUrl = $this->_getImageUrl('ava_big', $iAccountId);
-        if(!$sImageUrl)
-            $sImageUrl = BxDolTemplate::getInstance()->getImageUrl('account.svg');
-
-        return $sImageUrl;
+        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
     }
 
     /**
@@ -701,14 +596,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
      */
     public function getAvatar($iAccountId = false)
     {
-        if($this->_bIsApi)
-            return '';
-
-        $sImageUrl = $this->_getImageUrl('ava', $iAccountId);
-        if(!$sImageUrl)
-            $sImageUrl = BxDolTemplate::getInstance()->getImageUrl('account.svg');
-
-        return $sImageUrl;
+        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
     }
 
     /**
@@ -716,14 +604,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
      */
     public function getThumb($iAccountId = false)
     {
-        if($this->_bIsApi)
-            return '';
-
-        $sImageUrl = $this->_getImageUrl('thumb', $iAccountId);
-        if(!$sImageUrl)
-            $sImageUrl = BxDolTemplate::getInstance()->getImageUrl('account.svg');
-
-        return $sImageUrl;
+        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
     }
 
     /**
@@ -731,14 +612,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
      */
     public function getIcon($iAccountId = false)
     {
-        if($this->_bIsApi)
-            return '';
-
-        $sImageUrl = $this->_getImageUrl('icon', $iAccountId);
-        if(!$sImageUrl)
-            $sImageUrl = BxDolTemplate::getInstance()->getImageUrl('account.svg');
-
-        return $sImageUrl;
+        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
     }
 
     /**
@@ -811,7 +685,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
          *      - `number` - [int] by ref, account limit on the number of profiles,  can be overridden in hook processing
          * @hook @ref hook-account-get_limit_profiles_number
          */
-        bx_alert('account', 'get_limit_profiles_number', 0, 0, array('account_id' => $this->_iAccountID, 'number' => &$iProfilesLimit, 'number_ref' => &$iProfilesLimit));
+        bx_alert('account', 'get_limit_profiles_number', 0, 0, array('account_id' => $this->_iAccountID, 'number' => &$iProfilesLimit));
         if (!isAdmin() && $iProfilesLimit && ($iProfilesNum = $this->getProfilesNumber()) && $iProfilesNum >= $iProfilesLimit)
             return true;
 
@@ -891,7 +765,7 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
          *      - `stop_deletion` - [bool] by ref, if it set to true account deletion will stopped, can be overridden in hook processing
          * @hook @ref hook-account-before_delete
          */
-        bx_alert('account', 'before_delete', $this->_iAccountID, 0, array('delete_with_content' => $bDeleteWithContent, 'stop_deletion' => &$isStopDeletion, 'stop_deletion_ref' => &$isStopDeletion));
+        bx_alert('account', 'before_delete', $this->_iAccountID, 0, array('delete_with_content' => $bDeleteWithContent, 'stop_deletion' => &$isStopDeletion));
         if ($isStopDeletion)
             return false;
 
@@ -1195,17 +1069,6 @@ class BxDolAccount extends BxDolFactory implements iBxDolSingleton
         return $iCount;
     }
 
-    protected function _getImageUrl($sSize, $mixedData)
-    {
-        if(!is_array($mixedData))
-            $mixedData = $this->getInfo((int)$mixedData);
-
-        $sImageUrl = '';
-        if(!empty($mixedData[$this->_sImageField]) && !empty($this->_aImageTranscoders[$sSize]) && ($oImagesTranscoder = BxDolTranscoderImage::getObjectInstance($this->_aImageTranscoders[$sSize])) !== false)
-            $sImageUrl = $oImagesTranscoder->getFileUrl($mixedData[$this->_sImageField]);
-
-        return $sImageUrl;
-    }
 }
 
 /** @} */

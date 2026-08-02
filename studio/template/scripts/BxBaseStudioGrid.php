@@ -52,16 +52,6 @@ class BxBaseStudioGrid extends BxDolStudioGrid
         return $oForm->genRow($aInputModules);
     }
 
-    public function getSearchInput()
-    {
-        return parent::_getSearchInput();
-    }
-
-    protected function _getFilterOnChange()
-    {
-        return $this->getJsObject() . '.onChangeFilter()';
-    }
-
     protected function _getItem($sDbMethod = '')
     {
         $aIds = bx_get('ids');
@@ -81,37 +71,6 @@ class BxBaseStudioGrid extends BxDolStudioGrid
             return false;
 
         return $aItem;
-    }
-
-    protected function _getIconPreview($iId, $sIconImage = '', $sIcon = '')
-    {
-        $bIconImage = !empty($sIconImage);
-
-        $aIcons = BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate)->getIcon($sIcon);
-        $sIconHtml = $aIcons[2] . $aIcons[3] . $aIcons[4];
-        $bIconHtml = !empty($sIconHtml) && !$bIconImage;
-
-        return $this->_oTemplate->parseHtmlByName('item_icon_preview.html', [
-            'id' => $iId,
-            'bx_if:show_icon_empty' => [
-                'condition' => !$bIconImage && !$bIconHtml,
-                'content' => []
-            ],
-            'bx_if:show_icon_image' => [
-                'condition' => $bIconImage,
-                'content' => [
-                    'js_object' => $this->getJsObject(),
-                    'url' => $sIconImage,
-                    'id' => $iId
-                ]
-            ],
-            'bx_if:show_icon_html' => [
-                'condition' => $bIconHtml,
-                'content' => [
-                    'icon' => $sIconHtml
-                ]
-            ]
-        ]);
     }
 }
 

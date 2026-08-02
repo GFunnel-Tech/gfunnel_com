@@ -43,7 +43,6 @@ class CallPage extends Page
         return new CallInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

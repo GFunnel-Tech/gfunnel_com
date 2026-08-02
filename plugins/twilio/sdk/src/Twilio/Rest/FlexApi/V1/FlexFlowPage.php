@@ -43,7 +43,6 @@ class FlexFlowPage extends Page
         return new FlexFlowInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

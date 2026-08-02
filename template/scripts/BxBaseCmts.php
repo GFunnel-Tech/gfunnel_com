@@ -37,17 +37,16 @@ class BxBaseCmts extends BxDolCmts
         $this->_sTmplNameItem = 'comment.html';
         $this->_sTmplNameItemContent = 'comment_content.html';
 
-        $this->_sStylePrefix = $this->_aSystem['root_style_prefix'] ?? 'cmt';
-
         $this->_sJsObjClass = 'BxDolCmts';
-        $this->_sJsObjName = 'oCmts' . bx_gen_method_name($sSystem, ['_' , '-']) . '_' . ($iId ?? 0);
+        $this->_sJsObjName = 'oCmts' . bx_gen_method_name($sSystem, array('_' , '-')) . '_' .str_replace('-', 'n', $iId);
+        $this->_sStylePrefix = isset($this->_aSystem['root_style_prefix']) ? $this->_aSystem['root_style_prefix'] : 'cmt';
 
-        $sHtmlId = str_replace(['_' , ' '], ['-', '-'], $sSystem) . '-' . ($iId ?? 0);
+        $sHtmlId = str_replace(array('_' , ' '), array('-', '-'), $sSystem) . '-' . $iId;
 
-        $this->_aHtmlIds = [
+        $this->_aHtmlIds = array(
             'main' => 'bx-cmt-' . $sHtmlId,
             'counter' => 'bx-cmt-counter-' . $sHtmlId
-        ];
+        );
 
         $this->_aElementDefaults = [
             'show_do_comment_as_button' => false,
@@ -97,11 +96,12 @@ class BxBaseCmts extends BxDolCmts
 
         $sResult = $this->_oTemplate->addCss([
             BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'photo-swipe/|photoswipe.css',
+            BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'photo-swipe/default-skin/|default-skin.css',
         ], $bDynamicMode);
 
         $sResult .= $this->_oTemplate->addJs([
-            'photo-swipe/photoswipe.umd.min.js',
-            'photo-swipe/photoswipe-lightbox.umd.min.js',
+            'photo-swipe/photoswipe.min.js',
+            'photo-swipe/photoswipe-ui-default.min.js',
         ], $bDynamicMode);
 
         return $sResult;
@@ -192,11 +192,6 @@ class BxBaseCmts extends BxDolCmts
         
     }
 
-    function getCommentsBlockTitle()
-    {
-        return _t($this->_aT['block_comments_title'], $this->getCommentsCountAll(0, true));
-    }
-
     /**
      * get full comments block with initializations
      */
@@ -232,7 +227,7 @@ class BxBaseCmts extends BxDolCmts
         $sPostFormBottom = $this->getFormBoxPost($aBp, array_merge($aDp, ['type' => $this->_sDisplayType, 'position' => BX_CMT_PFP_BOTTOM]));
         $sJsContent = $this->getJsScript($aBp, $aDp);
 
-        $sBlockTitle = $this->getCommentsBlockTitle();
+        $sBlockTitle = _t($this->_aT['block_comments_title'], $this->getCommentsCountAll(0, true));
         $sBlockMenu = $this->_getControlsBox();
 
         /**
@@ -266,7 +261,6 @@ class BxBaseCmts extends BxDolCmts
             'id' => $this->getId(),
             'params_browse' => $aBp,
             'params_display' => $aDp,
-
             'post_form_top' => &$sPostFormTop,
             'content_before' => &$sContentBefore,
             'comments' => &$sComments,
@@ -276,16 +270,6 @@ class BxBaseCmts extends BxDolCmts
             'js_content' => &$sJsContent,
             'block_title' => &$sBlockTitle,
             'block_menu' => &$sBlockMenu,
-
-            'post_form_top_ref' => &$sPostFormTop,
-            'content_before_ref' => &$sContentBefore,
-            'comments_ref' => &$sComments,
-            'comments_pinned_ref' => &$sCommentsPinned,
-            'content_after_ref' => &$sContentAfter,
-            'post_form_bottom_ref'  => &$sPostFormBottom,
-            'js_content_ref' => &$sJsContent,
-            'block_title_ref' => &$sBlockTitle,
-            'block_menu_ref' => &$sBlockMenu,
         ]);
 
         $sContent = $this->_oTemplate->parseHtmlByName('comments_block.html', [
@@ -304,6 +288,7 @@ class BxBaseCmts extends BxDolCmts
             'content_after' => $sContentAfter,
             'post_form_top' => $sPostFormTop,
             'post_form_bottom'  => $sPostFormBottom,
+            'image_preview' => $this->_oTemplate->parseHtmlByName('comments_photoswipe.html', []),
             'script' => $sJsContent
         ]);
 
@@ -391,6 +376,8 @@ class BxBaseCmts extends BxDolCmts
         if (!$sComment)
             return '';
 
+        BxDolTemplate::getInstance()->addInjection ('injection_footer', 'text', $this->_oTemplate->parseHtmlByName('comments_photoswipe.html', []));
+
         return $this->_oTemplate->parseHtmlByName('comment_block.html', array(
             'style_prefix' => $this->_sStylePrefix,
             'js_object' => $this->_sJsObjName,
@@ -449,8 +436,26 @@ class BxBaseCmts extends BxDolCmts
         if(!empty($aDp['class_comment_content']))
             $sClassCnt .= ' ' . $aDp['class_comment_content'];
 
-        $sHeader = $this->_getHeaderBox($aCmt, $aBp, $aDp);
-        $sActions = $this->_getActionsBox($aCmt, $aBp, $aDp);        
+        $sActions = $this->_getActionsBox($aCmt, $aBp, $aDp);
+
+        $aTmplReplyTo = array();
+        if((int)$aCmt['cmt_parent_id'] != 0) {
+            $aParent = $this->getCommentRow($aCmt['cmt_parent_id']);
+
+            if(!empty($aParent) && is_array($aParent)) {
+                $oProfile = $this->_getAuthorObject($aParent['cmt_author_id']);
+                $sParAuthorName = $oProfile->getDisplayName();
+                $sParAuthorUnit = $oProfile->getUnit(0, array('template' => array('name' => 'unit_wo_info_links', 'size' => 'icon')));
+
+                $aTmplReplyTo = array(
+                    'style_prefix' => $this->_sStylePrefix,
+                    'par_cmt_link' => $this->getItemUrl($aCmt['cmt_parent_id']),
+                    'par_cmt_title' => bx_html_attribute(_t('_in_reply_to_x', $sParAuthorName)),
+                    'par_cmt_author' => $sParAuthorName,
+                    'par_cmt_author_unit' => $sParAuthorUnit
+                );
+            }
+        }
 
         $sReplies = '';
         if(!(isset($aBp['pinned']) && (int)$aBp['pinned'] != 0 && (int)$aCmt['cmt_pinned'] != 0) && !empty($aDp)) {
@@ -466,6 +471,19 @@ class BxBaseCmts extends BxDolCmts
                 $sReplies = $this->getComments(['parent_id' => $aCmt['cmt_id'], 'vparent_id' => $aCmt['cmt_id'], 'type' => $aBp['type'], 'order_way' => BX_CMT_ORDER_WAY_ASC], $aDp);
         }
 
+        $aTmplVarsMeta = array();
+        if(!empty($this->_sMenuObjMeta)) {
+            $oMenuMeta = BxDolMenu::getObjectInstance($this->_sMenuObjMeta, $this->_oTemplate);
+            if($oMenuMeta) {
+                $oMenuMeta->setCmtsData($this, $aCmt['cmt_id']);
+
+                $aTmplVarsMeta = array(
+                    'style_prefix' => $this->_sStylePrefix,
+                    'meta' => $oMenuMeta->getCode()
+                );
+            }
+        }
+
         if($this->_isShowContent($aCmt)) {
             $sContent = $this->_getContent($aCmt, $aBp, $aDp);
         }
@@ -474,7 +492,7 @@ class BxBaseCmts extends BxDolCmts
             $sContent = _t('_hidden_comment', BxDolProfileUndefined::getInstance()->getDisplayName());
         }
 
-        $aVars = array_merge([
+        $aVars = array_merge(array(
             'system' => $this->_sSystem,
             'style_prefix' => $this->_sStylePrefix,
             'js_object' => $this->_sJsObjName,
@@ -482,11 +500,24 @@ class BxBaseCmts extends BxDolCmts
             'anchor' => $this->getItemAnchor($aCmt['cmt_id']),
             'class' => $sClass,
             'class_cnt' => $sClassCnt,
-            'header' => $sHeader,
+            'bx_if:show_reply_to' => array(
+                'condition' => !empty($aTmplReplyTo),
+                'content' => $aTmplReplyTo
+            ),
+            'bx_if:meta' => array(
+                'condition' => !empty($aTmplVarsMeta),
+                'content' => $aTmplVarsMeta
+            ),
+            'bx_if:show_pinned' => array(
+                'condition' => (int)$aCmt['cmt_pinned'] > 0,
+                'content' => array(
+                    'style_prefix' => $this->_sStylePrefix,
+                )
+            ),
             'content' => $sContent,
             'actions' => $sActions,
             'replies' =>  $sReplies,
-        ], $this->_getTmplVarsAuthor($aCmt));
+        ), $this->_getTmplVarsAuthor($aCmt), $this->_getTmplVarsNotes($aCmt));
         
         $sResult = $this->_oTemplate->parseHtmlByName($this->_sTmplNameItem, $aVars);
         
@@ -536,6 +567,8 @@ class BxBaseCmts extends BxDolCmts
 
         if(empty($sAddon))
             $sAddon = $this->getJsScript($aBp, $aDp);
+
+        BxDolTemplate::getInstance()->addInjection ('injection_footer', 'text', $this->_oTemplate->parseHtmlByName('comments_photoswipe.html', []));
 
         return $this->_oTemplate->parseHtmlByName('comment_search.html', array(
             'comment' => $this->getComment($iCmtId, $aBp, $aDp),
@@ -1077,56 +1110,6 @@ class BxBaseCmts extends BxDolCmts
         ));
     }
 
-    protected function _getHeaderBox(&$aCmt, $aBp = [], $aDp = [])
-    {
-        $aTmplReplyTo = [];
-        if((int)$aCmt['cmt_parent_id'] != 0) {
-            $aParent = $this->getCommentRow($aCmt['cmt_parent_id']);
-
-            if(!empty($aParent) && is_array($aParent)) {
-                $oProfile = $this->_getAuthorObject($aParent['cmt_author_id']);
-                $sParAuthorName = $oProfile->getDisplayName();
-                $sParAuthorUnit = $oProfile->getUnit(0, ['template' => ['name' => 'unit_wo_info_links', 'size' => 'icon']]);
-
-                $aTmplReplyTo = [
-                    'style_prefix' => $this->_sStylePrefix,
-                    'par_cmt_link' => $this->getItemUrl($aCmt['cmt_parent_id']),
-                    'par_cmt_title' => bx_html_attribute(_t('_in_reply_to_x', $sParAuthorName)),
-                    'par_cmt_author' => $sParAuthorName,
-                    'par_cmt_author_unit' => $sParAuthorUnit
-                ];
-            }
-        }
-
-        $aTmplVarsMeta = [];
-        if(!empty($this->_sMenuObjMeta) && ($oMenuMeta = BxDolMenu::getObjectInstance($this->_sMenuObjMeta, $this->_oTemplate)) !== false) {
-            $oMenuMeta->setCmtsData($this, $aCmt['cmt_id']);
-
-            $aTmplVarsMeta = [
-                'style_prefix' => $this->_sStylePrefix,
-                'meta' => $oMenuMeta->getCode()
-            ];
-        }
-
-        return $this->_oTemplate->parseHtmlByName('comment_header.html', array_merge([
-            'style_prefix' => $this->_sStylePrefix,
-            'bx_if:show_reply_to' => [
-                'condition' => !empty($aTmplReplyTo),
-                'content' => $aTmplReplyTo
-            ],
-            'bx_if:meta' => [
-                'condition' => !empty($aTmplVarsMeta),
-                'content' => $aTmplVarsMeta
-            ],
-            'bx_if:show_pinned' => [
-                'condition' => (int)$aCmt['cmt_pinned'] > 0,
-                'content' => [
-                    'style_prefix' => $this->_sStylePrefix,
-                ]
-            ],
-        ], $this->_getTmplVarsNotes($aCmt)));
-    }
-
     protected function _getActionsBox(&$aCmt, $aBp = [], $aDp = [])
     {
     	$bViewOnly = isset($aDp['view_only']) && $aDp['view_only'] === true;
@@ -1235,29 +1218,12 @@ class BxBaseCmts extends BxDolCmts
         ));
     }
 
-    protected function _getFormDirectEdit($aValues, $iCmtId)
+    protected function _getFormAdd($aValues)
     {
-        return $this->_getFormManual($aValues, $iCmtId);
-    } 
-
-    protected function _getFormDirectAdd($aValues) 
-    {
-        return $this->_getFormManual($aValues);
-    }
-
-    protected function _getFormManual($aValues, $iEditedCmtId = 0)
-    {
-        $aCmt = []; 
-        if ($iEditedCmtId) {
-            $aCmt = $this->getCommentSimple($iEditedCmtId);
-            if(!$aCmt)
-                return bx_is_api() ? bx_api_get_msg(_t('_No such comment')) : array('msg' => _t('_No such comment'));
-        }
-
         $iCmtAuthorId = isset($aValues['cmt_author_id']) ? (int)$aValues['cmt_author_id'] : $this->_getAuthorId();
         $iCmtParentId = isset($aValues['cmt_parent_id']) ? (int)$aValues['cmt_parent_id'] : 0;
 
-        $oForm = $this->_getForm($iEditedCmtId ? BX_CMT_ACTION_EDIT : BX_CMT_ACTION_POST, $iCmtParentId);
+        $oForm = $this->_getForm(BX_CMT_ACTION_POST, $iCmtParentId);
         $oForm->aFormAttrs['method'] = BX_DOL_FORM_METHOD_SPECIFIC;
         $oForm->aParams['csrf']['disable'] = true;
         $oForm->aInputs['cmt_parent_id']['value'] = $iCmtParentId;
@@ -1299,15 +1265,7 @@ class BxBaseCmts extends BxDolCmts
             $iCmtVisualParentId = $iLevel > $this->getMaxLevel() ? $aParent['cmt_vparent_id'] : $iCmtParentId;
         }
 
-        $iCmtId = 0;
-        if ($iEditedCmtId) {
-            $bRes = $oForm->update($iEditedCmtId);
-            if ($bRes)
-                $iCmtId = $iEditedCmtId;
-        } else {
-            $iCmtId = (int)$oForm->insert(array('cmt_vparent_id' => $iCmtVisualParentId, 'cmt_object_id' => $this->_iId, 'cmt_author_id' => $iCmtAuthorId, 'cmt_level' => $iLevel, 'cmt_time' => time()));
-        }
-
+        $iCmtId = (int)$oForm->insert(array('cmt_vparent_id' => $iCmtVisualParentId, 'cmt_object_id' => $this->_iId, 'cmt_author_id' => $iCmtAuthorId, 'cmt_level' => $iLevel, 'cmt_time' => time()));
         if(!$iCmtId) {
             if(!$oForm->isValid())
                 return array('code' => 1, 'message' => '_sys_txt_error_occured');
@@ -1315,24 +1273,12 @@ class BxBaseCmts extends BxDolCmts
                 return array('code' => 2, 'message' => '_cmt_err_cannot_perform_action');
         }
 
-        $iCmtUniqId = 0;
-        if ($iEditedCmtId) {
-                $iCmtUniqId = $this->_oQuery->getUniqId($this->_aSystem['system_id'], $iEditedCmtId, [
-                    'author_id' => (int)$aCmt['cmt_author_id']
-                ]);
-                
-                $sStatusAdmin = $this->getStatusAdmin();
-                if($sStatusAdmin !== BX_CMT_STATUS_ACTIVE)
-                    $this->_oQuery->updateUniqId(['status_admin' => $sStatusAdmin], ['id' => $iCmtUniqId]);
-        } 
-        else {
-            $iCmtUniqId = $this->_oQuery->getUniqId($this->_aSystem['system_id'], $iCmtId, [
-                'author_id' => $iCmtAuthorId, 
-                'status_admin' => $this->getStatusAdmin()
-            ]);
-        }
+        $iCmtUniqId = $this->_oQuery->getUniqId($this->_aSystem['system_id'], $iCmtId, [
+            'author_id' => $iCmtAuthorId, 
+            'status_admin' => $this->getStatusAdmin()
+        ]);
 
-        if($iCmtParentId && !$iEditedCmtId) {
+        if($iCmtParentId) {
             $this->_oQuery->updateRepliesCount($iCmtParentId, 1);
 
             if(!BxDolModuleQuery::getInstance()->isEnabledByName('bx_notifications'))
@@ -1344,13 +1290,7 @@ class BxBaseCmts extends BxDolCmts
         if($this->_sMetatagsObj && ($oMetatags = BxDolMetatags::getObjectInstance($this->_sMetatagsObj)) !== false)
             $oMetatags->metaAdd($iCmtUniqId, $aValues['cmt_text']);
 
-        $mixedResult = false;
-        if ($iEditedCmtId) {
-            $mixedResult = $this->onEditAfter($iCmtId);
-        }
-        else {
-            $mixedResult = $this->onPostAfter($iCmtId);
-        }
+        $mixedResult = $this->onPostAfter($iCmtId);
         if($mixedResult === false)
             return array('code' => 2, 'message' => '_cmt_err_cannot_perform_action');
 
@@ -1499,8 +1439,6 @@ class BxBaseCmts extends BxDolCmts
                 if($this->isAttachImageEnabled())
                     $oForm->processImages($this, 'cmt_image', $iCmtUniqId, $iCmtId, $iCmtAuthorId, false);
 
-                $this->_triggerComment();
-
                 $this->isEditAllowed($aCmt, true);
 
                 if($this->_sMetatagsObj && ($oMetatags = BxDolMetatags::getObjectInstance($this->_sMetatagsObj)) !== false)
@@ -1572,25 +1510,18 @@ class BxBaseCmts extends BxDolCmts
     protected function _getContent($aCmt, $aBp = [], $aDp = [])
     {
         $sAttachments = $this->_getAttachments($aCmt);
-        $sCounters = $this->_getCountersBox($aCmt, $aBp, $aDp);
 
         return $this->_oTemplate->parseHtmlByName($this->_sTmplNameItemContent, array_merge(array(
             'style_prefix' => $this->_sStylePrefix,
             'js_object' => $this->_sJsObjName,
-            'bx_if:show_attached' => [
+            'bx_if:show_attached' => array(
                 'condition' => !empty($sAttachments),
-                'content' => [
+                'content' => array(
                     'style_prefix' => $this->_sStylePrefix,
                     'attached' => $sAttachments
-                ]
-            ],
-            'bx_if:show_counters' => [
-                'condition' => !empty($sCounters),
-                'content' => [
-                    'style_prefix' => $this->_sStylePrefix,
-                    'counters' => $sCounters,
-                ]
-            ]
+                )
+            ),
+            'counters' => $this->_getCountersBox($aCmt, $aBp, $aDp),
         ), $this->_getTmplVarsText($aCmt)));
     }
 
@@ -1670,17 +1601,18 @@ class BxBaseCmts extends BxDolCmts
 
     protected function _getAttachments($aCmt)
     {
+        $aTmplImages = array();
         if(!$this->isAttachImageEnabled())
-            return $this->_bIsApi ? [] : ''; 
+            return ''; 
 
-        $aTmplImages = [];
-        if(($aFiles = $this->_oQuery->getFiles($this->_aSystem['system_id'], $aCmt['cmt_id'])) && is_array($aFiles)) {
+        $aFiles = $this->_oQuery->getFiles($this->_aSystem['system_id'], $aCmt['cmt_id']);
+        if(!empty($aFiles) && is_array($aFiles)) {
             $oStorage = BxDolStorage::getObjectInstance($this->getStorageObjectName());
             $oTranscoder = BxDolTranscoderImage::getObjectInstance($this->getTranscoderPreviewName());
 
             foreach($aFiles as $aFile) {
                 $sFile = $oStorage->getFileUrlById($aFile['image_id']);
-                $bImage = $oTranscoder && ($oTranscoder->isMimeTypeSupported($aFile['mime_type']) || $oTranscoder->isMimeTypeSvg($aFile['mime_type']));
+                $bImage = $oTranscoder && $oTranscoder->isMimeTypeSupported($aFile['mime_type']);
 
                 $sPreview = '';
                 $iWidth = $iHeight = 0;
@@ -1714,7 +1646,7 @@ class BxBaseCmts extends BxDolCmts
                     'h' => $iHeight
                 );
 
-                if($this->_bIsApi) {
+                if($this->_bIsApi){
                     $aTmplImages[] = array(
                         'is_image' => $bImage,
                         'file' => $aTmplVarsFile['file'],
@@ -1726,7 +1658,7 @@ class BxBaseCmts extends BxDolCmts
                         'height' => $aTmplVarsFile['h'],
                     );
                 }
-                else {
+                else{
                     $aTmplImages[] = array(
                         'style_prefix' => $this->_sStylePrefix,
                         'bx_if:show_image' => array(
@@ -1741,9 +1673,10 @@ class BxBaseCmts extends BxDolCmts
                 }
             }
         }
-
-        if($this->_bIsApi)
+        
+        if (bx_is_api()){
             return $aTmplImages;
+        }
 
         return $this->_oTemplate->parseHtmlByName('comment_attachments.html', array(
             'bx_repeat:attached' => $aTmplImages
@@ -1752,10 +1685,10 @@ class BxBaseCmts extends BxDolCmts
 
     protected function _getTmplVarsNotes($aCmt)
     {
-        $aTmplVars = [];
+        $aTmplVars = array();
         
         //--- Pending status related notes.
-        if(isset($aCmt['cmt_status_admin']) && $aCmt['cmt_status_admin'] == BX_CMT_STATUS_PENDING)
+        if($aCmt['cmt_status_admin'] == BX_CMT_STATUS_PENDING)
             $aTmplVars[] = [
                 'style_prefix' => $this->_sStylePrefix,
                 'bx_if:show_note_color' => [

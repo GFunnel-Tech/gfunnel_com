@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -52,120 +50,49 @@ class ApiKeyContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the ApiKeyInstance
      *
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the ApiKeyInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the ApiKeyInstance
      *
-     
      * @return ApiKeyInstance Fetched ApiKeyInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): ApiKeyInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new ApiKeyInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the ApiKeyInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new ApiKeyInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the ApiKeyInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return ApiKeyInstance Updated ApiKeyInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): ApiKeyInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -175,50 +102,13 @@ class ApiKeyContext extends InstanceContext
                 Serialize::jsonObject($options['policy']),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the ApiKeyInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ApiKeyInstance Updated ApiKeyInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): ApiKeyInstance
-    {
-        $response = $this->_update($options);
         return new ApiKeyInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the ApiKeyInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new ApiKeyInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

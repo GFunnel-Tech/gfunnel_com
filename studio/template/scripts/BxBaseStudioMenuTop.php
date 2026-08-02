@@ -17,7 +17,7 @@ class BxBaseStudioMenuTop extends BxDolStudioMenuTop
 
     function getCss()
     {
-        return array(BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'flag-icons/css/|flag-icons.min.css', 'menu_top.css');
+        return array('menu_top.css');
     }
 
     function getJs()
@@ -57,7 +57,7 @@ class BxBaseStudioMenuTop extends BxDolStudioMenuTop
                             'condition' => $this->sPageName == 'home' && getParam('sys_std_show_header_right_search') == 'on',
                             'content' => [
                                 'bx_if:show_active' => [
-                                    'condition' => false,
+                                    'condition' => true,
                                     'content' => []
                                 ]
                             ]

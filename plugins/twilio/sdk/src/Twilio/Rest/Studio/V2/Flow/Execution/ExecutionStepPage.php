@@ -43,7 +43,6 @@ class ExecutionStepPage extends Page
         return new ExecutionStepInstance($this->version, $payload, $this->solution['flowSid'], $this->solution['executionSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -43,7 +43,6 @@ class InsightsUserRolesPage extends Page
         return new InsightsUserRolesInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

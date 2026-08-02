@@ -28,14 +28,6 @@
 
 
     /* Defaults */
-    .bx-skip-link {
-        @apply absolute -top-16 focus:top-0 m-2 px-4 py-2;
-        @apply border border-gray-200 dark:border-gray-700;
-        @apply bg-gray-200/80 dark:bg-gray-800/80;
-        @apply text-gray-800 dark:text-gray-200 font-medium;
-        @apply rounded;
-    }
-
     .bx-def-vanilla-html {
         @apply prose dark:prose-invert;
         @apply prose-a:text-blue-500 prose-a:font-medium prose-a:no-underline hover:prose-a:underline visited:prose-a:text-purple-500;
@@ -469,7 +461,6 @@
     }
 
     /* Borders */
-    .bx-std .bx-def-border,
     .bx-artificer .bx-def-border {
         @apply border border-gray-200 dark:border-gray-700;
     }
@@ -696,10 +687,6 @@
         @apply hover:no-underline;
         @apply hover:-translate-y-px;
     }
-    .bx-btn-focus {
-        @apply focus:border-blue-500 dark:focus:border-blue-500 focus:border-opacity-70 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none;
-    }
-    
     .bx-btn-active {
         @apply active:bg-gray-300 dark:active:bg-gray-800;
         @apply active:border-gray-400 dark:active:border-gray-700;
@@ -714,7 +701,7 @@
         @apply bx-btn-text;
         @apply transform-gpu transition-all duration-150;
         @apply cursor-pointer;
-        @apply bx-btn-hover bx-btn-focus bx-btn-active;
+        @apply bx-btn-hover bx-btn-active;
     }
     .bx-btn i, 
     .bx-btn u {
@@ -742,10 +729,6 @@
 
     .bx-btn img {
         @apply bg-contain bg-no-repeat bg-center;
-    }
-    
-    .bx-btn svg {
-        @apply inline align-middle;
     }
 
     .bx-btn u {
@@ -884,7 +867,6 @@
     .bx-std .bx-form-input-radio_set,
     .bx-artificer .bx-form-input-wrapper-checkbox_set,
     .bx-artificer .bx-form-input-wrapper-radio_set {
-        @apply max-h-80 overflow-x-auto;
         @apply bg-gray-50 dark:bg-gray-900/50 focus:bg-white dark:focus:bg-gray-900;
         @apply border border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-500 focus:border-opacity-70 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none;
         @apply leading-6 text-base font-medium text-gray-700 dark:text-gray-300 focus:text-gray-900 dark:focus:text-gray-100;
@@ -1030,10 +1012,6 @@
         @apply bx-stl-mil-hover-bg;
     }
 
-    .bx-stl-mil-focus {
-        @apply focus:border-blue-500 dark:focus:border-blue-500 focus:border-opacity-70 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none;
-    }
-    
     .bx-stl-mil-active-bg {
         @apply active:border-gray-300 dark:active:border-gray-700;
         @apply active:bg-gray-300 dark:active:bg-black/50;
@@ -1135,6 +1113,7 @@
     }
     
     .bx-stl-mii > *,
+    .bx-std .bx-stl-mii > *,
     .bx-stl-mii-sm > *,
     .bx-stl-mil .sys-action-do-icon > *,
     .bx-stl-mil-sm .sys-action-do-icon > *,
@@ -1142,16 +1121,6 @@
     .bx-stl-mil-wo-gaps-sm .sys-action-do-icon > * {
         @apply flex items-center justify-center h-6 w-6 ltr:mr-3 rtl:ml-3;
     }
-    .bx-std .bx-stl-mii > * {
-        @apply flex items-center justify-center h-6 w-6 ltr:mr-3 rtl:ml-3 !important;
-    }
-    .bx-std .bx-stl-mii > svg {
-        @apply text-gray-500 !important;
-    }
-    .bx-std li:hover .bx-stl-mii > svg {
-        @apply text-gray-700 dark:text-gray-300 !important;
-    }
-
     .bx-stl-mii:last-child > *,
     .bx-stl-mii-sm:last-child > *,
     .bx-stl-mil .sys-action-do-icon:last-child > *,
@@ -1280,15 +1249,6 @@
     }
 
     /* Common elements: Units */
-    .bx-def-icon-badge-size,
-    .bx-def-thumb-badge-size,
-    .bx-def-ava-badge-size {
-        @apply h-6 w-6;
-    }
-    .bx-def-ava-big-badge-size {
-        @apply h-8 w-8;
-    }
-
     .bx-artificer .bx-def-icon-size,
     .bx-artificer .bx-profile-avatar .bx-def-thumb-size,
     .bx-artificer .bx-profile-stats .bx-ps-user .bx-def-thumb-size {
@@ -1322,10 +1282,6 @@
 
     .bx-base-text-unit-title a {
         @apply text-lg lg:text-xl font-semibold;
-    }
-
-    .bx-base-pofile-unit-badge {
-        @apply inline-flex align-middle;
     }
 
     .bx-artificer .bx-base-pofile-unit-online {
@@ -1364,18 +1320,11 @@
     }
 
     .bx-std .bx-menu-top-center .bx-menu-tab-active .bx-mi-icon {
-        @apply ring-4 ring-blue-500/50 ring-offset-1 ring-offset-white dark:ring-offset-black;
-    }
-    .bx-std .bx-menu-top-center .bx-menu-item-divider {
-        @apply border-l border-black/10 dark:border-white/10;
+        @apply ring-4 ring-blue-500/50 ring-offset-2 ring-offset-white dark:ring-offset-black;
     }
     .bx-std .bx-menu-top-center .bx-menu-item-static,
     .bx-std .bx-menu-top-center .bx-menu-item-dynamic {
         @apply hidden md:flex;
-    }
-
-    .bx-std .bx-std-menu-top-left li a {
-        @apply text-gray-800 dark:text-gray-200;
     }
 
     .bx-std .bx-stg-icon-gray-bg {
@@ -1384,13 +1333,13 @@
         @apply rounded-lg;
     }
 
-    .bx-std .bx-menu-toolbar .bx-menu-tab-item {
+    .bx-menu-toolbar .bx-menu-tab-item {
         @apply bg-gray-200 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700;
         @apply text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300;
-        @apply border border-black/10 dark:border-white/10 hover:ring-4 hover:ring-gray-200 dark:hover:ring-gray-800 hover:ring-offset-1 hover:ring-offset-white dark:hover:ring-offset-black;
+        @apply border border-black/10 dark:border-white/10 hover:ring-4 hover:ring-gray-200 dark:hover:ring-gray-800 hover:ring-offset-2 hover:ring-offset-white dark:hover:ring-offset-black;
         @apply active:opacity-80 duration-300;
     }
-    .bx-std .bx-menu-toolbar .bx-menu-tab-item a {
+    .bx-menu-toolbar .bx-menu-tab-item a {
         @apply text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300;
     }
 
@@ -1476,11 +1425,11 @@
     
     /* Studio: Launcher */
     .bx-std-bg.bx-std-page-launcher {
-        @apply bg-gray-100 dark:bg-black;
+        @apply bg-gray-200 dark:bg-black;
     }
 
     .bx-std .bx-std-widgets .bx-std-widget {
-        @apply px-3 pt-3 pb-1.5 sm:px-4 sm:pt-4 sm:pb-2 lg:px-6 lg:pt-6 lg:pb-3;
+        @apply px-6 pt-6 pb-3 sm:px-10 sm:pt-10 sm:pb-4;
     }
 
     /* Studio: Settings */
@@ -1582,9 +1531,8 @@
         @apply text-white text-xs font-medium whitespace-nowrap;
         @apply opacity-90 hover:opacity-100 active:translate-y-0.5
     }
-    .bx-badge img,
-    .bx-badge svg {
-        @apply max-h-4 m-0 p-0;
+    .bx-badge img{
+        @apply max-h-4;
     }
     .sys-icon-image.bx-badge-icon,
     .sys-icon-svg.bx-badge-icon{
@@ -1595,66 +1543,4 @@
     .filepond--drop-label label{
         @apply leading-6 text-base font-medium text-gray-700 dark:text-gray-300;
     }
-}
-
-/* Select2 dark/light styles */
-
-/* Base container */
-.select2-container .select2-selection--single {
-    @apply h-10 flex items-center border rounded-md px-3;
-}
-
-/* Light mode */
-.select2-container--default .select2-selection--single {
-    @apply bg-white border-gray-300 text-gray-900;
-}
-
-/* Dark mode */
-.dark .select2-container--default .select2-selection--single .select2-selection__rendered,
-.dark .select2-container--default .select2-selection--single {
-    @apply bg-gray-800 border-gray-600 text-gray-100;
-}
-
-/* Dropdown */
-.select2-dropdown {
-    @apply rounded-md border shadow-lg;
-}
-
-/* Light dropdown */
-.select2-container--default .select2-dropdown {
-    @apply bg-white border-gray-300;
-}
-
-/* Dark dropdown */
-.dark .select2-container--default .select2-dropdown {
-    @apply bg-gray-800 border-gray-600;
-}
-
-/* Options */
-.select2-results__option {
-    @apply px-3 py-2 cursor-pointer;
-}
-
-/* Hover / active */
-.select2-results__option--highlighted {
-    @apply bg-blue-500 text-white;
-}
-
-/* Selected item */
-.select2-results__option[aria-selected=true] {
-    @apply bg-blue-100;
-}
-
-.dark .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
-.dark .select2-results__option[aria-selected=true] {
-    @apply bg-blue-700 text-white;
-}
-
-/* Search input */
-.select2-search__field {
-    @apply w-full px-2 py-1 border rounded-md;
-}
-
-.dark .select2-search__field {
-    @apply bg-gray-700 border-gray-600 text-white;
 }

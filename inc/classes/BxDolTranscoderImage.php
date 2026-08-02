@@ -108,12 +108,7 @@ class BxDolTranscoderImage extends BxDolTranscoder implements iBxDolFactoryObjec
 
         return false;
     }
-
-    public function isMimeTypeSvg($sMimeType)
-    {
-        return $this->_oStorage->isMimeTypeSvg($sMimeType);
-    }
-
+    
     /**
      * Get transcoded file url.
      * If transcoded file is ready then direct url to the file is returned.
@@ -125,7 +120,7 @@ class BxDolTranscoderImage extends BxDolTranscoder implements iBxDolFactoryObjec
     {
         if(($sFileUrl = $this->getOrigFileUrl($mixedHandler)) !== false) {
             $sFileMimeType = $this->_oStorage->getMimeTypeByFileName($sFileUrl);
-            if($this->isMimeTypeSvg($sFileMimeType))
+            if (strncmp('image/svg', $sFileMimeType, 9) === 0)
                 return $sFileUrl;
         }
 
@@ -207,7 +202,7 @@ class BxDolTranscoderImage extends BxDolTranscoder implements iBxDolFactoryObjec
         if (IMAGE_ERROR_SUCCESS == $o->grayscale($sFile))
             return true;
 
-        bx_log('sys_transcoder', "[{$this->_aObject['object']}] ERROR: applyFilter_Grayscale failed for file ({$sFile}): " . $o->getError(), BX_LOG_ERR);
+        bx_log('sys_transcoder', "[{$this->_aObject['object']}] ERROR: applyFilter_Grayscale failed for file ({$sFile}): " . $o->getError());
 
         return false;
     }

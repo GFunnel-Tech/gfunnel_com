@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class KnowledgeStatusContext extends InstanceContext
@@ -50,57 +48,21 @@ class KnowledgeStatusContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the KnowledgeStatusInstance
      *
-     
      * @return KnowledgeStatusInstance Fetched KnowledgeStatusInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): KnowledgeStatusInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new KnowledgeStatusInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['id']
-        );
-        
-    }
-
-    /**
-     * Fetch the KnowledgeStatusInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new KnowledgeStatusInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['id']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

@@ -43,7 +43,6 @@ class TrustProductsEntityAssignmentsPage extends Page
         return new TrustProductsEntityAssignmentsInstance($this->version, $payload, $this->solution['trustProductSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

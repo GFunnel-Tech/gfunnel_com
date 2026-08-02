@@ -43,7 +43,6 @@ class EngagementPage extends Page
         return new EngagementInstance($this->version, $payload, $this->solution['flowSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

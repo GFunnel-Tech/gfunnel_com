@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class CallSummaryContext extends InstanceContext
@@ -51,16 +49,15 @@ class CallSummaryContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the CallSummaryInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return CallSummaryInstance Fetched CallSummaryInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): CallSummaryInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -68,50 +65,13 @@ class CallSummaryContext extends InstanceContext
                 $options['processingState'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the CallSummaryInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return CallSummaryInstance Fetched CallSummaryInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): CallSummaryInstance
-    {
-        $response = $this->_fetch($options);
         return new CallSummaryInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['callSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the CallSummaryInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new CallSummaryInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['callSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

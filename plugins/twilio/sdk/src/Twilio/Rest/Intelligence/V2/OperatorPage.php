@@ -43,7 +43,6 @@ class OperatorPage extends Page
         return new OperatorInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

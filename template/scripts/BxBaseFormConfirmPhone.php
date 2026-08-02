@@ -51,8 +51,6 @@ class BxBaseFormConfirmPhone extends BxTemplFormView
     public function __construct($aInfo, $oTemplate)
     {
         parent::__construct($aInfo, $oTemplate);
-
-        $this->aParams['checker_errors']['summary']['disabled'] = true;
     }
 
 }

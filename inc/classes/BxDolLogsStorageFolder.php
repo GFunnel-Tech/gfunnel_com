@@ -43,14 +43,14 @@ class BxDolLogsStorageFolder extends BxDolFactory implements iBxDolSingleton
      * @param $mixed string or array to log
      * @return true on success or false on error
      */
-    public function add($oObject, $mixed, $iLevel)
+    public function add($oObject, $mixed)
     {
         if (!$mixed)
             return true;
 
         $sFile = BX_DIRECTORY_PATH_LOGS . $oObject->getObjectName() . '.log';
 
-        $s = $this->formatLogString($oObject, $mixed, false, $iLevel);
+        $s = $this->formatLogString($oObject, $mixed);
 
         $bNewFile = !file_exists($sFile);
         $bRet = file_put_contents($sFile, $s, FILE_APPEND) ? true : false;
@@ -59,13 +59,9 @@ class BxDolLogsStorageFolder extends BxDolFactory implements iBxDolSingleton
         return $bRet;
     }
 
-    protected function formatLogString($oObject, $mixed, $bIncludeObjectName = false, $iLevel = BX_LOG_DEBUG)
+    protected function formatLogString($oObject, $mixed, $bIncludeObjectName = false)
     {
-        $aLevelNames = BxDolLogs::getLevel2NameMap();
-
         $s = date('M d H:i:s');
-
-        $s .= " [" . $aLevelNames[$iLevel] . "]";
 
         if ($bIncludeObjectName)
             $s .= ' ' . $oObject->getObjectName();

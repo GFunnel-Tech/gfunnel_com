@@ -59,29 +59,11 @@ class BxBaseModConnectModule extends BxBaseModGeneralModule
         bx_login($oProfile->getAccountId(), $bRememberMe);
 
         if ($bRedirect) {
-            //set redirect from the session if it was added
-            $oSession = BxDolSession::getInstance();
-            $sSessionKey = $this->_oConfig->getName() . '_relocate';
-            if ($oSession->isValue($sSessionKey))
-                $sCallbackUrl = $sCallbackUrl ? $sCallbackUrl : $oSession->getValue($sSessionKey);
-
-            $sCallbackUrl = $sCallbackUrl ? $sCallbackUrl : $this -> _oConfig -> sDefaultRedirectUrl;
-            
-            if($this->_bIsApi)
-                return [bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url($sCallbackUrl)])];
+            $sCallbackUrl = $sCallbackUrl
+                ? $sCallbackUrl
+                : $this -> _oConfig -> sDefaultRedirectUrl;
 
             header('Location: ' . $sCallbackUrl);
-
-            /*
-            // another way to redirect with "Please wait" message
-            BxDolTemplate::getInstance()->setPageNameIndex (BX_PAGE_TRANSITION);
-            BxDolTemplate::getInstance()->setPageHeader (_t('_Please Wait'));
-            BxDolTemplate::getInstance()->setPageContent ('page_main_code', MsgBox(_t('_Please Wait')));
-            BxDolTemplate::getInstance()->setPageContent ('url_relocate', bx_html_attribute($sCallbackUrl, BX_ESCAPE_STR_QUOTE));
-
-            BxDolTemplate::getInstance()->getPageCode();
-            */
-            exit;
         }
     }
 
@@ -115,18 +97,12 @@ class BxBaseModConnectModule extends BxBaseModGeneralModule
         
         // display error
         if (is_string($mixed)) {
-            if($this->_bIsApi)
-                return [bx_api_get_msg($mixed)];
-
             $this->_oTemplate->getPage(_t($this->_oConfig->sDefaultTitleLangKey), DesignBoxContent(_t($this->_oConfig->sDefaultTitleLangKey), MsgBox($mixed)));
             exit;
         } 
 
         // display join page
         if (is_array($mixed) && isset($mixed['join_page_redirect'])) {
-            if($this->_bIsApi)
-                return []; //--- Isn't currently supported for API.
-            
             $this->_getJoinPage($mixed['profile_fields'], $mixed['remote_profile_info']['id']);
             exit;
         } 
@@ -135,17 +111,10 @@ class BxBaseModConnectModule extends BxBaseModGeneralModule
         if (is_array($mixed) && isset($mixed['profile_id'])) {
             $iProfileId = (int)$mixed['profile_id'];
 
-            $sRedirectUrl = $this->_getRedirectUrl($iProfileId, $mixed['existing_profile']);
-            if($this->_bIsApi)
-                return [bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url($sRedirectUrl)])];
-
             //redirect to other page
-            header('location:' . $sRedirectUrl);
+            header('location:' . $this->_getRedirectUrl($iProfileId, $mixed['existing_profile']));
             exit;
         }
-
-        if($this->_bIsApi)
-            return [bx_api_get_msg(_t('_Error Occured'))];
 
         $this->_oTemplate->getPage( _t($this->_oConfig->sDefaultTitleLangKey), MsgBox(_t('_Error Occured')) );
         exit;
@@ -179,7 +148,7 @@ class BxBaseModConnectModule extends BxBaseModGeneralModule
 
         /**
          * @hooks
-         * @hookdef hook-bx_base_connect-fields_converted '{module_name}', 'fields_converted' - hook before a profile is created, which allows to modify account and/or profile fields before creation
+         * @hookdef hook-bx_base_connect-fields_converted '{module_name}', 'fields_converted' - hook before a profile was created, which allows to modify account and/or profile fields before creation
          * - $unit_name - module name
          * - $action - equals `fields_converted`
          * - $object_id - not used
@@ -239,10 +208,8 @@ class BxBaseModConnectModule extends BxBaseModGeneralModule
          */
         bx_alert('account', 'check_join', 0, false, [
             'error_msg' => &$sErrorMsg, 
-            'error_msg_ref' => &$sErrorMsg, 
             'email' => $aFieldsAccount['email'], 
-            'approve' => &$bSetPendingApproval,
-            'approve_ref' => &$bSetPendingApproval
+            'approve' => &$bSetPendingApproval
         ]);
         if ($sErrorMsg)
             return $sErrorMsg;
@@ -429,125 +396,6 @@ class BxBaseModConnectModule extends BxBaseModGeneralModule
     protected function _isSetPendingApprovalProfile($aProfileInfo, $oFormHelperProfile, &$aFieldsAccount, &$aFieldsProfile)
     {
         return $oFormHelperProfile->isAutoApproval() ? true : $this->_oConfig->isAlwaysAutoApprove;
-    }
-
-    // fo using in some selected modules only
-    protected function _actionHandle()
-    {
-        require_once(BX_DIRECTORY_PATH_INC . 'design.inc.php');
-
-        // check token
-        if ($this->_getToken() != bx_get('state')) {
-            $this->_oTemplate->getPage(_t('_Error'), MsgBox(_t('_sys_connect_state_invalid')));
-            return;
-        }
-
-        // check code
-        $sCode = bx_get('code');
-        if (!$sCode) {
-            $sErrorDescription = bx_get('error_description') ? bx_get('error_description') : _t('_error occured');
-            $this->_oTemplate->getPage(_t('_Error'), MsgBox($sErrorDescription));
-            return;
-        }
-
-        // make request for token
-        $s = bx_file_get_contents($this->_oConfig->sApiUrl . 'token', array(
-            'client_id'     => $this->_oConfig->sApiID,
-            'client_secret' => $this->_oConfig->sApiSecret,
-            'grant_type'    => 'authorization_code',
-            'code'          => $sCode,
-            'redirect_uri'  => $this->_oConfig->sPageHandle,
-        ), 'post');
-
-        // handle error
-        if (!$s || NULL === ($aResponse = json_decode($s, true)) || !isset($aResponse['access_token']) || isset($aResponse['error'])) {
-            $sErrorDescription = isset($aResponse['error_description']) ? $aResponse['error_description'] : _t('_error occured');
-            $this->_oTemplate->getPage(_t('_Error'), MsgBox($sErrorDescription));
-            return;
-        }
-
-        // get the data, especially access_token
-        $sAccessToken = $aResponse['access_token'];
-        $sExpiresIn = $aResponse['expires_in'];
-        $sExpiresAt = new \DateTime('+' . $sExpiresIn . ' seconds');
-        $sRefreshToken = $aResponse['refresh_token'];
-
-        $oSession = BxDolSession::getInstance();
-        $oSession->setValue($this->getName() . '_access_token', $sAccessToken);
-        
-        // request info about profile
-        $s = bx_file_get_contents($this->_oConfig->sApiUrl . 'api/me', array(), 'get', array(
-            'Authorization: Bearer ' . $sAccessToken,
-        ));
-
-        // handle error
-        if (!$s || NULL === ($aResponse = json_decode($s, true)) || !$aResponse || isset($aResponse['error'])) {
-            $sErrorDescription = isset($aResponse['error_description']) ? $aResponse['error_description'] : _t('_error occured'); 
-            $this->_oTemplate->getPage(_t('_Error'), MsgBox($sErrorDescription));
-            return;
-        }
-
-        $aRemoteProfileInfo = $aResponse;
-
-        if ($aRemoteProfileInfo) {
-
-            // check if user logged in before
-            $iLocalProfileId = $this->_oDb->getProfileId($aRemoteProfileInfo['id']);
-            
-            if ($iLocalProfileId && $oProfile = BxDolProfile::getInstance($iLocalProfileId)) {
-                // user already exists
-                $this->setLogged($oProfile ->id());
-            }             
-            else {  
-                // register new user
-                $this->_createProfile($aRemoteProfileInfo);
-            }
-        } 
-        else {
-            $this->_oTemplate->getPage(_t('_Error'), MsgBox(_t('_sys_connect_profile_error_info')));
-        }
-    }
-
-    /**
-     * Make friends (for using in some selected modules only)
-     *
-     * @param $iProfileId integer
-     * @return void
-     */
-    protected function __makeFriends($iProfileId)
-    {
-        if (!$this->_oConfig->bAutoFriends)
-            return;
-
-        $oConnFrinds = BxDolConnection::getObjectInstance('sys_profiles_friends');
-        if (!$oConnFrinds)
-            return;
-
-        // request info about profile
-        if (!($iRemoteProfileId = $this->_oDb->getRemoteProfileId($iProfileId)))
-            return;
-        $oSession = BxDolSession::getInstance();
-        if (!($sAccessToken = $oSession->getValue($this->getName() . '_access_token')))
-            return;
-        $s = bx_file_get_contents($this->_oConfig->sApiUrl . 'api/friends?id=' . $iRemoteProfileId, array(), 'get', array(
-            'Authorization: Bearer ' . $sAccessToken,
-        ));
-
-        // handle error
-        if (!$s || NULL === ($aResponse = json_decode($s, true)) || !$aResponse || isset($aResponse['error']) || !isset($aResponse['friends'])) {
-            $sErrorDescription = isset($aResponse['error_description']) ? $aResponse['error_description'] : _t('_error occured');
-            return;
-        }
-
-        // add friends & followers
-        foreach ($aResponse['friends'] as $key => $value) {
-            $iRemoteProfileId = is_array($value) ? $key : $value;
-            
-            if (!($iLocalProfileId = $this->_oDb->getProfileId($iRemoteProfileId)))
-                continue;
-            $oConnFrinds->actionAdd($iProfileId, $iLocalProfileId);
-            $oConnFrinds->actionAdd($iLocalProfileId, $iProfileId);
-        }
     }
 }
 

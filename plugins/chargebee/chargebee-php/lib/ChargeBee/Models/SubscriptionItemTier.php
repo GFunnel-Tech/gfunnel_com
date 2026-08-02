@@ -14,8 +14,6 @@ class SubscriptionItemTier extends Model
     'startingUnitInDecimal',
     'endingUnitInDecimal',
     'priceInDecimal',
-    'pricingType',
-    'packageSize',
     'index',
   ];
 

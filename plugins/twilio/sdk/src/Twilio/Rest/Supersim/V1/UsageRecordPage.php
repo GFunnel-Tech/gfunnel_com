@@ -43,7 +43,6 @@ class UsageRecordPage extends Page
         return new UsageRecordInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

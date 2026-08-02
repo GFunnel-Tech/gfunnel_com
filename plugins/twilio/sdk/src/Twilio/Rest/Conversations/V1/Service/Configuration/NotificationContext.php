@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -52,72 +50,35 @@ class NotificationContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the NotificationInstance
      *
-     
      * @return NotificationInstance Fetched NotificationInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): NotificationInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new NotificationInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['chatServiceSid']
         );
-        
-    }
-
-    /**
-     * Fetch the NotificationInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new NotificationInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['chatServiceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the NotificationInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return NotificationInstance Updated NotificationInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): NotificationInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -149,50 +110,13 @@ class NotificationContext extends InstanceContext
                 $options['newMessageWithMediaTemplate'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the NotificationInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return NotificationInstance Updated NotificationInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): NotificationInstance
-    {
-        $response = $this->_update($options);
         return new NotificationInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['chatServiceSid']
-        );
-        
-    }
-
-    /**
-     * Update the NotificationInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new NotificationInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['chatServiceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

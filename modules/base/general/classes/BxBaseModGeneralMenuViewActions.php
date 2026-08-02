@@ -138,12 +138,6 @@ class BxBaseModGeneralMenuViewActions extends BxTemplMenuCustom
         if(empty($this->_oMenuSocialSharing)) 
             $this->_initMenuSocialSharing();
 
-        if(($mixedResult = $this->_rewriteMenuItem($aItem)) !== false)
-            return $mixedResult;
-
-        if($this->_bIsApi)
-            return $aItem;
-
         $aItem['class_wrp'] = 'bx-base-general-entity-action' . (!empty($aItem['class_wrp']) ? ' ' . $aItem['class_wrp'] : '');
 
         if($this->_bShowAsButton)
@@ -152,15 +146,10 @@ class BxBaseModGeneralMenuViewActions extends BxTemplMenuCustom
         if(!$this->_bShowTitle)
             $aItem['bx_if:title']['condition'] = false;
 
-        return parent::_getMenuItemDefault ($aItem);
-    }
-
-    protected function _getMenuItemDefaultApi($aItem)
-    {
-        if(($mixedResult = $this->_rewriteMenuItem($aItem)) !== false)
-            return $mixedResult;
-
-        return parent::_getMenuItemDefaultApi($aItem);
+        if($this->_bIsApi)
+            return $aItem;
+        else
+            return parent::_getMenuItemDefault ($aItem);
     }
 
     protected function _getMenuItemView($aItem, $aParams = array())
@@ -232,48 +221,97 @@ class BxBaseModGeneralMenuViewActions extends BxTemplMenuCustom
         return array($sResult, $this->_sClassMiSa);
     }
 
-    protected function _getMenuItemVote($aItem, $aParams = [])
+    protected function _getMenuItemVote($aItem, $aParams = array())
     {
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        if(empty($aParams['object']) && !empty($CNF['OBJECT_VOTES']))
-            $aParams['object'] = $CNF['OBJECT_VOTES'];
-
-        return $this->__getMenuItemVote($aItem, $aParams);
-    }
-
-    protected function _getMenuItemReaction($aItem, $aParams = [])
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        if(empty($aParams['object']) && !empty($CNF['OBJECT_REACTIONS']))
-            $aParams['object'] = $CNF['OBJECT_REACTIONS'];
-
-        return $this->__getMenuItemVote($aItem, $aParams);
-    }
-
-    protected function _getMenuItemScore($aItem, $aParams = [])
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        $aParams['class'] = 'BxDolScore';
-                
-        if(empty($aParams['object']) && !empty($CNF['OBJECT_SCORES']))
-            $aParams['object'] = $CNF['OBJECT_SCORES'];
-
-        return $this->__getMenuItemVote($aItem, $aParams);
-    }
-
-    protected function __getMenuItemVote($aItem, $aParams = [])
-    {
-        $CNF = &$this->_oModule->_oConfig->CNF;
+        $sObject = !empty($aParams['object']) ? $aParams['object'] : '';
+        if(empty($sObject) && !empty($CNF['OBJECT_VOTES']))
+            $sObject = $CNF['OBJECT_VOTES'];
 
         $iId = !empty($aParams['id']) ? (int)$aParams['id'] : '';
         if(empty($iId))
             $iId = $this->_iContentId;
 
-        $sClass = $aParams['class'] ?? 'BxDolVote';
-        $oObject = ($sObject = $aParams['object'] ?? '') ? $sClass::getObjectInstance($sObject, $iId) : false;
+        $oObject = !empty($sObject) ? BxDolVote::getObjectInstance($sObject, $iId) : false;
+        if(!$oObject || !$oObject->isEnabled())
+            return '';
+
+        $aObjectOptions = array(
+            'dynamic_mode' => $this->_bDynamicMode,
+            'show_do_vote_as_button' => $this->_bShowAsButton,
+            'show_do_vote_label' => $this->_bShowTitle
+        );
+        if(!empty($aParams['object_options']) && is_array($aParams['object_options']))
+            $aObjectOptions = array_merge($aObjectOptions, $aParams['object_options']);
+
+        if($this->_bIsApi)
+            return [
+                'id' => $aItem['id'],
+                'name' => $aItem['name'],
+                'display_type' => 'element',
+                'data' => $oObject->getElementApi($aObjectOptions)
+            ];
+
+        $sResult = $oObject->getElementBlock($aObjectOptions);
+        if(empty($sResult))
+            return '';
+
+    	return array($sResult, $this->_sClassMiSa);
+    }
+
+    protected function _getMenuItemReaction($aItem, $aParams = array())
+    {
+        $CNF = &$this->_oModule->_oConfig->CNF;
+
+        $sObject = !empty($aParams['object']) ? $aParams['object'] : '';
+        if(empty($sObject) && !empty($CNF['OBJECT_REACTIONS']))
+            $sObject = $CNF['OBJECT_REACTIONS'];
+
+        $iId = !empty($aParams['id']) ? (int)$aParams['id'] : '';
+        if(empty($iId))
+            $iId = $this->_iContentId;
+
+        $oObject = !empty($sObject) ? BxDolVote::getObjectInstance($sObject, $iId) : false;
+        if(!$oObject || !$oObject->isEnabled())
+            return '';
+
+        $aObjectOptions = array(
+            'dynamic_mode' => $this->_bDynamicMode,
+            'show_do_vote_as_button' => $this->_bShowAsButton,
+            'show_do_vote_label' => $this->_bShowTitle
+        );
+        if(!empty($aParams['object_options']) && is_array($aParams['object_options']))
+            $aObjectOptions = array_merge($aObjectOptions, $aParams['object_options']);
+
+        if($this->_bIsApi)
+            return [
+                'id' => $aItem['id'],
+                'name' => $aItem['name'],
+                'display_type' => 'element',
+                'data' => $oObject->getElementApi($aObjectOptions)
+            ];
+
+        $sResult = $oObject->getElementBlock($aObjectOptions);
+        if(empty($sResult))
+            return '';
+
+    	return array($sResult, $this->_sClassMiSa);
+    }
+
+    protected function _getMenuItemScore($aItem, $aParams = array())
+    {
+        $CNF = &$this->_oModule->_oConfig->CNF;
+
+        $sObject = !empty($aParams['object']) ? $aParams['object'] : '';
+        if(empty($sObject) && !empty($CNF['OBJECT_SCORES']))
+            $sObject = $CNF['OBJECT_SCORES'];
+
+        $iId = !empty($aParams['id']) ? (int)$aParams['id'] : '';
+        if(empty($iId))
+            $iId = $this->_iContentId;
+
+        $oObject = !empty($sObject) ? BxDolScore::getObjectInstance($sObject, $iId) : false;
         if(!$oObject || !$oObject->isEnabled())
             return '';
 
@@ -553,7 +591,6 @@ class BxBaseModGeneralMenuViewActions extends BxTemplMenuCustom
                 return '';
 
             $this->_oMenuActions->setContentId($this->_iContentId);
-            $this->_oMenuActions->addMarkers($this->getMarkers());
 
             $this->addMarkers($this->_oMenuActions->getMarkers());
         }
@@ -617,15 +654,6 @@ class BxBaseModGeneralMenuViewActions extends BxTemplMenuCustom
             return $aItem;
         else
             return $this->_getMenuItemDefault($aItem);
-    }
-
-    protected function _rewriteMenuItem($aItem, $aExtrasAddon = [])
-    {
-        return parent::_rewriteMenuItem($aItem, [
-            'module' => $this->_sModule,
-            'content_id' => $this->_iContentId,
-            'content_data' => $this->_aContentInfo,
-        ]);
     }
 }
 

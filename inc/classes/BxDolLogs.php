@@ -101,26 +101,6 @@ class BxDolLogs extends BxDolFactory implements iBxDolFactoryObject
         return ($GLOBALS['bxDolClasses']['BxDolLogs!' . $sObject] = $o);
     }
 
-    static public function getLevel2NameMap()
-    {
-        return [
-            BX_LOG_ERR => 'ERROR',
-            BX_LOG_WARN => 'WARNING',
-            BX_LOG_INFO => 'INFO',
-            BX_LOG_DEBUG => 'DEBUG',
-        ];
-    }
-
-    static public function getName2LevelsMap()
-    {
-        return [
-            'ERROR' => BX_LOG_ERR,
-            'WARNING' => BX_LOG_WARN | BX_LOG_ERR,
-            'INFO' => BX_LOG_INFO | BX_LOG_WARN | BX_LOG_ERR,
-            'DEBUG' => BX_LOG_DEBUG | BX_LOG_INFO | BX_LOG_WARN | BX_LOG_ERR,
-        ];
-    }
-
     /**
      * Get current logs object name
      */
@@ -134,13 +114,9 @@ class BxDolLogs extends BxDolFactory implements iBxDolFactoryObject
      * @param $mixed string or array to log
      * @return true on success or false on error
      */
-    public function add($mixed, $iLevel = BX_LOG_DEBUG)
+    public function add($mixed)
     {
-        $a = $this->getName2LevelsMap();
-        $sLogLevel = getParam('sys_logs_level');
-        if (isset($a[$sLogLevel]) && ($a[$sLogLevel] & $iLevel))
-            return $this->_oLogsStorage->add($this, $mixed, $iLevel);
-        return true;
+        return $this->_oLogsStorage->add($this, $mixed);
     }
 
     /**

@@ -43,7 +43,6 @@ class RatePlanPage extends Page
         return new RatePlanInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

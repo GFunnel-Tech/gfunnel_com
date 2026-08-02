@@ -26,18 +26,19 @@ class BxDolMenuQuery extends BxDolDb
     static public function getMenuObject ($sObject)
     {
         $oDb = BxDolDb::getInstance();
-
-        $aMenuObjects = $oDb->fromCache('sys_menu_objects', 'getAllWithKey', "SELECT `o`.*, `t`.`template` FROM `sys_objects_menu` AS `o` INNER JOIN `sys_menu_templates` AS `t` ON (`t`.`id` = `o`.`template_id`)", 'object');
-        if (!$aMenuObjects || !isset($aMenuObjects[$sObject]))
+        $sQuery = $oDb->prepare("SELECT `o`.*, `t`.`template` FROM `sys_objects_menu` AS `o` INNER JOIN `sys_menu_templates` AS `t` ON (`t`.`id` = `o`.`template_id`) WHERE `o`.`object` = ?", $sObject);
+        $aObject = $oDb->getRow($sQuery);
+        if (!$aObject || !is_array($aObject))
             return false;
-        return $aMenuObjects[$sObject];
+
+        return $aObject;
     }
 
     static public function getMenuObjects($bActive = true, $bFromCache = true)
     {
         $oDb = BxDolDb::getInstance();
         $sSql = $oDb->prepare("SELECT `sys_objects_menu`.`title`, `object`, `module`, `uri` FROM `sys_objects_menu` INNER JOIN `sys_modules` ON (`sys_modules`.`name` = `sys_objects_menu`.`module`) WHERE `active` = ? ORDER BY FIELD(`module`, 'system') DESC, `module` ASC, `object` ASC", $bActive ? 1 : 0);
-        return $bFromCache ? $oDb->fromCache('sys_menus', 'getAll', $sSql) : $oDb->getAll($sSql);
+        return $bFromCache ? $oDb->fromMemory('sys_menus', 'getAll', $sSql) : $oDb->getAll($sSql);
     }
 
     static public function getMenuTriggers($sTriggerName)
@@ -190,7 +191,7 @@ class BxDolMenuQuery extends BxDolDb
 
     public function isSetMultilevel($sName)
     {
-        $sSql = $this->prepare("SELECT 1 FROM `sys_menu_items` WHERE `set_name` = ? AND `parent_id` != '0' LIMIT 1", $sName);
+        $sSql = $this->prepare("SELECT COUNT(*) FROM `sys_menu_items` WHERE `set_name`=? AND `parent_id`<>'0' LIMIT 1", $sName);
         return (int)$this->getOne($sSql) > 0;
     }
 }

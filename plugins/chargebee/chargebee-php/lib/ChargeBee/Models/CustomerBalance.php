@@ -13,7 +13,6 @@ class CustomerBalance extends Model
     'unbilledCharges',
     'currencyCode',
     'balanceCurrencyCode',
-    'businessEntityId',
   ];
 
 }

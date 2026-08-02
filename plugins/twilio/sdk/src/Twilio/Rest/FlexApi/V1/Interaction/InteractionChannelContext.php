@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 use Twilio\Rest\FlexApi\V1\Interaction\InteractionChannel\InteractionChannelParticipantList;
 use Twilio\Rest\FlexApi\V1\Interaction\InteractionChannel\InteractionChannelInviteList;
@@ -72,80 +70,37 @@ class InteractionChannelContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the InteractionChannelInstance
      *
-     
-     
      * @return InteractionChannelInstance Fetched InteractionChannelInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): InteractionChannelInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new InteractionChannelInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['interactionSid'],
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the InteractionChannelInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new InteractionChannelInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['interactionSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the InteractionChannelInstance
      *
-     
-     
      * @param string $status
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return InteractionChannelInstance Updated InteractionChannelInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(string $status, array $options = []): Response
+    public function update(string $status, array $options = []): InteractionChannelInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -155,58 +110,14 @@ class InteractionChannelContext extends InstanceContext
                 Serialize::jsonObject($options['routing']),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the InteractionChannelInstance
-     *
-     
-     
-     * @param string $status
-     
-     * @param array|Options $options Optional Arguments
-     * @return InteractionChannelInstance Updated InteractionChannelInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(string $status, array $options = []): InteractionChannelInstance
-    {
-        $response = $this->_update( $status, $options);
         return new InteractionChannelInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['interactionSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the InteractionChannelInstance with Metadata
-     *
-     
-     
-     * @param string $status
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(string $status, array $options = []): ResourceMetadata
-    {
-        $response = $this->_update( $status, $options);
-        $resource = new InteractionChannelInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['interactionSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

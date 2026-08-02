@@ -43,7 +43,6 @@ class OperatorResultPage extends Page
         return new OperatorResultInstance($this->version, $payload, $this->solution['transcriptSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

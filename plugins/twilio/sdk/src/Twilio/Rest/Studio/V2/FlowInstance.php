@@ -31,15 +31,14 @@ use Twilio\Rest\Studio\V2\Flow\FlowTestUserList;
 /**
  * @property string|null $sid
  * @property string|null $accountSid
- * @property string|null $authorSid
  * @property string|null $friendlyName
  * @property array|null $definition
  * @property string $status
  * @property int $revision
  * @property string|null $commitMessage
  * @property bool|null $valid
- * @property array[]|null $errors
- * @property array[]|null $warnings
+ * @property object[]|null $errors
+ * @property object[]|null $warnings
  * @property \DateTime|null $dateCreated
  * @property \DateTime|null $dateUpdated
  * @property string|null $webhookUrl
@@ -59,7 +58,7 @@ class FlowInstance extends InstanceResource
      * @param mixed[] $payload The response payload
      * @param string $sid The SID of the Flow resource to delete.
      */
-    public function __construct(Version $version, array $payload, ?string $sid = null)
+    public function __construct(Version $version, array $payload, string $sid = null)
     {
         parent::__construct($version);
 
@@ -67,7 +66,6 @@ class FlowInstance extends InstanceResource
         $this->properties = [
             'sid' => Values::array_get($payload, 'sid'),
             'accountSid' => Values::array_get($payload, 'account_sid'),
-            'authorSid' => Values::array_get($payload, 'author_sid'),
             'friendlyName' => Values::array_get($payload, 'friendly_name'),
             'definition' => Values::array_get($payload, 'definition'),
             'status' => Values::array_get($payload, 'status'),

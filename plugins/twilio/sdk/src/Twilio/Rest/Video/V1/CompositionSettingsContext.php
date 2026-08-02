@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -47,17 +45,16 @@ class CompositionSettingsContext extends InstanceContext
     }
 
     /**
-     * Helper function for Create
+     * Create the CompositionSettingsInstance
      *
      * @param string $friendlyName A descriptive string that you create to describe the resource and show to the user in the console
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return CompositionSettingsInstance Created CompositionSettingsInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $friendlyName, array $options = []): Response
+    public function create(string $friendlyName, array $options = []): CompositionSettingsInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -75,66 +72,15 @@ class CompositionSettingsContext extends InstanceContext
                 Serialize::booleanToString($options['encryptionEnabled']),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the CompositionSettingsInstance
-     *
-     * @param string $friendlyName A descriptive string that you create to describe the resource and show to the user in the console
-     
-     * @param array|Options $options Optional Arguments
-     * @return CompositionSettingsInstance Created CompositionSettingsInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $friendlyName, array $options = []): CompositionSettingsInstance
-    {
-        $response = $this->_create( $friendlyName, $options);
         return new CompositionSettingsInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the CompositionSettingsInstance with Metadata
-     *
-     * @param string $friendlyName A descriptive string that you create to describe the resource and show to the user in the console
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $friendlyName, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $friendlyName, $options);
-        $resource = new CompositionSettingsInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 
-
-    /**
-     * Helper function for Fetch
-     *
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the CompositionSettingsInstance
@@ -144,32 +90,13 @@ class CompositionSettingsContext extends InstanceContext
      */
     public function fetch(): CompositionSettingsInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new CompositionSettingsInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Fetch the CompositionSettingsInstance with Metadata
-     *
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new CompositionSettingsInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

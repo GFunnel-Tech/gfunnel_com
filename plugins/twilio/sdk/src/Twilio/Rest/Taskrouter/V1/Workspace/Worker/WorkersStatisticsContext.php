@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -52,16 +50,15 @@ class WorkersStatisticsContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the WorkersStatisticsInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return WorkersStatisticsInstance Fetched WorkersStatisticsInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): WorkersStatisticsInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -81,50 +78,13 @@ class WorkersStatisticsContext extends InstanceContext
                 $options['taskChannel'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the WorkersStatisticsInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return WorkersStatisticsInstance Fetched WorkersStatisticsInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): WorkersStatisticsInstance
-    {
-        $response = $this->_fetch($options);
         return new WorkersStatisticsInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['workspaceSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the WorkersStatisticsInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new WorkersStatisticsInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['workspaceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

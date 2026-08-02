@@ -30,10 +30,9 @@ function BxDolPage(oOptions) {
 BxDolPage.prototype.init = function() {
     var $this = this;
     if ($this._isStickyColumns && !$('html').hasClass('bx-media-phone')) {
-        window.glTheiaStickySidebar = new TheiaStickySidebar.TheiaStickySidebar($.extend({}, {
-            elements: '.bx-layout-col',
-            additionalMarginTop:70
-        }, typeof(window.glTheiaStickySidebarSettings) !== 'undefined' ? window.glTheiaStickySidebarSettings : {}));
+        $('.bx-layout-col').theiaStickySidebar({
+            additionalMarginTop: 70
+        });
     }
 
     // process embeds

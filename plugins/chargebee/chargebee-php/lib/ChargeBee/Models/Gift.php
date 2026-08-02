@@ -39,7 +39,6 @@ class Gift extends Model
   public static function createForItems($params, $env = null, $headers = array())
   {
     $jsonKeys = array(
-        "metaData" => 0,
         "additionalInformation" => 1,
     );
     return Request::send(Request::POST, Util::encodeURIPath("gifts","create_for_items"), $params, $env, $headers, null, false, $jsonKeys);

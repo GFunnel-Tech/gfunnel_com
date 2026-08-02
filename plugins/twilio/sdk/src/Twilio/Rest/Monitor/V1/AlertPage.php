@@ -43,7 +43,6 @@ class AlertPage extends Page
         return new AlertInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

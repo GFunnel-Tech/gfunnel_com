@@ -63,61 +63,10 @@ class BxDolAI extends BxDolFactory implements iBxDolSingleton
      */
     public static function getInstance()
     {
-        if (!isset($GLOBALS['bxDolClasses'][__CLASS__])) {
-            $GLOBALS['bxDolClasses'][__CLASS__] = BxDolDb::getInstance()->isTableExists('sys_agents_agents') ? new BxDolAI() : null;
-        }
+        if(!isset($GLOBALS['bxDolClasses'][__CLASS__]))
+            $GLOBALS['bxDolClasses'][__CLASS__] = new BxDolAI();
 
         return $GLOBALS['bxDolClasses'][__CLASS__];
-    }
-
-    public static function getAgentInstance(int $iId, array $aParams = []): NeuronAI\Agent\Agent
-    {
-        if (isset($GLOBALS['bxDolClasses'][__CLASS__ . '_Agent_' . $iId]))
-            return $GLOBALS['bxDolClasses'][__CLASS__ . '_Agent_' . $iId];
-
-        $a = BxDolAIQuery::getAgentObject($iId);
-        if (!$a) {
-            $s = "Agent with id {$iId} not found";
-            bx_log('sys_agents', $s, BX_LOG_ERR);
-            throw new Exception($s);
-        }
-        if (!$a['active']) {
-            $s = "Agent with id {$iId} isn't active";
-            bx_log('sys_agents', $s, BX_LOG_ERR);
-            throw new Exception($s);
-        }
-        if (!$a['prompt_system'] || !$a['model_id']) {
-            $s = "Agent with id {$iId} can't be used because it haven't prompt or AI model";
-            bx_log('sys_agents', $s, BX_LOG_ERR);
-            throw new Exception($s);
-        }
-
-        $o = BxDolAiAgent::make($a, $aParams);
-
-        if ((int)$a['tools_max_run'] > 0)
-            $o->toolMaxRuns($a['tools_max_run']);
-
-        if ($a['vector_store_id']) {
-            $aVectorStore = BxDolAIQuery::getVectorStoreObject($a['vector_store_id']);
-            if ($aVectorStore && $aVectorStore['embedding_provider_id']) {
-                $oEmbedder = self::getAiEmbeddingsProviderInstance($aVectorStore['embedding_provider_id']);
-                $o->setEmbeddingsProvider($oEmbedder);
-            }
-        }
-
-        $GLOBALS['bxDolClasses'][__CLASS__ . '_Agent_' . $iId] = $o;
-
-        return $o;
-    }
-
-    public static function getAiProviderInstance(int $iId):NeuronAI\Providers\AIProviderInterface
-    {
-        return BxDolAIModelFactory::getModelInstance($iId);
-    }   
-
-    public static function getAiEmbeddingsProviderInstance(int $iId):NeuronAI\RAG\Embeddings\EmbeddingsProviderInterface
-    {
-        return BxDolAIModelFactory::getModelInstance($iId);
     }
 
     public static function callHelper($mixedHelper, $sMessage)
@@ -171,8 +120,8 @@ class BxDolAI extends BxDolFactory implements iBxDolSingleton
         $aParamsDb = ['sample' => 'all_pairs'];
         if(isset($aParams['active']))
             $aParamsDb['active'] = $aParams['active'] === true ? 1 : 0;
-        if(isset($aParams['capabilities']))
-            $aParamsDb['capabilities'] = $aParams['capabilities'];
+        if(isset($aParams['hidden']))
+            $aParamsDb['hidden'] = $aParams['hidden'] === true ? 1 : 0;
 
         return $aModel = $this->_oDb->getModelsBy($aParamsDb);
     }
@@ -332,18 +281,6 @@ class BxDolAI extends BxDolFactory implements iBxDolSingleton
         return $oCmts;
     }
 
-    public function hasAutomators($sType, $bActive = null)
-    {
-        $aParams = [
-            'sample' => 'type', 
-            'type' => $sType
-        ];
-        if($bActive !== null)
-            $aParams['active'] = $bActive;
-
-        return ($aAutomators = $this->_oDb->getAutomatorsBy($aParams)) && is_array($aAutomators);
-    }
-
     public function getAutomatorsEvent($sUnit, $sAction)
     {
         if(in_array($sUnit, $this->_aExcludeAlertUnits))
@@ -375,103 +312,6 @@ class BxDolAI extends BxDolFactory implements iBxDolSingleton
                 $aAutomator['params'] = json_decode($aAutomator['params'], true);
 
         return $aAutomators;
-    }
-
-    public function callAgent($sType, $aAgent, $mixedParams = [])
-    {
-        if ($mixedParams)
-            $sParams = is_string($mixedParams) ? $mixedParams : json_encode($mixedParams);
-        else
-            $sParams = 'START';
-
-        // update sample data
-        $a = ['webhook' => 'webhook_sample'];
-        if (isset($a[$sType]) && empty($aAgent[$a[$sType]])) {
-            $this->_oDb->updateAgentField($aAgent['id'], $a[$sType], $sParams);
-        }
-
-        // set additional params
-        $aParams = [];
-        if ('message' == $sType || 'form-input' == $sType || 'alert' == $sType) {
-            $aParams = ['chat_history_subindex' => $mixedParams['sender_profile_id']];
-        }
-
-        // call agent
-        $mixed = '';
-        try {                        
-            $o = self::getAgentInstance($aAgent['id'], $aParams);
-            if (!$o)
-                return false;
-
-            $oMessage = $o->chat(new NeuronAI\Chat\Messages\UserMessage($sParams))->getMessage();
-
-            $mixed = $oMessage->getContent();
-
-        } catch (Exception $exception) {            
-            bx_log('sys_agents', "Exception in '{$aAgent['name']}' agent: " . $exception->getMessage() . " INPUT:" . $sParams, BX_LOG_ERR);
-            $mixed = _t('_sys_agents_exception');
-        }
-
-        return $mixed;
-    }
-
-    public function sendMessengerMessage ($iSender, $iRecipient, $sMsg) 
-    {        
-        $oMessengerModule = BxDolModule::getInstance('bx_messenger');
-
-        $aAutoReplyData = [
-            'message' => $sMsg,
-            'participants' => [$iSender, $iRecipient],
-        ];
-
-        $iSaveProfileId = $oMessengerModule->setProfileId($iSender);
-        $a = $oMessengerModule->sendMessage($aAutoReplyData, $iRecipient, $iSender);
-        $oMessengerModule->setProfileId($iSaveProfileId);
-
-        return $a;
-    }
-
-    public function getAgentsByAlertUnitAndAction($sUnit, $sAction)
-    {
-        $aAgents = [];
-        $a = $this->_oDb->getAgentsWithAlert();
-        foreach ($a as $r) {
-            $aAlert = explode(':', $r['alert']); // TODO: remake to concantenate $sUnit and $sAction and then compare
-            if (count($aAlert) == 2 && $aAlert[0] == $sUnit && $aAlert[1] == $sAction)
-                $aAgents[] = $r;
-        }
-
-        return $aAgents;
-    }
-
-    public function getAgentsBy($aParams)
-    {
-        return $this->_oDb->getAgentsBy($aParams);
-    }
-
-    public function getAgentsByProfileId($iProfileId)
-    {
-        return $this->_oDb->getAgentsByProfileId($iProfileId);
-    }
-    
-    public function getAgentsByFormObject($sFormObject)
-    {
-        return $this->_oDb->getAgentsByFormObject($sFormObject);
-    }
-
-    public function getAgentsByTriggerType($sTrigger)
-    {
-        return $this->_oDb->getAgentsByTriggerType($sTrigger);
-    }
-
-    public function getAgentById($iId)
-    {
-        return $this->_oDb->getAgentById($iId);
-    }
-
-    public function getAgentByTriggerWebhookKey($sKey)
-    {
-        return $this->_oDb->getAgentByTriggerWebhookKey($sKey);
     }
 
     public function callAutomator($sType, $aParams = [])
@@ -556,7 +396,7 @@ class BxDolAI extends BxDolFactory implements iBxDolSingleton
         if(empty($sSection))
             $sSection = "Core";
 
-        bx_log('sys_agents', ":\n[" . $sSection . "] " . $mixedContents, BX_LOG_ERR);
+        bx_log('sys_agents', ":\n[" . $sSection . "] " . $mixedContents);
     }
 
     protected function _evalCode($aAutomator, $aParams = [])
@@ -591,11 +431,6 @@ class BxDolAIMessage
      * @var mixed - an array of message parts (text, image_url) or a string.
      */
     protected $_mixedContent;
-    
-    /**
-     * @var array - an array of of files attached to the message.
-     */
-    protected $_aAttachments;
 
     public function __construct($sType)
     {
@@ -610,11 +445,6 @@ class BxDolAIMessage
     public function getContent()
     {
         return $this->_mixedContent;
-    }
-
-    public function getAttachments()
-    {
-        return $this->_aAttachments;
     }
 }
 
@@ -654,21 +484,6 @@ class BxDolAIMessageArray extends BxDolAIMessage
                 'detail' => $sDetail
             ]
         ];
-    }
-
-    public function addAttachments($mixedAttachments, $mixedTools = false)
-    {
-        if(!is_array($mixedAttachments))
-            $mixedAttachments = [$mixedAttachments];
-
-        if(!$mixedTools)
-            $mixedTools = [['type' => 'file_search']];
-
-        foreach($mixedAttachments as $sAttachment)
-            $this->_aAttachments[] = [
-                'file_id' => $sAttachment,
-                'tools' => $mixedTools
-            ];
     }
 }
 

@@ -43,7 +43,6 @@ class UserChannelPage extends Page
         return new UserChannelInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['userSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

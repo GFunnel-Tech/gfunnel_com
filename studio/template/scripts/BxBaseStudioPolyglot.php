@@ -52,11 +52,6 @@ class BxBaseStudioPolyglot extends BxDolStudioPolyglot
         return parent::getPageJsCode($aOptions, $bWrap);
     }
 
-    public function getPageCaption()
-    {
-        return parent::getPageCaption() . $this->getPageJsCode();
-    }
-
     public function getPageMenu($aMenu = [], $aMarkers = [])
     {
         if($this->aMenuItems === false)
@@ -100,82 +95,69 @@ class BxBaseStudioPolyglot extends BxDolStudioPolyglot
         return $this->getGrid($this->aGridObjects['etemplates']);
     }
 
-    protected function getEtemplatesHtml()
-    {
-        return $this->{'_getEtemplatesHtml' . ($this->isEtEditor() ? 'Editor' : 'Form')}();
-    }
-
-    protected function _getEtemplatesHtmlForm()
+    /**
+     * TODO: Remove (after UNA 14) if new version is working fine.
+     */
+    protected function getEtemplatesHtmlOld()
     {
         $oTemplate = BxDolStudioTemplate::getInstance();
 
         $sFormId = 'adm-dsg-et-hf-form';
         $sIFrameId = 'adm-dsg-et-hf-iframe';
 
-        $aForm = [
-            'form_attrs' => [
+        $aForm = array(
+            'form_attrs' => array(
                 'id' => $sFormId,
                 'name' => $sFormId,
                 'action' => BX_DOL_URL_STUDIO . 'polyglot.php',
                 'method' => 'post',
                 'enctype' => 'multipart/form-data',
                 'target' => $sIFrameId
-            ],
-            'params' => [
-                'db' => [
+            ),
+            'params' => array(
+                'db' => array(
                     'table' => '',
                     'key' => '',
                     'uri' => '',
                     'uri_title' => '',
                     'submit_name' => 'save'
-                ],
-            ],
-            'inputs' => [
-                'page' => [
+                ),
+            ),
+            'inputs' => array(
+                'page' => array(
                     'type' => 'hidden',
                     'name' => 'page',
                     'value' => $this->sPage
-                ],
-                'editor' => [
-                    'type' => 'switcher',
-                    'name' => 'editor',
-                    'caption' => _t('_adm_pgt_btn_et_hf_editor'),
-                    'info' => '',
-                    'value' => 'on',
-                    'checked' => $this->isEtEditor(),
-                    'attrs' => [
-                        'onchange' => $this->getPageJsObject() . '.enableEditor(this)'
-                    ]
-                ],
-                'et_hf_header' => [
+                ),
+                'et_hf_header' => array(
                     'type' => 'textarea',
                     'code' => true,
                     'name' => 'et_hf_header',
                     'caption' => _t('_adm_stg_cpt_option_site_email_html_template_header'),
                     'info' => _t('_adm_pgt_txt_et_hf_inf'),
                     'value' => getParam('site_email_html_template_header'),
-                    'db' => [
+                    'db' => array (
                         'pass' => 'Xss',
-                    ],
-                ],
-                'et_hf_footer' => [
+                    ),
+                ),
+                'et_hf_footer' => array(
                     'type' => 'textarea',
                     'code' => true,
                     'name' => 'et_hf_footer',
                     'caption' => _t('_adm_stg_cpt_option_site_email_html_template_footer'),
                     'info' => _t('_adm_pgt_txt_et_hf_inf'),
                     'value' => getParam('site_email_html_template_footer'),
-                    'db' => [
+                    'db' => array (
                         'pass' => 'Xss',
-                    ],
-                ],
-                'save' => [
+                    ),
+                ),
+                'save' => array(
                     'type' => 'submit',
                     'name' => 'save',
                     'value' => _t('_adm_pgt_btn_et_hf_submit'),
-                ]
-            ]
-        ];
+                )
+            )
+        );
 
         $oForm = new BxTemplStudioFormView($aForm, $oTemplate);
         $oForm->initChecker();
@@ -184,10 +166,10 @@ class BxBaseStudioPolyglot extends BxDolStudioPolyglot
             echo $this->submitEtemplatesHtmlOld($oForm);
             exit;
         }
-/*
+
         $oTemplate->addJs(array('codemirror/codemirror.min.js'));
         $oTemplate->addCss(BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'codemirror/|codemirror.css');
-*/
+
         return $oTemplate->parseHtmlByName('polyglot.html', array(
             'content' => $oTemplate->parseHtmlByName('pgt_etemplates_hf.html', array(
                 'warning' => '',
@@ -200,7 +182,7 @@ class BxBaseStudioPolyglot extends BxDolStudioPolyglot
         ));
     }
 
-    protected function _getEtemplatesHtmlEditor()
+    protected function getEtemplatesHtml()
     {
         $oTemplate = BxDolStudioTemplate::getInstance();
 
@@ -235,17 +217,6 @@ class BxBaseStudioPolyglot extends BxDolStudioPolyglot
                     'type' => 'hidden',
                     'name' => 'page',
                     'value' => $this->sPage
-                ],
-                'editor' => [
-                    'type' => 'switcher',
-                    'name' => 'editor',
-                    'caption' => _t('_adm_pgt_btn_et_hf_editor'),
-                    'info' => '',
-                    'value' => 'on',
-                    'checked' => $this->isEtEditor(),
-                    'attrs' => [
-                        'onchange' => $this->getPageJsObject() . '.enableEditor(this)'
-                    ]
                 ],
                 'content' => [
                     'type' => 'custom',
@@ -309,11 +280,6 @@ class BxBaseStudioPolyglot extends BxDolStudioPolyglot
             'content' => $oGrid->getCode(),
             'js_content' => ''
         ));
-    }
-
-    protected function isEtEditor()
-    {
-        return getParam($this->sEtSettingEditor) == 'on';
     }
 }
 

@@ -43,7 +43,6 @@ class TaskPage extends Page
         return new TaskInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

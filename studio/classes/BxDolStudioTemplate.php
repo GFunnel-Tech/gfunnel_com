@@ -166,58 +166,20 @@ class BxDolStudioTemplate extends BxDolTemplate implements iBxDolSingleton
         return $this->parseHtmlByName('breadcrumb.html', array('bx_repeat:items' => $aItems));
     }
 
-    function displayMsg ($mixed, $bTranslate = false, $iPage = BX_PAGE_DEFAULT, $iDesignBox = BX_DB_CONTENT_ONLY)
+    function displayMsg ($s, $bTranslate = false, $iPage = BX_PAGE_DEFAULT, $iDesignBox = BX_DB_PADDING_DEF)
     {
-        $iCode = 200;
-        $sMessage = '';
-        if(is_array($mixed))
-            list($iCode, $sMessage) = $mixed;
-        else
-            $sMessage = $mixed;
+        $sTitle = $bTranslate ? _t($s) : $s;
 
-        switch($iCode) {
-            case 403:
-                header('HTTP/1.0 403 Forbidden');
-                header('Status: 403 Forbidden');
-                break;
-
-            case 404:
-                header('HTTP/1.0 404 Not Found');
-                header('Status: 404 Not Found');
-                break;
-        }
-        
-        $sTitle = $bTranslate ? _t($sMessage) : $sMessage;
-        $sContent = $this->parseHtmlByName('page_not_found.html', [
-            'content' => DesignBoxContent('', MsgBox($sTitle), $iDesignBox)
-        ]);
+        $sContent = MsgBox($sTitle);
+        $sContent = $this->parseHtmlByName('page_not_found.html', array (
+            'content' => $sContent
+        ));
 
         $this->setPageNameIndex($iPage);
         $this->setPageHeader($sTitle);
         $this->setPageContent('page_main_code', $sContent);
         $this->getPageCode();
         exit;
-    }
-    
-    function displayPage(&$oPage)
-    {
-        if(($mixedResult = $oPage->checkAction()) !== false)
-            return echoJson($mixedResult);
-
-        $sPageMenu = $oPage->getPageMenu();
-        $sPageCode = $oPage->getPageCode();
-        if($sPageCode === false)
-            $this->displayMsg(($sError = $oPage->getError(false)) !== false ? $sError : '_sys_txt_error_occured', true, BX_PAGE_DEFAULT, BX_DB_PADDING_NO_CAPTION);
-
-        $this->setPageNameIndex($oPage->getPageIndex());
-        $this->setPageHeader($oPage->getPageHeader());
-        $this->setPageContent('page_caption_code', $oPage->getPageCaption());
-        $this->setPageContent('page_attributes', $oPage->getPageAttributes());
-        $this->setPageContent('page_menu_code', $sPageMenu);
-        $this->setPageContent('page_main_code', $sPageCode);
-        $this->addCss($oPage->getPageCss());
-        $this->addJs($oPage->getPageJs());
-        $this->getPageCode();
     }
 }
 

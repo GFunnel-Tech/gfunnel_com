@@ -15,7 +15,12 @@ class BxBaseEmbedEmbedly extends BxDolEmbed
 {
     public function __construct ($aObject, $oTemplate)
     {
-        parent::__construct ($aObject, $oTemplate);
+        parent::__construct ($aObject);
+
+        if ($oTemplate)
+            $this->_oTemplate = $oTemplate;
+        else
+            $this->_oTemplate = BxDolTemplate::getInstance();
     }
 
     public function getLinkHTML ($sLink, $sTitle = '', $sMaxWidth = '', $sTheme = '')

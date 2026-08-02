@@ -43,7 +43,6 @@ class SyncMapPermissionPage extends Page
         return new SyncMapPermissionInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['mapSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

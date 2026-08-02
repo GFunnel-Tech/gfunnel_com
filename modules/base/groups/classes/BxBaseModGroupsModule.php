@@ -210,11 +210,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
      */
     public function actionProcessInvite ($sKey, $iGroupProfileId, $bAccept)
     {
-        return $this->serviceProcessInvite($sKey, $iGroupProfileId, $bAccept);
-    }
-
-    public function serviceProcessInvite ($sKey, $iGroupProfileId, $bAccept)
-    {
         $aData = $this->_oDb->getInviteByKey($sKey, $iGroupProfileId);
         if (isset($aData['invited_profile_id'])){
             $CNF = &$this->_oConfig->CNF;
@@ -346,52 +341,26 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
     {
         return _t($this->_oConfig->CNF['T']['txt_sample_single']);
     }
-
-    public function serviceGetFansConnectionObject()
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        return ($sKey = 'OBJECT_CONNECTIONS') && !empty($CNF[$sKey]) && ($oConnection = BxDolConnection::getObjectInstance($CNF[$sKey])) !== false ? $oConnection : false;
-    }
-
+    
     /**
      * @see iBxDolProfileService::serviceGetParticipatingProfiles
      */ 
     public function serviceGetParticipatingProfiles($iProfileId, $aConnectionObjects = false)
     {
-        $CNF = &$this->_oConfig->CNF;
-
-        $mixedCo = $aConnectionObjects;
-        $bCoEmpty = $mixedCo === false;
-        $bCoString = !$bCoEmpty && is_string($mixedCo);
-
-        $aConnectionObjects = [];
-        if($bCoEmpty || ($bCoString && $mixedCo == 'subscriptions'))
-            $aConnectionObjects[] = 'sys_profiles_subscriptions';
-        
-        if(($bCoEmpty || ($bCoString && $mixedCo == 'fans')) && !empty($CNF['OBJECT_CONNECTIONS']))
-            $aConnectionObjects[] = $CNF['OBJECT_CONNECTIONS'];
-
-        return parent::serviceGetParticipatingProfiles($iProfileId, $aConnectionObjects);
+        if (isset($this->_oConfig->CNF['OBJECT_CONNECTIONS'])){
+            $aConnectionObjects = array($this->_oConfig->CNF['OBJECT_CONNECTIONS'], 'sys_profiles_subscriptions');
+            return parent::serviceGetParticipatingProfiles($iProfileId, $aConnectionObjects);
+        }
+        return parent::serviceGetParticipatingProfiles($iProfileId);
     }
 
     public function serviceGetSafeServices()
     {
-        $CNF = &$this->_oConfig->CNF;
-
-        $a = [
-            'ProcessInvite' => '',
+        return array_merge(parent::serviceGetSafeServices(), [
             'GetQuestionnaire' => '',
             'GetInitialMembers' => '',
             'EntityInvite' => '',
-            'Invitations' => '',
-            'FansWithoutAdmins' => '',
-        ];
-
-        if(!empty($CNF['OBJECT_RECOMMENDATIONS_FANS']))
-            $a['BrowseRecommendationsFans'] = '';
-
-        return array_merge(parent::serviceGetSafeServices(), $a);
+        ]);
     }
 
     /**
@@ -419,7 +388,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         if(empty($iProfileId) || empty($CNF[$sCnfKey]) || !is_array($CNF[$sCnfKey]))
             $bRet = false;
 
-        $oProfile = null;
         if($bRet && !($oProfile = BxDolProfile::getInstance($iProfileId)))
             $bRet = false;
 
@@ -625,120 +593,77 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         return false;
     }
 
-    public function serviceAddInvitation ($iContextPid, $iPid, $iPerformerPid = 0)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        $oGroupProfile = false;
-        if(!($oGroupProfile = BxDolProfile::getInstance($iContextPid)))
-            return false;
-
-        if(!($aContentInfo = $this->_oDb->getContentInfoById((int)$oGroupProfile->getContentId())))
-            return false;
-
-        $oConnection = false;
-        if(!isset($CNF['OBJECT_CONNECTIONS']) || !($oConnection = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])))
-            return false;
-
-        if($oConnection->isConnected((int)$iPid, $iContextPid) || $oConnection->isConnected($iContextPid, (int)$iPid))
-            return false;
-
-        if(!$iPerformerPid)
-            $iPerformerPid = bx_get_logged_profile_id();
-
-        $sEntryUrl = BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aContentInfo[$CNF['FIELD_ID']]);
-        if(!empty($CNF['TABLE_INVITES']) && !$this->_oDb->isInviteByInvited($iPid, $iContextPid)) {
-            $sKey = BxDolKey::getInstance()->getNewKey(false, $CNF['INVITES_KEYS_LIFETIME']);
-
-            $this->_oDb->insertInvite($sKey, $iContextPid, $iPerformerPid, $iPid);
-
-            $sEntryUrl = bx_append_url_params($sEntryUrl, [
-                'key' => $sKey
-            ]);
-        }
-
-        $sModule = $this->getName();
-
-        /**
-         * @hooks
-         * @hookdef hook-bx_base_groups-join_invitation '{module_name}', 'join_invitation' - hook before adding (sending) new join to context invitation
-         * - $unit_name - module name
-         * - $action - equals `join_invitation`
-         * - $object_id - context id
-         * - $sender_id - context profile id
-         * - $extra_params - array of additional params with the following array keys:
-         *      - `content` - [array] context info array as key&value pairs
-         *      - `entry_title` - [string] context title
-         *      - `entry_url` - [string] context URL
-         *      - `group_profile` - [int] context profile id
-         *      - `profile` - [int] profile id who was invited
-         *      - `notification_subobject_id` - [int] profile id who was invited
-         *      - `object_author_id` - [int] context profile id
-         * @hook @ref hook-bx_base_groups-join_invitation
-         */
-        bx_alert($sModule, 'join_invitation', $aContentInfo[$CNF['FIELD_ID']], $iContextPid, [
-            'content' => $aContentInfo, 
-            'entry_title' => $aContentInfo[$CNF['FIELD_NAME']], 
-            'entry_url' => bx_absolute_url($sEntryUrl), 
-            'group_profile' => $iContextPid, 
-            'profile' => $iPid, 
-            'notification_subobject_id' => $iPid, 
-            'object_author_id' => $iContextPid
-        ]);
-
-        /**
-         * 'Invitation Received' alert for Notifications module.
-         * Note. It's essential to use Recipient ($iPid) in 'object_author_id' parameter. 
-         * In this case notification will be received by Recipient profile.
-         */
-        /**
-         * @hooks
-         * @hookdef hook-bx_base_groups-join_invitation_notif '{module_name}', 'join_invitation_notif' - hook before adding new join to context invitation. Is needed for Notifications module.
-         * - $unit_name - module name
-         * - $action - equals `join_invitation_notif`
-         * - $object_id - context id
-         * - $sender_id - context profile id
-         * - $extra_params - array of additional params with the following array keys:
-         *      - `object_author_id` - [int] profile id who was invited
-         *      - `privacy_view` - [int] or [string] privacy for view context action, @see BxDolPrivacy
-         * @hook @ref hook-bx_base_groups-join_invitation_notif
-         */
-        bx_alert($sModule, 'join_invitation_notif', $aContentInfo[$CNF['FIELD_ID']], $iContextPid, [
-            'object_author_id' => $iPid, 
-            'privacy_view' => isset($aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']]) ? $aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']] : 3, 
-        ]);
-
-        return true;
-    }
-
     public function serviceAddMutualConnection ($iGroupProfileId, $iInitiatorId, $bSendInviteOnly = false)
     {        
         $CNF = &$this->_oConfig->CNF;
 
-        list($iProfileId, $iGroupProfileId, $oGroupProfile) = $this->_prepareProfileAndGroupProfile($iGroupProfileId, $iInitiatorId);
-        if(!$oGroupProfile)
+        list ($iProfileId, $iGroupProfileId, $oGroupProfile) = $this->_prepareProfileAndGroupProfile($iGroupProfileId, $iInitiatorId);
+        if (!$oGroupProfile)
             return false;
 
-        if(!($aContentInfo = $this->_oDb->getContentInfoById((int)BxDolProfile::getInstance($iGroupProfileId)->getContentId())))
+        if (!($aContentInfo = $this->_oDb->getContentInfoById((int)BxDolProfile::getInstance($iGroupProfileId)->getContentId())))
             return false;
 
-        $oConnection = false;
-        if(!isset($CNF['OBJECT_CONNECTIONS']) || !($oConnection = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])))
+        if (!isset($CNF['OBJECT_CONNECTIONS']) || !($oConnection = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])))
             return false;
 
         $sEntryTitle = $aContentInfo[$CNF['FIELD_NAME']];
         $sEntryUrl = bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aContentInfo[$CNF['FIELD_ID']]));
 
         // send invitation to the group 
-        $iPerformerId = bx_get_logged_profile_id();
-        if($bSendInviteOnly)
-            return $iProfileId != $iPerformerId ? $this->serviceAddInvitation($oGroupProfile->id(), $iInitiatorId, $iPerformerId) : false;
-
         $sModule = $this->getName();
-        $sModuleGroup = $oGroupProfile->getModule();
+        if ($bSendInviteOnly && !$oConnection->isConnected((int)$iInitiatorId, $oGroupProfile->id()) && !$oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId) && bx_get_logged_profile_id() != $iProfileId) {
+            /**
+             * @hooks
+             * @hookdef hook-bx_base_groups-join_invitation '{module_name}', 'join_invitation' - hook before adding (sending) new join to context invitation
+             * - $unit_name - module name
+             * - $action - equals `join_invitation`
+             * - $object_id - context id
+             * - $sender_id - context profile id
+             * - $extra_params - array of additional params with the following array keys:
+             *      - `content` - [array] context info array as key&value pairs
+             *      - `entry_title` - [string] context title
+             *      - `entry_url` - [string] context URL
+             *      - `group_profile` - [int] context profile id
+             *      - `profile` - [int] profile id who was invited
+             *      - `notification_subobject_id` - [int] profile id who was invited
+             *      - `object_author_id` - [int] context profile id
+             * @hook @ref hook-bx_base_groups-join_invitation
+             */
+            bx_alert($sModule, 'join_invitation', $aContentInfo[$CNF['FIELD_ID']], $iGroupProfileId, [
+                'content' => $aContentInfo, 
+                'entry_title' => $sEntryTitle, 
+                'entry_url' => $sEntryUrl, 
+                'group_profile' => $iGroupProfileId, 
+                'profile' => $iProfileId, 
+                'notification_subobject_id' => $iProfileId, 
+                'object_author_id' => $iGroupProfileId
+            ]);
 
+            /**
+             * 'Invitation Received' alert for Notifications module.
+             * Note. It's essential to use Recipient ($iInitiatorId) in 'object_author_id' parameter. 
+             * In this case notification will be received by Recipient profile.
+             */
+            /**
+             * @hooks
+             * @hookdef hook-bx_base_groups-join_invitation_notif '{module_name}', 'join_invitation_notif' - hook before adding new join to context invitation. Is needed for Notifications module.
+             * - $unit_name - module name
+             * - $action - equals `join_invitation_notif`
+             * - $object_id - context id
+             * - $sender_id - context profile id
+             * - $extra_params - array of additional params with the following array keys:
+             *      - `object_author_id` - [int] profile id who was invited
+             *      - `privacy_view` - [int] or [string] privacy for view context action, @see BxDolPrivacy
+             * @hook @ref hook-bx_base_groups-join_invitation_notif
+             */
+            bx_alert($sModule, 'join_invitation_notif', $aContentInfo[$CNF['FIELD_ID']], $iGroupProfileId, [
+                'object_author_id' => $iInitiatorId, 
+                'privacy_view' => isset($aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']]) ? $aContentInfo[$CNF['FIELD_ALLOW_VIEW_TO']] : 3, 
+            ]);
+        }
         // send notification to group's admins that new connection is pending confirmation 
-        if($oConnection->isConnected((int)$iInitiatorId, $oGroupProfile->id()) && !$oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId) && $aContentInfo['join_confirmation'] && $aContentInfo[$CNF['FIELD_AUTHOR']] != $iProfileId) {
+        elseif (!$bSendInviteOnly && $oConnection->isConnected((int)$iInitiatorId, $oGroupProfile->id()) && !$oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId) && $aContentInfo['join_confirmation']) {
             /**
              * @hooks
              * @hookdef hook-bx_base_groups-join_request '{module_name}', 'join_request' - hook before adding new join to context request
@@ -769,7 +694,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             ]);
         }
         // send notification that join request was accepted 
-        else if($oConnection->isConnected((int)$iInitiatorId, $oGroupProfile->id(), true) && $sModuleGroup != $sModule && $iProfileId != $iPerformerId) {
+        else if (!$bSendInviteOnly && $oConnection->isConnected((int)$iInitiatorId, $oGroupProfile->id(), true) && $oGroupProfile->getModule() != $this->getName() && bx_get_logged_profile_id() != $iProfileId) {
             /**
              * @hooks
              * @hookdef hook-bx_base_groups-join_request_accepted '{module_name}', 'join_request_accepted' - hook before accepting join to context request
@@ -790,32 +715,32 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         }
 
         // new fan was added
-        if($oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId, true)) {
+        if ($oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId, true)) {
             // follow group on join
-            if(bx_srv($sModuleGroup, 'act_as_profile'))
+            if (BxDolService::call($oGroupProfile->getModule(), 'act_as_profile')){
                  $this->addFollower($oGroupProfile->id(), (int)$iInitiatorId);
-            else
-                 $this->addFollower((int)$iInitiatorId, $oGroupProfile->id()); 
-
-            if($aContentInfo[$CNF['FIELD_AUTHOR']] != $iProfileId) {
-                /**
-                 * @hooks
-                 * @hookdef hook-bx_base_groups-fan_added '{module_name}', 'fan_added' - hook before adding (registering) new context member
-                 * It's equivalent to @ref hook-bx_base_groups-join_request
-                 * @hook @ref hook-bx_base_groups-fan_added
-                 */
-                bx_alert($this->getName(), 'fan_added', $aContentInfo[$CNF['FIELD_ID']], $iGroupProfileId, [
-                    'object_author_id' => $iGroupProfileId,
-                    'performer_id' => $iProfileId,
-
-                    'content' => $aContentInfo,
-                    'entry_title' => $sEntryTitle, 
-                    'entry_url' => $sEntryUrl,
-
-                    'group_profile' => $iGroupProfileId, 
-                    'profile' => $iProfileId,
-                ]);
             }
+            else{
+                 $this->addFollower((int)$iInitiatorId, $oGroupProfile->id()); 
+            }
+
+            /**
+             * @hooks
+             * @hookdef hook-bx_base_groups-fan_added '{module_name}', 'fan_added' - hook before adding (registering) new context member
+             * It's equivalent to @ref hook-bx_base_groups-join_request
+             * @hook @ref hook-bx_base_groups-fan_added
+             */
+            bx_alert($this->getName(), 'fan_added', $aContentInfo[$CNF['FIELD_ID']], $iGroupProfileId, [
+            	'object_author_id' => $iGroupProfileId,
+            	'performer_id' => $iProfileId,
+
+            	'content' => $aContentInfo,
+            	'entry_title' => $sEntryTitle, 
+            	'entry_url' => $sEntryUrl,
+
+            	'group_profile' => $iGroupProfileId, 
+            	'profile' => $iProfileId,
+            ]);
 
             $this->doAudit($iGroupProfileId, $iInitiatorId, '_sys_audit_action_group_join_request_accepted');
             
@@ -823,14 +748,14 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         }
 
         // don't automatically add connection (mutual) if group requires manual join confirmation
-        if($aContentInfo['join_confirmation'])
+        if ($bSendInviteOnly || $aContentInfo['join_confirmation'])
             return false;
 
         // check if connection already exists
-        if($oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId, true) || $oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId))
+        if ($oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId, true) || $oConnection->isConnected($oGroupProfile->id(), (int)$iInitiatorId))
             return false;
 
-        if(!$oConnection->addConnection($oGroupProfile->id(), (int)$iInitiatorId))
+        if (!$oConnection->addConnection($oGroupProfile->id(), (int)$iInitiatorId))
             return false;
 
         return true;
@@ -891,104 +816,31 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         return $oGrid->getCode();
     }
 
-    public function serviceInvitations ($iInvitedPid = 0, $bAsArray = false)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        if(!$iInvitedPid)
-            $iInvitedPid = bx_process_input(bx_get('profile_id'), BX_DATA_INT);
-        if(!$iInvitedPid)
-            return false;
-
-        $aInvites = $this->_oDb->getInvites(['sample' => 'invited_pid', 'invited_pid' => $iInvitedPid]);
-        if(empty($aInvites) || !is_array($aInvites))
-            return false;
-
-        if($bAsArray)
-            return $aInvites;
-
-        $iStart = $iLimit = 0;
-        if($this->_bIsApi) {
-            $aParams = bx_api_get_browse_params($bAsArray);
-
-            $iStart = isset($aParams['start']) ? (int)$aParams['start'] : 0;
-            $iLimit = isset($aParams['per_page']) ? (int)$aParams['per_page'] : 0;
-        }
-        else {
-            $iStart = (int)bx_get('start');
-            $iLimit = (int)bx_get('per_page');
-        }
-
-        $iLimit = !$iLimit && ($sKey = 'PARAM_NUM_CONNECTIONS_QUICK') && !empty($CNF[$sKey]) && ($iValue = (int)getParam($CNF[$sKey])) ? $iValue : 4;
-
-        if($this->_bIsApi) {
-            $aData = [
-                'data' => [],
-                'request_url' => '/api.php?r=' . $this->_oConfig->getName() . '/invites/&params[]=' . $iInvitedPid . '&params[]=',
-                'params' => [
-                    'start' => $iStart,
-                    'per_page' => $iLimit
-                ]
-            ];
-
-            foreach($aInvites as $aInvite)
-                $aData['data'][] = BxDolProfile::getData($aInvite['group_profile_id']);
-
-            return [bx_api_get_block('profiles_list', $aData)];
-        }
-        else
-            return $this->_serviceBrowseQuick(array_keys($aInvites), $iStart, $iLimit);
-    }
-
     public function serviceFans ($iContentId = 0, $bAsArray = false)
     {
         $CNF = &$this->_oConfig->CNF;
 
-        if(!$iContentId)
+        if (!$iContentId)
             $iContentId = bx_process_input(bx_get('id'), BX_DATA_INT);
-        if(!$iContentId)
+
+        if (!$iContentId)
             return false;
 
         $aContentInfo = $this->_oDb->getContentInfoById($iContentId);
-        if(!$aContentInfo)
+        if (!$aContentInfo)
             return false;
 
-        if(!($oGroupProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->getName())))
+        if (!($oGroupProfile = BxDolProfile::getInstanceByContentAndType($iContentId, $this->getName())))
             return false;
 
-        if(is_bool($bAsArray) && $bAsArray === true)
-            return BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])->getConnectedContent($oGroupProfile->id(), true);
-
-        if($this->_bIsApi) {
-            $aParams = bx_api_get_browse_params($bAsArray);
-
-            $iStart = isset($aParams['start']) ? (int)$aParams['start'] : 0;
-            $iLimit = isset($aParams['per_page']) ? (int)$aParams['per_page'] : 0;
-            $iLimit = !$iLimit && ($sKey = 'PARAM_NUM_CONNECTIONS_QUICK') && !empty($CNF[$sKey]) && ($iValue = (int)getParam($CNF[$sKey])) ? $iValue : 4;
-
-            $aProfiles = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])->getConnectedContent($oGroupProfile->id(), true, $iStart, $iLimit);
-            if(empty($aProfiles) || !is_array($aProfiles))
-                return false;
-
-            $aData = [
-                'data' => [],
-                'request_url' => '/api.php?r=' . $this->_oConfig->getName() . '/fans/&params[]=' . $iContentId . '&params[]=',
-                'params' => [
-                    'start' => $iStart,
-                    'per_page' => $iLimit
-                ]
-            ];
-
-            foreach($aProfiles as $iProfileId)
-                $aData['data'][] = BxDolProfile::getData($iProfileId);
-
-            return [bx_api_get_block('profiles_list', $aData)];
+        if(!$bAsArray) {
+            bx_import('BxDolConnection');
+            $mixedResult = $this->serviceBrowseConnectionsQuick ($oGroupProfile->id(), $CNF['OBJECT_CONNECTIONS'], BX_CONNECTIONS_CONTENT_TYPE_CONTENT, true);
+            if (!$mixedResult)
+                return MsgBox(_t('_sys_txt_empty'));
         }
-
-        bx_import('BxDolConnection');
-        $mixedResult = $this->serviceBrowseConnectionsQuick ($oGroupProfile->id(), $CNF['OBJECT_CONNECTIONS'], BX_CONNECTIONS_CONTENT_TYPE_CONTENT, true);
-        if(!$mixedResult)
-            return MsgBox(_t('_sys_txt_empty'));
+        else
+            $mixedResult = BxDolConnection::getObjectInstance($CNF['OBJECT_CONNECTIONS'])->getConnectedContent($oGroupProfile->id(), true);
 
         return $mixedResult;
     }
@@ -1014,46 +866,18 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             return false;
 
         $aAdmins = $this->_oDb->getAdmins($oGroupProfile->id());
-        if(!empty($aAdmins) && is_array($aAdmins) && !($aFans = array_diff($aFans, $aAdmins)))
-            return false;
+        if(!empty($aAdmins) && is_array($aAdmins))
+            $aFans = array_diff($aFans, $aAdmins);
 
-        if(is_bool($bAsArray) && $bAsArray === true)
-            return $aFans;
+        $iStart = (int)bx_get('start');
+        $iLimit = !empty($CNF['PARAM_NUM_CONNECTIONS_QUICK']) ? getParam($CNF['PARAM_NUM_CONNECTIONS_QUICK']) : 4;
+        if(!$iLimit)
+            $iLimit = 4;
 
-        $iStart = $iLimit = 0;
-        if($this->_bIsApi) {
-            $aParams = bx_api_get_browse_params($bAsArray);
-
-            $iStart = isset($aParams['start']) ? (int)$aParams['start'] : 0;
-            $iLimit = isset($aParams['per_page']) ? (int)$aParams['per_page'] : 0;
-        }
-        else {
-            $iStart = (int)bx_get('start');
-            $iLimit = (int)bx_get('per_page');
-        }
-
-        $iLimit = !$iLimit && ($sKey = 'PARAM_NUM_CONNECTIONS_QUICK') && !empty($CNF[$sKey]) && ($iValue = (int)getParam($CNF[$sKey])) ? $iValue : 4;
-
-        if($this->_bIsApi) {
-            $aData = [
-                'data' => [],
-                'request_url' => '/api.php?r=' . $this->_oConfig->getName() . '/fans_without_admins/&params[]=' . $iContentId . '&params[]=',
-                'params' => [
-                    'start' => $iStart,
-                    'per_page' => $iLimit
-                ]
-            ];
-
-            foreach($aProfiles as $iProfileId)
-                $aData['data'][] = BxDolProfile::getData($iProfileId);
-
-            return [bx_api_get_block('profiles_list', $aData)];
-        }
-        else
-            return $this->_serviceBrowseQuick($aFans, $iStart, $iLimit);
+        return $this->_serviceBrowseQuick($aFans, $iStart, $iLimit);
     }
 
-    public function serviceAdmins ($iContentId = 0, $sParams = '')
+    public function serviceAdmins ($iContentId = 0)
     {
         $CNF = &$this->_oConfig->CNF;
 
@@ -1067,35 +891,13 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             return false;
 
         $iStart = (int)bx_get('start');
-        $iLimit = !empty($CNF['PARAM_NUM_CONNECTIONS_QUICK']) ? (int)getParam($CNF['PARAM_NUM_CONNECTIONS_QUICK']) : 4;
+        $iLimit = !empty($CNF['PARAM_NUM_CONNECTIONS_QUICK']) ? getParam($CNF['PARAM_NUM_CONNECTIONS_QUICK']) : 4;
         if(!$iLimit)
             $iLimit = 4;
-
-        if($this->_bIsApi && ($aParams = bx_api_get_browse_params($sParams))) {
-            if(isset($aParams['start']))
-                $iStart = (int)$aParams['start'];
-            if(isset($aParams['per_page']))
-                $iLimit = (int)$aParams['per_page'];
-        }
-
+        
         $aProfiles = $this->_oDb->getAdmins($oGroupProfile->id(), $iStart,  $iLimit+1);
         if(empty($aProfiles) || !is_array($aProfiles))
             return false;
-
-        if($this->_bIsApi) {
-            $aData = [
-                'data' => [],
-                'request_url' => '/api.php?r=' . $this->_oConfig->getName() . '/admins/&params[]=' . $iContentId . '&params[]=',
-                'params' => [
-                    'start' => $iStart,
-                    'per_page' => $iLimit
-                ]
-            ];
-            foreach($aProfiles as $iProfileId)
-                $aData['data'][] = BxDolProfile::getData($iProfileId);
-
-            return [bx_api_get_block('profiles_list', $aData)];
-        }
 
         return $this->_serviceBrowseQuick($aProfiles, $iStart, $iLimit);
     }
@@ -1141,37 +943,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
 
         return $this->_serviceBrowse ('joined_entries', array('joined_profile' => $iProfileId), BX_DB_PADDING_DEF, $bDisplayEmptyMsg);
     }
-
-    /**
-     * Display entries posted into particular context and joined by profile
-     */
-    public function serviceBrowseContextJoinedEntries ($iContextPid = 0, $iProfileId = 0, $aParams = [])
-    {
-        if(!$iContextPid)
-            $iContextPid = bx_process_input(bx_get('profile_id'), BX_DATA_INT);
-        if(!$iContextPid)
-            return $this->_bIsApi ? [] : '';
-
-        if(!$iProfileId)
-            $iProfileId = bx_get_logged_profile_id();
-        if(!$iProfileId)
-            return $this->_bIsApi ? [] : '';
-
-        $bEmptyMessage = true;
-        if(isset($aParams['empty_message'])) {
-            $bEmptyMessage = (bool)$aParams['empty_message'];
-            unset($aParams['empty_message']);
-        }
-
-        $bAjaxPaginate = true;
-        if(isset($aParams['ajax_paginate'])) {
-            $bAjaxPaginate = (bool)$aParams['ajax_paginate'];
-            unset($aParams['ajax_paginate']);
-        }
-
-        return $this->_serviceBrowse ('context_joined_entries', ['context' => $iContextPid, 'joined_profile' => $iProfileId], BX_DB_PADDING_DEF, $bEmptyMessage, $bAjaxPaginate);
-    }
-
+    
     public function serviceBrowseFollowedEntries ($iProfileId = 0, $bDisplayEmptyMsg = false)
     {
         if (!$iProfileId)
@@ -1225,7 +997,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             $aData = array_merge($aData, [
                 'module' => 'system',
                 'unit' => 'mixed', 
-                'request_url' => '/api.php?r=' . $this->getName() .'/browse_recommendations_fans&params[]=' . $iProfileId . '&params[]='
+                'request_url' => '/api.php?r=bx_groups/browse_recommendations_fans&params[]=' . $iProfileId . '&params[]='
             ]);
 
             return [bx_api_get_block('browse', $aData)];
@@ -1282,6 +1054,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             return [
                 bx_api_get_block('grid', $oGrid->getCodeAPI())
             ];
+            
         }
 
         return $oGrid->getCode();
@@ -1294,20 +1067,20 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         if(!$iProfileId)
             $iProfileId = bx_process_input(bx_get('profile_id'), BX_DATA_INT);
         if(!$iProfileId)
-            return $this->_bIsApi ? [] : '';
+            return '';
 
         if(!$this->_oConfig->isPaidJoin())
-            return $this->_bIsApi ? [] : '';
+            return '';
 
         $oPayments = BxDolPayments::getInstance();
-        if(!$oPayments->isActive())
-            return ($sMsg = _t('_sys_payments_err_no_payments')) && $this->_bIsApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
+    	if(!$oPayments->isActive())
+            return MsgBox(_t('_sys_payments_err_no_payments'));
 
         if($this->checkAllowedUsePaidJoin() !== CHECK_ACTION_RESULT_ALLOWED)
-            return ($sMsg = _t('_Access denied')) && $this->_bIsApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
+            return MsgBox(_t('_Access denied'));
 
         if($this->checkAllowedManageAdmins($iProfileId) !== CHECK_ACTION_RESULT_ALLOWED)
-            return ($sMsg = _t('_Access denied')) && $this->_bIsApi ? [bx_api_get_msg($sMsg)] : MsgBox($sMsg);
+            return MsgBox(_t('_Access denied'));
 
         $oGrid = BxDolGrid::getObjectInstance($CNF['OBJECT_GRID_PRICES_MANAGE']);
         if(!$oGrid)
@@ -1316,15 +1089,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         $sNote = '';
         if(!$oPayments->isAcceptingPayments($this->_iProfileId))
             $sNote = MsgBox(_t('_sys_payments_err_not_accept_payments', $oPayments->getDetailsUrl()));
-
-        if($this->_bIsApi) {
-            $aBlocks = [];
-            if(!empty($sNote))
-                $aBlocks[] = bx_api_get_msg($sNote);
-            $aBlocks[] = bx_api_get_block('grid', $oGrid->getCodeAPI(true));
-
-            return $aBlocks;
-        }
 
         return $sNote . $oGrid->getCode();
     }
@@ -1336,30 +1100,14 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         if(!$iProfileId)
             $iProfileId = bx_process_input(bx_get('profile_id'), BX_DATA_INT);
         if(!$iProfileId)
-            return $this->_bIsApi ? [] : '';
+            return '';
 
         if(!$this->_oConfig->isPaidJoin())
-            return $this->_bIsApi ? [] : '';
-
-        if($this->_bIsApi && !$this->isPaidJoinByProfile($iProfileId))
-            return [];
+            return '';
 
         $oGrid = BxDolGrid::getObjectInstance($CNF['OBJECT_GRID_PRICES_VIEW']);
         if(!$oGrid)
-            return $this->_bIsApi ? [] : '';
-
-        $oGrid->setProfileId($iProfileId);
-
-        if($this->_bIsApi) {
-            $aContentInfo = $this->_oDb->getContentInfoByProfileId($iProfileId);
-
-            return [
-                bx_api_get_block('pricing', array_merge_recursive($oGrid->getCodeAPI(true), ['settings' => [
-                    'context_name' => $aContentInfo[$CNF['FIELD_TITLE']],
-                    'unit' => 'productlist'
-                ]]))
-            ];
-        }
+            return '';
 
         return $oGrid->getCode();
     }
@@ -1473,7 +1221,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         if(!$this->_oConfig->isPaidJoin())
             return false;
 
-        $aPrices = $this->_oDb->getPrices(['type' => 'by_profile_id', 'profile_id' => $iGroupProfileId, 'active' => 1]);
+        $aPrices = $this->_oDb->getPrices(array('type' => 'by_profile_id', 'profile_id' => $iGroupProfileId));
         if(empty($aPrices) || !is_array($aPrices))
             return false;
 
@@ -1493,22 +1241,22 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         $CNF = &$this->_oConfig->CNF;
 
         if(!$mixedItemId)
-            return [];
+            return array();
 
         if(is_numeric($mixedItemId))
-            $aItem = $this->_oDb->getPrices(['type' => 'by_id', 'value' => (int)$mixedItemId]);
+            $aItem = $this->_oDb->getPrices(array('type' => 'by_id', 'value' => (int)$mixedItemId));
         else 
-            $aItem = $this->_oDb->getPrices(['type' => 'by_name', 'value' => $mixedItemId]);
+            $aItem = $this->_oDb->getPrices(array('type' => 'by_name', 'value' => $mixedItemId));
 
         if(empty($aItem) || !is_array($aItem))
-            return [];
+            return array();
 
         if(!$this->isPaidJoinByProfile($aItem['profile_id']))
-            return [];
+            return array();
 
         $oGroupProfile = BxDolProfile::getInstance($aItem['profile_id']);
         if(!$oGroupProfile)
-            return [];
+            return array();
 
         $aGroupProfile = $this->_oDb->getContentInfoById($oGroupProfile->getContentId());
         
@@ -1520,7 +1268,7 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
         else
             $sTitle = _t($CNF['T']['txt_cart_item_title_lifetime'], $oGroupProfile->getDisplayName(), $aRoles[$aItem['role_id']]);
 
-        return [
+        return array (
             'id' => $aItem['id'],
             'author_id' => $aGroupProfile[$CNF['FIELD_AUTHOR']],
             'name' => $aItem['name'],
@@ -1531,9 +1279,8 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             'price_recurring' => $aItem['price'],
             'period_recurring' => $aItem['period'],
             'period_unit_recurring' => $aItem['period_unit'],
-            'trial_recurring' => 0,
-            'added' => $aItem['added']
-        ];
+            'trial_recurring' => 0
+        );
     }
 
     public function serviceGetCartItems($iSellerId)
@@ -1748,7 +1495,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
                 
                 //--- Moderation related: For 'admins'.
                 ['group' => $sModule . '_object_pending_approval', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'pending_approval', 'module_name' => $sModule, 'module_method' => 'get_notifications_post_pending_approval', 'module_class' => 'Module'],
-                ['group' => $sModule . '_object_reported', 'type' => 'insert', 'alert_unit' => $sModule, 'alert_action' => 'reported_content', 'module_name' => $sModule, 'module_method' => 'get_notifications_post_reported', 'module_class' => 'Module'],
             ],
             'settings' => [
                 ['group' => 'vote', 'unit' => $sModule, 'action' => 'doVote', 'types' => $aSettingsTypes],
@@ -1767,7 +1513,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
 
                 //--- Moderation related: For 'admins'.
                 ['group' => 'action_required', 'unit' => $sModule, 'action' => 'pending_approval', 'types' => ['personal']],
-                ['group' => 'action_required', 'unit' => $sModule, 'action' => 'reported_content', 'types' => ['personal']],
             ],
             'alerts' => [
                 ['unit' => $sModule, 'action' => 'doVote'],
@@ -1783,10 +1528,9 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
                 ['unit' => $sModule, 'action' => 'join_request'],
 
                 ['unit' => $sModule, 'action' => 'timeline_post_common'],
-
+                
                 //--- Moderation related: For 'admins'.
                 ['unit' => $sModule, 'action' => 'pending_approval'],
-                ['unit' => $sModule, 'action' => 'reported_content'],
             ]
         ];
     }
@@ -1911,37 +1655,16 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
      */
     public function serviceGetReputationData()
     {
-        $sModule = $this->_aModule['name'];
-
         $aResult = parent::serviceGetReputationData();
 
-        $bHandlers = !empty($aResult['handlers']) && is_array($aResult['handlers']);
-        $bAlerts = !empty($aResult['alerts']) && is_array($aResult['alerts']);
+    	$sModule = $this->_aModule['name'];
 
-        /**
-         * Add Connections related handlers/alerts.
-         */
-        if($bHandlers)
-            $aResult['handlers'] = array_merge($aResult['handlers'], [
-                ['group' => $sModule . '_fan', 'type' => 'insert', 'alert_unit' => $sModule . '_fans', 'alert_action' => 'connection_added', 'points_active' => 1, 'points_passive' => 0],
-                ['group' => $sModule . '_fan', 'type' => 'delete', 'alert_unit' => $sModule . '_fans', 'alert_action' => 'connection_removed', 'points_active' => -1, 'points_passive' => 0]
-            ]);
-
-        if($bAlerts)
-            $aResult['alerts'] = array_merge($aResult['alerts'], [
-                ['unit' => $sModule . '_fans', 'action' => 'connection_added'],
-                ['unit' => $sModule . '_fans', 'action' => 'connection_removed']
-            ]);
-
-        /**
-         * Remove Comments and Reactions related handlers/alerts because these actions aren't available in Contexts for now.
-         */
-        if($bHandlers)
+        if(!empty($aResult['handlers']) && is_array($aResult['handlers']))
             foreach($aResult['handlers'] as $iKey => $aHandler)
                 if(in_array($aHandler['group'], [$sModule . '_comment', $sModule . '_reaction']))
                     unset($aResult['handlers'][$iKey]);
 
-        if($bAlerts)
+        if(!empty($aResult['alerts']) && is_array($aResult['alerts']))
             foreach($aResult['alerts'] as $iKey => $aAlert)
                 if($aAlert['unit'] == $sModule . '_reactions' || in_array($aAlert['action'], ['commentPost', 'commentRemoved']))
                     unset($aResult['alerts'][$iKey]);
@@ -2060,16 +1783,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             return _t('_sys_txt_access_denied');
 
         return parent::checkAllowedCompose ($aDataEntry, $isPerformAction);
-    }
-
-    public function checkAllowedFans(&$aDataEntry, $isPerformAction = false)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        if(($sMsg = $this->checkAllowedView($aDataEntry)) !== CHECK_ACTION_RESULT_ALLOWED)
-            return $sMsg;
-
-        return $this->_checkAllowedConnect($aDataEntry, $isPerformAction, [$CNF['OBJECT_GRID_CONNECTIONS'], 'checkAllowedConnectByAcl'], false, false);
     }
 
     /**
@@ -2244,14 +1957,21 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
 
     public function isAllowedModuleActionByRole($sModule, $sAction, $iProfileRole)
     {
-        if(($aRoles = $this->_oConfig->getRolesData()) && is_array($aRoles))
+        static $aRoles;
+
+        if (!$aRoles && isset($this->_oConfig->CNF['OBJECT_PRE_LIST_ROLES']) && !empty($this->_oConfig->CNF['OBJECT_PRE_LIST_ROLES']))
+            $aRoles = BxBaseFormView::getDataItems($this->_oConfig->CNF['OBJECT_PRE_LIST_ROLES'], true, BX_DATA_VALUES_ALL);
+
+        if ($aRoles) {
             foreach ($aRoles as $iRole => $aRoleData) {
-                if(($iRole == 0 && $iProfileRole == 0) || ($iRole > 0 && $this->isRole($iProfileRole, $iRole))) {
-                    $mPermissions = !empty($aRoleData['Data']) ? unserialize($aRoleData['Data']) : false;
-                    if($mPermissions && isset($mPermissions[$sModule]))
+                if ($iRole == 0 && $iProfileRole == 0 || $iRole > 0 && $this->isRole($iProfileRole, $iRole)) {
+                    $mPermissions = isset($aRoles[$iRole]) && isset($aRoles[$iRole]['Data']) && !empty($aRoles[$iRole]['Data']) ? unserialize($aRoles[$iRole]['Data']) : false;
+                    if ($mPermissions && isset($mPermissions[$sModule])) {
                         return isset($mPermissions[$sModule][$sAction]) && $mPermissions[$sModule][$sAction];
+                    }
                 }
             }
+        }
 
         return NULL;
     }
@@ -2399,25 +2119,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
 
         return $mixedResult;
     }
-    
-    public function checkAllowedAddContent(&$aDataEntry, $isPerformAction = false)
-    {
-        $CNF = &$this->_oConfig->CNF;
-
-        $sErrAccessDenied = _t('_sys_txt_access_denied');
-
-        $sModule = $this->getName();
-        $iProfileId = bx_get_logged_profile_id();
-
-        $aContexts = BxDolService::call($sModule, 'get_participating_profiles', [$iProfileId]);
-        if(!in_array($aDataEntry['profile_id'], $aContexts))
-            return $sErrAccessDenied;
-
-        if(bx_srv($sModule, 'check_allowed_post_in_profile', [$aDataEntry[$CNF['FIELD_ID']]]) !== CHECK_ACTION_RESULT_ALLOWED)
-            return $sErrAccessDenied;
-
-        return CHECK_ACTION_RESULT_ALLOWED;
-    }
 
     /**
      * Note. Is mainly needed for internal usage. Access level is 'public' to allow outer calls from alerts.
@@ -2503,9 +2204,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
             $CNF['FIELD_COVER'] => 'cover',
         ];
 
-        bx_content_cache_del_by_prefix('sprofile_unit_vars:' . $aContentInfo['profile_id'] . ':');
-        bx_content_cache_del_by_prefix('menu_sys_toolbar_member_p' . $aContentInfo['profile_id']);
-
         if(!empty($aField2Method[$sFiledName]))
             /**
              * @hooks
@@ -2572,16 +2270,10 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
          */
         bx_alert('system', 'prepare_alert_params', 0, 0, [
             'unit'=> $sModule, 
-
             'action' => &$sAction, 
             'object_id' => &$iId, 
             'sender_id' => &$iAuthorId, 
-            'extras' => &$aParams,
-
-            'action_ref' => &$sAction, 
-            'object_id_ref' => &$iId, 
-            'sender_id_ref' => &$iAuthorId, 
-            'extras_ref' => &$aParams
+            'extras' => &$aParams
         ]);
         /**
          * @hooks
@@ -2720,9 +2412,6 @@ class BxBaseModGroupsModule extends BxBaseModProfileModule
     public function setRole($iGroupProfileId, $iFanProfileId, $mixedRole, $mixedPeriod = false, $sOrder = '')
     {
         $CNF = &$this->_oConfig->CNF;
-
-        if(!$this->_oConfig->isMultiRoles() && is_array($mixedRole))
-            $mixedRole = reset($mixedRole);
 
         if(!isset($CNF['OBJECT_CONNECTIONS']))
             return false;

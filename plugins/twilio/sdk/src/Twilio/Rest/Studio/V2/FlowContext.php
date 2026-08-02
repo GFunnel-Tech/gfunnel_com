@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 use Twilio\Rest\Studio\V2\Flow\ExecutionList;
 use Twilio\Rest\Studio\V2\Flow\FlowRevisionList;
@@ -68,122 +66,50 @@ class FlowContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the FlowInstance
      *
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the FlowInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the FlowInstance
      *
-     
      * @return FlowInstance Fetched FlowInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): FlowInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new FlowInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the FlowInstance with Metadata
-     *
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new FlowInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the FlowInstance
      *
-     
      * @param string $status
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return FlowInstance Updated FlowInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(string $status, array $options = []): Response
+    public function update(string $status, array $options = []): FlowInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -195,58 +121,15 @@ class FlowContext extends InstanceContext
                 Serialize::jsonObject($options['definition']),
             'CommitMessage' =>
                 $options['commitMessage'],
-            'AuthorSid' =>
-                $options['authorSid'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the FlowInstance
-     *
-     
-     * @param string $status
-     
-     * @param array|Options $options Optional Arguments
-     * @return FlowInstance Updated FlowInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(string $status, array $options = []): FlowInstance
-    {
-        $response = $this->_update( $status, $options);
         return new FlowInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the FlowInstance with Metadata
-     *
-     
-     * @param string $status
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(string $status, array $options = []): ResourceMetadata
-    {
-        $response = $this->_update( $status, $options);
-        $resource = new FlowInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

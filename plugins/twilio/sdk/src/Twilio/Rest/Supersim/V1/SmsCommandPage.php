@@ -43,7 +43,6 @@ class SmsCommandPage extends Page
         return new SmsCommandInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

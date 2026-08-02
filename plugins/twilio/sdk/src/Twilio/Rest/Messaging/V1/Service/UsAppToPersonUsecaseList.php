@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class UsAppToPersonUsecaseList extends ListResource
@@ -45,21 +43,21 @@ class UsAppToPersonUsecaseList extends ListResource
             $messagingServiceSid,
         
         ];
+
         $this->uri = '/Services/' . \rawurlencode($messagingServiceSid)
         .'/Compliance/Usa2p/Usecases';
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the UsAppToPersonUsecaseInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return UsAppToPersonUsecaseInstance Fetched UsAppToPersonUsecaseInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): UsAppToPersonUsecaseInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -67,50 +65,13 @@ class UsAppToPersonUsecaseList extends ListResource
                 $options['brandRegistrationSid'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the UsAppToPersonUsecaseInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return UsAppToPersonUsecaseInstance Fetched UsAppToPersonUsecaseInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): UsAppToPersonUsecaseInstance
-    {
-        $response = $this->_fetch($options);
         return new UsAppToPersonUsecaseInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['messagingServiceSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the UsAppToPersonUsecaseInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new UsAppToPersonUsecaseInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['messagingServiceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

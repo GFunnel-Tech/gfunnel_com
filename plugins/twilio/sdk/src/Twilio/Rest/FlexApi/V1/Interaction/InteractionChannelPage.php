@@ -43,7 +43,6 @@ class InteractionChannelPage extends Page
         return new InteractionChannelInstance($this->version, $payload, $this->solution['interactionSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

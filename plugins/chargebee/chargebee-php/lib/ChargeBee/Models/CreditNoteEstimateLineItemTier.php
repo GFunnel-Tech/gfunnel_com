@@ -16,8 +16,6 @@ class CreditNoteEstimateLineItemTier extends Model
     'endingUnitInDecimal',
     'quantityUsedInDecimal',
     'unitAmountInDecimal',
-    'pricingType',
-    'packageSize',
   ];
 
 }

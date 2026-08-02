@@ -43,7 +43,6 @@ class FlowValidatePage extends Page
         return new FlowValidateInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

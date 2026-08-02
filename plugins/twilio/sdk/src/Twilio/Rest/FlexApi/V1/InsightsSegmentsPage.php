@@ -43,7 +43,6 @@ class InsightsSegmentsPage extends Page
         return new InsightsSegmentsInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

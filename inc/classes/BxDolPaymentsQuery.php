@@ -19,8 +19,9 @@ class BxDolPaymentsQuery extends BxDolDb
 
     public function getObjects()
     {
-    	$sQuery = "SELECT * FROM `sys_objects_payments` WHERE 1";
-        $aObjects = $this->fromCache('sys_objects_payments', 'getAll', $sQuery);
+    	$sQuery = $this->prepare("SELECT * FROM `sys_objects_payments` WHERE 1");
+    	
+        $aObjects = $this->getAll($sQuery);
         if(empty($aObjects) || !is_array($aObjects))
             return array();
 

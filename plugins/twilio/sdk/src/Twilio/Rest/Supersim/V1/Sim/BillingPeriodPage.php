@@ -43,7 +43,6 @@ class BillingPeriodPage extends Page
         return new BillingPeriodInstance($this->version, $payload, $this->solution['simSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

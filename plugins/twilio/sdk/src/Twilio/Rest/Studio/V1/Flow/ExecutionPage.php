@@ -43,7 +43,6 @@ class ExecutionPage extends Page
         return new ExecutionInstance($this->version, $payload, $this->solution['flowSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

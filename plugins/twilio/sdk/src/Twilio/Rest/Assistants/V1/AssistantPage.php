@@ -43,7 +43,6 @@ class AssistantPage extends Page
         return new AssistantInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -22,19 +22,16 @@ abstract class FlowOptions
 {
     /**
      * @param string $commitMessage Description of change made in the revision.
-     * @param string $authorSid The SID of the User that created the Flow.
      * @return CreateFlowOptions Options builder
      */
     public static function create(
         
-        string $commitMessage = Values::NONE,
-        string $authorSid = Values::NONE
+        string $commitMessage = Values::NONE
 
     ): CreateFlowOptions
     {
         return new CreateFlowOptions(
-            $commitMessage,
-            $authorSid
+            $commitMessage
         );
     }
 
@@ -45,23 +42,20 @@ abstract class FlowOptions
      * @param string $friendlyName The string that you assigned to describe the Flow.
      * @param array $definition JSON representation of flow definition.
      * @param string $commitMessage Description of change made in the revision.
-     * @param string $authorSid The SID of the User that created or last updated the Flow.
      * @return UpdateFlowOptions Options builder
      */
     public static function update(
         
         string $friendlyName = Values::NONE,
         array $definition = Values::ARRAY_NONE,
-        string $commitMessage = Values::NONE,
-        string $authorSid = Values::NONE
+        string $commitMessage = Values::NONE
 
     ): UpdateFlowOptions
     {
         return new UpdateFlowOptions(
             $friendlyName,
             $definition,
-            $commitMessage,
-            $authorSid
+            $commitMessage
         );
     }
 
@@ -71,16 +65,13 @@ class CreateFlowOptions extends Options
     {
     /**
      * @param string $commitMessage Description of change made in the revision.
-     * @param string $authorSid The SID of the User that created the Flow.
      */
     public function __construct(
         
-        string $commitMessage = Values::NONE,
-        string $authorSid = Values::NONE
+        string $commitMessage = Values::NONE
 
     ) {
         $this->options['commitMessage'] = $commitMessage;
-        $this->options['authorSid'] = $authorSid;
     }
 
     /**
@@ -92,18 +83,6 @@ class CreateFlowOptions extends Options
     public function setCommitMessage(string $commitMessage): self
     {
         $this->options['commitMessage'] = $commitMessage;
-        return $this;
-    }
-
-    /**
-     * The SID of the User that created the Flow.
-     *
-     * @param string $authorSid The SID of the User that created the Flow.
-     * @return $this Fluent Builder
-     */
-    public function setAuthorSid(string $authorSid): self
-    {
-        $this->options['authorSid'] = $authorSid;
         return $this;
     }
 
@@ -128,20 +107,17 @@ class UpdateFlowOptions extends Options
      * @param string $friendlyName The string that you assigned to describe the Flow.
      * @param array $definition JSON representation of flow definition.
      * @param string $commitMessage Description of change made in the revision.
-     * @param string $authorSid The SID of the User that created or last updated the Flow.
      */
     public function __construct(
         
         string $friendlyName = Values::NONE,
         array $definition = Values::ARRAY_NONE,
-        string $commitMessage = Values::NONE,
-        string $authorSid = Values::NONE
+        string $commitMessage = Values::NONE
 
     ) {
         $this->options['friendlyName'] = $friendlyName;
         $this->options['definition'] = $definition;
         $this->options['commitMessage'] = $commitMessage;
-        $this->options['authorSid'] = $authorSid;
     }
 
     /**
@@ -177,18 +153,6 @@ class UpdateFlowOptions extends Options
     public function setCommitMessage(string $commitMessage): self
     {
         $this->options['commitMessage'] = $commitMessage;
-        return $this;
-    }
-
-    /**
-     * The SID of the User that created or last updated the Flow.
-     *
-     * @param string $authorSid The SID of the User that created or last updated the Flow.
-     * @return $this Fluent Builder
-     */
-    public function setAuthorSid(string $authorSid): self
-    {
-        $this->options['authorSid'] = $authorSid;
         return $this;
     }
 

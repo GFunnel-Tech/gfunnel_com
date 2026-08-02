@@ -43,7 +43,6 @@ class TaskQueueBulkRealTimeStatisticsPage extends Page
         return new TaskQueueBulkRealTimeStatisticsInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

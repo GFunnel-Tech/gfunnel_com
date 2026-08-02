@@ -27,7 +27,6 @@ class PaymentIntent extends Model
     'customerId',
     'gateway',
     'activePaymentAttempt',
-    'paymentAttempts',
     'businessEntityId',
   ];
 

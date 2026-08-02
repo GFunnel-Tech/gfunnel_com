@@ -13,7 +13,6 @@ class InvoiceDunningAttempt extends Model
     'createdAt',
     'txnStatus',
     'txnAmount',
-    'retryEngine',
   ];
 
 }

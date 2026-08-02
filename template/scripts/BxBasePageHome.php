@@ -12,11 +12,10 @@
  */
 class BxBasePageHome extends BxTemplPage
 {
-    protected $_sCanonicalUrl;
-
     public function __construct($aObject, $oTemplate)
     {
         parent::__construct($aObject, $oTemplate);
+      
 
         $aCover = $this->getPageCoverImage();
 
@@ -35,13 +34,10 @@ class BxBasePageHome extends BxTemplPage
                 'content' => $aTmplVarsCover,
             ),
         ), 'cover_home.html');
-
+        
         $sSelName = 'home';
         if(bx_get('i') !== false)
             $sSelName = bx_process_input(bx_get('i'));
-
-        if($sSelName == 'home')
-            $this->_sCanonicalUrl = BX_DOL_URL_ROOT;
 
         BxDolMenu::setSelectedGlobal('system', $sSelName);
     }
@@ -51,9 +47,6 @@ class BxBasePageHome extends BxTemplPage
         $s = parent::getCode ();
         if (isAdmin() && getParam('site_tour_home') == 'on')
             $s .= $this->_oTemplate->parseHtmlByName('homepage_tour.html', array());
-
-        if($this->_sCanonicalUrl)
-            BxDolTemplate::getInstance()->setPageUrl($this->_sCanonicalUrl);
 
         return $s;
     }

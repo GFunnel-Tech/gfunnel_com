@@ -43,7 +43,6 @@ class ChannelPage extends Page
         return new ChannelInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

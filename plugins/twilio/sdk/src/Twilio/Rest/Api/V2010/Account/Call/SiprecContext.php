@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class SiprecContext extends InstanceContext
@@ -60,75 +58,29 @@ class SiprecContext extends InstanceContext
     }
 
     /**
-     * Helper function for Update
-     *
-     
-     
-     * @param string $status
-     
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(string $status): Response
-    {
-        
-        $data = Values::of([
-            'Status' =>
-                $status,
-        ]);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
-
-    /**
      * Update the SiprecInstance
      *
-     
-     
      * @param string $status
-     
      * @return SiprecInstance Updated SiprecInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function update(string $status): SiprecInstance
     {
-        $response = $this->_update( $status);
+
+        $data = Values::of([
+            'Status' =>
+                $status,
+        ]);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
+
         return new SiprecInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['accountSid'],
             $this->solution['callSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the SiprecInstance with Metadata
-     *
-     
-     
-     * @param string $status
-     
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(string $status): ResourceMetadata
-    {
-        $response = $this->_update( $status);
-        $resource = new SiprecInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['accountSid'],
-                        $this->solution['callSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

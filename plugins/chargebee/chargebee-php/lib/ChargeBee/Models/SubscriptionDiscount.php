@@ -12,7 +12,6 @@ class SubscriptionDiscount extends Model
     'type',
     'percentage',
     'amount',
-    'quantity',
     'currencyCode',
     'durationType',
     'period',

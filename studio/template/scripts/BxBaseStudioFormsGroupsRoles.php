@@ -117,11 +117,8 @@ class BxBaseStudioFormsGroupsRoles extends BxDolStudioFormsGroupsRoles
                 if (!isset($aData[$sModule])) $aData[$sModule] = [];
 
             $mixedResult = $oForm->update($iId, ['Data' => serialize($aData)]);
-            if(is_numeric($mixedResult))  {
-                $this->onRoleChanged($aItem);
-
+            if(is_numeric($mixedResult))
                 $aRes = array('grid' => $this->getCode(false), 'blink' => $mixedResult);
-            }
             else
                 $aRes = array('msg' => $mixedResult);
             echoJson($aRes);
@@ -453,14 +450,6 @@ class BxBaseStudioFormsGroupsRoles extends BxDolStudioFormsGroupsRoles
             'grid_object' => $this->_sObject,
             'params_divider' => $this->sParamsDivider
         ));
-    }
-
-    protected function onRoleChanged($aRole)
-    {
-        if(!empty($aRole) && isset($aRole['key']) && ($sKey = $aRole['key'])) {
-            $this->oDb->cleanCache('sys_form_pre_values_with_key_' . $sKey);
-            $this->oDb->cleanCache('sys_form_pre_values_' . $sKey);
-        }
     }
 }
 

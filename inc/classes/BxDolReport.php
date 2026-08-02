@@ -74,7 +74,6 @@ class BxDolReport extends BxDolObject
     protected $_oTemplate;
 
     protected $_bUndo;
-    protected $_bProcessible;   ///< Determines whether the report should be processed by admins/moderators or not.
     protected $_sBaseUrl;
 
     protected $_sObjectCmts;
@@ -101,7 +100,6 @@ class BxDolReport extends BxDolObject
             $this->_oTemplate = BxDolTemplate::getInstance();
 
         $this->_bUndo = true;
-        $this->_bProcessible = true;
 
         $this->_sBaseUrl = BxDolPermalinks::getInstance()->permalink($this->_aSystem['base_url']);
         if(get_mb_substr($this->_sBaseUrl, 0, 4) != 'http')
@@ -193,11 +191,6 @@ class BxDolReport extends BxDolObject
     public function isUndo()
     {
         return (int)$this->_bUndo == 1;
-    }
-
-    public function isProcessible()
-    {
-        return $this->_bProcessible;
     }
 
     public function getBaseUrl()
@@ -328,7 +321,7 @@ class BxDolReport extends BxDolObject
     	return $bPerformed && $this->isUndo() ? 'exclamation-circle' : 'exclamation-circle';
     }
 
-    protected function _getTitleDoReport($bPerformed, $aParams = [])
+    protected function _getTitleDoReport($bPerformed)
     {
         if($bPerformed && $this->isUndo())
             return ['_report_do_unreport'];
@@ -342,15 +335,7 @@ class BxDolReport extends BxDolObject
 
     protected function _getFormObject()
     {
-        $oForm = BxDolForm::getObjectInstance($this->_sFormObject, $this->_sFormDisplayPost);
-        $oForm->setId($this->_aHtmlIds['do_form']);
-        $oForm->setName($this->_aHtmlIds['do_form']);
-        $oForm->aParams['db']['table'] = $this->_aSystem['table_track'];
-        $oForm->aInputs['sys']['value'] = $this->_sSystem;
-        $oForm->aInputs['object_id']['value'] = $this->_iId;
-        $oForm->aInputs['action']['value'] = 'Report';
-
-        return $oForm;
+        return BxDolForm::getObjectInstance($this->_sFormObject, $this->_sFormDisplayPost);
     }
 }
 

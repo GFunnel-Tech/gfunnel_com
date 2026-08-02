@@ -90,9 +90,6 @@ class BxDolAclQuery extends BxDolDb implements iBxDolSingleton
                     MEMBERSHIP_ID_SUSPENDED
                     
                 )) . ")";
-
-                if(($sAvailableTo = $aParams['available_to'] ?? false))
-                    $sWhereClause .= " AND `tal`.`UnavailableTo` NOT LIKE " . $this->escape('%|' . $aParams['available_to'] . '|%');
                 break;
 
             case 'all_pair':
@@ -125,7 +122,6 @@ class BxDolAclQuery extends BxDolDb implements iBxDolSingleton
                 `tal`.`Active` AS `active`,
                 `tal`.`Purchasable` AS `purchasable`,
                 `tal`.`Removable` AS `removable`,
-                `tal`.`UnavailableTo` AS `unavailable_to`,
                 `tal`.`QuotaSize` AS `quota_size`,
                 `tal`.`QuotaNumber` AS `quota_number`,
                 `tal`.`QuotaMaxFileSize` AS `quota_max_file_size`,
@@ -149,12 +145,13 @@ class BxDolAclQuery extends BxDolDb implements iBxDolSingleton
         $sSelectClause = $sJoinClause = $sWhereClause = $sGroupClause = $sOrderClause = $sLimitClause = "";
 
         if(!isset($aParams['order']) || empty($aParams['order']))
-            $sOrderClause = "`taa`.`Title` ASC";
+           $sOrderClause = "ORDER BY `taa`.`Title` ASC";
 
+           
         switch($aParams['type']) {
             case 'by_names_and_module':
-                $aMethod['params'][1] = array(
-                    'module' => $aParams['module']
+            	$aMethod['params'][1] = array(
+                	'module' => $aParams['module']
                 );
 
                 $sWhereClause .= " AND `taa`.`Name` IN(" . $this->implode_escape($aParams['value']) . ") AND `taa`.`Module` = :module ";
@@ -166,24 +163,21 @@ class BxDolAclQuery extends BxDolDb implements iBxDolSingleton
                 break;
 
             case 'by_level_id':
-                $aMethod['params'][1] = [
-                    'level_id' => $aParams['value'],
-                    'level_code' => pow(2, ($aParams['value'] - 1))
-                ];
+            	$aMethod['params'][1] = array(
+                	'level_id' => $aParams['value'],
+                	'level_code' => pow(2, ($aParams['value'] - 1))
+                );
 
                 $sSelectClause .= ", `tam`.`AllowedCount` AS `allowed_count`, `tam`.`AllowedPeriodLen` AS `allowed_period_len`, `tam`.`AllowedPeriodStart` AS `allowed_period_start`, `tam`.`AllowedPeriodEnd` AS `allowed_period_end`, `tam`.`AdditionalParamValue` AS `additional_param_value` ";
                 $sJoinClause .= "LEFT JOIN `sys_acl_matrix` AS `tam` ON `taa`.`ID`=`tam`.`IDAction` ";
                 $sWhereClause .= "AND `tam`.`IDLevel`=:level_id AND (`taa`.`DisabledForLevels`='0' OR `taa`.`DisabledForLevels`&:level_code=0)";
-
-                if(isset($aParams['start'], $aParams['limit']))
-                    $sLimitClause = $this->prepareAsString("?, ?", $aParams['start'], $aParams['limit']);
                 break;
 
             case 'by_level_id_key_id':
                 $aMethod['name'] = 'getAllWithKey';
                 $aMethod['params'][1] = 'id';
                 $aMethod['params'][2] = array(
-                    'level_id' => $aParams['value']
+                	'level_id' => $aParams['value']
                 );
 
                 $sSelectClause .= ", `tam`.`AllowedCount` AS `allowed_count`, `tam`.`AllowedPeriodLen` AS `allowed_period_len` ";
@@ -208,12 +202,6 @@ class BxDolAclQuery extends BxDolDb implements iBxDolSingleton
                 $sGroupClause = "GROUP BY `tam`.`IDLevel`";
                 break;
         }
-
-        if($sOrderClause)
-            $sOrderClause = "ORDER BY " . $sOrderClause;
-
-        if($sLimitClause)
-            $sLimitClause = "LIMIT " . $sLimitClause;
 
         $aMethod['params'][0] = "SELECT " . ($bReturnCount ? "SQL_CALC_FOUND_ROWS" : "") . "
                 `taa`.`ID` AS `id`,

@@ -43,7 +43,6 @@ class AuthorizePage extends Page
         return new AuthorizeInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

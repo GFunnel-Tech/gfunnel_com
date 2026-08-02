@@ -130,22 +130,24 @@ class BxDolGridConnections extends BxTemplGrid
         $s = '';
 
         // for friend requests display mutual friends
-        if($this->_bOwner && !$aRow['mutual']) {
-            $iLogged = bx_get_logged_profile_id();
-            $iConnections = $this->_oConnection->getCommonContentCount($aRow['id'], $iLogged, true);
-            if($iConnections == 1) {
-                $aConnections = $this->_oConnection->getCommonContent($aRow['id'], $iLogged, true);
-
-                $oProfile = BxDolProfile::getInstance(array_pop($aConnections));
+        if ($this->_bOwner && !$aRow['mutual']) {
+            $a = $this->_oConnection->getCommonContent($aRow['id'], bx_get_logged_profile_id(), true);
+            $i = count($a);
+            if (1 == $i) {
+                $iProfileId = array_pop($a);
+                $oProfile = BxDolProfile::getInstance($iProfileId);
                 $s = _t('_sys_txt_one_mutual_friend', $oProfile->getUrl(), $oProfile->getDisplayName());
-            } 
-            else if($iConnections)
-                $s = _t('_sys_txt_n_mutual_friends', $iConnections);
+            } elseif ($i) {
+                $s = _t('_sys_txt_n_mutual_friends', $i);
+            }
         }
 
         // display friends number if no other info is available
-        if(!$s)
-            $s = _t('_sys_txt_n_friends', $this->_oConnection->getConnectedContentCount($aRow['id'], true));
+        if (!$s) {
+            $a = $this->_oConnection->getConnectedContent($aRow['id'], true);
+            $i = count($a);
+            $s = _t('_sys_txt_n_friends', $i);
+        }
 
         return parent::_getCellDefault ($s, $sKey, $aField, $aRow);
     }

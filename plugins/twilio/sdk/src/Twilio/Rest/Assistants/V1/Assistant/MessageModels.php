@@ -61,20 +61,13 @@ class AssistantsV1ServiceAssistantSendMessageRequest implements \JsonSerializabl
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
             'identity' => $this->identity,
-            'body' => $this->body
+            'session_id' => $this->sessionId,
+            'body' => $this->body,
+            'webhook' => $this->webhook,
+            'mode' => $this->mode
         ];
-        if (isset($this->sessionId)) {
-            $jsonString['session_id'] = $this->sessionId;
-        }
-        if (isset($this->webhook)) {
-            $jsonString['webhook'] = $this->webhook;
-        }
-        if (isset($this->mode)) {
-            $jsonString['mode'] = $this->mode;
-        }
-        return $jsonString;
     }
 }
 

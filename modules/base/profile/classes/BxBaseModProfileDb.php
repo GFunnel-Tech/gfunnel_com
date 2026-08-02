@@ -19,20 +19,13 @@ class BxBaseModProfileDb extends BxBaseModGeneralDb
         parent::__construct($oConfig);
     }
 
-    public function getContentInfoById ($iContentId, $bForceGet = false)
+    public function getContentInfoById ($iContentId)
     {
-        $sQuery = "SELECT `c`.*, `p`.`account_id`, `p`.`id` AS `profile_id`, `a`.`email` AS `profile_email`, `a`.`active` AS `profile_last_active`, `a`.`ip` AS `profile_ip`, `p`.`status` AS `profile_status` FROM `" . $this->_oConfig->CNF['TABLE_ENTRIES'] . "` AS `c` INNER JOIN `sys_profiles` AS `p` ON (`p`.`content_id` = `c`.`id` AND `p`.`type` = :type) INNER JOIN `sys_accounts` AS `a` ON (`p`.`account_id` = `a`.`id`) WHERE `c`.`id` = :id";
-        $aBindings = [
+        $aInfo = $this->getRow("SELECT `c`.*, `p`.`account_id`, `p`.`id` AS `profile_id`, `a`.`email` AS `profile_email`, `a`.`active` AS `profile_last_active`, `a`.`ip` AS `profile_ip`, `p`.`status` AS `profile_status` FROM `" . $this->_oConfig->CNF['TABLE_ENTRIES'] . "` AS `c` INNER JOIN `sys_profiles` AS `p` ON (`p`.`content_id` = `c`.`id` AND `p`.`type` = :type) INNER JOIN `sys_accounts` AS `a` ON (`p`.`account_id` = `a`.`id`) WHERE `c`.`id` = :id", [
             'type' => $this->_oConfig->getName(),
             'id' => $iContentId
-        ];
-
-        $aInfo = [];
-        if($bForceGet)
-            $aInfo = $this->getRow($sQuery, $aBindings);
-        else
-            $aInfo = $this->fromMemory("profile_content_info_" . $this->_oConfig->getName() . $iContentId, 'getRow', $sQuery, $aBindings);
-
+        ]);
+        
         /**
          * @hooks
          * @hookdef hook-profile-content_info_by_id 'profile', 'content_info_by_id' - hook to modify profile info retrieved by content id
@@ -47,10 +40,8 @@ class BxBaseModProfileDb extends BxBaseModGeneralDb
          */
         bx_alert('profile', 'content_info_by_id', $iContentId, 0, [
             'module' => $this->_oConfig->getName(), 
-            'info' => &$aInfo,
-            'info_ref' => &$aInfo
+            'info' => &$aInfo
         ]);
-
         return $aInfo;
     }
 
@@ -75,8 +66,7 @@ class BxBaseModProfileDb extends BxBaseModGeneralDb
          */
         bx_alert('profile', 'content_info_by_profile_id', $iProfileId, 0, [
             'module' => $this->_oConfig->getName(), 
-            'info' => &$aInfo,
-            'info_ref' => &$aInfo
+            'info' => &$aInfo
         ]);
         return $aInfo;
     }
@@ -106,32 +96,28 @@ class BxBaseModProfileDb extends BxBaseModGeneralDb
         return $this->query($sQuery, $aBindings);
     }
 
-    public function searchByTerm($sTerm, $mixedParams)
+    public function searchByTerm($sTerm, $iLimit)
     {
-        if(!$this->_oConfig->CNF['FIELDS_QUICK_SEARCH'])
-            return [];
+        if (!$this->_oConfig->CNF['FIELDS_QUICK_SEARCH'])
+            return array();
 
-        $aBindings = [
-            'type' => $this->_oConfig->getName(),
-            'status' => BX_PROFILE_STATUS_ACTIVE
-        ];
+		$aBindings = array(
+			'type' => $this->_oConfig->getName(),
+			'status' => BX_PROFILE_STATUS_ACTIVE
+		);
         $sSelect = "`c`.`id` AS `content_id`, `p`.`account_id`, `p`.`id` AS `profile_id`, `p`.`status` AS `profile_status` ";
         
         $sJoin = "INNER JOIN `sys_profiles` AS `p` ON (`p`.`content_id` = `c`.`id` AND `p`.`type` = :type) INNER JOIN `sys_accounts` AS `a` ON (`a`.`id` =  `p`.`account_id`)";
         
         $sWhere = '';
         foreach ($this->_oConfig->CNF['FIELDS_QUICK_SEARCH'] as $sField) {
-            $aBindings[$sField] = '%' . $sTerm . '%';
+        	$aBindings[$sField] = '%' . $sTerm . '%';
 
             $sWhere .= " OR `c`.`$sField` LIKE :" . $sField;
         }
         $sWhere = "`p`.`status` = :status AND (0 $sWhere) ";
 
-        $sOrderBy = " ORDER BY `a`.`logged` DESC";
-
-        $sLimit = "";
-        if((is_numeric($mixedParams) && ($iLimit = (int)$mixedParams)) || (is_array($mixedParams) && isset($mixedParams['limit']) && ($iLimit = (int)$mixedParams['limit'])))
-            $sLimit = $this->prepareAsString(" LIMIT ?", $iLimit);
+        $sOrderBy = $this->prepareAsString(" ORDER BY `a`.`logged` DESC LIMIT ?", (int)$iLimit);
 
         /**
          * @hooks
@@ -147,28 +133,18 @@ class BxBaseModProfileDb extends BxBaseModGeneralDb
          *      - `join` - [string] by ref, 'join' part of SQL query, can be overridden in hook processing
          *      - `where` - [string] by ref, 'where' part of SQL query, can be overridden in hook processing
          *      - `order_by` - [string] by ref, 'order' part of SQL query, can be overridden in hook processing
-         *      - `limit` - [string] by ref, 'limit' part of SQL query, can be overridden in hook processing
          * @hook @ref hook-profile-search_by_term
          */
         bx_alert('profile', 'search_by_term', 0, 0, [
             'module' => $this->_oConfig->getName(), 
-            'params' => $mixedParams['search_params'] ?? '',
             'table' => $this->_oConfig->CNF['TABLE_ENTRIES'], 
-
             'select' => &$sSelect,  
             'join' => &$sJoin, 
             'where' => &$sWhere, 
-            'order_by' => &$sOrderBy,
-            'limit' => &$sLimit,
-
-            'select_ref' => &$sSelect,  
-            'join_ref' => &$sJoin, 
-            'where_ref' => &$sWhere, 
-            'order_by_ref' => &$sOrderBy,
-            'limit_ref' => &$sLimit
+            'order_by' => &$sOrderBy
         ]);
-
-        return $this->getAll("SELECT " . $sSelect . " FROM `" . $this->_oConfig->CNF['TABLE_ENTRIES'] . "` AS `c` " . $sJoin . " WHERE " . $sWhere . $sOrderBy . $sLimit, $aBindings);
+        
+        return $this->getAll("SELECT " . $sSelect . " FROM `" . $this->_oConfig->CNF['TABLE_ENTRIES'] . "` AS `c` " . $sJoin . " WHERE " . $sWhere . $sOrderBy, $aBindings);
     }
 
     protected function _getEntriesBySearchIds($aParams, &$aMethod, &$sSelectClause, &$sJoinClause, &$sWhereClause, &$sOrderClause, &$sLimitClause)

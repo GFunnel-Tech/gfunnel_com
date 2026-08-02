@@ -43,7 +43,6 @@ class SourceIpMappingPage extends Page
         return new SourceIpMappingInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

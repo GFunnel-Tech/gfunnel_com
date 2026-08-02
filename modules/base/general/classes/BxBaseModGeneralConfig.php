@@ -18,7 +18,6 @@ class BxBaseModGeneralConfig extends BxDolModuleConfig
     protected $_aJsClasses;
     protected $_aJsObjects;
     protected $_aHtmlIds;
-    protected $_aHtmlIdsPoll;
     protected $_aGridObjects;
 
     protected $_bIsApi;
@@ -34,67 +33,13 @@ class BxBaseModGeneralConfig extends BxDolModuleConfig
     {
         parent::__construct($aModule);
 
-        $this->CNF = [
-            // modules icon
-            'ICON_POLLS_ANSWERS' => 'vote-yea',
-            'ICON_POLLS_RESULTS' => 'poll-h',
+        $this->CNF = array();
 
-            // database tables
-            'TABLE_POLLS' => $aModule['db_prefix'] . 'polls',
-            'TABLE_POLLS_ANSWERS' => $aModule['db_prefix'] . 'polls_answers',
-            'TABLE_POLLS_ANSWERS_VOTES' => $aModule['db_prefix'] . 'polls_answers_votes',
-            'TABLE_POLLS_ANSWERS_VOTES_TRACK' => $aModule['db_prefix'] . 'polls_answers_votes_track',
-            
-            // database fields
-            'FIELD_POLL' => 'polls',
-
-            'FIELD_POLL_ID' => 'id',
-            'FIELD_POLL_AUTHOR_ID' => 'author_id',
-            'FIELD_POLL_CONTENT_ID' => 'content_id',
-            'FIELD_POLL_TEXT' => 'text',
-            'FIELD_POLL_ANSWERS' => 'answers',
-
-            // some params
-            'PARAM_POLL_ENABLED' => true,
-            'PARAM_POLL_HIDDEN_RESULTS' => false,
-            'PARAM_POLL_ANONYMOUS_VOTING' => true,
-
-            // objects
-            'OBJECT_VOTES_POLL_ANSWERS' => $this->_sName . '_poll_answers',
-
-            // styles
-            'STYLES_POLLS_EMBED_CLASS' => 'body.bx-page-iframe.bx-def-color-bg-page',
-            'STYLES_POLLS_EMBED_CONTENT' => [
-                'background-color' => '#ffffff'
-            ]
-        ];
-
-        $sPrefix = str_replace('_', '-', $this->_sName);
-
-        $this->_aObjects = [];
-
-        $this->_aPrefixes = [];
-
-        $this->_aJsClasses = [
-            'poll' => $this->_sClassPrefix . 'Polls'
-        ];
-        $this->_aJsObjects = [
-            'poll' => 'o' . $this->_sClassPrefix . 'Polls'
-        ];
-
-        $this->_aGridObjects = [];
-
-        $this->_aHtmlIds = [];
-        $this->_aHtmlIdsPoll = [
-            'add_poll_popup' =>  $sPrefix . '-add-poll-popup',
-            'add_poll_form_field' => $sPrefix . '-add-poll-form-field',
-            'polls_showcase' => $sPrefix . '-polls-showcase-',
-            'poll' => $sPrefix . '-poll-',
-            'poll_content' => $sPrefix . '-poll-content-',
-            'poll_view_menu' => $sPrefix . '-poll-view-menu',
-            'poll_view_link_answers' => $sPrefix . '-poll-view-answers-',
-            'poll_view_link_results' => $sPrefix . '-poll-view-results-',
-        ];
+        $this->_aObjects = array();
+        $this->_aPrefixes = array();
+        $this->_aJsClasses = array();
+        $this->_aJsObjects = array();
+        $this->_aGridObjects = array();
 
         $this->_bIsApi = bx_is_api();
 
@@ -143,14 +88,6 @@ class BxBaseModGeneralConfig extends BxDolModuleConfig
     {
         return isset($this->_aJsObjects[$sType]) ? $this->_aJsObjects[$sType] : '';
     }
-    
-    public function getJsObjectPoll($iId = 0)
-    {
-        if(($sJsObject = $this->getJsObject('poll')) !== '')
-            return $sJsObject .= (int)$iId == 0 ? 'Add' : 'Edit' . $iId;
-
-        return '';
-    }
 
     public function getGridObject($sType)
     {
@@ -192,18 +129,6 @@ class BxBaseModGeneralConfig extends BxDolModuleConfig
             return '';
 
         return bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $this->CNF['URI_VIEW_ENTRY'] . '&id=' . $iId));
-    }
-
-    public function getEntryUri($sAction)
-    {
-        $sUri = '';
-
-        if(($sKeyUri = 'URI_' . strtoupper($sAction) . '_ENTRY') && !empty($this->CNF[$sKeyUri]))
-            $sUri = $this->CNF[$sKeyUri];
-        if(!$sUri && $sAction == 'add' && ($sKeyUri = 'URI_EDIT_ENTRY') && !empty($this->CNF[$sKeyUri]))
-            $sUri = str_replace('edit', 'create', $this->CNF[$sKeyUri]);
-
-        return $sUri;
     }
 
     /*

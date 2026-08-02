@@ -199,7 +199,6 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
     protected $_sFolderImages;
     protected $_sFolderIcons;
     protected $_aTemplates;
-    protected $_aTemplatePatterns;
 
     protected $_aLocations;
     protected $_aLocationsJs;
@@ -282,24 +281,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $this->_sFolderCss = 'css/';
         $this->_sFolderImages = 'images/';
         $this->_sFolderIcons = 'images/icons/';
-        $this->_aTemplates = ['html_tags', 'menu_item_addon', 'menu_item_addon_small', 'menu_item_addon_middle'];
-        $this->_aTemplatePatterns = [
-            "'<bx_include_auto:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_BOTH,
-            "'<bx_include_auto_mod_general:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_general'],
-            "'<bx_include_auto_mod_profile:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_profile'],
-            "'<bx_include_auto_mod_group:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_group'],
-            "'<bx_include_auto_mod_text:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_text'],
-            "'<bx_include_base:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_BASE,
-            "'<bx_include_base_mod_general:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_general'],
-            "'<bx_include_base_mod_profile:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_profile'],
-            "'<bx_include_base_mod_group:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_group'],
-            "'<bx_include_base_mod_text:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_text'],
-            "'<bx_include_tmpl:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_TMPL,
-            "'<bx_include_tmpl_mod_general:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_general'],
-            "'<bx_include_tmpl_mod_profile:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_profile'],
-            "'<bx_include_tmpl_mod_group:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_group'],
-            "'<bx_include_tmpl_mod_text:([^\s]+) \/>'s" => ['in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_text']
-        ];
+        $this->_aTemplates = array('html_tags', 'menu_item_addon', 'menu_item_addon_small', 'menu_item_addon_middle');
 
         $this->addLocation('system', $this->_sRootPath, $this->_sRootUrl);
 
@@ -312,7 +294,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $this->_sCachePublicFolderUrl = BX_DOL_URL_CACHE_PUBLIC;
         $this->_sCachePublicFolderPath = BX_DIRECTORY_PATH_CACHE_PUBLIC;
         $this->_sCacheFilePrefix = "bx_templ_";
-        $this->_aCacheExceptions = ['pt_standard.html', 'menu_icon.html', 'unit_showcase.html'];
+        $this->_aCacheExceptions = ['menu_icon.html', 'unit_showcase.html'];
 
         $this->_bImagesInline = getParam('sys_template_cache_image_enable') == 'on';
         $this->_iImagesMaxSize = (int)getParam('sys_template_cache_image_max_size') * 1024;
@@ -332,8 +314,8 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $this->_bJsArchive = $this->_bJsCache && $bArchive;
         $this->_sJsCachePrefix = $this->_sCacheFilePrefix . 'js_';
 
-        $this->aPage = [];
-        $this->aPageContent = [];
+        $this->aPage = array();
+        $this->aPageContent = array();
     }
 
     /**
@@ -376,11 +358,13 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
             $aModule = BxDolModuleQuery::getInstance()->getModuleByUri($sCode);
             if(empty($aModule) || !is_array($aModule) || (int)$aModule['enabled'] != 1 || !file_exists(BX_DIRECTORY_PATH_MODULES . $aModule['path'] . 'data/template/'))
                 return false;
-            
+
+            $oConfig = new BxDolModuleConfig($aModule);
+
             $aResult = array(
-                $aModule['uri'], //--- Template module's URI is used as template Code.
-                $aModule['name'],
-                $aModule['path'],
+                $oConfig->getUri(), //--- Template module's URI is used as template Code. 
+                $oConfig->getName(),
+                $oConfig->getDirectory()
             );
 
             if(!$bSetCookie || bx_get('preview'))
@@ -431,14 +415,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         if(!is_array($aResult[0]))
             $aResult[0] = array($aResult[0]);
 
-        $iMixDefault = 0;        
-        if (!empty($aResult[1])) {
-            if (!BxDolDb::getInstance()->isParamInCache($aResult[1] . '_default_mix')) {
-                $GLOBALS['glMixesDisabled'] = true; // disable mixes, if template doesn't support mixes
-            } else {
-                $iMixDefault = (int)getParam($aResult[1] . '_default_mix');
-            }
-        }
+        $iMixDefault = !empty($aResult[1]) ? (int)getParam($aResult[1] . '_default_mix') : 0;
 
         //--- Check selected mix in COOKIE(the lowest priority) ---//
         $iMix = !empty($_COOKIE[$sMixKey]) ? (int)$_COOKIE[$sMixKey] : 0;
@@ -716,7 +693,6 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
 
         $this->addJsOption('sys_fixed_header');
         $this->addJsOption('sys_confirmation_before_redirect');
-        $this->addJsOption('sys_storage_s3_endpoint');
     }
     
     protected function initImages()
@@ -834,6 +810,14 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
     function setPageUrl($s)
     {
         $this->aPage['url'] = $s;
+    }
+    /**
+     * Get page url (used as the canonical URL). Empty when none was set.
+     * @return string page url
+     */
+    function getPageUrl()
+    {
+        return isset($this->aPage['url']) ? $this->aPage['url'] : '';
     }
 
     /**
@@ -1316,76 +1300,21 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $bPage = $oPage !== false;
 
         // general meta tags
-        if(!empty($this->aPage['keywords']) && is_array($this->aPage['keywords']))
+        if (!empty($this->aPage['keywords']) && is_array($this->aPage['keywords']))
             $sRet .= '<meta name="keywords" content="' . bx_html_attribute(implode(',', $this->aPage['keywords'])) . '" />';
 
-        $sUrl = $sUri = '';
-        if(($sKu = 'url') && !empty($this->aPage[$sKu])) {
-            $sUrl = bx_absolute_url(BxDolPermalinks::getInstance()->permalink($this->aPage[$sKu]));
-
-            list(, $aPageParams) = bx_get_base_url($this->aPage[$sKu]);
-            $sUri = $aPageParams['i'] ?? '';
-        }
-            
-        
-        // Process header
-        $sHeader = '';
-        if(($sKh = 'header') && !empty($this->aPage[$sKh]) && is_string($this->aPage[$sKh]))
-            $sHeader = $this->aPage[$sKh];
-        $bHeader = !empty($sHeader);
-
-        if($bHeader) {
-            $sHeader = strip_tags($sHeader);
-
-            // Collapse spaces/newlines and fix run-on words
-            $sHeader = preg_replace('/\s+/', ' ', $sHeader);                     
-            $sHeader = preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $sHeader);
-            $sHeader = trim($sHeader);
-
-            $bHeader = !empty($sHeader);
-        }
-
-        $sHeaderAttr = $bHeader ? bx_html_attribute($sHeader) : '';
-
-        // Process description
         $sDescription = '';
-        if(($sKd = 'description') && !empty($this->aPage[$sKd]) && is_string($this->aPage[$sKd]))
-            $sDescription = $this->aPage[$sKd];
+        if(!empty($this->aPage['description']) && is_string($this->aPage['description']))
+            $sDescription = $this->aPage['description'];
         if(!$sDescription && $bPage)
             $sDescription = $oPage->getMetaDescription();
         $bDescription = !empty($sDescription);
 
-        if($bDescription) {
-            // Convert HTML breaks/lists to spaces before stripping tags
-            $sDescription = preg_replace('#<(?:br\s*/?|/p|/li)>#i', ' ', $sDescription);
-            $sDescription = strip_tags($sDescription);
-
-            // Normalize whitespace
-            $sDescription = preg_replace('/\s+/u', ' ', $sDescription);
-
-            // Ensure space after punctuation if missing (".This" → ". This")
-            $sDescription = preg_replace('/([.,;:])([^\s])/u', '$1 $2', $sDescription);
-            $sDescription = trim($sDescription);
-
-            if(($iDescriptionMaxLen = 300) && mb_strlen($sDescription) > $iDescriptionMaxLen) {
-                $sDescription = mb_substr($sDescription, 0, $iDescriptionMaxLen);
-
-                // Trim partial word and remove dangling punctuation
-                $sDescription = preg_replace('/\s+\S*$/u', '', $sDescription);
-                $sDescription = rtrim($sDescription, " ,;:-");
-
-                $sDescription .= '...';
-            }
-            
-            $bDescription = !empty($sDescription);
-        }
-
-        $sDescriptionAttr = '';
-        if($bDescription && ($sDescriptionAttr = bx_html_attribute($sDescription)))
-            $sRet .= '<meta name="description" content="' . $sDescriptionAttr . '" />';
+        if ($bDescription)
+            $sRet .= '<meta name="description" content="' . bx_html_attribute($sDescription) . '" />';
 
         // location
-        if(!empty($this->aPage['location']) && isset($this->aPage['location']['lat']) && isset($this->aPage['location']['lng']) && isset($this->aPage['location']['country']))
+        if (!empty($this->aPage['location']) && isset($this->aPage['location']['lat']) && isset($this->aPage['location']['lng']) && isset($this->aPage['location']['country']))
             $sRet .= '
                 <meta name="ICBM" content="' . $this->aPage['location']['lat'] . ';' . $this->aPage['location']['lng'] . '" />
                 <meta name="geo.position" content="' . $this->aPage['location']['lat'] . ';' . $this->aPage['location']['lng'] . '" />
@@ -1401,40 +1330,42 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
             if(empty($this->aPage['image'])) {
                 $oImgStorage = BxDolStorage::getObjectInstance(BX_DOL_STORAGE_OBJ_IMAGES);
                 foreach(['icon_android_splash', 'icon_android', 'icon_apple'] as $sIcon)
-                    if(($iIcon = (int)getParam('sys_site_' . $sIcon)) != 0 && ($sImageUrl = $oImgStorage->getFileUrlById($iIcon))) {
-                        $this->aPage['image'] = $sImageUrl;
+                    if(($iIcon = (int)getParam('sys_site_' . $sIcon)) != 0 && ($sUrl = $oImgStorage->getFileUrlById($iIcon))) {
+                        $this->aPage['image'] = $sUrl;
                         break;
                     }
             }
         }
 
-        // facebook / twitter
+        // canonical URL — computed once, reused for og:url and the <link> below.
+        // Content/system pages set aPage['url'] (see BxBasePage::_addSysTemplateVars),
+        // so a page always points search engines and social scrapers at one URL.
+        $sCanonical = '';
+        if (!empty($this->aPage['url']))
+            $sCanonical = bx_absolute_url(BxDolPermalinks::getInstance()->permalink($this->aPage['url']));
+
+        // facebook (Open Graph) / twitter
+        $sMetaTitleTag = isset($this->aPage['header']) ? bx_html_attribute(strip_tags($this->aPage['header'])) : '';
+        $sMetaDescTag = $bDescription ? bx_html_attribute($sDescription) : '';
         $bPageImage = !empty($this->aPage['image']);
+
         $sRet .= '<meta name="twitter:card" content="' . ($bPageImage ? 'summary_large_image' : 'summary') . '" />';
-
-        $sOgType = 'website';
-        if(preg_match("/(discussion|glossary|item|post)/", $sUri))
-            $sOgType = 'article';
-        else if(preg_match("/(ad|product|shopify\-entry|snipcart\-entry)/", $sUri))
-            $sOgType = 'product';
-        else if(preg_match("/(album|album\-media)/", $sUri))
-            $sOgType = 'album';
-        else if(strpos($sUri, 'profile') !== false)
-            $sOgType = 'profile';
-        else if(strpos($sUri, 'photo') !== false)
-            $sOgType = 'image';
-        else if(strpos($sUri, 'video') !== false)
-            $sOgType = 'video.other';
-
-        $sRet .= '<meta property="og:type" content="' . $sOgType . '" />';
-        $sRet .= '<meta property="og:title" content="' . $sHeaderAttr . '" />';
-        $sRet .= '<meta property="og:description" content="' . $sDescriptionAttr . '" />';
-        if($bPageImage)
+        $sRet .= '<meta property="og:type" content="website" />';
+        $sRet .= '<meta property="og:site_name" content="' . bx_html_attribute(getParam('site_title')) . '" />';
+        $sRet .= '<meta property="og:title" content="' . $sMetaTitleTag . '" />';
+        $sRet .= '<meta name="twitter:title" content="' . $sMetaTitleTag . '" />';
+        $sRet .= '<meta property="og:description" content="' . $sMetaDescTag . '" />';
+        $sRet .= '<meta name="twitter:description" content="' . $sMetaDescTag . '" />';
+        if ($bPageImage) {
             $sRet .= '<meta property="og:image" content="' . $this->aPage['image'] . '" />';
+            $sRet .= '<meta name="twitter:image" content="' . $this->aPage['image'] . '" />';
+        }
+        if ($sCanonical)
+            $sRet .= '<meta property="og:url" content="' . bx_html_attribute($sCanonical) . '" />';
 
         // Smart App Banner
-        if(getParam('smart_app_banner') && false === strpos($_SERVER['HTTP_USER_AGENT'], 'UNAMobileApp')) {
-            if($sAppIdIOS = getParam('smart_app_banner_ios_app_id'))
+        if (getParam('smart_app_banner') && false === strpos($_SERVER['HTTP_USER_AGENT'], 'UNAMobileApp')) {
+            if ($sAppIdIOS = getParam('smart_app_banner_ios_app_id'))
                 $sRet .= '<meta name="apple-itunes-app" content="app-id=' . $sAppIdIOS . '" />';
         }
 
@@ -1443,12 +1374,13 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $sRet .= $oFunctions->getManifests();
         $sRet .= $oFunctions->getMetaIcons();
         
-        if(!empty($this->aPage['rss']) && !empty($this->aPage['rss']['url']))
-            $sRet .= '<link rel="alternate" type="application/rss+xml" href="' . $this->aPage['rss']['url'] . '" title="' . bx_html_attribute($this->aPage['rss']['title'], BX_ESCAPE_STR_QUOTE) . '" />';
-        $sRet .= '<link rel="alternate" type="application/json+oembed" href="' . BX_DOL_URL_ROOT . 'em.php?url=' . urlencode($_SERVER["REQUEST_URI"]) . '&format=json" title="' . $sHeaderAttr . '" />';
-
-        if($sUrl)
-            $sRet .= '<link rel="canonical" href="' . $sUrl . '" />';
+        if (!empty($this->aPage['rss']) && !empty($this->aPage['rss']['url']))
+            $sRet .= '<link rel="alternate" type="application/rss+xml" title="' . bx_html_attribute($this->aPage['rss']['title'], BX_ESCAPE_STR_QUOTE) . '" href="' . $this->aPage['rss']['url'] . '" />';
+        
+        $sRet .= "<link rel=\"alternate\" type=\"application/json+oembed\" href=\"" . BX_DOL_URL_ROOT ."em.php?url=" . urlencode($_SERVER["REQUEST_URI"]) . "&format=json\" title=\"". (isset($this->aPage['header']) ? bx_html_attribute(strip_tags($this->aPage['header'])) : '') . "\" />";
+        
+        if ($sCanonical)
+            $sRet .= '<link rel="canonical" href="' . bx_html_attribute($sCanonical) . '" />';
 
         return $sRet;
     }
@@ -1511,25 +1443,23 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
      * 
      * @param  mixed $mixedId numeric id from Storage, string with template's file name or string with font icon.
      */
-    public function getImage($mixedId, $aParams = [])
+    public function getImage($mixedId, $aParams = array())
     {
         return $this->_getImage('image', $mixedId, $aParams);
     }
 
-    protected function _getImage($sType, $mixedId, $aParams = [])
+	protected function _getImage($sType, $mixedId, $aParams = array())
     {
-        $bWrap = ($sKey = 'wrap_in_tag') && (!isset($aParams[$sKey]) || $aParams[$sKey] === true);
-
         $sUrl = "";
-        $aType2Method = ['image' => 'getImageUrl', 'icon' => 'getIconUrl'];
+        $aType2Method = array('image' => 'getImageUrl', 'icon' => 'getIconUrl');
 
         //--- Check in System Storage.
         if(is_numeric($mixedId) && (int)$mixedId > 0) {
-            $sStorage = BX_DOL_STORAGE_OBJ_IMAGES;
-            if(!empty($aParams['storage'])) {
-                $sStorage = $aParams['storage'];
-                unset($aParams['storage']);
-            }
+        	$sStorage = BX_DOL_STORAGE_OBJ_IMAGES;
+        	if(!empty($aParams['storage'])) {
+        		$sStorage = $aParams['storage'];
+        		unset($aParams['storage']);
+        	}
 
             if(($sResult = BxDolStorage::getObjectInstance($sStorage)->getFileUrlById((int)$mixedId)) !== false)
                 $sUrl = $sResult;
@@ -1540,13 +1470,13 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
             $sUrl = $this->{$aType2Method[$sType]}($mixedId);
 
         if($sUrl != "")
-            return $bWrap ? $this->parseImage($sUrl, [
+            return $this->parseImage($sUrl, array(
                 'class' => isset($aParams['class']) && !empty($aParams['class']) ? $aParams['class'] : '',
             	'alt' => isset($aParams['alt']) && !empty($aParams['alt']) ? $aParams['alt'] : ''
-            ]) : $sUrl;
+            ));
 
         //--- Use iconic font.
-        return $bWrap ? $this->parseIcon($mixedId, $aParams) : $mixedId;
+        return $this->parseIcon($mixedId, $aParams);
     }
 
     /**
@@ -2004,11 +1934,9 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
                 $sRet = bx_lang_direction();
                 break;
             case 'lang_country':
-                $sRet = bx_lang_country();
-                break;
-            case 'lang_with_country':
-                $sRet = bx_lang_code_with_country();
-                break;
+                if (!($sRet = BxDolLanguages::getInstance()->getLangCountryCode()))
+                    $sRet = bx_lang_country();
+                break;                
             case 'main_logo':
                 $sRet = BxTemplFunctions::getInstance()->getMainLogo();
                 break;
@@ -2074,7 +2002,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
             case 'is_profile_page':
                 $sRet = (defined('BX_PROFILE_PAGE')) ? 'true' : 'false';
                 break;
-            case 'system_js_requred':
+			case 'system_js_requred':
                 $sRet = _t('_sys_javascript_requred');
                 break;
             case 'included_css':
@@ -2197,22 +2125,13 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
      * @param string $sLink URL to image source 
      * @param array $aAttrs an array of key => value pairs
      */
-    function parseImage($sLink, $aAttrs = [])
+    function parseImage($sLink, $aAttrs = array())
     {
         $sAttrs = '';
         foreach($aAttrs as $sKey => $sValue)
             $sAttrs .= ' ' . $sKey . '="' . bx_html_attribute($sValue) . '"';
 
         return '<img src="' . $sLink . '"' . $sAttrs . ' />';
-    }
-    
-    function parseImageInline($sName, $aAttrs = [])
-    {
-        $sAttrs = '';
-        foreach($aAttrs as $sKey => $sValue)
-            $sAttrs .= ' ' . $sKey . '="' . bx_html_attribute($sValue) . '"';
-
-        return '<img src="' . $this->_getInlineData('image', $sName, BX_DOL_TEMPLATE_CHECK_IN_BOTH, true) . '"' . $sAttrs . ' />';
     }
 
     /**
@@ -2221,61 +2140,13 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
      * @param string $sName font icon name
      * @param array $aAttrs an array of key => value pairs
      */
-    function parseIcon($sName, $aAttrs = [])
+    function parseIcon($sName, $aAttrs = array())
     {
         $aIcons = BxTemplFunctions::getInstance()->getIcon($sName, $aAttrs);
         if($aIcons[0] != '')
             $aIcons[0] = '';
 
         return implode($aIcons);
-    }
-    
-    function parseIconInline($sName, $aAttrs = [])
-    {
-        $sAttrs = '';
-        foreach($aAttrs as $sKey => $sValue)
-            $sAttrs .= ' ' . $sKey . '="' . bx_html_attribute($sValue) . '"';
-
-        return '<img src="' . $this->_getInlineData('icon', $sName, BX_DOL_TEMPLATE_CHECK_IN_BOTH, true) . '"' . $sAttrs . ' />';
-    }
-
-    function parseTag($sName, $sContent, $aAttrs = [], $aParseParams = [])
-    {
-        if(!is_array($aAttrs))
-            $aAttrs = [];
-
-        $aTags = ['span', 'a', 'button', 'sbutton', 'custom', 'nl', 'extended'];
-
-        $sTmplVarsClass = ''; 
-        $aTmplVarsAttrs = [];
-        foreach($aAttrs as $sKey => $sValue) {
-            if($sKey == 'class')
-                $sTmplVarsClass = $aAttrs[$sKey];
-            else
-                $aTmplVarsAttrs[] = ['key' => $sKey, 'value' => bx_html_attribute($sValue)];
-        }
-
-        $aTemplateVars = $aParseParams['template_vars'] ?? [];
-
-        $aTmplVars = [];
-        foreach($aTags as $sTag) {
-            $aTmplVarsTag = [];
-            $bTmplVarsTag = $sTag == $sName;
-            if($bTmplVarsTag)
-                $aTmplVarsTag = array_merge([
-                    'class' => $sTmplVarsClass,
-                    'content' => $sContent,
-                    'bx_repeat:attrs' => $aTmplVarsAttrs
-                ], $aTemplateVars);
-
-            $aTmplVars['bx_if:' . $sTag] = [
-            	'condition' => $bTmplVarsTag,
-                'content' => $aTmplVarsTag
-            ];
-        }
-
-        $sTemplate = $aParseParams['template_name'] ?? '_tags.html';
-        return $this->parseHtmlByName($sTemplate, $aTmplVars);
     }
 
     function getCacheFilePrefix($sType)
@@ -3077,8 +2948,6 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
                         'system' => $bSystem,
                         'url' => &$sUrl,
                         'path' => &$sPath,
-                        'url_ref' => &$sUrl,
-                        'path_ref' => &$sPath,
                     ]);
 
                     if($bDynamic)
@@ -3211,7 +3080,24 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         try {
             $oTemplate = &$this;
 
-            foreach($this->_aTemplatePatterns as $sPattern => $sCheckIn)
+            $aCallbackPatterns = array(
+                "'<bx_include_auto:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_BOTH,
+                "'<bx_include_auto_mod_general:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_general'),
+                "'<bx_include_auto_mod_profile:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_profile'),
+                "'<bx_include_auto_mod_group:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_group'),
+                "'<bx_include_auto_mod_text:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_text'),
+                "'<bx_include_base:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_BASE,
+                "'<bx_include_base_mod_general:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_general'),
+                "'<bx_include_base_mod_profile:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_profile'),
+                "'<bx_include_base_mod_group:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_group'),
+                "'<bx_include_base_mod_text:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_text'),
+                "'<bx_include_tmpl:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_TMPL,
+                "'<bx_include_tmpl_mod_general:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_general'),
+                "'<bx_include_tmpl_mod_profile:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_profile'),
+                "'<bx_include_tmpl_mod_group:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_group'),
+                "'<bx_include_tmpl_mod_text:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_text')
+            );
+            foreach($aCallbackPatterns as $sPattern => $sCheckIn)
                 $sContent = preg_replace_callback($sPattern, function($aMatches) use($oTemplate, $aVariables, $mixedKeyWrapperHtml, $sCheckIn) {
                     return $oTemplate->parseHtmlByName($aMatches[1], $aVariables, $mixedKeyWrapperHtml, $sCheckIn);
                 }, $sContent);
@@ -3223,8 +3109,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         catch(Exception $oException) {
             bx_log('sys_template', "Error in _parseContent method. Cannot parse template insertion (<bx_include... />).\n" . 
                 "  Error ({$oException->getCode()}): {$oException->getMessage()}\n" . 
-                (getLoggedId() ? "  Account ID: " . getLoggedId() . "\n" : ""),
-                BX_LOG_ERR
+                (getLoggedId() ? "  Account ID: " . getLoggedId() . "\n" : "")
             );
 
             return '';
@@ -3251,8 +3136,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         catch(Exception $oException) {
             bx_log('sys_template', "Error in _parseContent method. Cannot parse System Keys.\n" . 
                 "  Error ({$oException->getCode()}): {$oException->getMessage()}\n" . 
-                (getLoggedId() ? "  Account ID: " . getLoggedId() . "\n" : ""),
-                BX_LOG_ERR
+                (getLoggedId() ? "  Account ID: " . getLoggedId() . "\n" : "")
             );
 
             return '';
@@ -3332,7 +3216,24 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         try {
             $oTemplate = &$this;
 
-            foreach($this->_aTemplatePatterns as $sPattern => $sCheckIn)
+            $aCallbackPatterns = array(
+                "'<bx_include_auto:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_BOTH,
+                "'<bx_include_auto_mod_general:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_general'),
+                "'<bx_include_auto_mod_profile:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_profile'),
+                "'<bx_include_auto_mod_group:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_group'),
+                "'<bx_include_auto_mod_text:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BOTH, 'sub' => 'mod_text'),
+                "'<bx_include_base:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_BASE,
+                "'<bx_include_base_mod_general:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_general'),
+                "'<bx_include_base_mod_profile:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_profile'),
+                "'<bx_include_base_mod_group:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_group'),
+                "'<bx_include_base_mod_text:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_BASE, 'sub' => 'mod_text'),
+                "'<bx_include_tmpl:([^\s]+) \/>'s" => BX_DOL_TEMPLATE_CHECK_IN_TMPL,
+                "'<bx_include_tmpl_mod_general:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_general'),
+                "'<bx_include_tmpl_mod_profile:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_profile'),
+                "'<bx_include_tmpl_mod_group:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_group'),
+                "'<bx_include_tmpl_mod_text:([^\s]+) \/>'s" => array('in' => BX_DOL_TEMPLATE_CHECK_IN_TMPL, 'sub' => 'mod_text')
+            );
+            foreach($aCallbackPatterns as $sPattern => $sCheckIn)
                 $sContent = preg_replace_callback($sPattern, function($aMatches) use($oTemplate, $aVarValues, $mixedKeyWrapperHtml, $sCheckIn) {
                     $mixedResult = $oTemplate->getCached($aMatches[1], $aVarValues, $mixedKeyWrapperHtml, $sCheckIn, false);
                     if($mixedResult === false)
@@ -3347,23 +3248,22 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
             if(($iCode = $oException->getCode()) != 1)
                 bx_log('sys_template', "Error in _compileContent method. Cannot parse template insertion (<bx_include... />).\n" . 
                     "  Error ({$iCode}): {$oException->getMessage()}\n" . 
-                    (getLoggedId() ? "  Account ID: " . getLoggedId() . "\n" : ""),
-                    BX_LOG_ERR
+                    (getLoggedId() ? "  Account ID: " . getLoggedId() . "\n" : "")
                 );
 
             return false;
         }
 
-        $aKeys = array_merge($aKeys, [
+        $aKeys = array_merge($aKeys, array(
             "'<bx_menu:([^\s]+) \/>'s",
             "'<bx_url_root />'",
             "'<bx_url_studio />'"
-        ]);
-        $aValues = array_merge($aValues, [
+        ));
+        $aValues = array_merge($aValues, array(
             "<?php echo \$this->getMenu('\\1'); ?>",
             BX_DOL_URL_ROOT,
             BX_DOL_URL_STUDIO
-        ]);
+        ));
 
         //--- Parse Predefined Keys ---//
         $sContent = preg_replace($aKeys, $aValues, $sContent);
@@ -3551,7 +3451,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
      * @param  string  $sCheckIn where the content would be searched(base, template, both)
      * @return unknown
      */
-    function _getInlineData($sType, $sName, $sCheckIn, $bForceInline = false)
+    function _getInlineData($sType, $sName, $sCheckIn)
     {
         switch($sType) {
             case 'image':
@@ -3564,7 +3464,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $sPath = $this->_getAbsoluteLocation('path', $sFolder, $sName, $sCheckIn);
 
         $iFileSize = 0;
-        if(($this->_bImagesInline && ($iFileSize = filesize($sPath)) !== false && $iFileSize < $this->_iImagesMaxSize) || $bForceInline) {
+        if($this->_bImagesInline && ($iFileSize = filesize($sPath)) !== false && $iFileSize < $this->_iImagesMaxSize) {
             $aFileInfo = pathinfo($sPath);
             return $this->getImageMimeType($aFileInfo['extension']) . ";base64," . base64_encode(file_get_contents($sPath));
         }
@@ -3583,7 +3483,9 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
         $sResult = bx_site_hash($sAbsolutePath);
         switch($sType) {
             case 'html':
-                $sResult = $this->_sCacheFilePrefix . bx_lang_name() . '_' . $this->_sCode .  '_' . $sResult;
+                // include the file's mtime in the key so deploys invalidate compiled
+                // templates automatically (no manual cache clear after template changes)
+                $sResult = $this->_sCacheFilePrefix . bx_lang_name() . '_' . $this->_sCode .  '_' . bx_site_hash($sAbsolutePath . '_' . (int)@filemtime($sAbsolutePath));
                 break;
             case 'css':
                 $sResult = $this->_sCssCachePrefix . (!empty($this->_iMix) ? $this->_iMix . '_' : '') .  $sResult;
@@ -3860,12 +3762,7 @@ class BxDolTemplate extends BxDolFactory implements iBxDolSingleton
          *      - `page_content` - [array] by ref, page content values, can be overridden in hook processing
          * @hook @ref hook-system-design_before_output
          */
-        bx_alert('system', 'design_before_output', 0, 0, [
-            'page' => &$this->aPage, 
-            'page_content' => &$this->aPageContent,
-            'page_ref' => &$this->aPage, 
-            'page_content_ref' => &$this->aPageContent
-        ]);
+        bx_alert('system', 'design_before_output', 0, 0, ['page' => &$this->aPage, 'page_content' => &$this->aPageContent]);
 
         header( 'Content-type: text/html; charset=utf-8' );
         $sXFrameOpts = getParam('sys_x_frame_options');

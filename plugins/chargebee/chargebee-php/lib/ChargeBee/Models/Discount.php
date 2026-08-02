@@ -15,7 +15,6 @@ class Discount extends Model
     'type',
     'percentage',
     'amount',
-    'quantity',
     'currencyCode',
     'durationType',
     'period',

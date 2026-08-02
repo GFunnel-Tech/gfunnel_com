@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class AssessmentsContext extends InstanceContext
@@ -51,22 +49,18 @@ class AssessmentsContext extends InstanceContext
     }
 
     /**
-     * Helper function for Update
+     * Update the AssessmentsInstance
      *
-     
      * @param string $offset The offset of the conversation
-     
      * @param string $answerText The answer text selected by user
-     
      * @param string $answerId The id of the answer selected by user
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return AssessmentsInstance Updated AssessmentsInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(string $offset, string $answerText, string $answerId, array $options = []): Response
+    public function update(string $offset, string $answerText, string $answerId, array $options = []): AssessmentsInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -78,62 +72,13 @@ class AssessmentsContext extends InstanceContext
                 $answerId,
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' , 'Authorization' => $options['authorization']]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' , 'Authorization' => $options['authorization']]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the AssessmentsInstance
-     *
-     
-     * @param string $offset The offset of the conversation
-     
-     * @param string $answerText The answer text selected by user
-     
-     * @param string $answerId The id of the answer selected by user
-     
-     * @param array|Options $options Optional Arguments
-     * @return AssessmentsInstance Updated AssessmentsInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(string $offset, string $answerText, string $answerId, array $options = []): AssessmentsInstance
-    {
-        $response = $this->_update( $offset,  $answerText,  $answerId, $options);
         return new AssessmentsInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['assessmentSid']
-        );
-        
-    }
-
-    /**
-     * Update the AssessmentsInstance with Metadata
-     *
-     
-     * @param string $offset The offset of the conversation
-     
-     * @param string $answerText The answer text selected by user
-     
-     * @param string $answerId The id of the answer selected by user
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(string $offset, string $answerText, string $answerId, array $options = []): ResourceMetadata
-    {
-        $response = $this->_update( $offset,  $answerText,  $answerId, $options);
-        $resource = new AssessmentsInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['assessmentSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

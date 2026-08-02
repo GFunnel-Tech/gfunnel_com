@@ -9,17 +9,15 @@
             </a>
         </bx_if:thumb>
         <bx_if:no_thumb>
-            <a href="__content_url__" <bx_if:show_no_thumb_onclick>onclick="javascript:__content_onclick__"</bx_if:show_no_thumb_onclick> title="__summary_attr__">
-                <div class="bx-def-gal-img-column shrink-0 m-1">
-                    <div class="bx-base-text-unit-no-thumb bx-def-round-corners flex flex-col items-center justify-center aspect-video p-4 bg-gradient-to-b from-red-400 to-red-500 box-border"></div>
-                </div>
-            </a>
+            <div class="bx-def-gal-img-column shrink-0 m-1">
+                <div class="bx-base-text-unit-no-thumb bx-def-round-corners flex flex-col items-center justify-center aspect-video p-4 bg-gradient-to-b from-red-400 to-red-500 box-border"></div>
+            </div>
         </bx_if:no_thumb>
         <div class="bx-base-text-unit-text flex flex-col flex-1 p-3 md:p-4 lg:p-6 pt-1 md:pt-2 lg:pt-3 box-border">
             <div class="bx-base-text-unit-badges pb-1 lg:pb-2">__badges__</div>
             <div class="bx-base-text-unit-title flex-auto max-h-14">
                 <div class="bx-base-tut-title truncate text-left">
-                    <a href="__content_url__" <bx_if:show_onclick>onclick="javascript:__content_onclick__"</bx_if:show_onclick> __content_url_attrs__>__title__</a>
+                    <a href="__content_url__" <bx_if:show_onclick>onclick="javascript:__content_onclick__"</bx_if:show_onclick> class="text-left">__title__</a>
                 </div>
             </div>
             <div class="bx-base-text-unit-info flex flex-auto flex-col justify-end text-sm text-gray-500 dark:text-gray-400">

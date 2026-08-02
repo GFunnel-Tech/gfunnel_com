@@ -43,7 +43,6 @@ class RolePage extends Page
         return new RoleInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

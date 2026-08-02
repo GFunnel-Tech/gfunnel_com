@@ -43,7 +43,6 @@ class PayloadPage extends Page
         return new PayloadInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['referenceSid'], $this->solution['addOnResultSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

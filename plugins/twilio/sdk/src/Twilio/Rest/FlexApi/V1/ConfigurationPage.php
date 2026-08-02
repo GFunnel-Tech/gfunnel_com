@@ -43,7 +43,6 @@ class ConfigurationPage extends Page
         return new ConfigurationInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

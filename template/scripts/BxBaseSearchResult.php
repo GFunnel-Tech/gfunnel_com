@@ -97,10 +97,8 @@ class BxBaseSearchResult extends BxDolSearchResult
          */
         bx_alert('simple_search', 'show_data', 0, false, [
             'object' => &$this->aCurrent, 
-            'condition_array_ref' => &$this->aCurrent, 
             'mode' => $this->_sMode, 
-            'search_results' => &$sCode,
-            'search_results_ref' => &$sCode
+            'search_results' => &$sCode
         ]);
 
         return $sCode;

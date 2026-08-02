@@ -43,7 +43,6 @@ class ReplaceItemsPage extends Page
         return new ReplaceItemsInstance($this->version, $payload, $this->solution['bundleSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -4,11 +4,6 @@
 
 namespace Stripe\Service\Radar;
 
-/**
- * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
- * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- */
 class ValueListService extends \Stripe\Service\AbstractService
 {
     /**
@@ -16,12 +11,12 @@ class ValueListService extends \Stripe\Service\AbstractService
      * descending order by creation date, with the most recently created object
      * appearing first.
      *
-     * @param null|array{alias?: string, contains?: string, created?: array|int, ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @return \Stripe\Collection<\Stripe\Radar\ValueList>
+     * @param null|array $params
+     * @param null|array|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\Radar\ValueList>
      */
     public function all($params = null, $opts = null)
     {
@@ -32,12 +27,12 @@ class ValueListService extends \Stripe\Service\AbstractService
      * Creates a new <code>ValueList</code> object, which can then be referenced in
      * rules.
      *
-     * @param null|array{alias: string, expand?: string[], item_type?: string, metadata?: array<string, string>, name: string} $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @return \Stripe\Radar\ValueList
+     * @param null|array $params
+     * @param null|array|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Radar\ValueList
      */
     public function create($params = null, $opts = null)
     {
@@ -51,11 +46,11 @@ class ValueListService extends \Stripe\Service\AbstractService
      *
      * @param string $id
      * @param null|array $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @return \Stripe\Radar\ValueList
+     * @param null|array|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Radar\ValueList
      */
     public function delete($id, $params = null, $opts = null)
     {
@@ -66,12 +61,12 @@ class ValueListService extends \Stripe\Service\AbstractService
      * Retrieves a <code>ValueList</code> object.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @return \Stripe\Radar\ValueList
+     * @param null|array $params
+     * @param null|array|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Radar\ValueList
      */
     public function retrieve($id, $params = null, $opts = null)
     {
@@ -84,12 +79,12 @@ class ValueListService extends \Stripe\Service\AbstractService
      * <code>item_type</code> is immutable.
      *
      * @param string $id
-     * @param null|array{alias?: string, expand?: string[], metadata?: array<string, string>, name?: string} $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @return \Stripe\Radar\ValueList
+     * @param null|array $params
+     * @param null|array|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Radar\ValueList
      */
     public function update($id, $params = null, $opts = null)
     {

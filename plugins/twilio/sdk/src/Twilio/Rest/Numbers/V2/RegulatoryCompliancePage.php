@@ -43,7 +43,6 @@ class RegulatoryCompliancePage extends Page
         return new RegulatoryComplianceInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -29,7 +29,6 @@ abstract class ServiceOptions
      * @param bool $mediaRedaction Instructs the Speech Recognition service to automatically redact PII from all transcripts media made on this service. The auto_redaction flag must be enabled, results in error otherwise.
      * @param string $webhookUrl The URL Twilio will request when executing the Webhook.
      * @param string $webhookHttpMethod
-     * @param string $encryptionCredentialSid The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
      * @return CreateServiceOptions Options builder
      */
     public static function create(
@@ -41,8 +40,7 @@ abstract class ServiceOptions
         bool $autoRedaction = Values::BOOL_NONE,
         bool $mediaRedaction = Values::BOOL_NONE,
         string $webhookUrl = Values::NONE,
-        string $webhookHttpMethod = Values::NONE,
-        string $encryptionCredentialSid = Values::NONE
+        string $webhookHttpMethod = Values::NONE
 
     ): CreateServiceOptions
     {
@@ -54,8 +52,7 @@ abstract class ServiceOptions
             $autoRedaction,
             $mediaRedaction,
             $webhookUrl,
-            $webhookHttpMethod,
-            $encryptionCredentialSid
+            $webhookHttpMethod
         );
     }
 
@@ -71,7 +68,6 @@ abstract class ServiceOptions
      * @param bool $mediaRedaction Instructs the Speech Recognition service to automatically redact PII from all transcripts media made on this service. The auto_redaction flag must be enabled, results in error otherwise.
      * @param string $webhookUrl The URL Twilio will request when executing the Webhook.
      * @param string $webhookHttpMethod
-     * @param string $encryptionCredentialSid The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
      * @param string $ifMatch The If-Match HTTP request header
      * @return UpdateServiceOptions Options builder
      */
@@ -85,7 +81,6 @@ abstract class ServiceOptions
         bool $mediaRedaction = Values::BOOL_NONE,
         string $webhookUrl = Values::NONE,
         string $webhookHttpMethod = Values::NONE,
-        string $encryptionCredentialSid = Values::NONE,
         string $ifMatch = Values::NONE
 
     ): UpdateServiceOptions
@@ -99,7 +94,6 @@ abstract class ServiceOptions
             $mediaRedaction,
             $webhookUrl,
             $webhookHttpMethod,
-            $encryptionCredentialSid,
             $ifMatch
         );
     }
@@ -117,7 +111,6 @@ class CreateServiceOptions extends Options
      * @param bool $mediaRedaction Instructs the Speech Recognition service to automatically redact PII from all transcripts media made on this service. The auto_redaction flag must be enabled, results in error otherwise.
      * @param string $webhookUrl The URL Twilio will request when executing the Webhook.
      * @param string $webhookHttpMethod
-     * @param string $encryptionCredentialSid The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
      */
     public function __construct(
         
@@ -128,8 +121,7 @@ class CreateServiceOptions extends Options
         bool $autoRedaction = Values::BOOL_NONE,
         bool $mediaRedaction = Values::BOOL_NONE,
         string $webhookUrl = Values::NONE,
-        string $webhookHttpMethod = Values::NONE,
-        string $encryptionCredentialSid = Values::NONE
+        string $webhookHttpMethod = Values::NONE
 
     ) {
         $this->options['autoTranscribe'] = $autoTranscribe;
@@ -140,7 +132,6 @@ class CreateServiceOptions extends Options
         $this->options['mediaRedaction'] = $mediaRedaction;
         $this->options['webhookUrl'] = $webhookUrl;
         $this->options['webhookHttpMethod'] = $webhookHttpMethod;
-        $this->options['encryptionCredentialSid'] = $encryptionCredentialSid;
     }
 
     /**
@@ -238,18 +229,6 @@ class CreateServiceOptions extends Options
     }
 
     /**
-     * The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
-     *
-     * @param string $encryptionCredentialSid The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
-     * @return $this Fluent Builder
-     */
-    public function setEncryptionCredentialSid(string $encryptionCredentialSid): self
-    {
-        $this->options['encryptionCredentialSid'] = $encryptionCredentialSid;
-        return $this;
-    }
-
-    /**
      * Provide a friendly representation
      *
      * @return string Machine friendly representation
@@ -275,7 +254,6 @@ class UpdateServiceOptions extends Options
      * @param bool $mediaRedaction Instructs the Speech Recognition service to automatically redact PII from all transcripts media made on this service. The auto_redaction flag must be enabled, results in error otherwise.
      * @param string $webhookUrl The URL Twilio will request when executing the Webhook.
      * @param string $webhookHttpMethod
-     * @param string $encryptionCredentialSid The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
      * @param string $ifMatch The If-Match HTTP request header
      */
     public function __construct(
@@ -288,7 +266,6 @@ class UpdateServiceOptions extends Options
         bool $mediaRedaction = Values::BOOL_NONE,
         string $webhookUrl = Values::NONE,
         string $webhookHttpMethod = Values::NONE,
-        string $encryptionCredentialSid = Values::NONE,
         string $ifMatch = Values::NONE
 
     ) {
@@ -300,7 +277,6 @@ class UpdateServiceOptions extends Options
         $this->options['mediaRedaction'] = $mediaRedaction;
         $this->options['webhookUrl'] = $webhookUrl;
         $this->options['webhookHttpMethod'] = $webhookHttpMethod;
-        $this->options['encryptionCredentialSid'] = $encryptionCredentialSid;
         $this->options['ifMatch'] = $ifMatch;
     }
 
@@ -395,18 +371,6 @@ class UpdateServiceOptions extends Options
     public function setWebhookHttpMethod(string $webhookHttpMethod): self
     {
         $this->options['webhookHttpMethod'] = $webhookHttpMethod;
-        return $this;
-    }
-
-    /**
-     * The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
-     *
-     * @param string $encryptionCredentialSid The unique SID identifier of the Public Key resource used to encrypt the sentences and operator results.
-     * @return $this Fluent Builder
-     */
-    public function setEncryptionCredentialSid(string $encryptionCredentialSid): self
-    {
-        $this->options['encryptionCredentialSid'] = $encryptionCredentialSid;
         return $this;
     }
 

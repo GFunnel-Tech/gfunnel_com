@@ -43,7 +43,6 @@ class BundleCopyPage extends Page
         return new BundleCopyInstance($this->version, $payload, $this->solution['bundleSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

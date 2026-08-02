@@ -43,7 +43,6 @@ class NewKeyPage extends Page
         return new NewKeyInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

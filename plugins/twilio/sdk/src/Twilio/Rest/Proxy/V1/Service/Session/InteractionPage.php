@@ -43,7 +43,6 @@ class InteractionPage extends Page
         return new InteractionInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['sessionSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

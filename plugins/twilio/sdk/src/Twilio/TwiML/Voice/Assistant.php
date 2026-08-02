@@ -156,99 +156,39 @@ class Assistant extends TwiML {
     }
 
     /**
-     * Add WelcomeGreetingInterruptible attribute.
-     *
-     * @param string $welcomeGreetingInterruptible "Whether and how the input from
-     *                                             a caller, such as speaking or
-     *                                             DTMF can interrupt the welcome
-     *                                             greeting
-     */
-    public function setWelcomeGreetingInterruptible($welcomeGreetingInterruptible): self {
-        return $this->setAttribute('welcomeGreetingInterruptible', $welcomeGreetingInterruptible);
-    }
-
-    /**
      * Add Interruptible attribute.
      *
-     * @param string $interruptible Whether and how the input from a caller, such
-     *                              as speaking or DTMF can interrupt the play of
-     *                              text-to-speech
+     * @param bool $interruptible Whether caller's speaking can interrupt the play
+     *                            of text-to-speech
      */
     public function setInterruptible($interruptible): self {
         return $this->setAttribute('interruptible', $interruptible);
     }
 
     /**
-     * Add Preemptible attribute.
+     * Add InterruptByDtmf attribute.
      *
-     * @param bool $preemptible Whether subsequent text-to-speech or play media can
-     *                          interrupt the on-going play of text-to-speech or
-     *                          media
+     * @param bool $interruptByDtmf Whether DTMF tone can interrupt the play of
+     *                              text-to-speech
      */
-    public function setPreemptible($preemptible): self {
-        return $this->setAttribute('preemptible', $preemptible);
+    public function setInterruptByDtmf($interruptByDtmf): self {
+        return $this->setAttribute('interruptByDtmf', $interruptByDtmf);
     }
 
     /**
-     * Add Hints attribute.
+     * Add WelcomeGreetingInterruptible attribute.
      *
-     * @param string $hints Phrases to help better accuracy in speech recognition
-     *                      of these pharases
+     * @param bool $welcomeGreetingInterruptible Whether caller's speaking can
+     *                                           interrupt the welcome greeting
      */
-    public function setHints($hints): self {
-        return $this->setAttribute('hints', $hints);
-    }
-
-    /**
-     * Add IntelligenceService attribute.
-     *
-     * @param string $intelligenceService The Conversational Intelligence Service
-     *                                    id or unique name to be used for the
-     *                                    session
-     */
-    public function setIntelligenceService($intelligenceService): self {
-        return $this->setAttribute('intelligenceService', $intelligenceService);
-    }
-
-    /**
-     * Add ReportInputDuringAgentSpeech attribute.
-     *
-     * @param bool $reportInputDuringAgentSpeech Whether prompts should be reported
-     *                                           to WebSocket server when
-     *                                           text-to-speech playing and
-     *                                           interrupt is disabled
-     */
-    public function setReportInputDuringAgentSpeech($reportInputDuringAgentSpeech): self {
-        return $this->setAttribute('reportInputDuringAgentSpeech', $reportInputDuringAgentSpeech);
-    }
-
-    /**
-     * Add ElevenlabsTextNormalization attribute.
-     *
-     * @param string $elevenlabsTextNormalization When using ElevenLabs as TTS
-     *                                            provider, this parameter allows
-     *                                            you to enable or disable its text
-     *                                            normalization feature
-     */
-    public function setElevenlabsTextNormalization($elevenlabsTextNormalization): self {
-        return $this->setAttribute('elevenlabsTextNormalization', $elevenlabsTextNormalization);
-    }
-
-    /**
-     * Add InterruptSensitivity attribute.
-     *
-     * @param string $interruptSensitivity Set the sensitivity of the interrupt
-     *                                     feature for speech. The value can be
-     *                                     low, medium, or high
-     */
-    public function setInterruptSensitivity($interruptSensitivity): self {
-        return $this->setAttribute('interruptSensitivity', $interruptSensitivity);
+    public function setWelcomeGreetingInterruptible($welcomeGreetingInterruptible): self {
+        return $this->setAttribute('welcomeGreetingInterruptible', $welcomeGreetingInterruptible);
     }
 
     /**
      * Add Debug attribute.
      *
-     * @param string $debug Multiple debug options to be used for troubleshooting
+     * @param bool $debug Whether debugging on the session is enabled
      */
     public function setDebug($debug): self {
         return $this->setAttribute('debug', $debug);

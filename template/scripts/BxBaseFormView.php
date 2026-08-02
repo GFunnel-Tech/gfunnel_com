@@ -15,7 +15,6 @@ class BxBaseFormView extends BxDolForm
     protected static $_isCssJsUiAdded = false;
     protected static $_isCssJsUiSortableAdded = false;
     protected static $_isCssJsMinicolorsAdded = false;
-    protected static $_isCssJsCodeMirrorAdded = false;
     protected static $_isCssJsLabelsAdded = false;
     protected static $_isCssJsTimepickerAdded = false;
     protected static $_isCssJsAddedViewMode = false;
@@ -101,9 +100,6 @@ class BxBaseFormView extends BxDolForm
     protected $_sJsObjectName;
     
     protected $_aHtmlIds;
-
-    protected $_aAgentsFormObject;
-    protected $_sAgentFormObject;
     
     /**
      * Constructor
@@ -133,10 +129,6 @@ class BxBaseFormView extends BxDolForm
         $sName = !empty($aInfo['params']['display']) ? $aInfo['params']['display'] : '';
         if(empty($sName) && !empty($aInfo['params']['object']))
             $sName = $aInfo['params']['object'];
-        if(empty($sName) && !empty($aInfo['form_attrs']['id']))
-            $sName = $aInfo['form_attrs']['id'];
-        if(empty($sName) && !empty($aInfo['form_attrs']['name']))
-            $sName = $aInfo['form_attrs']['name'];
 
         $this->_sJsObjectName = 'oForm' . bx_gen_method_name($sName, array('_' , '-'));
 
@@ -147,9 +139,6 @@ class BxBaseFormView extends BxDolForm
             'pgc_popup' => $sHtmlId . '-pgc-popup-',
             'pgc_form' => $sHtmlId . '-pgc-form-',
         );
-
-        $this->_sAgentFormObject = $aInfo['params']['object'] ?? $this->id;
-        $this->_aAgentsFormObject = BxDolAI::getInstance()->getAgentsByFormObject($this->_sAgentFormObject);
     }
 
     public function performActionGetHelp()
@@ -309,11 +298,6 @@ class BxBaseFormView extends BxDolForm
         return $this->_bAjaxMode;
     }
 
-    function isViewMode()
-    {
-        return (bool)($this->aParams['view_mode'] ?? 0);
-    }
-
     function setAbsoluteActionUrl($sUrl)
     {
         if(empty($sUrl))
@@ -358,11 +342,7 @@ class BxBaseFormView extends BxDolForm
             'dynamic' => $this->_bDynamicMode,
             'object' => &$this,
             'code' => &$this->sCode,
-            'include' => &$sInclude,
-
-            'code_ref' => &$this->sCode,
-            'include_ref' => &$sInclude,
-            'form_inputs_ref' => &$this->aInputs,
+            'include' => &$sInclude
         ]);
 
         if($this->sCode === false)
@@ -377,6 +357,7 @@ class BxBaseFormView extends BxDolForm
     {
         $this->aFormAttrs = $this->_replaceMarkers($this->aFormAttrs);
     
+        
         $this->sCode = false;
         /**
          * @hooks
@@ -395,162 +376,136 @@ class BxBaseFormView extends BxDolForm
             'dynamic' => $this->_bDynamicMode,
             'object' => &$this,
             'code' => &$this->sCode,
-            'code_ref' => &$this->sCode,
-            'form_inputs_ref' => &$this->aInputs,
         ]);
 
-        if($this->sCode === false) {
-            if(!$this->genForm() && (bool)($this->aParams['view_mode'] ?? 0))
-                return [];
-        }
-
-        $oIconset = BxDolIconset::getObjectInstance();
-        $oFunctions = BxTemplFunctions::getInstanceWithTemplate($this->oTemplate);
-
+        if($this->sCode === false)
+            $this->genForm();
+        
         // TODO: process inputs to translate titles, alerts, etc
+        $keysToRemove = [];
+        
+        foreach ($this->aInputs as $key => &$aInput) {
+            if (!isset($aInput['visible_for_levels']) || self::isVisible($aInput)) {
+                if (isset($aInput['type']) && 'files' == $aInput['type']){
+                    $oStorage = BxDolStorage::getObjectInstance($aInput['storage_object']);
+                    $aInput['ext_allow'] = $oStorage->getObjectData()['ext_allow'];
+                    $aInput['ext_deny'] = $oStorage->getObjectData()['ext_deny'];
+                    $aInput['ghost_template'] = '';
+                    $aInput['value'] = '';
+                    $aInput['values'] = '';
+                    $aInput['values_src'] = '';
+                    if(!empty($aInput['content_id']) && ($sUpr = reset($aInput['uploaders'])) && isset($aInput['storage_object']) && ($sStg = $aInput['storage_object']) && ($oUploader = BxDolUploader::getObjectInstance($sUpr, $sStg, genRndPwd(8))) !== false){
+                        $sData = $oUploader->getGhostsWithOrder((int)bx_get_logged_profile_id(), 'json', $aInput['images_transcoder'], $aInput['content_id']);
+                        if($sData && ($aData = json_decode($sData, true)) && !empty($aData['g']) && is_array($aData['g'])) {
+                            $aInput['values_src'] = array_values($aData['g']);
 
-        $aInputs = [];
-        foreach($this->aInputs as $sKey => $aInput) {
-            if(isset($aInput['visible_for_levels']) && !self::isVisible($aInput)) 
-                continue;
+                            $aGhostIds = [];
+                            array_walk($aData['g'], function($aGhost) use (&$aGhostIds) {
+                                $aGhostIds[] = $aGhost['file_id'];
+                            });
 
-            if(isset($aInput['type']) && in_array($aInput['name'], ['captcha'])) 
-                continue;
-
-            list($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $oFunctions->getIcon($aInput['icon'] ?? '');
-
-            $aInput['icon'] = $sIcon ? $oIconset->getIcon($sIcon) : ($sIconHtml ? $sIconHtml : '');
-            if(!empty($aInput['info']))
-                $aInput['info'] = strip_tags($aInput['info']);
-            if(!empty($aInput['help']))
-                $aInput['help'] = strip_tags($aInput['help']);
-            if(!empty($aInput['error']))
-                $aInput['error'] = strip_tags($aInput['error']);
-
-            if (isset($aInput['type']) && 'files' == $aInput['type']){
-                $oStorage = BxDolStorage::getObjectInstance($aInput['storage_object']);
-                $aInput['ext_allow'] = $oStorage->getObjectData()['ext_allow'];
-                $aInput['ext_deny'] = $oStorage->getObjectData()['ext_deny'];
-                $aInput['ghost_template'] = '';
-                $aInput['value'] = '';
-                $aInput['values'] = '';
-                $aInput['values_src'] = '';
-                if(!empty($aInput['content_id']) && ($sUpr = reset($aInput['uploaders'])) && ($sStg = $aInput['storage_object'] ?? '') && ($oUploader = BxDolUploader::getObjectInstance($sUpr, $sStg, genRndPwd(8))) !== false) {
-                    $oUploader->setMultiple($aInput['multiple'] ?? true);
-                    if(($sMethod = 'setSubmitted') && method_exists($oUploader, $sMethod))
-                        $oUploader->$sMethod($this->isSubmitted());
-
-                    $sData = $oUploader->getGhostsWithOrder((int)bx_get_logged_profile_id(), 'json', $aInput['images_transcoder'], $aInput['content_id']);
-                    if($sData && ($aData = json_decode($sData, true)) && !empty($aData['g']) && is_array($aData['g'])) {
-                        $aInput['values_src'] = array_values($aData['g']);
-
-                        $aGhostIds = [];
-                        array_walk($aData['g'], function($aGhost) use (&$aGhostIds) {
-                            $aGhostIds[] = $aGhost['file_id'];
-                        });
-
-                        $aInput['value'] = implode(',', $aGhostIds);
-                    }
-                }
-            }
-
-            if (isset($aInput['type']) && 'custom' == $aInput['type']){
-                $sCustomMethod = 'genCustomInput' . $this->_genMethodName($aInput['name']);
-                if (method_exists($this, $sCustomMethod))
-                     $aInput = $this->$sCustomMethod($aInput);
-            }
-
-            if (isset($aInput['type']) && 'block_header' == $aInput['type']){
-                $aInput['name'] = $sKey;
-            }
-
-            if (isset($aInput['type']) && 'block_header' == $aInput['type']){
-                $aInput['name'] = $sKey;
-            }
-
-            if (isset($aInput['type']) && 'location' == $aInput['type']){
-                $oLocation = BxDolLocationField::getObjectInstance(getParam('sys_location_field_default'));
-
-                $aVars = [];
-                foreach(BxDolForm::$LOCATION_INDEXES as $sKey)
-                    $aVars[$sKey] = $oLocation->getLocationVal($aInput, $sKey, $this);
-
-                if(($sLocationString = bx_api_get_location_string($aVars)))
-                    $aVars['location_string'] = $sLocationString;
-
-                $aInput['value'] = $aVars;
-            }
-
-            if (isset($aInput['type']) && 'textarea' == $aInput['type']){
-                if (isset($aInput['value'], $aInput['html']) && (int)$aInput['html'] == 0)
-                    $aInput['value'] = strip_tags($aInput['value']);
-            }
-
-            /**
-             * Everytime when [key => value] is used it should be converted to [key => ..., value => ...]
-             */
-            if (($sVt = $aInput['type'] ?? false) && in_array($sVt, ['select', 'select_multiple', 'checkbox_set', 'radio_set']) && is_array(($aVv = $aInput[($sKv = 'values')] ?? false)) && !(is_array(($aVv1 = reset($aVv))) && isset($aVv1['key'], $aVv1['value']))) {
-                $aInput[$sKv] = array_map(function($sKey) use($aInput, $sKv) {
-                    return ['key' => $sKey, 'value' => $aInput[$sKv][$sKey]];
-                }, array_keys($aInput[$sKv]));
-            }
-
-            if(isset($aInput['name']) && in_array($aInput['name'], ['allow_view_to', 'object_privacy_view'])) {
-                $aParams = bx_get('params');
-                if(empty($aParams) || !is_array($aParams))
-                    $aParams = [];
-
-                if(!isset($aParams['context_id']) || ($iContextId = (int)$aParams['context_id']) >= 0) {
-                    $oProfile = BxDolProfile::getInstance();
-
-                    foreach($aInput['values'] as $aValue) {
-                        //--- Selected friends
-                        if(isset($aValue['key']) && (int)$aValue['key'] == BX_DOL_PG_FRIENDS_SELECTED) {
-                            $aIds = BxDolConnection::getObjectInstance('sys_profiles_friends')->getConnectedContent($oProfile->id(), true, 0, 20);
-                            if(!empty($aIds) && is_array($aIds)) {
-                                $aInput['values_friends'] = [];
-                                foreach($aIds as $iId)
-                                    $aInput['values_friends'][] = ['key' => $iId, 'value' => BxDolProfile::getData($iId)];
-                            }
-                        }
-
-                        //--- Selected relations
-                        if(isset($aValue['key']) && (int)$aValue['key'] == BX_DOL_PG_RELATIONS_SELECTED) {
-                            $aIds = BxDolConnection::getObjectInstance('sys_profiles_relations')->getConnectedContent($oProfile->id(), true, 0, 20);
-                            if(!empty($aIds) && is_array($aIds)) {
-                                $aInput['values_relations'] = [];
-                                foreach($aIds as $iId)
-                                    $aInput['values_relations'][] = ['key' => $iId, 'value' => BxDolProfile::getData($iId)];
-                            }
-                        }
-
-                        //--- Selected memberships
-                        if(isset($aValue['key']) && (int)$aValue['key'] == BX_DOL_PG_MEMBERSHIPS_SELECTED) {
-                            $aLevels = BxDolAcl::getInstance()->getMemberships(false, true, true, true);
-                            if(!empty($aLevels) && is_array($aLevels)) {
-                                $aInput['values_memberships'] = [];
-                                foreach($aLevels as $iId => $sTitle)
-                                    $aInput['values_memberships'][] = ['key' => $iId, 'value' => $sTitle];
-                            }
+                            $aInput['value'] = implode(',', $aGhostIds);
                         }
                     }
                 }
-                else
-                    $aInput = array_merge($aInput, [
-                        'type' => 'hidden',
-                        'value' => $iContextId,
-                        'owner_info' => BxDolProfile::getData(abs($iContextId))
-                    ]);
-            }
+                
+                if (isset($aInput['type']) && 'custom' == $aInput['type']){
+                    $sCustomMethod = 'genCustomInput' . $this->_genMethodName($aInput['name']);
+                    if (method_exists($this, $sCustomMethod))
+                         $aInput = $this->$sCustomMethod($aInput);
+                }
+                
+                if (isset($aInput['type']) && 'block_header' == $aInput['type']){
+                    $aInput['name'] = $key;
+                }
+                
+                if (isset($aInput['type']) && 'block_header' == $aInput['type']){
+                    $aInput['name'] = $key;
+                }
 
-            $aInputs[$sKey] = $aInput;
+                if (isset($aInput['type']) && 'location' == $aInput['type']){
+                    $aLocationIndexes = BxDolForm::$LOCATION_INDEXES;
+                    $aVars = [];
+                    $o = BxDolLocationField::getObjectInstance(getParam('sys_location_field_default'));
+                    foreach ($aLocationIndexes as $sKey)
+                        $aVars[$sKey] = $o->getLocationVal($aInput, $sKey, $this);
+                    if ($aVars['country']) {
+                        $aCountries = BxDolFormQuery::getDataItems('Country');
+                        $sLocationString = ($aVars['street_number'] ? $aVars['street_number'] . ', ' : '') . ($aVars['street'] ? $aVars['street'] . ', ' : '') . ($aVars['city'] ? $aVars['city'] . ', ' : '') . ($aVars['state'] ? $aVars['state'] . ', ' : '') . $aCountries[$aVars['country']];
+                        $aVars['location_string'] = $sLocationString;
+                    }
+                    $aInput['value'] = $aVars;
+                }
+
+                if (isset($aInput['type']) && 'textarea' == $aInput['type']){
+                    if (isset($aInput['value'], $aInput['html']) && (int)$aInput['html'] == 0)
+                        $aInput['value'] = strip_tags($aInput['value']);
+                }
+
+                if (isset($aInput['type'], $aInput['values_src']) && in_array($aInput['type'], ['select', 'select_multiple', 'checkbox_set', 'radio_set']) && strncmp(BX_DATA_LISTS_KEY_PREFIX, $aInput['values_src'], 2) === 0) {
+                    $aInput['values'] = array_map(function($sKey) use($aInput) {
+                        return ['key' => $sKey, 'value' => $aInput['values'][$sKey]];
+                    }, array_keys($aInput['values']));
+                }
+
+                if(isset($aInput['name']) && in_array($aInput['name'], ['allow_view_to', 'object_privacy_view'])) {
+                    $aParams = bx_get('params');
+                    if(empty($aParams) || !is_array($aParams))
+                        $aParams = [];
+
+                    if(!isset($aParams['context_id']) || ($iContextId = (int)$aParams['context_id']) >= 0) {
+                        $oProfile = BxDolProfile::getInstance();
+
+                        foreach($aInput['values'] as $aValue) {
+                            //--- Selected friends
+                            if(isset($aValue['key']) && (int)$aValue['key'] == BX_DOL_PG_FRIENDS_SELECTED) {
+                                $aIds = BxDolConnection::getObjectInstance('sys_profiles_friends')->getConnectedContent($oProfile->id(), true, 0, 20);
+                                if(!empty($aIds) && is_array($aIds)) {
+                                    $aInput['values_friends'] = [];
+                                    foreach($aIds as $iId)
+                                        $aInput['values_friends'][] = ['key' => $iId, 'value' => BxDolProfile::getData($iId)];
+                                }
+                            }
+
+                            //--- Selected relations
+                            if(isset($aValue['key']) && (int)$aValue['key'] == BX_DOL_PG_RELATIONS_SELECTED) {
+                                $aIds = BxDolConnection::getObjectInstance('sys_profiles_relations')->getConnectedContent($oProfile->id(), true, 0, 20);
+                                if(!empty($aIds) && is_array($aIds)) {
+                                    $aInput['values_relations'] = [];
+                                    foreach($aIds as $iId)
+                                        $aInput['values_relations'][] = ['key' => $iId, 'value' => BxDolProfile::getData($iId)];
+                                }
+                            }
+
+                            //--- Selected memberships
+                            if(isset($aValue['key']) && (int)$aValue['key'] == BX_DOL_PG_MEMBERSHIPS_SELECTED) {
+                                $aLevels = BxDolAcl::getInstance()->getMemberships(false, true, true, true);
+                                if(!empty($aLevels) && is_array($aLevels)) {
+                                    $aInput['values_memberships'] = [];
+                                    foreach($aLevels as $iId => $sTitle)
+                                        $aInput['values_memberships'][] = ['key' => $iId, 'value' => $sTitle];
+                                }
+                            }
+                        }
+                    }
+                    else
+                        $aInput = array_merge($aInput, [
+                            'type' => 'hidden',
+                            'value' => $iContextId,
+                            'owner_info' => BxDolProfile::getData(abs($iContextId))
+                        ]);
+                }
+            }
+            else{
+                $keysToRemove[] = $key;
+            }
         }
-
-        return [
-            'inputs' => $aInputs, 
-            'attrs' => $this->aFormAttrs, 
-            'params' => $this->aParams
-        ];
+        
+        foreach ($keysToRemove as $key) {
+            unset($this->aInputs[$key]);
+        }
+    
+        return ['inputs' => $this->aInputs, 'attrs' => $this->aFormAttrs, 'params' => $this->aParams];
     }
 
     public function getJsClassName()
@@ -570,16 +525,14 @@ class BxBaseFormView extends BxDolForm
 
         $sCode = "if(window['" . $sJsObjName . "'] == undefined) window['" . $sJsObjName . "'] = new " . $sJsObjClass . "(" . json_encode(array(
             'sObjName' => $sJsObjName,
-            'sId' => $this->getId(),
             'sName' => $this->getName(),
             'sObject' => isset($this->aParams['object']) ? $this->aParams['object'] : '',
             'sDisplay' => isset($this->aParams['display']) ? $this->aParams['display'] : '',
             'sRootUrl' => BX_DOL_URL_ROOT,
             'aHtmlIds' => $this->_aHtmlIds,
-            'bInitCodeMirror' => self::$_isCssJsCodeMirrorAdded === true,
             'bLeavePageConfirmation' => getParam('sys_form_lpc_enable') == 'on',
             'sTxtLeavePageConfirmation' => _t('_sys_leave_page_confirmation')
-        )) . "); window['" . $sJsObjName . "'].init();";
+        )) . ");";
 
         return $bWrap ? $this->oTemplate->_wrapInTagJsCode($sCode) : $sCode;
     }
@@ -593,15 +546,12 @@ class BxBaseFormView extends BxDolForm
     {
         $this->_sCodeAdd = '';
 
-        $bViewMode = $this->isViewMode();
         $sTable = $this->genRows();
-        if($bViewMode && !$sTable)
-            return '';
 
         $sHtmlBefore = isset($this->aParams['html_before']) ? $this->aParams['html_before'] : '';
         $sHtmlAfter = isset($this->aParams['html_after']) ? $this->aParams['html_after'] : '';
 
-        if (!empty($this->aParams['remove_form']) || $bViewMode) {
+        if (!empty($this->aParams['remove_form']) || (isset($this->aParams['view_mode']) && $this->aParams['view_mode'])) {
             $sForm = <<<BLAH
                     $sHtmlBefore
                     {$this->_sCodeAdd}
@@ -736,7 +686,7 @@ BLAH;
 
         $sCloseSection = $this->{$this->_sSectionClose}();
 
-        return $this->isViewMode() && !$sCont ? '' : $sOpenSection . $sCont . $sCloseSection;
+        return $sOpenSection . $sCont . $sCloseSection;
     }
 
     /**
@@ -903,10 +853,24 @@ BLAH;
         $sClassValue = !empty($aParams['class_value']) ? $aParams['class_value'] : '';
 
         $aTmplVarsIcon = [];
-        if(!empty($aInput['icon']))
+        if(!empty($aInput['icon'])) {
+            list ($sIcon, $sIconUrl, $sIconA, $sIconHtml) = BxTemplFunctions::getInstanceWithTemplate($this->oTemplate)->getIcon($aInput['icon']);
+
             $aTmplVarsIcon = [
-                'icon' => $this->genIcon($aInput['icon'])
+                'bx_if:icon' => [
+                    'condition' => (bool)$sIcon,
+                    'content' => ['icon' => $sIcon],
+                ],
+                'bx_if:icon-html' => [
+                    'condition' => (bool)$sIconHtml,
+                    'content' => ['icon' => $sIconHtml],
+                ],
+                'bx_if:image_inline' => [
+                    'condition' => false,
+                    'content' => ['image' => ''],
+                ]
             ];
+        }
 
         return $this->oTemplate->parseHtmlByName('form_view_row.html', [
             'type' => $aInput['type'], 
@@ -1327,13 +1291,7 @@ BLAH;
             case 'hidden':
                 $sInput = $this->genInputStandard($aInput);
             break;
-
-            case 'phone':
-                $aInput['type'] = 'text';
-
-                $sInput = $this->genInputStandard($aInput);
-            break;
-
+            
             case 'password':
             	$sInput = $this->genInputPassword($aInput);
             	break;
@@ -1490,31 +1448,8 @@ BLAH;
     {
         $aAttrs = $this->_genInputStandardAttrs($aInput);
 
-        $aAgent = [];
-        if(!empty($this->_aAgentsFormObject) && isset($aInput['name'])) {
-            foreach($this->_aAgentsFormObject as $a) {
-                if($a['form_object'] == $this->_sAgentFormObject && $a['form_input'] == $aInput['name']) {
-                    $aAgent = $a;
-                    break;
-                }
-            }
-        }
-
-        $sAgentButton = '';
-        if($aInput['type'] == 'text' && !empty($aAgent)) {
-            $sAgentButton = $this->oTemplate->parseHtmlByName('form_field_agent_button.html', [
-                'input' => 'input',
-                'name' => $aInput['name'],
-                'agent_id' => $aAgent['id'] ?? 0,
-                'form_id' => $this->getId(),
-                'html' => $aInput['html'] ?? 0,
-                'popup_text' => $aInput['agent_popup_text'] ?? _t('_sys_agents_agent_form_input_popup_text'),
-            ]);
-        }
-
         return  $this->oTemplate->parseHtmlByName('form_field_standard.html', [
-            'attrs' => bx_convert_array2attrs($aAttrs, "bx-def-font-inputs bx-form-input-{$aInput['type']}"),
-            'agent_button' => $sAgentButton,
+            'attrs' => bx_convert_array2attrs($aAttrs, "bx-def-font-inputs bx-form-input-{$aInput['type']}")
         ]);
     }
 
@@ -1621,16 +1556,8 @@ BLAH;
         if($aInput['type'] == 'submit')
             $sClassAdd .= ' bx-btn-primary';
 
-        $aTmplVarsIcon = [];
-        if(isset($aInput['icon']) && ($sIcon = $this->genIcon($aInput['icon'])))
-            $aTmplVarsIcon = ['icon' => $sIcon];
-
         return $this->oTemplate->parseHtmlByName('form_field_button.html', [
             'attrs' => bx_convert_array2attrs($aAttrs, $sClassAdd),
-            'bx_if:show_icon' => [
-                'condition' => !empty($aTmplVarsIcon),
-                'content' => $aTmplVarsIcon
-            ],
             'value' => $aInput['value']
         ]);
     }
@@ -1661,69 +1588,17 @@ BLAH;
         $aAttrs = $this->_genInputTextareaAttrs($aInput);
 
         $sUniq = genRndPwd(10, false);
+        
         $sClassAdd = "bx-def-font-inputs bx-form-input-{$aInput['type']}";
-
-        $bHtml = $bHtmlEditor = false;
-        if(($bHtmlEditor = ($bHtml = (bool)($aInput['html'] ?? false)) && $this->addHtmlEditor($aInput['html'], $aInput, $sUniq))) {
+        if(isset($aInput['html']) && $aInput['html'] && $this->addHtmlEditor($aInput['html'], $aInput, $sUniq)){
             $sClassAdd .= ' bx-form-input-html ' . $sUniq;
         }
 
-        $bCode = $bCodeEditor = false;
-        if(($bCodeEditor = ($bCode = (bool)($aInput['code'] ?? false)) && $this->addCodeEditor($aInput['code'], $aInput, $sUniq))) {
-            $sClassAdd .= ' bx-form-input-code ' . $sUniq;
-        }
-
-        $aTmplVarsSwitcher = [];
-        if(($aInput['html_toggle'] ?? false) && $bHtmlEditor && ($aHtmlEditor = $this->getHtmlEditorInfo($aInput['html'], $aInput, $sUniq))) {
-            if(($sJsInit = ($aHtmlEditor['js_call_init'] ?? false)) && ($sJsDestroy = ($aHtmlEditor['js_call_destroy'] ?? false))) {
-                $aInputSwitcher = [
-                    'type' => 'switcher',
-                    'name' => $aInput['name'] . '_switcher',
-                    'checked' => true,
-                    'attrs' => [
-                        'onchange' => "if($(this).prop('checked')) " . $sJsInit . "; else " . $sJsDestroy . ";",
-                    ],
-                ];
-                $aTmplVarsSwitcher = [
-                    'class' => 'bx-form-input-' . $aInput['type'] . '-switcher',
-                    'title' => _t('_sys_form_input_textarea_editor'),
-                    'switcher' => $this->genInputSwitcher($aInputSwitcher)
-                ];
-            }
-        }
-
-        $sValue = isset($aInput['value']) ? bx_process_output($bHtml || $bCode ? $aInput['value'] : strip_tags($aInput['value']), BX_DATA_TEXT, ['no_process_macros']) : '';
-
-        $aAgent = [];
-        if(!empty($this->_aAgentsFormObject)) {
-            foreach($this->_aAgentsFormObject as $a) {
-                if($a['form_object'] == $this->_sAgentFormObject && $a['form_input'] == $aInput['name']) {
-                    $aAgent = $a;
-                    break;
-                }
-            }
-        }
-
-        $sAgentButton = '';
-        if(!empty($aAgent)) {
-            $sAgentButton = $this->oTemplate->parseHtmlByName('form_field_agent_button.html', [
-                'input' => 'textarea',
-                'name' => $aInput['name'],
-                'agent_id' => $aAgent['id'] ?? 0,
-                'form_id' => $this->getId(),
-                'html' => $aInput['html'] ?? 0,
-                'popup_text' => $aInput['agent_popup_text'] ?? _t('_sys_agents_agent_form_input_popup_text'),
-            ]);
-        }
+        $sValue = isset($aInput['value']) ? bx_process_output((isset($aInput['html']) && $aInput['html']) || (isset($aInput['code']) && $aInput['code']) ? $aInput['value'] : strip_tags($aInput['value']), BX_DATA_TEXT, array('no_process_macros')) : '';
 
         return $this->oTemplate->parseHtmlByName('form_field_textarea.html', [
             'attrs' => bx_convert_array2attrs($aAttrs, $sClassAdd),
-            'value' => $sValue,
-            'bx_if:show_switcher' => [
-                'condition' => !empty($aTmplVarsSwitcher),
-                'content' => $aTmplVarsSwitcher
-            ],
-            'agent_button' => $sAgentButton,
+            'value' => $sValue
         ]);
     }
 
@@ -1742,41 +1617,16 @@ BLAH;
 
     function isHtmlEditor($iViewMode, &$aInput)
     {
-        return BxDolEditor::getObjectInstance(false, $this->oTemplate) !== false;
+		return BxDolEditor::getObjectInstance(false, $this->oTemplate) !== false;
     }
 
     function addHtmlEditor($iViewMode, &$aInput, $sUniq)
     {
         $oEditor = BxDolEditor::getObjectInstance(false, $this->oTemplate);
-        if(!$oEditor)
+        if (!$oEditor)
             return false;
 
-        $this->_sCodeAdd .= $oEditor->attachEditor ('#' . $this->aFormAttrs['id'] . ' [name=' . $aInput['name'] . ']', $iViewMode, $this->_bDynamicMode, [
-            'form_id' => $this->aFormAttrs['id'], 
-            'element_name' => $aInput['name'], 
-            'query_params' => $this->getHtmlEditorQueryParams($aInput), 
-            'uniq' => $sUniq
-        ]);
-
-        return true;
-    }
-
-    function getHtmlEditorInfo($iViewMode, &$aInput, $sUniq)
-    {
-        $oEditor = BxDolEditor::getObjectInstance(false, $this->oTemplate);
-        if(!$oEditor)
-            return false;
-
-        return $oEditor->getEditorInfo('#' . $this->aFormAttrs['id'] . ' [name=' . $aInput['name'] . ']', $iViewMode, $this->_bDynamicMode, [
-            'form_id' => $this->aFormAttrs['id'], 
-            'element_name' => $aInput['name'], 
-            'uniq' => $sUniq
-        ]);
-    }
-    
-    function addCodeEditor($iViewMode, &$aInput, $sUniq)
-    {
-        $this->addCssJsCodeMirror();
+        $this->_sCodeAdd .= $oEditor->attachEditor ('#' . $this->aFormAttrs['id'] . ' [name=' . $aInput['name'] . ']', $iViewMode, $this->_bDynamicMode, ['form_id' => $this->aFormAttrs['id'], 'element_name' => $aInput['name'], 'query_params' => $this->getHtmlEditorQueryParams($aInput), 'uniq' => $sUniq]);
 
         return true;
     }
@@ -1859,7 +1709,6 @@ BLAH;
             return '';
 
         $sUniqId = !empty($aInput['uploaders_id']) ? $aInput['uploaders_id'] : genRndPwd (8, false);
-        $bMultiple = $aInput['multiple'] ?? true;
         $bInitGhosts = isset($aInput['init_ghosts']) && !$aInput['init_ghosts'] ? 0 : 1;
         $bInitReordering = empty($aInput['init_reordering']) ? 0 : 1;
 
@@ -1869,8 +1718,6 @@ BLAH;
             $oUploader = BxDolUploader::getObjectInstance($sUploaderObject, $aInput['storage_object'], $sUniqId, $this->oTemplate);
             if(!$oUploader)
                 continue;
-
-            $oUploader->setMultiple($bMultiple);
 
             //--- Get Button code.
             $aAttrs = !empty($aInput['attrs']) ? $aInput['attrs'] : array();
@@ -1901,7 +1748,7 @@ BLAH;
             if(isset($aInput['images_transcoder']) && $aInput['images_transcoder'])
                 $aParamsJs['images_transcoder'] = bx_js_string($aInput['images_transcoder']);
 
-            $sUploadersJs .= $oUploader->getUploaderJs($sGhostTemplate, $bMultiple, $aParamsJs, $this->_bDynamicMode);
+            $sUploadersJs .= $oUploader->getUploaderJs($sGhostTemplate, isset($aInput['multiple']) ? $aInput['multiple'] : true, $aParamsJs, $this->_bDynamicMode);
         }
 
         if(!$oUploader)
@@ -2551,29 +2398,6 @@ BLAH;
         ]);
     }
 
-    function genIcon($sIcon)
-    {
-        if(!$sIcon)
-            return '';
-
-        list ($sIcon, $sIconUrl, $sIconA, $sIconHtml) = BxTemplFunctions::getInstanceWithTemplate($this->oTemplate)->getIcon($sIcon);
-
-        return $this->oTemplate->parseHtmlByName('form_input_icon.html', [
-            'bx_if:icon' => [
-                'condition' => (bool)$sIcon,
-                'content' => ['icon' => $sIcon],
-            ],
-            'bx_if:icon-html' => [
-                'condition' => (bool)$sIconHtml,
-                'content' => ['icon' => $sIconHtml],
-            ],
-            'bx_if:image_inline' => [
-                'condition' => false,
-                'content' => ['image' => ''],
-            ]
-        ]);
-    }
-
     function genInfoIcon($sInfo)
     {
         return '<div class="bx-form-info bx-def-font-grayed bx-def-font-small mt-1">' . bx_process_output($sInfo, BX_DATA_HTML) . '</div>';
@@ -2721,17 +2545,6 @@ BLAH;
         $this->_addJs('jquery-minicolors/jquery.minicolors.min.js', "'undefined' === typeof($.minicolors)");
 
         self::$_isCssJsMinicolorsAdded = true;
-    }
-
-    function addCssJsCodeMirror ()
-    {
-        if (self::$_isCssJsCodeMirrorAdded)
-            return;       
-
-        $this->_addCss([BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'codemirror/|codemirror.css']);
-        $this->_addJs(['codemirror/codemirror-ext.min.js'], "'undefined' === typeof(CodeMirror)");
-
-        self::$_isCssJsCodeMirrorAdded = true;
     }
 
     function addCssJsViewMode ()

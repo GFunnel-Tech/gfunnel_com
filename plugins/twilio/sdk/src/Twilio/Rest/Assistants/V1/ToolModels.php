@@ -89,22 +89,13 @@ class AssistantsV1ServiceCreatePolicyRequest implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
-            'policy_details' => $this->policyDetails
+        return [
+            'description' => $this->description,
+            'id' => $this->id,
+            'name' => $this->name,
+            'policy_details' => $this->policyDetails,
+            'type' => $this->type
         ];
-        if (isset($this->description)) {
-            $jsonString['description'] = $this->description;
-        }
-        if (isset($this->id)) {
-            $jsonString['id'] = $this->id;
-        }
-        if (isset($this->name)) {
-            $jsonString['name'] = $this->name;
-        }
-        if (isset($this->type)) {
-            $jsonString['type'] = $this->type;
-        }
-        return $jsonString;
     }
 }
 
@@ -143,24 +134,15 @@ class AssistantsV1ServiceCreateToolRequest implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
+            'assistant_id' => $this->assistantId,
+            'description' => $this->description,
             'enabled' => $this->enabled,
+            'meta' => $this->meta,
             'name' => $this->name,
+            'policy' => $this->policy,
             'type' => $this->type
         ];
-        if (isset($this->assistantId)) {
-            $jsonString['assistant_id'] = $this->assistantId;
-        }
-        if (isset($this->description)) {
-            $jsonString['description'] = $this->description;
-        }
-        if (isset($this->meta)) {
-            $jsonString['meta'] = $this->meta;
-        }
-        if (isset($this->policy)) {
-            $jsonString['policy'] = $this->policy;
-        }
-        return $jsonString;
     }
 }
 
@@ -199,30 +181,15 @@ class AssistantsV1ServiceUpdateToolRequest implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
+            'assistant_id' => $this->assistantId,
+            'description' => $this->description,
+            'enabled' => $this->enabled,
+            'meta' => $this->meta,
+            'name' => $this->name,
+            'policy' => $this->policy,
+            'type' => $this->type
         ];
-        if (isset($this->assistantId)) {
-            $jsonString['assistant_id'] = $this->assistantId;
-        }
-        if (isset($this->description)) {
-            $jsonString['description'] = $this->description;
-        }
-        if (isset($this->enabled)) {
-            $jsonString['enabled'] = $this->enabled;
-        }
-        if (isset($this->meta)) {
-            $jsonString['meta'] = $this->meta;
-        }
-        if (isset($this->name)) {
-            $jsonString['name'] = $this->name;
-        }
-        if (isset($this->policy)) {
-            $jsonString['policy'] = $this->policy;
-        }
-        if (isset($this->type)) {
-            $jsonString['type'] = $this->type;
-        }
-        return $jsonString;
     }
 }
 

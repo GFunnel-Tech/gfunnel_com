@@ -43,7 +43,6 @@ class DayPage extends Page
         return new DayInstance($this->version, $payload, $this->solution['resourceType']);
     }
 
-
     /**
      * Provide a friendly representation
      *

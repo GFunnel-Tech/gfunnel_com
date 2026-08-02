@@ -43,7 +43,6 @@ class ConferencePage extends Page
         return new ConferenceInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

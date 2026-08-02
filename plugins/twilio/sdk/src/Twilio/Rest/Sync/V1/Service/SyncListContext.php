@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Rest\Sync\V1\Service\SyncList\SyncListPermissionList;
 use Twilio\Rest\Sync\V1\Service\SyncList\SyncListItemList;
 
@@ -68,129 +66,50 @@ class SyncListContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the SyncListInstance
      *
-     
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the SyncListInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the SyncListInstance
      *
-     
-     
      * @return SyncListInstance Fetched SyncListInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): SyncListInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new SyncListInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid'],
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the SyncListInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new SyncListInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the SyncListInstance
      *
-     
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return SyncListInstance Updated SyncListInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): SyncListInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -200,54 +119,14 @@ class SyncListContext extends InstanceContext
                 $options['collectionTtl'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the SyncListInstance
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return SyncListInstance Updated SyncListInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): SyncListInstance
-    {
-        $response = $this->_update($options);
         return new SyncListInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the SyncListInstance with Metadata
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new SyncListInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

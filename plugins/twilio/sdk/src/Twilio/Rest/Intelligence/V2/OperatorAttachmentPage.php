@@ -43,7 +43,6 @@ class OperatorAttachmentPage extends Page
         return new OperatorAttachmentInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

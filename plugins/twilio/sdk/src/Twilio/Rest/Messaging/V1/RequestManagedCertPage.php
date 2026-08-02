@@ -43,7 +43,6 @@ class RequestManagedCertPage extends Page
         return new RequestManagedCertInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

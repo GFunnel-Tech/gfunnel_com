@@ -43,7 +43,6 @@ class EntityPage extends Page
         return new EntityInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -43,7 +43,6 @@ class MediaPage extends Page
         return new MediaInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['messageSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

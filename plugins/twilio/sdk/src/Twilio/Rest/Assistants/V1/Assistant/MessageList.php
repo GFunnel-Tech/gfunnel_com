@@ -20,8 +20,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class MessageList extends ListResource
@@ -44,69 +42,30 @@ class MessageList extends ListResource
             $id,
         
         ];
+
         $this->uri = '/Assistants/' . \rawurlencode($id)
         .'/Messages';
     }
 
     /**
-     * Helper function for Create
-     *
-     
-     * @param AssistantsV1ServiceAssistantSendMessageRequest $assistantsV1ServiceAssistantSendMessageRequest
-     
-     * @return Response Created Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _create(AssistantsV1ServiceAssistantSendMessageRequest $assistantsV1ServiceAssistantSendMessageRequest): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/json', 'Accept' => 'application/json' ]);
-        $data = $assistantsV1ServiceAssistantSendMessageRequest->toArray();
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
-
-    /**
      * Create the MessageInstance
      *
-     
      * @param AssistantsV1ServiceAssistantSendMessageRequest $assistantsV1ServiceAssistantSendMessageRequest
-     
      * @return MessageInstance Created MessageInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function create(AssistantsV1ServiceAssistantSendMessageRequest $assistantsV1ServiceAssistantSendMessageRequest): MessageInstance
     {
-        $response = $this->_create( $assistantsV1ServiceAssistantSendMessageRequest);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $data = $assistantsV1ServiceAssistantSendMessageRequest->toArray();
+        $headers['Content-Type'] = 'application/json';
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
+
         return new MessageInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['id']
-        );
-        
-    }
-
-    /**
-     * Create the MessageInstance with Metadata
-     *
-     
-     * @param AssistantsV1ServiceAssistantSendMessageRequest $assistantsV1ServiceAssistantSendMessageRequest
-     
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(AssistantsV1ServiceAssistantSendMessageRequest $assistantsV1ServiceAssistantSendMessageRequest): ResourceMetadata
-    {
-        $response = $this->_create( $assistantsV1ServiceAssistantSendMessageRequest);
-        $resource = new MessageInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['id']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

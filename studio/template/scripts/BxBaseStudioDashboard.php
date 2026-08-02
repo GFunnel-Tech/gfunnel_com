@@ -10,12 +10,12 @@
 
 class BxBaseStudioDashboard extends BxDolStudioDashboard
 {
-    public function __construct()
+    function __construct()
     {
         parent::__construct();
     }
 
-    public function getPageCss()
+    function getPageCss()
     {
         return array_merge(parent::getPageCss(), array(
             'page_layouts.css', 
@@ -23,7 +23,7 @@ class BxBaseStudioDashboard extends BxDolStudioDashboard
         ));
     }
 
-    public function getPageJs()
+    function getPageJs()
     {
         return array_merge(parent::getPageJs(), array(
             'jquery.anim.js',
@@ -31,22 +31,17 @@ class BxBaseStudioDashboard extends BxDolStudioDashboard
         ));
     }
 
-    public function getPageJsClass()
+    function getPageJsClass()
     {
         return 'BxDolStudioDashboard';
     }
 
-    public function getPageJsObject()
+    function getPageJsObject()
     {
         return 'oBxDolStudioDashboard';
     }
 
-    public function getPageCaption()
-    {
-        return parent::getPageCaption() . $this->getPageJsCode();
-    }
-
-    public function getPageJsCode($aOptions = array(), $bWrap = true)
+    function getPageJsCode($aOptions = array(), $bWrap = true)
     {
     	$sContent = BxDolStudioTemplate::getInstance()->_wrapInTagJs('https://www.google.com/jsapi');
 
@@ -59,7 +54,7 @@ class BxBaseStudioDashboard extends BxDolStudioDashboard
         return $sContent;
     }
 
-    public function getPageCode($sPage = '', $bWrap = true)
+    function getPageCode($sPage = '', $bWrap = true)
     {
         $sResult = parent::getPageCode($sPage, $bWrap);
         if($sResult === false)
@@ -187,119 +182,119 @@ class BxBaseStudioDashboard extends BxDolStudioDashboard
         return array('content' => $sContent);
     }
 
-    public function serviceGetBlockHostTools($bDynamic = false)
-    {
-        $sJsObject = $this->getPageJsObject();
+	public function serviceGetBlockHostTools($bDynamic = false)
+	{
+            $sJsObject = $this->getPageJsObject();
 
-        $oTemplate = BxDolStudioTemplate::getInstance();
-        $oAudit = new BxDolStudioToolsAudit();
-
-        $aTmplVarsItems = [];
-        if($bDynamic) {
-            $oFunc = BxTemplStudioFunctions::getInstance();
-
-            $aLevels = [BX_DOL_AUDIT_FAIL, BX_DOL_AUDIT_WARN, BX_DOL_AUDIT_UNDEF];
-            $aIcons = [
-                'fail' => 'db-ht-fail.svg',
-                'warn' => 'db-ht-warn.svg',
-                'undef' => 'db-ht-undef.svg',
-                'ok' => 'db-ht-ok.svg'
-            ];
+            $oTemplate = BxDolStudioTemplate::getInstance();
+            $oAudit = new BxDolStudioToolsAudit();
 
             $aTmplVarsItems = [];
-            foreach ($this->aItemsHTools as $sTitle => $sFunc) {
-                $sStatus = BX_DOL_AUDIT_OK;
-                foreach ($aLevels as $sLevel) { 
-                    $a = $oAudit->checkRequirements($sLevel, $sFunc);
-                    if (!empty($a)) {
-                        $sStatus = $sLevel;
-                        break;
-                    }
-                }
+            if($bDynamic) {
+                $oFunc = BxTemplStudioFunctions::getInstance();
 
-                $aTmplVarsItems[] = [
-                    'icon' => $oTemplate->getIconUrl($aIcons[$sStatus]),
-                    'title' => $sTitle,
-                    'value' => $oAudit->typeToTitle($sStatus)
+                $aLevels = [BX_DOL_AUDIT_FAIL, BX_DOL_AUDIT_WARN, BX_DOL_AUDIT_UNDEF];
+                $aIcons = [
+                    'fail' => 'db-ht-fail.svg',
+                    'warn' => 'db-ht-warn.svg',
+                    'undef' => 'db-ht-undef.svg',
+                    'ok' => 'db-ht-ok.svg'
+                ];
+
+                $aTmplVarsItems = [];
+                foreach ($this->aItemsHTools as $sTitle => $sFunc) {
+                    $sStatus = BX_DOL_AUDIT_OK;
+                    foreach ($aLevels as $sLevel) { 
+                        $a = $oAudit->checkRequirements($sLevel, $sFunc);
+                        if (!empty($a)) {
+                            $sStatus = $sLevel;
+                            break;
+                        }
+                    }
+
+                    $aTmplVarsItems[] = [
+                        'icon' => $oTemplate->getIconUrl($aIcons[$sStatus]),
+                        'title' => $sTitle,
+                        'value' => $oAudit->typeToTitle($sStatus)
+                    ];
+                }
+            }
+
+            $sContent = $oTemplate->parseHtmlByName('dbd_htools.html', [
+                'js_object' => $sJsObject,
+                'bx_if:show_content' => [
+                    'condition' => $bDynamic,
+                    'content' => [
+                        'bx_repeat:items' => $aTmplVarsItems,
+                    ]
+                ],
+                'bx_if:show_loader' => [
+                    'condition' => !$bDynamic,
+                    'content' => [
+                        'js_object' => $sJsObject,
+                    ]
+                ]
+            ]);
+
+            return ['content' => $sContent];
+	}
+
+	public function serviceGetBlockCache()
+	{
+            $sJsObject = $this->getPageJsObject();
+            $oCacheUtilities = BxDolCacheUtilities::getInstance();
+
+            $sChartData = $this->getCacheChartData();
+            $bChartData = $sChartData !== false;
+
+            $aMenu = [];
+            foreach($this->aItemsCache as $aItem){
+                if($aItem['name'] == 'all' || !$oCacheUtilities->isEnabled($aItem['name']))
+                    continue;
+
+                $aMenu[] = [
+                    'name' => $aItem['name'], 
+                    'title' => _t('_adm_dbd_txt_c_clear_' . $aItem['name']), 
+                    'link' => 'javascript:void(0)', 
+                    'onclick' => $sJsObject . ".clearCache('" . $aItem['name'] . "')"
                 ];
             }
-        }
 
-        $sContent = $oTemplate->parseHtmlByName('dbd_htools.html', [
-            'js_object' => $sJsObject,
-            'bx_if:show_content' => [
-                'condition' => $bDynamic,
-                'content' => [
-                    'bx_repeat:items' => $aTmplVarsItems,
-                ]
-            ],
-            'bx_if:show_loader' => [
-                'condition' => !$bDynamic,
-                'content' => [
-                    'js_object' => $sJsObject,
-                ]
-            ]
-        ]);
+            $sMenuCode = '';
+            if(!empty($aMenu)) {
+                $sMenu = 'bx-std-cc-select-';
+                $oMenu = new BxTemplMenuInteractive(['template' => 'menu_vertical.html', 'menu_id' => $sMenu . 'menu', 'menu_items' => $aMenu]);
 
-        return ['content' => $sContent];
-    }
+                $sMenuCode = BxTemplStudioFunctions::getInstance()->transBox($sMenu . 'popup', $oMenu->getCode(), true);
+            }
 
-    public function serviceGetBlockCache()
-    {
-        $sJsObject = $this->getPageJsObject();
-        $oCacheUtilities = BxDolCacheUtilities::getInstance();
+            $sContent = BxDolStudioTemplate::getInstance()->parseHtmlByName('dbd_cache.html', [
+                'bx_if:show_chart' => [
+                    'condition' => $bChartData,
+                    'content' => [
+                        'js_object' => $sJsObject,
+                        'chart_data' => $sChartData,
+                    ]
+                ],
+                'bx_if:show_empty' => [
+                    'condition' => !$bChartData,
+                    'content' => [
+                        'message' => MsgBox(_t('_adm_dbd_msg_c_all_disabled'))
+                    ]
+                ],
+                'bx_if:show_actions' => [
+                    'condition' => !empty($sMenuCode),
+                    'content' => [
+                        'js_object' => $sJsObject,
+                        'menu' => $sMenuCode
+                    ]
+                ],
+            ]);
 
-        $sChartData = $this->getCacheChartData();
-        $bChartData = $sChartData !== false;
+            return ['content' => $sContent];
+	}
 
-        $aMenu = [];
-        foreach($this->aItemsCache as $aItem){
-            if($aItem['name'] == 'all' || !$oCacheUtilities->isEnabled($aItem['name']))
-                continue;
-
-            $aMenu[] = [
-                'name' => $aItem['name'], 
-                'title' => _t('_adm_dbd_txt_c_clear_' . $aItem['name']), 
-                'link' => 'javascript:void(0)', 
-                'onclick' => $sJsObject . ".clearCache('" . $aItem['name'] . "')"
-            ];
-        }
-
-        $sMenuCode = '';
-        if(!empty($aMenu)) {
-            $sMenu = 'bx-std-cc-select-';
-            $oMenu = new BxTemplMenuInteractive(['template' => 'menu_vertical.html', 'menu_id' => $sMenu . 'menu', 'menu_items' => $aMenu]);
-
-            $sMenuCode = BxTemplStudioFunctions::getInstance()->transBox($sMenu . 'popup', $oMenu->getCode(), true);
-        }
-
-        $sContent = BxDolStudioTemplate::getInstance()->parseHtmlByName('dbd_cache.html', [
-            'bx_if:show_chart' => [
-                'condition' => $bChartData,
-                'content' => [
-                    'js_object' => $sJsObject,
-                    'chart_data' => $sChartData,
-                ]
-            ],
-            'bx_if:show_empty' => [
-                'condition' => !$bChartData,
-                'content' => [
-                    'message' => MsgBox(_t('_adm_dbd_msg_c_all_disabled'))
-                ]
-            ],
-            'bx_if:show_actions' => [
-                'condition' => !empty($sMenuCode),
-                'content' => [
-                    'js_object' => $sJsObject,
-                    'menu' => $sMenuCode
-                ]
-            ],
-        ]);
-
-        return ['content' => $sContent];
-    }
-
-    public function serviceGetBlockQueues()
+	public function serviceGetBlockQueues()
     {
         $o = BxDolGrid::getObjectInstance('sys_queues', BxDolStudioTemplate::getInstance());
         return $o->getCode();
@@ -307,13 +302,13 @@ class BxBaseStudioDashboard extends BxDolStudioDashboard
 
     private function getVersionUpgradeAvailable()
     {
-        $oUpgrader = bx_instance('BxDolUpgrader'); 
-        $aUpdateInfo = $oUpgrader->getVersionUpdateInfo();
+    	$oUpgrader = bx_instance('BxDolUpgrader'); 
+    	$aUpdateInfo = $oUpgrader->getVersionUpdateInfo();
 
-        $mixedVersion = $oUpgrader->isNewVersionAvailable($aUpdateInfo) ? $aUpdateInfo['latest_version'] : false;
-        $bUpgrade = $oUpgrader->isUpgradeAvailable($aUpdateInfo);
+    	$mixedVersion = $oUpgrader->isNewVersionAvailable($aUpdateInfo) ? $aUpdateInfo['latest_version'] : false;
+    	$bUpgrade = $oUpgrader->isUpgradeAvailable($aUpdateInfo);
 
-        return array($mixedVersion, $bUpgrade);
+    	return array($mixedVersion, $bUpgrade);
     }
 }
 

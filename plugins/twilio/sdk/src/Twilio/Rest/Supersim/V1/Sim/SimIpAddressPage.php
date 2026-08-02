@@ -43,7 +43,6 @@ class SimIpAddressPage extends Page
         return new SimIpAddressInstance($this->version, $payload, $this->solution['simSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

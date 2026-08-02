@@ -12,20 +12,12 @@
 class BxBaseModGeneralAlertsResponse extends BxDolAlertsResponse
 {
     protected $MODULE;
-    private $_oModuleHidden = null;
+    protected $_oModule;
 
-    public function __get($sName) {
-        if ($sName === '_oModule') {
-            return $this->_oModuleHidden ??= BxDolModule::getInstance($this->MODULE);
-        }
-        throw new \Exception("Unknown property: $sName");
-    }
-
-    public function __set($sName, $o) {
-        if ($sName === '_oModule') {
-            $this->_oModuleHidden = $o;
-        }
-        throw new \Exception("Unknown property: $sName");
+    public function __construct()
+    {
+        parent::__construct();
+        $this->_oModule = BxDolModule::getInstance($this->MODULE);
     }
 
     public function response($oAlert)

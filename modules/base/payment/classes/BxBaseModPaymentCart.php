@@ -255,7 +255,7 @@ class BxBaseModPaymentCart extends BxDol
     {                            
         $aCart = $this->_oModule->_oDb->getCartContent($iUserId);
         if(empty($aCart['items']))
-            return [];
+            return array();
 
         $aCartItems = $this->_oModule->_oConfig->descriptorsM2A($aCart['items']);
         if($this->_bSingleSeller)
@@ -266,7 +266,8 @@ class BxBaseModPaymentCart extends BxDol
         if(empty($aCart['customs']))
             return $aResult;
 
-        $aCartCustoms = $aCart['customs'];
+        $aCartCustoms = unserialize($aCart['customs']);
+
         foreach($aResult as $iVendor => $aItems)
             foreach($aItems as $iIndex => $aItem)
                 $aResult[$iVendor][$iIndex]['custom'] = $this->_oModule->_oConfig->pullCustom($aItem, $aCartCustoms);
@@ -278,13 +279,14 @@ class BxBaseModPaymentCart extends BxDol
     {
         $aCart = $this->_oModule->_oDb->getCartContent($iUserId);
         if(empty($aCart['items']))
-            return [];
+            return array();
 
         $aResult = $this->_reparseBy($this->_oModule->_oConfig->descriptorsM2A($aCart['items']), 'module_id');
         if(empty($aCart['customs']))
             return $aResult;
 
-        $aCartCustoms = $aCart['customs'];
+        $aCartCustoms = unserialize($aCart['customs']);
+
         foreach($aResult as $iModule => $aItems)
             foreach($aItems as $iIndex => $aItem)
                 $aResult[$iModule][$iIndex]['custom'] = $this->_oModule->_oConfig->pullCustom($aItem, $aCartCustoms);

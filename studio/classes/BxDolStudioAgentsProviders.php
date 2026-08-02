@@ -9,7 +9,7 @@
 
 require_once(BX_DOL_DIR_STUDIO_INC . 'utils.inc.php');
 
-class BxDolStudioAgentsProviders extends BxTemplStudioGridAgents
+class BxDolStudioAgentsProviders extends BxTemplStudioGrid
 {
     protected $_oDb;
 

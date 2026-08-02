@@ -43,7 +43,6 @@ class StepContextPage extends Page
         return new StepContextInstance($this->version, $payload, $this->solution['flowSid'], $this->solution['engagementSid'], $this->solution['stepSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

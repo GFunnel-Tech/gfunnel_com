@@ -14,10 +14,13 @@
 
 div.bx-std-page-columns-cnt {
     position: relative;
+    display: -webkit-flex;
     display: flex;
+    -webkit-align-items: stretch;
     align-items: stretch;
-
-    padding: 4.5rem 0.5rem 0.5rem 0.5rem;
+/*
+    height: calc(100vh - 5rem);
+    */
 }
 
 /*--- Page Menu ---*/
@@ -41,7 +44,7 @@ div.bx-std-page-column.bx-std-page-menu div.bx-std-page-column-cnt {
     position: -webkit-sticky;
     position: sticky;
     top: 0;
-    padding-top: 0.5rem;
+    padding-top: 5rem;
 }
 
 /*--- Page Content ---*/
@@ -61,5 +64,5 @@ div.bx-std-page-column.bx-std-page-content::-webkit-scrollbar {
 div.bx-std-page-column.bx-std-page-content div.bx-std-page-column-cnt {
     width: 100%;
     height: max-content;
-    padding-left: 0.5rem;
+    padding: 5.0rem 1.0rem  1.0rem  1.0rem;
 }

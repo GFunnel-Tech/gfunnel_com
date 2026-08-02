@@ -43,7 +43,6 @@ class DependentPhoneNumberPage extends Page
         return new DependentPhoneNumberInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['addressSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

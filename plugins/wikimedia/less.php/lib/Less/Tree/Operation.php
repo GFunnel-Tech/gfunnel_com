@@ -5,17 +5,12 @@
  */
 class Less_Tree_Operation extends Less_Tree {
 
-	/** @var string */
 	public $op;
-	/** @var Less_Tree[] */
 	public $operands;
-	/** @var bool */
 	public $isSpaced;
 
 	/**
 	 * @param string $op
-	 * @param Less_Tree[] $operands
-	 * @param bool $isSpaced
 	 */
 	public function __construct( $op, $operands, $isSpaced = false ) {
 		$this->op = trim( $op );

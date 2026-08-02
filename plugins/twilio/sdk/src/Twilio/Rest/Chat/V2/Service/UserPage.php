@@ -43,7 +43,6 @@ class UserPage extends Page
         return new UserInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

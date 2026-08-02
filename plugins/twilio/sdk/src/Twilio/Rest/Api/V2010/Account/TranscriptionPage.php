@@ -43,7 +43,6 @@ class TranscriptionPage extends Page
         return new TranscriptionInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

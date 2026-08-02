@@ -43,7 +43,6 @@ class WebhookPage extends Page
         return new WebhookInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

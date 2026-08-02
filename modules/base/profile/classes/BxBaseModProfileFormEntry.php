@@ -59,43 +59,6 @@ class BxBaseModProfileFormEntry extends BxBaseModGeneralFormEntry
             );
         }
 
-        if (($sKey = 'FIELD_BADGE') && !empty($CNF[$sKey]) && isset($this->aInputs[$CNF[$sKey]])) {
-            $this->_aImageFields[$CNF[$sKey]] = [
-                'storage_object' => $CNF['OBJECT_STORAGE_BADGE'],
-                'images_transcoder' => $CNF['OBJECT_IMAGES_TRANSCODER_BADGE'],
-                'uploaders' => $CNF['OBJECT_UPLOADERS_BADGE'],
-            ];
-        }
-
-        if (($sKey = 'FIELD_BADGE_LINK_SELECT') && !empty($CNF[$sKey]) && isset($this->aInputs[$CNF[$sKey]])) {
-            $oProfile = BxDolProfile::getInstance();
-            $iProfile = $oProfile->id();
-
-            $aValues = [
-                ['key' => '', 'value' => _t('_sys_please_select')]
-            ];
-
-            $aContexts = bx_srv('system', 'get_modules_by_type', ['context']);
-            foreach($aContexts as $aContext) {
-                $aCpIds = bx_srv($aContext['name'], 'get_participating_profiles', [$iProfile]);
-                foreach($aCpIds as $iCpId)
-                    if(($sCpLink = $oProfile->getUrl($iCpId)) && ($sCpName = $oProfile->getDisplayName($iCpId)))
-                        $aValues[] = [
-                            'key' => $sCpLink, 
-                            'value' => $sCpName
-                        ];
-            }
-
-            $this->aInputs[$CNF[$sKey]] = array_merge($this->aInputs[$CNF[$sKey]], [
-                'values' => $aValues
-            ]);
-        }
-
-        if (($sKey = 'FIELD_BADGE_LINK_CUSTOM') && !empty($CNF[$sKey]) && isset($this->aInputs[$CNF[$sKey]])) {
-            if(!empty($this->aInputs[$CNF[$sKey]]['attrs']['placeholder']))
-                $this->aInputs[$CNF[$sKey]]['attrs']['placeholder'] = _t($this->aInputs[$CNF[$sKey]]['attrs']['placeholder']);
-        }
-
         foreach ($this->_aImageFields as $sField => $aParams) {
             $this->aInputs[$sField]['storage_object'] = $aParams['storage_object'];
             $this->aInputs[$sField]['uploaders'] = !empty($this->aInputs[$sField]['value']) ? unserialize($this->aInputs[$sField]['value']) : $aParams['uploaders'];
@@ -106,9 +69,6 @@ class BxBaseModProfileFormEntry extends BxBaseModGeneralFormEntry
             $this->aInputs[$sField]['content_id'] = 0;
             $this->aInputs[$sField]['ghost_template'] = '';
         }
-
-        if(($sField = 'friends_count') && isset($this->aInputs[$sField]) && !$this->_oModule->_oConfig->isFriends())
-            unset($this->aInputs[$sField]);
 
         $oAccountProfile = BxDolProfile::getInstanceAccountProfile();
         if ($oAccountProfile)
@@ -143,22 +103,6 @@ class BxBaseModProfileFormEntry extends BxBaseModGeneralFormEntry
 
         if(($sField = 'FIELD_STG_TABS') && !empty($CNF[$sField]) && !empty($this->aInputs[$CNF[$sField]]) && is_array($this->aInputs[$CNF[$sField]]) && ($sValue = $this->aInputs[$CNF[$sField]]['value']))
             $this->aInputs[$CNF[$sField]]['value'] = !is_array($sValue) ? explode(',', $sValue) : [];
-
-        if(($sDisplay = 'OBJECT_FORM_ENTRY_DISPLAY_EDIT_BADGE') && !empty($CNF[$sDisplay]) && $this->aParams['display'] == $CNF[$sDisplay]) {
-            $sBadgeLink = $aContentInfo[$CNF['FIELD_BADGE_LINK']] ?? '';
-
-            $bFilledIn = false;
-            if(($sKey = 'FIELD_BADGE_LINK_SELECT') && !empty($CNF[$sKey]) && isset($this->aInputs[$CNF[$sKey]]))
-                foreach($this->aInputs[$CNF[$sKey]]['values'] as $aValue)
-                    if($aValue['key'] == $sBadgeLink) {
-                        $this->aInputs[$CNF[$sKey]]['value'] = $sBadgeLink;
-                        $bFilledIn = true;
-                        break;
-                    }
-    
-            if(!$bFilledIn && ($sKey = 'FIELD_BADGE_LINK_CUSTOM') && !empty($CNF[$sKey]) && isset($this->aInputs[$CNF[$sKey]]))
-                $this->aInputs[$CNF[$sKey]]['value'] = $sBadgeLink;
-        }
     }
 
     function update ($iContentId, $aValsToAdd = array(), &$aTrackTextFieldsChanges = null)
@@ -169,10 +113,6 @@ class BxBaseModProfileFormEntry extends BxBaseModGeneralFormEntry
             $mixedValue = $this->getCleanValue($CNF[$sField]);
             if(is_array($mixedValue))
                 self::setSubmittedValue($CNF[$sField], implode(',', $mixedValue), $this->aFormAttrs['method']);
-        }
-
-        if((($sFldS = 'FIELD_BADGE_LINK_SELECT') && !empty($CNF[$sFldS]) && ($sValS = $this->getCleanValue($CNF[$sFldS]))) || (($sFldC = 'FIELD_BADGE_LINK_CUSTOM') && !empty($CNF[$sFldC]) && ($sValC = $this->getCleanValue($CNF[$sFldC])))) {
-            $aValsToAdd[$CNF['FIELD_BADGE_LINK']] = $sValS ?: ($sValC ?: '');
         }
 
         return parent::update($iContentId, $aValsToAdd, $aTrackTextFieldsChanges);
@@ -198,31 +138,6 @@ class BxBaseModProfileFormEntry extends BxBaseModGeneralFormEntry
         return parent::delete($iContentId, $aContentInfo);
     }
 
-    public function processFilesFlagsApi ($sFieldFile, $iContentId)
-    {
-        if(!isset($this->aInputs[$sFieldFile]) || ($this->aInputs[$sFieldFile]['multiple'] ?? true))
-            return false;
-        
-        $aContentInfo = $this->_oModule->_oDb->getEntriesBy(['type' => 'id', 'id' => $iContentId]);
-        if(empty($aContentInfo) || !is_array($aContentInfo) || !isset($aContentInfo[$sFieldFile]))
-            return false;
-
-        $iFileId = 0;
-        if(($mixedFileIds = $this->getCleanValue($sFieldFile)) === '')
-            $iFileId = 0;
-        else if(is_array($mixedFileIds))
-            $iFileId = (int)reset($mixedFileIds);
-        else
-            return false;
-
-        if($iFileId == $aContentInfo[$sFieldFile] || !$this->_oModule->_oDb->updateContentPictureById($iContentId, 0, $iFileId, $sFieldFile))
-            return false;
-
-        $this->_processTrackFields($iContentId);
-
-        return true;
-    }
-
     protected function genCustomViewRowValueProfileEmail($aInput)
     {
         return $this->genCustomViewRowValueProfileEmailOrIp($aInput);
@@ -235,38 +150,38 @@ class BxBaseModProfileFormEntry extends BxBaseModGeneralFormEntry
     
     protected function genCustomViewRowValueFriendsCount($aInput)
     {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        if(!isset($CNF['URI_VIEW_FRIENDS']))
-            return '';
-
-        if(($oProfile = $this->_oModule->getProfileByCurrentUrl()) !== false)
-            return $this->_oModule->_oTemplate->parseHtmlByName('name_link.html', [
-                'href' => bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_FRIENDS'] . '&profile_id=' . $oProfile->id())),
-                'title' => '',
-                'content' => BxDolConnection::getObjectInstance('sys_profiles_friends')->getConnectedContentCount($oProfile->id(), true)
-            ]);
-
+        if (isset($this->_oModule->_oConfig->CNF['URI_VIEW_FRIENDS'])){
+            $oProfile = $this->_oModule->getProfileByCurrentUrl();
+            if ($oProfile){
+                $oConnection = BxDolConnection::getObjectInstance('sys_profiles_friends');
+                $iCount = $oConnection->getConnectedContentCount($oProfile->id(), true);
+                return $this->_oModule->_oTemplate->parseHtmlByName('name_link.html', array(
+                    'href' => bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $this->_oModule->_oConfig->CNF['URI_VIEW_FRIENDS'] . '&profile_id=' . $oProfile->id())),
+                    'title' => '',
+                    'content' => $iCount
+                ));
+            }
+        }
         return '';
     }
-
+    
     protected function genCustomViewRowValueFollowersCount($aInput)
     {
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        if(!isset($CNF['URI_VIEW_SUBSCRIPTIONS']))
-            return '';
-
-        if(($oProfile = $this->_oModule->getProfileByCurrentUrl()) !== false)
-            return $this->_oModule->_oTemplate->parseHtmlByName('name_link.html', array(
-                'href' => bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_SUBSCRIPTIONS'] . '&profile_id=' . $oProfile->id())),
-                'title' => '',
-                'content' => BxDolConnection::getObjectInstance('sys_profiles_subscriptions')->getConnectedInitiatorsCount($oProfile->id())
-            ));
-
+        if (isset($this->_oModule->_oConfig->CNF['URI_VIEW_SUBSCRIPTIONS'])){
+            $oProfile = $this->_oModule->getProfileByCurrentUrl();
+            if ($oProfile){
+                $oConnectionFollow = BxDolConnection::getObjectInstance('sys_profiles_subscriptions');
+                $iCount = $oConnectionFollow->getConnectedInitiatorsCount($oProfile->id());
+                return $this->_oModule->_oTemplate->parseHtmlByName('name_link.html', array(
+                    'href' => bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $this->_oModule->_oConfig->CNF['URI_VIEW_SUBSCRIPTIONS'] . '&profile_id=' . $oProfile->id())),
+                    'title' => '',
+                    'content' => $iCount
+                ));
+            }
+        }
         return '';
     }
-
+    
     private function genCustomViewRowValueProfileEmailOrIp($aInput)
     {
         $CNF = &$this->_oModule->_oConfig->CNF;

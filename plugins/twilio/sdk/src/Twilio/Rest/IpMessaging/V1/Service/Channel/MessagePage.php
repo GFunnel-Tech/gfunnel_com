@@ -43,7 +43,6 @@ class MessagePage extends Page
         return new MessageInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['channelSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

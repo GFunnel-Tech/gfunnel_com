@@ -43,7 +43,6 @@ class FleetPage extends Page
         return new FleetInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

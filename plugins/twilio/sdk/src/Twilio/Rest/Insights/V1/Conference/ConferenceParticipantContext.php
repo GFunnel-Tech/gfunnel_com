@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ConferenceParticipantContext extends InstanceContext
@@ -56,17 +54,15 @@ class ConferenceParticipantContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the ConferenceParticipantInstance
      *
-     
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return ConferenceParticipantInstance Fetched ConferenceParticipantInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): ConferenceParticipantInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -76,54 +72,14 @@ class ConferenceParticipantContext extends InstanceContext
                 $options['metrics'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the ConferenceParticipantInstance
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return ConferenceParticipantInstance Fetched ConferenceParticipantInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): ConferenceParticipantInstance
-    {
-        $response = $this->_fetch($options);
         return new ConferenceParticipantInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['conferenceSid'],
             $this->solution['participantSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the ConferenceParticipantInstance with Metadata
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new ConferenceParticipantInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['conferenceSid'],
-                        $this->solution['participantSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

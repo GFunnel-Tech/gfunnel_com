@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Rest\Api\V2010\Account\RecordingList;
 use Twilio\Rest\Api\V2010\Account\UsageList;
 use Twilio\Rest\Api\V2010\Account\MessageList;
@@ -144,19 +142,6 @@ class AccountContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the AccountInstance
      *
      * @return AccountInstance Fetched AccountInstance
@@ -164,60 +149,17 @@ class AccountContext extends InstanceContext
      */
     public function fetch(): AccountInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new AccountInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
         );
-        
     }
 
-    /**
-     * Fetch the AccountInstance with Metadata
-     *
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new AccountInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Update
-     *
-     * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $data = Values::of([
-            'FriendlyName' =>
-                $options['friendlyName'],
-            'Status' =>
-                $options['status'],
-        ]);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
 
     /**
      * Update the AccountInstance
@@ -228,35 +170,23 @@ class AccountContext extends InstanceContext
      */
     public function update(array $options = []): AccountInstance
     {
-        $response = $this->_update($options);
+
+        $options = new Values($options);
+
+        $data = Values::of([
+            'FriendlyName' =>
+                $options['friendlyName'],
+            'Status' =>
+                $options['status'],
+        ]);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
+
         return new AccountInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the AccountInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new AccountInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

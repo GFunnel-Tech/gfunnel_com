@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class PluginArchiveContext extends InstanceContext
@@ -51,62 +49,24 @@ class PluginArchiveContext extends InstanceContext
     }
 
     /**
-     * Helper function for Update
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' , 'Flex-Metadata' => $options['flexMetadata']]);
-        return $this->version->handleRequest('POST', $this->uri, [], [], $headers, "update");
-    }
-
-    /**
      * Update the PluginArchiveInstance
      *
-     
      * @param array|Options $options Optional Arguments
      * @return PluginArchiveInstance Updated PluginArchiveInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function update(array $options = []): PluginArchiveInstance
     {
-        $response = $this->_update($options);
+
+        $options = new Values($options);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' , 'Flex-Metadata' => $options['flexMetadata']]);
+        $payload = $this->version->update('POST', $this->uri, [], [], $headers);
+
         return new PluginArchiveInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the PluginArchiveInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new PluginArchiveInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

@@ -43,7 +43,6 @@ class PluginReleasePage extends Page
         return new PluginReleaseInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

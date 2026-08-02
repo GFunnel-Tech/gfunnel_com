@@ -43,7 +43,6 @@ class NationalPage extends Page
         return new NationalInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['countryCode']);
     }
 
-
     /**
      * Provide a friendly representation
      *

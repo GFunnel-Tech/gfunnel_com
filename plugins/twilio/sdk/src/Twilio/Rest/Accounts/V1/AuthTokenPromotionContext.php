@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class AuthTokenPromotionContext extends InstanceContext
@@ -45,19 +43,6 @@ class AuthTokenPromotionContext extends InstanceContext
     }
 
     /**
-     * Helper function for Update
-     *
-     * @return Response Updated Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _update(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], [], $headers, "update");
-    }
-
-    /**
      * Update the AuthTokenPromotionInstance
      *
      * @return AuthTokenPromotionInstance Updated AuthTokenPromotionInstance
@@ -65,32 +50,13 @@ class AuthTokenPromotionContext extends InstanceContext
      */
     public function update(): AuthTokenPromotionInstance
     {
-        $response = $this->_update();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], [], $headers);
+
         return new AuthTokenPromotionInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Update the AuthTokenPromotionInstance with Metadata
-     *
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_update();
-        $resource = new AuthTokenPromotionInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

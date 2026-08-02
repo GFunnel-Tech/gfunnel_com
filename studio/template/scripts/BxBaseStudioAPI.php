@@ -35,6 +35,15 @@ class BxBaseStudioAPI extends BxDolStudioAPI
         );
     }
 
+    public function getPageJsCode($aOptions = array(), $bWrap = true)
+    {
+        $aOptions = array_merge($aOptions, array(
+            'sActionUrl' => BX_DOL_URL_STUDIO . 'api.php'
+        ));
+
+        return parent::getPageJsCode($aOptions, $bWrap);
+    }
+
     public function getPageMenu($aMenu = array(), $aMarkers = array())
     {
         $sJsObject = $this->getPageJsObject();
@@ -71,7 +80,12 @@ class BxBaseStudioAPI extends BxDolStudioAPI
             'api_config'
         ]);
 
-        return $oOptions->getCode() . $this->getPageJsCode();
+        $this->aPageCss = array_merge($this->aPageCss, $oOptions->getCss(), [BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'codemirror/|codemirror.css']);
+        $this->aPageJs = array_merge($this->aPageJs, $oOptions->getJs(), ['codemirror/codemirror.min.js']);
+
+        return $oOptions->getCode() . $this->getPageJsCode([
+            'sCodeMirror' => "textarea[name='sys_api_config']"
+        ]);
     }
 
     protected function getKeys()

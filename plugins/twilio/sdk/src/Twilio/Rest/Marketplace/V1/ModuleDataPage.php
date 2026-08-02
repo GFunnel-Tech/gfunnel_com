@@ -43,7 +43,6 @@ class ModuleDataPage extends Page
         return new ModuleDataInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

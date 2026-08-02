@@ -43,7 +43,6 @@ class PhoneNumberPage extends Page
         return new PhoneNumberInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

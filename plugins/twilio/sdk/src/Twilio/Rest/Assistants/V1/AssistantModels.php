@@ -83,11 +83,10 @@ class AssistantsV1ServiceCustomerAi implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
             'perception_engine_enabled' => $this->perceptionEngineEnabled,
             'personalization_engine_enabled' => $this->personalizationEngineEnabled
         ];
-        return $jsonString;
     }
 }
 
@@ -114,18 +113,11 @@ class AssistantsV1ServiceSegmentCredential implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
+            'profile_api_key' => $this->profileApiKey,
+            'space_id' => $this->spaceId,
+            'write_key' => $this->writeKey
         ];
-        if (isset($this->profileApiKey)) {
-            $jsonString['profile_api_key'] = $this->profileApiKey;
-        }
-        if (isset($this->spaceId)) {
-            $jsonString['space_id'] = $this->spaceId;
-        }
-        if (isset($this->writeKey)) {
-            $jsonString['write_key'] = $this->writeKey;
-        }
-        return $jsonString;
     }
 }
 
@@ -158,22 +150,13 @@ class AssistantsV1ServiceCreateAssistantRequest implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
-            'name' => $this->name
+        return [
+            'customer_ai' => $this->customerAi,
+            'name' => $this->name,
+            'owner' => $this->owner,
+            'personality_prompt' => $this->personalityPrompt,
+            'segment_credential' => $this->segmentCredential
         ];
-        if (isset($this->customerAi)) {
-            $jsonString['customer_ai'] = $this->customerAi;
-        }
-        if (isset($this->owner)) {
-            $jsonString['owner'] = $this->owner;
-        }
-        if (isset($this->personalityPrompt)) {
-            $jsonString['personality_prompt'] = $this->personalityPrompt;
-        }
-        if (isset($this->segmentCredential)) {
-            $jsonString['segment_credential'] = $this->segmentCredential;
-        }
-        return $jsonString;
     }
 }
 
@@ -206,24 +189,13 @@ class AssistantsV1ServiceUpdateAssistantRequest implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
+            'customer_ai' => $this->customerAi,
+            'name' => $this->name,
+            'owner' => $this->owner,
+            'personality_prompt' => $this->personalityPrompt,
+            'segment_credential' => $this->segmentCredential
         ];
-        if (isset($this->customerAi)) {
-            $jsonString['customer_ai'] = $this->customerAi;
-        }
-        if (isset($this->name)) {
-            $jsonString['name'] = $this->name;
-        }
-        if (isset($this->owner)) {
-            $jsonString['owner'] = $this->owner;
-        }
-        if (isset($this->personalityPrompt)) {
-            $jsonString['personality_prompt'] = $this->personalityPrompt;
-        }
-        if (isset($this->segmentCredential)) {
-            $jsonString['segment_credential'] = $this->segmentCredential;
-        }
-        return $jsonString;
     }
 }
 

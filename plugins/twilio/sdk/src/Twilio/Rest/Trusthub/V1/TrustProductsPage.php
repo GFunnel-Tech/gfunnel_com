@@ -43,7 +43,6 @@ class TrustProductsPage extends Page
         return new TrustProductsInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources name="ru" flag="ru" title="Russian">
-    <string name="_bx_artificer"><![CDATA[Artificer]]></string>
     <string name="_bx_artificer_wgt_cpt"><![CDATA[Artificer]]></string>
 
     <!-- Settings -->
@@ -10,12 +9,10 @@
     <string name="_bx_artificer_stg_cpt_option_switcher_name"><![CDATA[Название в переключателе тем]]></string>	
     <string name="_bx_artificer_stg_cpt_option_page_width"><![CDATA[Ширина страницы]]></string>
     <string name="_bx_artificer_stg_cpt_option_header_stretched"><![CDATA[Растянутый заголовок]]></string>
-    <string name="_bx_artificer_stg_cpt_option_header_search"><![CDATA[Включить плавающую панель поиска]]></string>
     <string name="_bx_artificer_stg_cpt_option_color_scheme"><![CDATA[Цветовая схема]]></string>
     <string name="_bx_artificer_stg_cpt_option_color_scheme_auto"><![CDATA[Авто с переключателем]]></string>
     <string name="_bx_artificer_stg_cpt_option_color_scheme_light_only"><![CDATA[Только светлый режим]]></string>
     <string name="_bx_artificer_stg_cpt_option_color_scheme_dark_only"><![CDATA[Только темный режим]]></string>
-    <string name="_bx_artificer_stg_cpt_option_use_htmx"><![CDATA[Использовать HTMX в верхнем меню и подменю страницы (экспериментально)]]></string>
 
     <string name="_bx_artificer_stg_cpt_category_styles_custom"><![CDATA[Пользовательские стили]]></string>
     <string name="_bx_artificer_stg_cpt_option_styles_custom"><![CDATA[Пользовательские стили]]></string>

@@ -23,8 +23,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapItemList;
 use Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionList;
 
@@ -68,129 +66,50 @@ class SyncMapContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the SyncMapInstance
      *
-     
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the SyncMapInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the SyncMapInstance
      *
-     
-     
      * @return SyncMapInstance Fetched SyncMapInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): SyncMapInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new SyncMapInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid'],
             $this->solution['sid']
         );
-        
-    }
-
-    /**
-     * Fetch the SyncMapInstance with Metadata
-     *
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new SyncMapInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the SyncMapInstance
      *
-     
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Updated Response
+     * @return SyncMapInstance Updated SyncMapInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(array $options = []): Response
+    public function update(array $options = []): SyncMapInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -200,54 +119,14 @@ class SyncMapContext extends InstanceContext
                 $options['collectionTtl'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the SyncMapInstance
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return SyncMapInstance Updated SyncMapInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(array $options = []): SyncMapInstance
-    {
-        $response = $this->_update($options);
         return new SyncMapInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid'],
             $this->solution['sid']
-        );
-        
-    }
-
-    /**
-     * Update the SyncMapInstance with Metadata
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_update($options);
-        $resource = new SyncMapInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid'],
-                        $this->solution['sid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

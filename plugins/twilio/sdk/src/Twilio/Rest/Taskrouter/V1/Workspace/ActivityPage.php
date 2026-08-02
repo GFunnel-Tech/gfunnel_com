@@ -43,7 +43,6 @@ class ActivityPage extends Page
         return new ActivityInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

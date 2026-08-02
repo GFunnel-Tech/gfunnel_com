@@ -43,7 +43,6 @@ class BindingPage extends Page
         return new BindingInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

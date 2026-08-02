@@ -43,7 +43,6 @@ class IpAccessControlListMappingPage extends Page
         return new IpAccessControlListMappingInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['domainSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

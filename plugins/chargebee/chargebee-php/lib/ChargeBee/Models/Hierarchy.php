@@ -14,7 +14,6 @@ class Hierarchy extends Model
     'parentId',
     'paymentOwnerId',
     'invoiceOwnerId',
-    'hasChildren',
     'childrenIds',
   ];
 

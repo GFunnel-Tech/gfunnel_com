@@ -16,7 +16,6 @@ class BxPersonsConfig extends BxBaseModProfileConfig
         parent::__construct($aModule);
 
         $this->_aMenuItems2MethodsSubmenu = array_merge($this->_aMenuItems2MethodsSubmenu, array(
-            'persons-profile-friends' => 'checkAllowedFriendsView',
             'persons-profile-relations' => 'checkAllowedRelationsView',
             'persons-profile-subscriptions' => 'checkAllowedSubscriptionsView'
         ));
@@ -25,14 +24,13 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'view-persons-profile' => 'checkAllowedView',
             'edit-persons-profile' => 'checkAllowedEdit',
             'edit-persons-cover' => 'checkAllowedChangeCover',
-            'edit-persons-badge' => 'checkAllowedChangeBadge',
             'delete-persons-profile' => 'checkAllowedDelete',
         ));
 
         $this->CNF = array (
 
             // module icon
-            'ICON' => 'user',
+            'ICON' => 'user col-blue3',
 
             // database tables
             'TABLE_ENTRIES' => $aModule['db_prefix'] . 'data',
@@ -50,20 +48,12 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'FIELD_PICTURE' => 'picture',
             'FIELD_COVER' => 'cover',
             'FIELD_COVER_POSITION' => 'cover_data',
-            'FIELD_BADGE' => 'badge',
-            'FIELD_BADGE_LINK' => 'badge_link',
-            'FIELD_BADGE_LINK_SELECT' => 'badge_link_select',
-            'FIELD_BADGE_LINK_CUSTOM' => 'badge_link_custom',
             'FIELD_BIRTHDAY' => 'birthday',
             'FIELD_ALLOW_VIEW_TO' => 'allow_view_to',
             'FIELD_ALLOW_POST_TO' => 'allow_post_to',
             'FIELD_ALLOW_CONTACT_TO' => 'allow_contact_to',
             'FIELD_VIEWS' => 'views',
             'FIELD_VOTES' => 'votes',
-            'FIELD_REACTIONS' => 'rvotes',
-            'FIELD_SCORE' => 'score',
-            'FIELD_SCORE_UP' => 'sc_up',
-            'FIELD_SCORE_DOWN' => 'sc_down',
             'FIELD_COMMENTS' => 'comments',
             'FIELDS_QUICK_SEARCH' => array('fullname', 'last_name'),
             'FIELD_LOCATION' => 'location',
@@ -75,9 +65,7 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'URI_VIEW_ENTRY' => 'view-persons-profile',
             'URI_VIEW_FRIENDS' => 'persons-profile-friends',
             'URI_VIEW_FRIEND_REQUESTS' => 'persons-friend-requests',
-            'URI_VIEW_RELATIONS' => 'persons-profile-relations',
             'URI_VIEW_FAVORITES' => 'persons-profile-favorites',
-            'URI_ADD_ENTRY' => 'create-persons-profile',
             'URI_EDIT_ENTRY' => 'edit-persons-profile',
             'URI_MANAGE_COMMON' => 'persons-manage',
             'URI_VIEW_SUBSCRIPTIONS' => 'persons-profile-subscriptions',
@@ -96,7 +84,6 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'PARAM_NUM_RSS' => 'bx_persons_num_rss',
             'PARAM_NUM_CONNECTIONS_QUICK' => 'bx_persons_num_connections_quick',
             'PARAM_SEARCHABLE_FIELDS' => 'bx_persons_searchable_fields',
-            'PARAM_FRIENDS' => 'bx_persons_friends',
             'PARAM_PUBLIC_SBSN' => 'bx_persons_public_subscriptions',
             'PARAM_PUBLIC_SBSD' => 'bx_persons_public_subscribed_me',
             'PARAM_REDIRECT_AADD' => 'bx_persons_redirect_aadd',
@@ -107,7 +94,6 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             // objects
             'OBJECT_STORAGE' => 'bx_persons_pictures',
             'OBJECT_STORAGE_COVER' => 'bx_persons_pictures',
-            'OBJECT_STORAGE_BADGE' => 'bx_persons_pictures',
             'OBJECT_IMAGES_TRANSCODER_THUMB' => 'bx_persons_thumb',
             'OBJECT_IMAGES_TRANSCODER_ICON' => 'bx_persons_icon',
             'OBJECT_IMAGES_TRANSCODER_AVATAR' => 'bx_persons_avatar',
@@ -116,10 +102,8 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'OBJECT_IMAGES_TRANSCODER_COVER' => 'bx_persons_cover',
             'OBJECT_IMAGES_TRANSCODER_COVER_THUMB' => 'bx_persons_cover_thumb',
             'OBJECT_IMAGES_TRANSCODER_GALLERY' => 'bx_persons_gallery',
-            'OBJECT_IMAGES_TRANSCODER_BADGE' => 'bx_persons_badge',
             'OBJECT_VIEWS' => 'bx_persons',
             'OBJECT_VOTES' => 'bx_persons',
-            'OBJECT_REACTIONS' => 'bx_persons_reactions',
             'OBJECT_SCORES' => 'bx_persons',
             'OBJECT_FAVORITES' => 'bx_persons',
             'OBJECT_FEATURED' => 'bx_persons',
@@ -133,7 +117,6 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'OBJECT_FORM_ENTRY_DISPLAY_ADD' => 'bx_person_add',
             'OBJECT_FORM_ENTRY_DISPLAY_EDIT' => 'bx_person_edit',
             'OBJECT_FORM_ENTRY_DISPLAY_EDIT_COVER' => 'bx_person_edit_cover',
-            'OBJECT_FORM_ENTRY_DISPLAY_EDIT_BADGE' => 'bx_person_edit_badge',
             'OBJECT_FORM_ENTRY_DISPLAY_DELETE' => 'bx_person_delete',
             'OBJECT_MENU_ACTIONS_VIEW_ENTRY' => 'bx_persons_view_actions', // actions menu on view entry page
             'OBJECT_MENU_ACTIONS_VIEW_ENTRY_MORE' => 'bx_persons_view_actions_more', // actions menu on view entry page for "more" popup
@@ -155,7 +138,6 @@ class BxPersonsConfig extends BxBaseModProfileConfig
             'OBJECT_GRID_COMMON' => 'bx_persons_common',
             'OBJECT_UPLOADERS_COVER' => array('bx_persons_cover_crop'),
             'OBJECT_UPLOADERS_PICTURE' => array('bx_persons_picture_crop'),
-            'OBJECT_UPLOADERS_BADGE' => array('bx_persons_badge_crop'),
             
             'BADGES_AVALIABLE' => true,
 

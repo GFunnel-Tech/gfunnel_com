@@ -43,7 +43,6 @@ class SettingsPage extends Page
         return new SettingsInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

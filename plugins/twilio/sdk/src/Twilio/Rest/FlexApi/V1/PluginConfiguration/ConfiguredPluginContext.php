@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class ConfiguredPluginContext extends InstanceContext
@@ -56,67 +54,25 @@ class ConfiguredPluginContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' , 'Flex-Metadata' => $options['flexMetadata']]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the ConfiguredPluginInstance
      *
-     
-     
      * @param array|Options $options Optional Arguments
      * @return ConfiguredPluginInstance Fetched ConfiguredPluginInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(array $options = []): ConfiguredPluginInstance
     {
-        $response = $this->_fetch($options);
+
+        $options = new Values($options);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' , 'Flex-Metadata' => $options['flexMetadata']]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new ConfiguredPluginInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['configurationSid'],
             $this->solution['pluginSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the ConfiguredPluginInstance with Metadata
-     *
-     
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new ConfiguredPluginInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['configurationSid'],
-                        $this->solution['pluginSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

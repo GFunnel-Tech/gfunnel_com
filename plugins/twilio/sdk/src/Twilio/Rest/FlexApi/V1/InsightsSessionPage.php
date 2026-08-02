@@ -43,7 +43,6 @@ class InsightsSessionPage extends Page
         return new InsightsSessionInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

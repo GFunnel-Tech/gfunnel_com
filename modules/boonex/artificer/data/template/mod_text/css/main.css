@@ -10,6 +10,7 @@
     display: block;
 
     width: 100%;
+    min-height: 300px;
     object-fit: cover;
 }
 
@@ -125,9 +126,15 @@
     -webkit-align-items: center;
     align-items: center;
 }
-.bx-dir-ltr .sys-author-info .sys-author-profile ul.bx-menu-custom.bx-menu-custom-hor {
-    margin: 0 -0.25rem;
-}
 .bx-dir-ltr .sys-author-info .sys-author-profile ul.bx-menu-custom.bx-menu-custom-hor > li {
-    margin: 0.25rem;
+    margin-left: 1rem;
+}
+.bx-dir-ltr .sys-author-info .sys-author-profile ul.bx-menu-custom.bx-menu-custom-hor > li:first-child {
+    margin-left: 0;
+}
+.bx-dir-rtl .sys-author-info .sys-author-profile ul.bx-menu-custom.bx-menu-custom-hor > li {
+    margin-right: 1rem;
+}
+.bx-dir-rtl .sys-author-info .sys-author-profile ul.bx-menu-custom.bx-menu-custom-hor > li:first-child {
+    margin-right: 0;
 }

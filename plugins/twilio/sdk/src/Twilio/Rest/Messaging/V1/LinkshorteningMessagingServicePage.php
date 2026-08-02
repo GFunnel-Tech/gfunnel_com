@@ -43,7 +43,6 @@ class LinkshorteningMessagingServicePage extends Page
         return new LinkshorteningMessagingServiceInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

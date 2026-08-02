@@ -146,8 +146,8 @@ blockquote {
     color: #999999;
 }
 
-.bx-tag-link b,
-.bx-tag-link s {
+.bx-tag b,
+.bx-tag s {
     text-decoration: none;
     font-weight: normal;
 }
@@ -254,11 +254,6 @@ blockquote {
     font-weight: 600;
 }
 
-.bx-dbt-cnt {
-    display: flex;
-    flex-direction: column;
-}
-
 .bx-db-menu {
     -webkit-flex: 1 2 auto;
     -ms-flex: 1 2 auto;
@@ -269,11 +264,6 @@ blockquote {
 
 .bx-media-phone .bx-db-menu {
     max-width: 65%;
-}
-
-.bx-dbc-notitle .bx-db-menu,
-.bx-media-phone .bx-dbc-notitle .bx-db-menu {
-    max-width: none;
 }
 
 .bx-db-menu-tab {
@@ -947,7 +937,8 @@ svg .gray .outer .p2 {
 /* --------------- button at the end of cut string */
 
 .bx-str-limit {
-    cursor: pointer;
+    margin-left:0.5rem;
+    cursor:pointer;
 }
 
 /* --------------- categories */
@@ -979,10 +970,8 @@ svg .gray .outer .p2 {
 .bx-show-more {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
-}
-.bx-show-more a {
-    display: flex;
-    justify-content: center;
+
+    text-align: center
 }
 
 /* --------------- Flickity: Tailwind overwrite */

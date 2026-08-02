@@ -16,8 +16,6 @@ class InvoiceEstimateLineItemTier extends Model
     'endingUnitInDecimal',
     'quantityUsedInDecimal',
     'unitAmountInDecimal',
-    'pricingType',
-    'packageSize',
   ];
 
 }

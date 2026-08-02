@@ -294,14 +294,6 @@ class BxDolStorageQuery extends BxDolDb
         $sQuery = $this->prepare("UPDATE `sys_storage_ghosts` SET `content_id` = :content $sSetAddon WHERE `object` = :object $sWhere AND `id` IN (" . $this->implode_escape($mixedFileIds) . ")");
         return $this->res($sQuery, $aBindings);
     }
-    
-    public function updateGhostsUploaderId($mixedFileIds, $iUploaderId)
-    {
-        return $this->query("UPDATE `sys_storage_ghosts` SET `uploader_id` = :uploader_id WHERE `object` = :object AND `id` IN (" . $this->implode_escape($mixedFileIds) . ")", [
-            'object' => $this->_aObject['object'],
-            'uploader_id' => $iUploaderId
-        ]);
-    }
 
     public function deleteGhosts($mixedFileIds, $iProfileId, $iContentId = false)
     {
@@ -321,9 +313,9 @@ class BxDolStorageQuery extends BxDolDb
         return $iCount;
     }
 
-    public function getGhosts($mixedProfileId, $mixedContent = false, $isAdmin = false)
+    public function getGhosts($mixedProfileId, $iContentId = false, $isAdmin = false)
     {
-        return $this->getFiles($mixedProfileId, true, $mixedContent, $isAdmin);
+        return $this->getFiles($mixedProfileId, true, $iContentId, $isAdmin);
     }
 
     public function getGhost($iFileId)
@@ -332,17 +324,18 @@ class BxDolStorageQuery extends BxDolDb
         return $this->getRow($sQuery);
     }
 
-    public function getFiles($mixedProfileId, $isGhostsOnly = false, $mixedContent = false, $isAdmin = false)
+    public function getFiles($mixedProfileId, $isGhostsOnly = false, $iContentId = false, $isAdmin = false)
     {
-        $aBindings = [];
+        $aBindings = array();        
 
-        $sSelect = '`f`.*';
-        $sWhere = $sJoin = $sOrder = '';
+        $sWhere = '';
+        $sJoin = '';
+        $sOrder = '';
         if ($isGhostsOnly) {
             $aBindings['object'] = $this->_aObject['object'];
 
             $sOnProfile = '';
-            if ($isAdmin && $mixedContent) {
+            if ($isAdmin && $iContentId) {
                 // don't check profile id for admins, so admin can edit any entry
             }
             elseif (is_array($mixedProfileId) && $mixedProfileId) {
@@ -353,18 +346,12 @@ class BxDolStorageQuery extends BxDolDb
                 
                 $sOnProfile = " AND `g`.`profile_id` = :profile_id ";                
             }
-
-            $sSelect .= ", `g`.`uploader_id`, `g`.`created`";
+            
             $sJoin .= " INNER JOIN `sys_storage_ghosts` AS `g` ON (`f`.`id` = `g`.`id` AND `g`.`object` = :object " . $sOnProfile;
-            if ($mixedContent !== false) {
-                if(!is_array($mixedContent)) {
-                    $aBindings['content_id'] = $mixedContent;
-                    $sJoin .= " AND `g`.`content_id` = :content_id";
-                }
-                else {
-                    list($aBindings['content_id'], $aBindings['uploader_id']) = $mixedContent;
-                    $sJoin .= " AND `g`.`content_id` = :content_id AND `g`.`uploader_id` = :uploader_id";
-                }
+            if (false !== $iContentId) {
+                $aBindings['content_id'] = $iContentId;
+
+                $sJoin .= " AND `g`.`content_id` = :content_id";
             }
 
             $sJoin .= ')';
@@ -382,7 +369,7 @@ class BxDolStorageQuery extends BxDolDb
             }
         }
 
-        $sQuery = "SELECT " . $sSelect . " FROM " . $this->_sTableFiles . " AS `f` " . $sJoin . $sWhere . $sOrder;
+        $sQuery = "SELECT `f`.* FROM " . $this->_sTableFiles . " AS `f` " . $sJoin . $sWhere . $sOrder;
         return $this->getAll($sQuery, $aBindings);
     }
 
@@ -425,13 +412,6 @@ class BxDolStorageQuery extends BxDolDb
         $oDb = BxDolDb::getInstance();
         $sQuery = $oDb->prepare("SELECT COUNT(*) FROM `sys_storage_deletions` WHERE `object` LIKE ?", $sPrefix . '%');
         return $oDb->getOne($sQuery);
-    }
-
-    public static function getOutdatedUnusedGhosts($iLifetime)
-    {
-        return BxDolDb::getInstance()->getAll("SELECT * FROM `sys_storage_ghosts` WHERE `content_id` = '0' AND `created` < (UNIX_TIMESTAMP() - :lifetime)", [
-            'lifetime' => $iLifetime
-        ]);
     }
 }
 

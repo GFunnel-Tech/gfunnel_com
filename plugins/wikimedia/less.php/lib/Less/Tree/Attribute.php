@@ -4,15 +4,12 @@
  * @see less-2.5.3.js#Attribute.prototype
  */
 class Less_Tree_Attribute extends Less_Tree implements Less_Tree_HasValueProperty {
-	/** @var string|Less_Tree */
 	public $key;
-	/** @var null|string */
 	public $op;
-	/** @var null|string|Less_Tree */
 	public $value;
 
 	/**
-	 * @param string|Less_Tree $key
+	 * @param string $key
 	 * @param null|string $op
 	 * @param null|string|Less_Tree $value
 	 */
@@ -44,7 +41,7 @@ class Less_Tree_Attribute extends Less_Tree implements Less_Tree_HasValuePropert
 
 		if ( $this->op ) {
 			$value .= $this->op;
-			$value .= ( $this->value instanceof Less_Tree ? $this->value->toCSS() : $this->value );
+			$value .= ( is_object( $this->value ) ? $this->value->toCSS() : $this->value );
 		}
 
 		return '[' . $value . ']';

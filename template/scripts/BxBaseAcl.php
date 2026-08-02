@@ -20,41 +20,18 @@ class BxBaseAcl extends BxDolAcl
 
     public function getProfileMembership ($iProfileId)
     {
-        $aLevel = $this->getMemberMembershipInfo($iProfileId, 0, true);
-        if(empty($aLevel) || !is_array($aLevel))
-            return $this->_bIsApi ? [] : '';
+    	$aLevel = $this->getMemberMembershipInfo($iProfileId, 0, true);
+    	if(empty($aLevel) || !is_array($aLevel))
+            return '';
 
-        $oTemplate = BxDolTemplate::getInstance();
-
+        $iLoggedProfileId = bx_get_logged_profile_id();
         $aLevelInfo = $this->getMembershipInfo($aLevel['id']);
 
-        $bOwner = $bCanView = false;
-        if(($iLoggedPid = bx_get_logged_profile_id()) && ($oLogged = BxDolProfile::getInstance($iLoggedPid)) !== false) {
-            $bOwner = BxDolProfile::getInstance($iProfileId)->getAccountId() == $oLogged->getAccountId();
+        $aCheck = checkActionModule($iLoggedProfileId, 'show membership private info', 'system', false);
+        $oProfile = BxDolProfile::getInstance($iLoggedProfileId);
 
-            $aCheck = checkActionModule($iLoggedPid, 'show membership private info', 'system', false);
-            $bCanView = $aCheck[CHECK_ACTION_RESULT] === CHECK_ACTION_RESULT_ALLOWED;
-        }
-
-        if($this->_bIsApi) {
-            $sIconS = $aLevelInfo['icon'];
-            $sIconD = $oTemplate->getImage($sIconS, ['wrap_in_tag' => false]);
-
-            return [
-                'profile' => BxDolProfile::getData($iProfileId),
-                'level' => [
-                    'id' => $aLevel['id'],
-                    'name' => !empty($aLevelInfo['name']) ? _t($aLevelInfo['name']) : '',
-                    'description' => !empty($aLevelInfo['description']) ? _t($aLevelInfo['description']) : '',
-                    'icon' => strcmp($sIconS, $sIconD) != 0 ? $sIconD : BxDolIconset::getObjectInstance()->getIcon($sIconD),
-                    'date_starts' => (int)$aLevel['date_starts'],
-                    'date_expires' => (int)$aLevel['date_expires'],
-                ]
-            ];
-        }
-
-        $aTmplVarsPrivateInfo = [];
-        $bTmplVarsPrivateInfo = (($bOwner || $bCanView) && !empty($aLevel['date_starts']));
+        $aTmplVarsPrivateInfo = array();
+        $bTmplVarsPrivateInfo = ($oProfile && (BxDolProfile::getInstance($iProfileId)->getAccountId() == $oProfile->getAccountId() || $aCheck[CHECK_ACTION_RESULT] === CHECK_ACTION_RESULT_ALLOWED) && !empty($aLevel['date_starts']));
         if($bTmplVarsPrivateInfo)
             $aTmplVarsPrivateInfo = array(
                 'date_start' => bx_time_js($aLevel['date_starts']),
@@ -65,44 +42,18 @@ class BxBaseAcl extends BxDolAcl
                         'state' => _t('_sys_acl_state_' . $aLevel['state'])
                     )
                 )
-            );        
+            );
 
-        $aTmplVarsActions = [];
-        if($bOwner) {
-            $aDowngradable = $this->getMemberships(false, true, true, true);
-            unset($aDowngradable[MEMBERSHIP_ID_STANDARD]);
-
-            if(in_array($aLevel['id'], array_keys($aDowngradable)))
-                $aTmplVarsActions[] = [
-                    'href' => 'javascript:void(0)',
-                    'bx_if:show_onclick' => [
-                        'condition' => true,
-                        'content' => [
-                            'onclick' => 'javascript:bx_reset_acl_level(' . $iProfileId . ', this)'
-                        ]
-                    ],
-                    'content' => _t('_sys_acl_downgrade')
-                ];
-        }
-
-        $sTmplName = 'acl_membership.html';
-        $aTmplVars = [
+        $oTemplate = BxDolTemplate::getInstance();
+        $sContent = $oTemplate->parseHtmlByName('acl_membership.html', array(
             'html_id' => 'sys-acl-profile-' . $iProfileId,
             'level' => _t($aLevel['name']),
-            'thumbnail' => $oTemplate->getImage($aLevelInfo['icon'], ['class' => 'bx-acl-m-thumbnail']),
-            'bx_if:show_private_info' => [
+            'thumbnail' => $oTemplate->getImage($aLevelInfo['icon'], array('class' => 'bx-acl-m-thumbnail')),
+            'bx_if:show_private_info' => array(
                 'condition' => $bTmplVarsPrivateInfo,
                 'content' => $aTmplVarsPrivateInfo
-            ],
-            'bx_if:show_actions' => [
-                'condition' => !empty($aTmplVarsActions),
-                'content' => [
-                    'bx_repeat:actions' => $aTmplVarsActions
-                ]
-            ]
-        ];
-
-        $sContent = $oTemplate->parseHtmlByName($sTmplName, $aTmplVars);
+            )
+    	));
 
         /**
          * @hooks
@@ -118,14 +69,11 @@ class BxBaseAcl extends BxDolAcl
          */
         bx_alert('system', 'page_output_block_acl_level', 0, false, [
             'block_owner' => $iProfileId,
-            'block_tmpl_name' => $sTmplName,
-            'block_tmpl_vars' => $aTmplVars,
-            'block_code' => &$sContent,
-            'block_code_ref' => &$sContent,
+            'block_code' => &$sContent
         ]);
 
-        $oTemplate->addCss(['acl.css']);
-        return $sContent;
+        $oTemplate->addCss(array('acl.css'));
+    	return $sContent;
     }
 
     /**

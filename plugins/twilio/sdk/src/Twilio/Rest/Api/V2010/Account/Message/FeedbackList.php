@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class FeedbackList extends ListResource
@@ -50,22 +48,22 @@ class FeedbackList extends ListResource
             $messageSid,
         
         ];
+
         $this->uri = '/Accounts/' . \rawurlencode($accountSid)
         .'/Messages/' . \rawurlencode($messageSid)
         .'/Feedback.json';
     }
 
     /**
-     * Helper function for Create
+     * Create the FeedbackInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return FeedbackInstance Created FeedbackInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(array $options = []): Response
+    public function create(array $options = []): FeedbackInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -73,52 +71,14 @@ class FeedbackList extends ListResource
                 $options['outcome'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the FeedbackInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return FeedbackInstance Created FeedbackInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(array $options = []): FeedbackInstance
-    {
-        $response = $this->_create($options);
         return new FeedbackInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['accountSid'],
             $this->solution['messageSid']
-        );
-        
-    }
-
-    /**
-     * Create the FeedbackInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_create($options);
-        $resource = new FeedbackInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['accountSid'],
-                        $this->solution['messageSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

@@ -43,7 +43,6 @@ class BundleClonePage extends Page
         return new BundleCloneInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

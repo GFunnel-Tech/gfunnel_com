@@ -21,7 +21,6 @@ class BxDolRecommendation extends BxDolFactory implements iBxDolFactoryObject
     protected $_iReducerIgnore;
 
     protected $_iPerPageDefault;
-    protected $_iPerPageDefaultShowcase;
 
     protected function __construct($aObject)
     {
@@ -42,12 +41,7 @@ class BxDolRecommendation extends BxDolFactory implements iBxDolFactoryObject
         $this->_iReducerAdd = 5;
         $this->_iReducerIgnore = 10;
 
-        $this->_iPerPageDefault = (int)getParam('sys_per_page_recommendations');
-        if(!$this->_iPerPageDefault)
-            $this->_iPerPageDefault = 12;
-        $this->_iPerPageDefaultShowcase = (int)getParam('sys_per_page_recommendations_showcase');
-        if(!$this->_iPerPageDefaultShowcase)
-            $this->_iPerPageDefaultShowcase = 24;
+        $this->_iPerPageDefault = 24;
     }
 
     public static function getObjectInstance($sObject)
@@ -70,7 +64,7 @@ class BxDolRecommendation extends BxDolFactory implements iBxDolFactoryObject
         return ($GLOBALS['bxDolClasses']['BxDolRecommendation!' . $sObject] = $o);
     }
 
-    public static function updateData($iProfileId = 0, $bImmediate = false)
+    public static function updateData($iProfileId = 0)
     {
         if(!$iProfileId) {
             if(isLogged())
@@ -79,30 +73,13 @@ class BxDolRecommendation extends BxDolFactory implements iBxDolFactoryObject
                 return false;
         }
 
-        $mixedResult = true;
-        if($bImmediate) {
-            $mixedResult = [];
+        $oCronQuery = BxDolCronQuery::getInstance();
 
-            $aObjects = BxDolRecommendationQuery::getObjects();
-            foreach($aObjects as $aObject)
-                if(($oRecommendation = BxDolRecommendation::getObjectInstance($aObject['name'])) !== false)
-                    $mixedResult[] = [
-                        'object' => $aObject['name'],
-                        'items' => $oRecommendation->processCriteria($iProfileId)
-                    ];
-        }
-        else {
-            $sName = 'recommendations_for_' . $iProfileId;
-            if(($oCronQuery = BxDolCronQuery::getInstance()) && !$oCronQuery->isTransientJobService($sName))
-                $oCronQuery->addTransientJobService($sName, ['system', 'update_data', [$iProfileId], 'TemplServiceRecommendations']);
-        }
-
-        return $mixedResult;
-    }
-
-    public static function getContextName($sObject)
-    {
-        return str_replace(['sys_', 'bx_'], ['recom_', 'recom_'], $sObject); 
+        $sName = 'recommendations_for_' . $iProfileId;
+        if(!$oCronQuery->isTransientJobService($sName))
+            $oCronQuery->addTransientJobService($sName, ['system', 'update_data', [$iProfileId], 'TemplServiceRecommendations']);
+        
+        return true;
     }
 
     public function getConnection()

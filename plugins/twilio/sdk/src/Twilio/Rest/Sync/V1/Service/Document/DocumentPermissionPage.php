@@ -43,7 +43,6 @@ class DocumentPermissionPage extends Page
         return new DocumentPermissionInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['documentSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

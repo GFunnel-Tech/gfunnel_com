@@ -43,7 +43,6 @@ class AuthorizationDocumentPage extends Page
         return new AuthorizationDocumentInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

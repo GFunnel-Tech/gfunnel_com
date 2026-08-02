@@ -13,7 +13,6 @@ class PaymentIntentPaymentAttempt extends Model
     'idAtGateway',
     'errorCode',
     'errorText',
-    'checkoutDetails',
     'createdAt',
     'modifiedAt',
     'errorDetail',

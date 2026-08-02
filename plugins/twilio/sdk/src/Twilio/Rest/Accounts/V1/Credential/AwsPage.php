@@ -43,7 +43,6 @@ class AwsPage extends Page
         return new AwsInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

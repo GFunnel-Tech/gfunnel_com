@@ -22,11 +22,6 @@ use Twilio\Options;
 use Twilio\Stream;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ArrayMetadata;
-use Twilio\Metadata\PageMetadata;
-use Twilio\Metadata\ResourceMetadata;
-use Twilio\Metadata\StreamMetadata;
 
 
 class IpAddressList extends ListResource
@@ -54,26 +49,24 @@ class IpAddressList extends ListResource
             $ipAccessControlListSid,
         
         ];
+
         $this->uri = '/Accounts/' . \rawurlencode($accountSid)
         .'/SIP/IpAccessControlLists/' . \rawurlencode($ipAccessControlListSid)
         .'/IpAddresses.json';
     }
 
     /**
-     * Helper function for Create
+     * Create the IpAddressInstance
      *
-     
      * @param string $friendlyName A human readable descriptive text for this resource, up to 255 characters long.
-     
      * @param string $ipAddress An IP address in dotted decimal notation from which you want to accept traffic. Any SIP requests from this IP address will be allowed by Twilio. IPv4 only supported today.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return IpAddressInstance Created IpAddressInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $friendlyName, string $ipAddress, array $options = []): Response
+    public function create(string $friendlyName, string $ipAddress, array $options = []): IpAddressInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -85,60 +78,14 @@ class IpAddressList extends ListResource
                 $options['cidrPrefixLength'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the IpAddressInstance
-     *
-     
-     * @param string $friendlyName A human readable descriptive text for this resource, up to 255 characters long.
-     
-     * @param string $ipAddress An IP address in dotted decimal notation from which you want to accept traffic. Any SIP requests from this IP address will be allowed by Twilio. IPv4 only supported today.
-     
-     * @param array|Options $options Optional Arguments
-     * @return IpAddressInstance Created IpAddressInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $friendlyName, string $ipAddress, array $options = []): IpAddressInstance
-    {
-        $response = $this->_create( $friendlyName,  $ipAddress, $options);
         return new IpAddressInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['accountSid'],
             $this->solution['ipAccessControlListSid']
-        );
-        
-    }
-
-    /**
-     * Create the IpAddressInstance with Metadata
-     *
-     
-     * @param string $friendlyName A human readable descriptive text for this resource, up to 255 characters long.
-     
-     * @param string $ipAddress An IP address in dotted decimal notation from which you want to accept traffic. Any SIP requests from this IP address will be allowed by Twilio. IPv4 only supported today.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $friendlyName, string $ipAddress, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $friendlyName,  $ipAddress, $options);
-        $resource = new IpAddressInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['accountSid'],
-                        $this->solution['ipAccessControlListSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 
@@ -148,7 +95,6 @@ class IpAddressList extends ListResource
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
      *
-     
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -159,36 +105,9 @@ class IpAddressList extends ListResource
      *                        efficient page size, i.e. min(limit, 1000)
      * @return IpAddressInstance[] Array of results
      */
-    public function read(?int $limit = null, $pageSize = null): array
+    public function read(int $limit = null, $pageSize = null): array
     {
         return \iterator_to_array($this->stream($limit, $pageSize), false);
-    }
-
-    /**
-     * Reads IpAddressInstance records from the API as a list
-     * Unlike stream(), this operation is eager and will load `limit` records into
-     * memory before returning.
-     *
-     
-     * @param int $limit Upper limit for the number of records to return. read()
-     *                   guarantees to never return more than limit.  Default is no
-     *                   limit
-     * @param mixed $pageSize Number of records to fetch per request, when not set
-     *                        will use the default value of 50 records.  If no
-     *                        page_size is defined but a limit is defined, read()
-     *                        will attempt to read the limit with the most
-     *                        efficient page size, i.e. min(limit, 1000)
-     * @return ArrayMetadata Array of results along with metadata
-     */
-    public function readWithMetadata(?int $limit = null, $pageSize = null): ArrayMetadata
-    {
-        $streamWithMetadata = $this->streamWithMetadata($limit, $pageSize);
-        $readResponse = \iterator_to_array($streamWithMetadata, false);
-        return new ArrayMetadata(
-            $readResponse,
-            $streamWithMetadata->getStatusCode(),
-            $streamWithMetadata->getHeaders()
-        );
     }
 
     /**
@@ -209,71 +128,13 @@ class IpAddressList extends ListResource
      *                        efficient page size, i.e. min(limit, 1000)
      * @return Stream stream of results
      */
-    public function stream(?int $limit = null, $pageSize = null): Stream
+    public function stream(int $limit = null, $pageSize = null): Stream
     {
         $limits = $this->version->readLimits($limit, $pageSize);
 
         $page = $this->page($limits['pageSize']);
 
         return $this->version->stream($page, $limits['limit'], $limits['pageLimit']);
-    }
-
-    /**
-     * Streams IpAddressInstance records from the API as a generator stream and returns result with Metadata
-     * This operation lazily loads records as efficiently as possible until the
-     * limit
-     * is reached.
-     * The results are returned as a generator, so this operation is memory
-     * efficient.
-     *
-     * @param int $limit Upper limit for the number of records to return. stream()
-     *                   guarantees to never return more than limit.  Default is no
-     *                   limit
-     * @param mixed $pageSize Number of records to fetch per request, when not set
-     *                        will use the default value of 50 records.  If no
-     *                        page_size is defined but a limit is defined, stream()
-     *                        will attempt to read the limit with the most
-     *                        efficient page size, i.e. min(limit, 1000)
-     * @return StreamMetadata stream of results with metadata
-     */
-    public function streamWithMetadata(?int $limit = null, $pageSize = null): StreamMetadata
-    {
-        $limits = $this->version->readLimits($limit, $pageSize);
-
-        $pageWithMetadata = $this->pageWithMetadata($limits['pageSize']);
-
-        $stream = $this->version->stream($pageWithMetadata->getPage(), $limits['limit'], $limits['pageLimit']);
-
-        return new StreamMetadata(
-            $stream,
-            $pageWithMetadata->getStatusCode(),
-            $pageWithMetadata->getHeaders()
-        );
-    }
-
-    /**
-     * Helper function for Page
-     *
-     * @param mixed $pageSize Number of records to return, defaults to 50
-     * @param string $pageToken PageToken provided by the API
-     * @param mixed $pageNumber Page Number, this value is simply for client state
-     * @return Response Paged Response
-     */
-    private function _page(
-        $pageSize = Values::NONE,
-        string $pageToken = Values::NONE,
-        $pageNumber = Values::NONE
-    ): Response
-    {
-
-        $params = Values::of([
-            'PageToken' => $pageToken,
-            'Page' => $pageNumber,
-            'PageSize' => $pageSize,
-        ]);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json']);
-        return $this->version->page('GET', $this->uri, $params, [], $headers);
     }
 
     /**
@@ -291,35 +152,16 @@ class IpAddressList extends ListResource
         $pageNumber = Values::NONE
     ): IpAddressPage
     {
-        $response = $this->_page( $pageSize, $pageToken, $pageNumber);
+
+        $params = Values::of([
+            'PageToken' => $pageToken,
+            'Page' => $pageNumber,
+            'PageSize' => $pageSize,
+        ]);
+
+        $response = $this->version->page('GET', $this->uri, $params);
 
         return new IpAddressPage($this->version, $response, $this->solution);
-    }
-
-    /**
-     * Retrieve a single page of IpAddressInstance records with metadata
-     * Request is executed immediately
-     *
-     * @param mixed $pageSize Number of records to return, defaults to 50
-     * @param string $pageToken PageToken provided by the API
-     * @param mixed $pageNumber Page Number, this value is simply for client state
-     * @return PageMetadata of IpAddressInstance
-     */
-    public function pageWithMetadata(
-        $pageSize = Values::NONE,
-        string $pageToken = Values::NONE,
-        $pageNumber = Values::NONE
-    ): PageMetadata
-    {
-        $response = $this->_page( $pageSize, $pageToken, $pageNumber);
-
-        $resource =  new IpAddressPage($this->version, $response, $this->solution);
-
-        return new PageMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
     /**

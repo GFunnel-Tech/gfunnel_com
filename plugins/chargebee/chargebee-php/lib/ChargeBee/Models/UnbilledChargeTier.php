@@ -15,8 +15,6 @@ class UnbilledChargeTier extends Model
     'endingUnitInDecimal',
     'quantityUsedInDecimal',
     'unitAmountInDecimal',
-    'pricingType',
-    'packageSize',
   ];
 
 }

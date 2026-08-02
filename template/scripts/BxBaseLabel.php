@@ -123,37 +123,29 @@ class BxBaseLabel extends BxDolLabel
 
     public function getLabel($sField, $sLabel)
     {
-        return $this->_oTemplate->parseHtmlByName('label_select_field_item.html', [
+        return $this->_oTemplate->parseHtmlByName('label_select_field_item.html', array(
             'class' => '',
-            'bx_if:show_icon' => [
-                'condition' => false,
-                'content' => []
-            ],
             'label' => $sLabel,
-            'bx_if:show_input' => [
+            'bx_if:show_input' => array(
                 'condition' => true,
-                'content' => [
+                'content' => array(
                     'label' => $sLabel,
                     'field' => $sField,
-                ]
-            ]
-        ]);
+                )
+            )
+        ));
     }
 
     public function getLabelPlaceholder($sPlaceholder)
     {
-        return $this->_oTemplate->parseHtmlByName('label_select_field_item.html', [
+        return $this->_oTemplate->parseHtmlByName('label_select_field_item.html', array(
             'class' => 'val-placeholder',
-            'bx_if:show_icon' => [
-                'condition' => true,
-                'content' => []
-            ],
             'label' => _t($sPlaceholder),
-            'bx_if:show_input' => [
+            'bx_if:show_input' => array(
                 'condition' => false,
-                'content' => []
-            ]
-        ]);
+                'content' => array()
+            )
+        ));
     }
 
     /**

@@ -17,22 +17,38 @@ class BxBaseMenuAccountNotifications extends BxTemplMenu
     {
         parent::__construct ($aObject, $oTemplate);
 
-        $aMarkers = [
-            'studio_url' => BX_DOL_URL_STUDIO,
-        ];
-
-        if(($oProfile = BxDolProfile::getInstance()) !== false && ($sModule = $oProfile->getModule()) != 'system') {
-            $oModule = BxDolModule::getInstance($sModule);
-            if($oModule !== null && isset($oModule->_oConfig->CNF['URI_VIEW_ENTRY']))
-                $aMarkers['own_profile_url'] = 'page.php?i=' . $oModule->_oConfig->CNF['URI_VIEW_ENTRY'];
-        }
-
-        $this->addMarkers($aMarkers);        
+        $this->addMarkers(array(
+            'studio_url' => BX_DOL_URL_STUDIO
+        ));        
     }
 
     protected function getMenuItemsRaw ()
     {
-        return $this->getMenuItemsRawProfileRelated();
+        $aItems = $this->_oQuery->getMenuItemsBy(array(
+            'type' => 'set_name', 
+            'set_name' => $this->_aObject['set_name']
+        ));
+
+        $aDuplicates = $this->_oQuery->getMenuItemsBy(array(
+            'type' => 'set_name_duplicates', 
+            'set_name' => $this->_aObject['set_name']
+        ));
+
+        $oProfile = BxDolProfile::getInstance();
+        if(!$oProfile)
+            return array();
+
+        $sModule = $oProfile->getModule();
+
+        $aResult = array();
+        foreach($aItems as $aItem) {
+            if(in_array($aItem['name'], $aDuplicates) && $aItem['module'] != $sModule)
+                continue;
+            
+            $aResult[$aItem['name']] = $aItem;
+        }
+
+        return $aResult;
     }
 
     /**

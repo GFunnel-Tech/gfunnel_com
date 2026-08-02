@@ -9,28 +9,13 @@
 
 class BxDolCategories extends BxDolFactory implements iBxDolSingleton
 {
-    protected $_bIsApi;
-
     protected $_oDb;
-
-    protected $_sModule;
-    protected $_oModule;
-
-    protected $_sBrowseUrl;
 
     protected function __construct()
     {
         parent::__construct();
 
-        $this->_bIsApi = bx_is_api();
-
         $this->_oDb = new BxDolCategoriesQuery();
-
-        $this->_sBrowseUrl = bx_append_url_params('searchKeyword.php', [
-            'keyword' => '{keyword}',
-            'cat' => 'multi',
-            'section' => '{section}'
-        ], true, ['{keyword}', '{section}']) . '{add}';
     }
 
     public function __clone()
@@ -41,32 +26,10 @@ class BxDolCategories extends BxDolFactory implements iBxDolSingleton
 
     public static function getInstance()
     {
-        return self::getInstanceWithTemplate(null);
-    }
+        if(!isset($GLOBALS['bxDolClasses'][__CLASS__]))
+            $GLOBALS['bxDolClasses'][__CLASS__] = new BxDolCategories();
 
-    public static function getInstanceWithTemplate($oTemplate)
-    {
-        $sClassName = __CLASS__;
-        if($oTemplate)
-            $sClassName .= get_class($oTemplate);
-
-        if(!isset($GLOBALS['bxDolClasses'][$sClassName]))
-            $GLOBALS['bxDolClasses'][$sClassName] = new BxTemplCategories($oTemplate);
-
-        return $GLOBALS['bxDolClasses'][$sClassName];
-    }
-
-    public function setModule($sModule)
-    {
-        if(!($this->_sModule = $sModule) || !($this->_oModule = BxDolModule::getInstance($sModule))) 
-            return;
-
-        $CNF = &$this->_oModule->_oConfig->CNF;
-
-        if(($sKey = 'URL_MULTI_CATEGORY') && !empty($CNF[$sKey]))
-            $this->_sBrowseUrl = bx_append_url_params(BxDolPermalinks::getInstance()->permalink($CNF[$sKey]), [
-                'category' => '{keyword}'
-            ], true, ['{keyword}']);
+        return $GLOBALS['bxDolClasses'][__CLASS__];
     }
 
     public function getData($aParams = array())
@@ -83,19 +46,10 @@ class BxDolCategories extends BxDolFactory implements iBxDolSingleton
     {
         return $this->_oDb->add($sModule, $iProfileId, $sValue, $iObject, $bAutoActivation);
     }
-
-    public function getUrl($sModule, $sValue, $sAddParams = '')
+    
+    public function getUrl ($sModule, $sValue, $sAddParams = '')
     {
-        $s = BX_DOL_URL_ROOT . bx_replace_markers($this->_sBrowseUrl, [
-            'keyword' => rawurlencode($sValue),
-            'section' => $sModule,
-            'add' => $sAddParams
-        ]);
-
-        if($this->_bIsApi)
-            return bx_api_get_relative_url($s);
-
-        return $s;
+        return  BX_DOL_URL_ROOT . 'searchKeyword.php?keyword=' . rawurlencode($sValue) . '&cat=multi&section=' . $sModule . $sAddParams;
     }
 }
 

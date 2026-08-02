@@ -43,7 +43,6 @@ class InsightsSettingsCommentPage extends Page
         return new InsightsSettingsCommentInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

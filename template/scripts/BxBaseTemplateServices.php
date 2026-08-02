@@ -54,25 +54,6 @@ class BxBaseTemplateServices extends BxDol
             case 'body_class':
                 $sResult = 'bx-user-' . (isLogged() ? '' : 'un') . 'authorized';
                 break;
-
-            case 'footer':
-                if(($sCode = BxDolIconset::getObjectInstance()->getCode()) !== false)
-                    $sResult = $sCode;
-                break;
-        }
-
-        return $sResult;
-    }
-
-    public function serviceGetInjectionStudio($sName)
-    {
-        $sResult = '';
-
-        switch($sName) {
-            case 'footer':
-                if(($sCode = BxDolIconset::getObjectInstance()->getCode()) !== false)
-                    $sResult = $sCode;
-                break;
         }
 
         return $sResult;

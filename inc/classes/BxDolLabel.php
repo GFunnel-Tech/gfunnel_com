@@ -121,7 +121,6 @@ class BxDolLabel extends BxDolFactory implements iBxDolSingleton
 
         bx_alert('meta_keyword', 'url', 0, false, array(
            'url' => &$sUrl,
-           'url_ref' => &$sUrl,
            'keyword' => $sKeyword,
            'section' => $mixedSection,
         ));

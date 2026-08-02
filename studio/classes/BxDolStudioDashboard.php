@@ -26,7 +26,6 @@ class BxDolStudioDashboard extends BxTemplStudioWidget
 
         $this->aItemsCache = array (
             array('name' => 'all'),
-            array('name' => 'content'),
             array('name' => 'db'),
             array('name' => 'template'),
             array('name' => 'less'),
@@ -105,7 +104,6 @@ class BxDolStudioDashboard extends BxTemplStudioWidget
                             }
                             break;
 
-                        case 'content':
                         case 'db':
                         case 'template':
                         case 'less':

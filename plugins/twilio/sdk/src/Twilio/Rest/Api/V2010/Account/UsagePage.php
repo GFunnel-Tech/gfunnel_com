@@ -43,7 +43,6 @@ class UsagePage extends Page
         return new UsageInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

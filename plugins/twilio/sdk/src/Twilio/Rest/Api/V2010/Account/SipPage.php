@@ -43,7 +43,6 @@ class SipPage extends Page
         return new SipInstance($this->version, $payload, $this->solution['accountSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

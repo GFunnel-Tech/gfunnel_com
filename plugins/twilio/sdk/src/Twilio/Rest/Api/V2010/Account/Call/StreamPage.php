@@ -43,7 +43,6 @@ class StreamPage extends Page
         return new StreamInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['callSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

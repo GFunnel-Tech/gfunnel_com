@@ -35,8 +35,6 @@ abstract class PaymentOptions
      * @param int $timeout The number of seconds that <Pay> should wait for the caller to press a digit between each subsequent digit, after the first one, before moving on to validate the digits captured. The default is `5`, maximum is `600`.
      * @param string $tokenType
      * @param string $validCardTypes Credit card types separated by space that Pay should accept. The default value is `visa mastercard amex`
-     * @param string $requireMatchingInputs A comma-separated list of payment information fields that require the caller to enter the same value twice for confirmation. Supported values are `payment-card-number`, `expiration-date`, `security-code`, and `postal-code`.
-     * @param string $confirmation Whether to prompt the caller to confirm their payment information before submitting to the payment gateway. If `true`, the caller will hear the last 4 digits of their card or account number and must press 1 to confirm or 2 to cancel. Default is `false`.
      * @return CreatePaymentOptions Options builder
      */
     public static function create(
@@ -54,9 +52,7 @@ abstract class PaymentOptions
         bool $securityCode = Values::BOOL_NONE,
         int $timeout = Values::INT_NONE,
         string $tokenType = Values::NONE,
-        string $validCardTypes = Values::NONE,
-        string $requireMatchingInputs = Values::NONE,
-        string $confirmation = Values::NONE
+        string $validCardTypes = Values::NONE
 
     ): CreatePaymentOptions
     {
@@ -74,9 +70,7 @@ abstract class PaymentOptions
             $securityCode,
             $timeout,
             $tokenType,
-            $validCardTypes,
-            $requireMatchingInputs,
-            $confirmation
+            $validCardTypes
         );
     }
 
@@ -117,8 +111,6 @@ class CreatePaymentOptions extends Options
      * @param int $timeout The number of seconds that <Pay> should wait for the caller to press a digit between each subsequent digit, after the first one, before moving on to validate the digits captured. The default is `5`, maximum is `600`.
      * @param string $tokenType
      * @param string $validCardTypes Credit card types separated by space that Pay should accept. The default value is `visa mastercard amex`
-     * @param string $requireMatchingInputs A comma-separated list of payment information fields that require the caller to enter the same value twice for confirmation. Supported values are `payment-card-number`, `expiration-date`, `security-code`, and `postal-code`.
-     * @param string $confirmation Whether to prompt the caller to confirm their payment information before submitting to the payment gateway. If `true`, the caller will hear the last 4 digits of their card or account number and must press 1 to confirm or 2 to cancel. Default is `false`.
      */
     public function __construct(
         
@@ -135,9 +127,7 @@ class CreatePaymentOptions extends Options
         bool $securityCode = Values::BOOL_NONE,
         int $timeout = Values::INT_NONE,
         string $tokenType = Values::NONE,
-        string $validCardTypes = Values::NONE,
-        string $requireMatchingInputs = Values::NONE,
-        string $confirmation = Values::NONE
+        string $validCardTypes = Values::NONE
 
     ) {
         $this->options['bankAccountType'] = $bankAccountType;
@@ -154,8 +144,6 @@ class CreatePaymentOptions extends Options
         $this->options['timeout'] = $timeout;
         $this->options['tokenType'] = $tokenType;
         $this->options['validCardTypes'] = $validCardTypes;
-        $this->options['requireMatchingInputs'] = $requireMatchingInputs;
-        $this->options['confirmation'] = $confirmation;
     }
 
     /**
@@ -317,30 +305,6 @@ class CreatePaymentOptions extends Options
     public function setValidCardTypes(string $validCardTypes): self
     {
         $this->options['validCardTypes'] = $validCardTypes;
-        return $this;
-    }
-
-    /**
-     * A comma-separated list of payment information fields that require the caller to enter the same value twice for confirmation. Supported values are `payment-card-number`, `expiration-date`, `security-code`, and `postal-code`.
-     *
-     * @param string $requireMatchingInputs A comma-separated list of payment information fields that require the caller to enter the same value twice for confirmation. Supported values are `payment-card-number`, `expiration-date`, `security-code`, and `postal-code`.
-     * @return $this Fluent Builder
-     */
-    public function setRequireMatchingInputs(string $requireMatchingInputs): self
-    {
-        $this->options['requireMatchingInputs'] = $requireMatchingInputs;
-        return $this;
-    }
-
-    /**
-     * Whether to prompt the caller to confirm their payment information before submitting to the payment gateway. If `true`, the caller will hear the last 4 digits of their card or account number and must press 1 to confirm or 2 to cancel. Default is `false`.
-     *
-     * @param string $confirmation Whether to prompt the caller to confirm their payment information before submitting to the payment gateway. If `true`, the caller will hear the last 4 digits of their card or account number and must press 1 to confirm or 2 to cancel. Default is `false`.
-     * @return $this Fluent Builder
-     */
-    public function setConfirmation(string $confirmation): self
-    {
-        $this->options['confirmation'] = $confirmation;
         return $this;
     }
 

@@ -43,7 +43,6 @@ class PolicyPage extends Page
         return new PolicyInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

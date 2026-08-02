@@ -45,11 +45,13 @@ class BxDolCronAcl extends BxDolCron
             }
 
             // clean memory
-            if(($oProfile = BxDolProfile::getInstance($iId)) !== false) {
-                unset($GLOBALS['bxDolClasses']['BxDolProfile_' . $iId]);
-                unset($GLOBALS['bxDolClasses']['BxDolAccount_' . $oProfile->getAccountId()]);
-                BxDolDb::getInstance()->cleanMemory('BxDolAclQuery::getLevelCurrent' . $iId . 0);
-            }
+            $oProfile = BxDolProfile::getInstance($iId);
+            $iAccountId = $oProfile->getAccountId();
+            $sClass = 'BxDolProfile_' . $iId;
+            unset($GLOBALS['bxDolClasses'][$sClass]);
+            $sClass = 'BxDolAccount_' . $iAccountId;
+            unset($GLOBALS['bxDolClasses'][$sClass]);
+            BxDolDb::getInstance()->cleanMemory('BxDolAclQuery::getLevelCurrent' . $iId . 0);
         }
     }
 }

@@ -43,7 +43,6 @@ class AuthCallsCredentialListMappingPage extends Page
         return new AuthCallsCredentialListMappingInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['domainSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

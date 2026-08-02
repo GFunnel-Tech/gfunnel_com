@@ -20,8 +20,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 
 
 class EligibilityList extends ListResource
@@ -39,60 +37,27 @@ class EligibilityList extends ListResource
         // Path Solution
         $this->solution = [
         ];
-        $this->uri = '/HostedNumber/Eligibility';
-    }
 
-    /**
-     * Helper function for Create
-     *
-     * @param ?array $body
-     * @return Response Created Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _create(?array $body = null): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/json', 'Accept' => 'application/json' ]);
-        $data = $body ? $body->toArray() : [];
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
+        $this->uri = '/HostedNumber/Eligibility';
     }
 
     /**
      * Create the EligibilityInstance
      *
-     * @param ?array $body
      * @return EligibilityInstance Created EligibilityInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function create(?array $body = null): EligibilityInstance
+    public function create(): EligibilityInstance
     {
-        $response = $this->_create($body);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $data = $body->toArray();
+        $headers['Content-Type'] = 'application/json';
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
+
         return new EligibilityInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the EligibilityInstance with Metadata
-     *
-     * @param ?array $body
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(?array $body = null): ResourceMetadata
-    {
-        $response = $this->_create($body);
-        $resource = new EligibilityInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

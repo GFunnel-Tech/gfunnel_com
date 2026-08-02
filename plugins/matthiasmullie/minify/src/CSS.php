@@ -13,7 +13,6 @@
 namespace MatthiasMullie\Minify;
 
 use MatthiasMullie\Minify\Exceptions\FileImportException;
-use MatthiasMullie\Minify\Exceptions\PatternMatchException;
 use MatthiasMullie\PathConverter\Converter;
 use MatthiasMullie\PathConverter\ConverterInterface;
 
@@ -110,8 +109,8 @@ class CSS extends Minify
      * \@import's will be loaded and their content merged into the original file,
      * to save HTTP requests.
      *
-     * @param string $source The file to combine imports for
-     * @param string $content The CSS content to combine imports for
+     * @param string   $source  The file to combine imports for
+     * @param string   $content The CSS content to combine imports for
      * @param string[] $parents Parent paths, for circular reference checks
      *
      * @return string
@@ -246,7 +245,7 @@ class CSS extends Minify
      * @url(image.jpg) images will be loaded and their content merged into the
      * original file, to save HTTP requests.
      *
-     * @param string $source The file to import files for
+     * @param string $source  The file to import files for
      * @param string $content The CSS content to import files for
      *
      * @return string
@@ -297,8 +296,6 @@ class CSS extends Minify
      * @param string[] $parents Parent paths, for circular reference checks
      *
      * @return string The minified data
-     *
-     * @throws PatternMatchException
      */
     public function execute($path = null, $parents = array())
     {
@@ -360,7 +357,7 @@ class CSS extends Minify
      * (e.g. ../../images/image.gif, if the new CSS file is 1 folder deeper).
      *
      * @param ConverterInterface $converter Relative path converter
-     * @param string $content The CSS content to update relative urls for
+     * @param string             $content   The CSS content to update relative urls for
      *
      * @return string
      */
@@ -593,7 +590,6 @@ class CSS extends Minify
 
         // convert `rgb` to `hex`
         $dec = '([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])';
-
         return preg_replace_callback(
             "/rgb\($dec $dec $dec\)/i",
             function ($match) {
@@ -625,10 +621,10 @@ class CSS extends Minify
         $tag = '(rgb|hsl|hwb|(?:(?:ok)?(?:lch|lab)))';
 
         // remove alpha channel if it's pointless ..
-        $content = preg_replace('/' . $tag . '\(\s*([^\s)]+)\s+([^\s)]+)\s+([^\s)]+)\s+\/\s+1(?:(?:\.\d?)*|00%)?\s*\)/i', '$1($2 $3 $4)', $content);
+        $content = preg_replace('/' . $tag . '\(\s*([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+\/\s+1(?:(?:\.\d?)*|00%)?\s*\)/i', '$1($2 $3 $4)', $content);
 
         // replace `transparent` with shortcut ..
-        $content = preg_replace('/' . $tag . '\(\s*[^\s)]+\s+[^\s)]+\s+[^\s)]+\s+\/\s+0(?:[\.0%]*)?\s*\)/i', '#fff0', $content);
+        $content = preg_replace('/' . $tag . '\(\s*[^\s]+\s+[^\s]+\s+[^\s]+\s+\/\s+0(?:[\.0%]*)?\s*\)/i', '#fff0', $content);
 
         return $content;
     }
@@ -736,57 +732,34 @@ class CSS extends Minify
      * @param string $content The CSS content to strip the whitespace for
      *
      * @return string
-     *
-     * @throws PatternMatchException
      */
     protected function stripWhitespace($content)
     {
         // remove leading & trailing whitespace
-        $content = $this->pregReplace('/^\s*/m', '', $content);
-        $content = $this->pregReplace('/\s*$/m', '', $content);
+        $content = preg_replace('/^\s*/m', '', $content);
+        $content = preg_replace('/\s*$/m', '', $content);
 
         // replace newlines with a single space
-        $content = $this->pregReplace('/\s+/', ' ', $content);
+        $content = preg_replace('/\s+/', ' ', $content);
 
         // remove whitespace around meta characters
         // inspired by stackoverflow.com/questions/15195750/minify-compress-css-with-regex
-        $content = $this->pregReplace('/\s*([\*$~^|]?+=|[{};,>~]|!important\b)\s*/', '$1', $content);
-        $content = $this->pregReplace('/([\[(:>\+])\s+/', '$1', $content);
-        $content = $this->pregReplace('/\s+([\]\)>\+])/', '$1', $content);
-        $content = $this->pregReplace('/\s+(:)(?![^\}]*\{)/', '$1', $content);
+        $content = preg_replace('/\s*([\*$~^|]?+=|[{};,>~]|!important\b)\s*/', '$1', $content);
+        $content = preg_replace('/([\[(:>\+])\s+/', '$1', $content);
+        $content = preg_replace('/\s+([\]\)>\+])/', '$1', $content);
+        $content = preg_replace('/\s+(:)(?![^\}]*\{)/', '$1', $content);
 
         // whitespace around + and - can only be stripped inside some pseudo-
         // classes, like `:nth-child(3+2n)`
         // not in things like `calc(3px + 2px)`, shorthands like `3px -2px`, or
         // selectors like `div.weird- p`
         $pseudos = array('nth-child', 'nth-last-child', 'nth-last-of-type', 'nth-of-type');
-        $content = $this->pregReplace('/:(' . implode('|', $pseudos) . ')\(\s*([+-]?)\s*(.+?)\s*([+-]?)\s*(.*?)\s*\)/', ':$1($2$3$4$5)', $content);
+        $content = preg_replace('/:(' . implode('|', $pseudos) . ')\(\s*([+-]?)\s*(.+?)\s*([+-]?)\s*(.*?)\s*\)/', ':$1($2$3$4$5)', $content);
 
         // remove semicolon/whitespace followed by closing bracket
         $content = str_replace(';}', '}', $content);
 
         return trim($content);
-    }
-
-    /**
-     * Perform a preg_replace and check for errors.
-     *
-     * @param string $pattern Pattern
-     * @param string $replacement Replacement
-     * @param string $subject String to process
-     *
-     * @return string
-     *
-     * @throws PatternMatchException
-     */
-    protected function pregReplace($pattern, $replacement, $subject)
-    {
-        $result = preg_replace($pattern, $replacement, $subject);
-        if ($result === null) {
-            throw PatternMatchException::fromLastError("Failed to replace with pattern '$pattern'");
-        }
-
-        return $result;
     }
 
     /**

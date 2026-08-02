@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -52,16 +50,15 @@ class WorkspaceCumulativeStatisticsContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
+     * Fetch the WorkspaceCumulativeStatisticsInstance
      *
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
+     * @return WorkspaceCumulativeStatisticsInstance Fetched WorkspaceCumulativeStatisticsInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _fetch(array $options = []): Response
+    public function fetch(array $options = []): WorkspaceCumulativeStatisticsInstance
     {
-        
+
         $options = new Values($options);
 
         $params = Values::of([
@@ -77,50 +74,13 @@ class WorkspaceCumulativeStatisticsContext extends InstanceContext
                 $options['splitByWaitTime'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
 
-    /**
-     * Fetch the WorkspaceCumulativeStatisticsInstance
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return WorkspaceCumulativeStatisticsInstance Fetched WorkspaceCumulativeStatisticsInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetch(array $options = []): WorkspaceCumulativeStatisticsInstance
-    {
-        $response = $this->_fetch($options);
         return new WorkspaceCumulativeStatisticsInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['workspaceSid']
-        );
-        
-    }
-
-    /**
-     * Fetch the WorkspaceCumulativeStatisticsInstance with Metadata
-     *
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new WorkspaceCumulativeStatisticsInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['workspaceSid']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

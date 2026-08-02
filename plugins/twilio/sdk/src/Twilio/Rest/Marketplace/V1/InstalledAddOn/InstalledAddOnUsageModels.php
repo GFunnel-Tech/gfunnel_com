@@ -62,14 +62,11 @@ class MarketplaceV1InstalledAddOnInstalledAddOnUsageBillableItems implements \Js
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
             'quantity' => $this->quantity,
-            'sid' => $this->sid
+            'sid' => $this->sid,
+            'submitted' => $this->submitted
         ];
-        if (isset($this->submitted)) {
-            $jsonString['submitted'] = $this->submitted;
-        }
-        return $jsonString;
     }
 }
 
@@ -93,13 +90,10 @@ class MarketplaceV1InstalledAddOnInstalledAddOnUsage implements \JsonSerializabl
 
     public function jsonSerialize(): array
     {
-        $jsonString = [
+        return [
+            'total_submitted' => $this->totalSubmitted,
             'billable_items' => $this->billableItems
         ];
-        if (isset($this->totalSubmitted)) {
-            $jsonString['total_submitted'] = $this->totalSubmitted;
-        }
-        return $jsonString;
     }
 }
 

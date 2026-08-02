@@ -43,7 +43,6 @@ class TrunkPage extends Page
         return new TrunkInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

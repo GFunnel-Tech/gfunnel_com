@@ -18,7 +18,6 @@ class BxDolStudioPage extends BxDol
     protected $oDb;
 
     protected $aPage;
-    protected $bPage;
     protected $bPageMultiple;
     protected $sPageUrl;
     protected $sPageSelected;
@@ -29,18 +28,14 @@ class BxDolStudioPage extends BxDol
     protected $sPageRssHelpId;
 
     protected $iPageAssistantId;
-    protected $sPageAssistantChatName;
-    protected $sPageAssistantChatDescription;
+    protected $iPageAssistantChatName;
 
     protected $_sTypesPreList;
 
-    protected $aActions;
     protected $aMarkers;
 
-    protected $iError;
     protected $sError;
-
-    protected $_bShowHeaderBreadcrumb;
+    
     protected $_bShowHeaderRightSearch;
     protected $_bShowHeaderRightSite;
     protected $_bShowHeaderRightAssistant;
@@ -51,8 +46,7 @@ class BxDolStudioPage extends BxDol
 
         $this->oDb = BxDolStudioPageQuery::getInstance();
 
-        $this->aPage = [];
-        $this->bPage = false;
+        $this->aPage = array();
         $this->bPageMultiple = false;
         $this->sPageSelected = '';       
 
@@ -61,21 +55,17 @@ class BxDolStudioPage extends BxDol
         $this->iPageRssHelpLength = 5;
 
         $this->iPageAssistantId = BxDolAI::getAssistantForStudio();
-        $this->sPageAssistantChatName = 'sys_studio_page_assistant';
-        $this->sPageAssistantChatDescription = '_sys_agents_assistants_chat_dsc_studio';
+        $this->iPageAssistantChatName = 'sys_studio_page_assistant';
 
         $this->_sTypesPreList = 'sys_studio_widget_types';
 
-        $this->aActions = [];
-        $this->aMarkers = [
+        $this->aMarkers = array(
             'url_root' => BX_DOL_URL_ROOT,
             'url_studio' => BX_DOL_URL_STUDIO
-        ];
+        );
 
-        $this->iError = 0;
         $this->sError = false;
 
-        $this->_bShowHeaderBreadcrumb = getParam('sys_std_show_header_left') == 'on';
         $this->_bShowHeaderRightSearch = getParam('sys_std_show_header_right_search') == 'on';
         $this->_bShowHeaderRightSite = getParam('sys_std_show_header_right_site') == 'on';
         $this->_bShowHeaderRightAssistant = $this->iPageAssistantId != 0;
@@ -98,13 +88,6 @@ class BxDolStudioPage extends BxDol
                 $this->aPage[$aPage['name']] = $aPage;
             }
         }
-
-        $this->bPage = true;
-    }
-    
-    public function checkAction()
-    {
-        return false;
     }
 
     public function getDb()
@@ -172,21 +155,14 @@ class BxDolStudioPage extends BxDol
         return true;
     }
 
-    public function setError($mixedError)
+    public function setError($sError)
     {
-        if(is_array($mixedError))
-            list($this->iError, $this->sError) = $mixedError;
-        else
-            $this->sError = $mixedError;
+        $this->sError = $sError;
     }
 
     public function getError($bToDisplay = true)
     {
-        $sError = $this->sError;
-        if($bToDisplay)
-            $sError = MsgBox(_t($sError));
-
-        return $this->iError ? [$this->iError, $sError]: $sError;
+        return $bToDisplay ? MsgBox(_t($this->sError)) : $this->sError;
     }
 
     protected function getSystemName($sValue)

@@ -42,8 +42,9 @@
 class BxDolModule extends BxDol
 {
     public $_aModule;
-    private $_aInstancesStorage = [];
-    private $_aInstancesToStore = ['_oDb' => '_initDb', '_oTemplate' => '_initTemplate', '_oConfig' => '_initConfig'];
+    public $_oDb;
+    public $_oTemplate;
+    public $_oConfig;
 
     /**
      * constructor
@@ -51,60 +52,25 @@ class BxDolModule extends BxDol
     public function __construct($aModule)
     {
         parent::__construct();
+
         $this->_aModule = $aModule;
-    }
 
-    public function __get($sName) {
-        if (isset($this->_aInstancesToStore[$sName])) {
-            $sMethod = $this->_aInstancesToStore[$sName];
-            return $this->_aInstancesStorage[$sName] ??= $this->$sMethod();
-        }
-        throw new \Exception("Unknown property: $sName");
-    }
-
-    public function __set($sName, $o) {
-        if (isset($this->_aInstancesToStore[$sName])) {
-            $this->_aInstancesStorage[$sName] = $o;
-        }
-        throw new \Exception("Unknown property: $sName");
-    }
-
-    private function _initDb():BxDolModuleDb {
-        $sClassPrefix = $this->_aModule['class_prefix'];
-        $sClassPath = BX_DIRECTORY_PATH_MODULES . $this->_aModule['path'] . 'classes/';
-
-        $sClassName = $sClassPrefix . 'Db';
-        require_once($sClassPath . $sClassName . '.php');
-
-        /** @var BxDolDb $oDb */
-        $oDb = new $sClassName($this->_oConfig);
-        return $oDb;
-    }
-    
-    private function _initConfig():BxDolModuleConfig {
-        $sClassPrefix = $this->_aModule['class_prefix'];
-        $sClassPath = BX_DIRECTORY_PATH_MODULES . $this->_aModule['path'] . 'classes/';
+        $sClassPrefix = $aModule['class_prefix'];
+        $sClassPath = BX_DIRECTORY_PATH_MODULES . $aModule['path'] . 'classes/';
 
         $sClassName = $sClassPrefix . 'Config';
         require_once($sClassPath . $sClassName . '.php');
+        $this->_oConfig = new $sClassName($aModule);
 
-        /** @var BxDolModuleConfig $oConfig */
-        $oConfig = new $sClassName($this->_aModule);
-        return $oConfig;
-    }
-
-    private function _initTemplate():BxDolModuleProxy {
-        $sClassPrefix = $this->_aModule['class_prefix'];
-        $sClassPath = BX_DIRECTORY_PATH_MODULES . $this->_aModule['path'] . 'classes/';
+        $sClassName = $sClassPrefix . 'Db';
+        require_once($sClassPath . $sClassName . '.php');
+        $this->_oDb = new $sClassName($this->_oConfig);
 
         $sClassName = $sClassPrefix . 'Template';
         require_once($sClassPath . $sClassName . '.php');
-
-        /** @var BxDolTemplate $oTemplate */
         $oTemplate = new $sClassName($this->_oConfig, $this->_oDb); 
         $oTemplate->init();
-
-        return new BxDolModuleProxy('module_template', $oTemplate);
+        $this->_oTemplate = new BxDolModuleProxy('module_template', $oTemplate);
     }
 
     /**

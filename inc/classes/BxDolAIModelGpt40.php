@@ -17,7 +17,6 @@ class BxDolAIModelGpt40 extends BxDolAIModel
     protected $_sEndpointMessages;
 
     protected $_sEndpointAssistants;
-    protected $_sEndpointAssistantsModify;
     protected $_sEndpointAssistantsDelete;
 
     protected $_sEndpointFiles;
@@ -46,7 +45,6 @@ class BxDolAIModelGpt40 extends BxDolAIModel
         $this->_sEndpointMessages = $this->_sEndpoint . '/%s/messages';
 
         $this->_sEndpointAssistants = 'https://api.openai.com/v1/assistants';
-        $this->_sEndpointAssistantsModify = $this->_sEndpointAssistants . '/%s';
         $this->_sEndpointAssistantsDelete = $this->_sEndpointAssistants . '/%s';
 
         $this->_sEndpointFiles = 'https://api.openai.com/v1/files';
@@ -83,7 +81,7 @@ class BxDolAIModelGpt40 extends BxDolAIModel
         if(!is_a($oMessage, 'BxDolAIMessage'))
             return false;
 
-        $aResponse = $this->call(['messages' => [['role' => 'user', 'content' => $oMessage->getContent(), 'attachments' => $oMessage->getAttachments()]]]);
+        $aResponse = $this->call(['messages' => [['role' => 'user', 'content' => $oMessage->getContent()]]]);
         if(!isset($aResponse['id'], $aResponse['object']) || $aResponse['object'] != 'thread')
             return false;
 
@@ -145,19 +143,12 @@ class BxDolAIModelGpt40 extends BxDolAIModel
             $mixedMessage = $mixedMessage->getLast();
 
         $sThreadId = $aParams['thread_id'];
-        if($mixedMessage->isAi() || !$this->callMessages($sThreadId, ['role' => 'user', 'content' => $mixedMessage->getContent(), 'attachments' => $mixedMessage->getAttachments()]))
+        if($mixedMessage->isAi() || !$this->callMessages($sThreadId, ['role' => 'user', 'content' => $mixedMessage->getContent()]))
             return false;
 
-        $aResponse = $this->callRuns($sThreadId, [
-            'assistant_id' => isset($aParams['assistant_id']) ? $aParams['assistant_id'] : $this->_getAssistantId($sType)
-        ]);
-
-        if(!$aResponse || (isset($aResponse['status']) && $aResponse['status'] != 'completed')) {
-            if(!empty($aResponse['last_error']) && is_array($aResponse['last_error']))
-                return $aResponse['last_error']['message'];
-
+        $sAssistantId = isset($aParams['assistant_id']) ? $aParams['assistant_id'] : $this->_getAssistantId($sType);
+        if(!$this->callRuns($sThreadId, ['assistant_id' => $sAssistantId]))
             return false;
-        }
 
         return $this->getMessages($sThreadId);
     }
@@ -194,16 +185,6 @@ class BxDolAIModelGpt40 extends BxDolAIModel
         ];
     }
 
-    public function editAssistant($sId, $aParams = [])
-    {
-        $aResponseAsst = $this->callAssistantsModify($sId, [
-            'name' => $aParams['name'], 
-            'instructions' => $aParams['prompt']
-        ]);
-
-        return $aResponseAsst !== false;
-    }
-
     public function call($aParams = [])
     {
         $aData = [];
@@ -228,8 +209,8 @@ class BxDolAIModelGpt40 extends BxDolAIModel
         if($aResponse !== false && isset($aResponse['id'])) {
             $sRunId = $aResponse['id'];
 
-            while(in_array($aResponse['status'], ['queued', 'in_progress'])) {
-                sleep(1);
+            while($aResponse['status'] != 'completed') {
+                sleep(2);
 
                 $aResponse = $this->_call(sprintf($this->_sEndpointRunsCheck, $sThreadId, $sRunId), [], 'get');
             }
@@ -356,22 +337,7 @@ class BxDolAIModelGpt40 extends BxDolAIModel
 
         return $mixedResponse;
     }
-
-    public function callAssistantsModify($sAsstId, $aParams = [])
-    {
-        $aData = [];
-        if(($sKey = 'call_assts_modify') && !empty($this->_aParams[$sKey]) && is_array($this->_aParams[$sKey]))
-            $aData = array_merge($aData, $this->_aParams[$sKey]);
-        if(!empty($aParams) && is_array($aParams))
-            $aData = array_merge($aData, $aParams);
-
-        $mixedResponse = $this->_call(sprintf($this->_sEndpointAssistantsModify, $sAsstId), $aData);
-        if(empty($mixedResponse) || !is_array($mixedResponse) || $mixedResponse['object'] != 'assistant')
-            return false;
-
-        return $mixedResponse;
-    }
-
+    
     public function callAssistantsDelete($sAsstId, $aParams = [])
     {
         $aData = [];
@@ -452,8 +418,9 @@ class BxDolAIModelGpt40 extends BxDolAIModel
         if(!empty($aParams) && is_array($aParams))
             $aData = array_merge($aData, $aParams);
 
-        $sResponse = bx_file_get_contents($this->_sEndpointChat, $aData, 'post-json', [
-            'Authorization: Bearer ' . $this->_sKey, 
+        $sResponse = bx_file_get_contents($this->_sEndpointChat, $aData, "post-json", [
+            "Authorization: Bearer " . $this->_sKey, 
+            'Content-Type: application/json', 
             'OpenAI-Beta: assistants=v1'
         ]);
 
@@ -481,18 +448,17 @@ class BxDolAIModelGpt40 extends BxDolAIModel
         return $mixedResponse;
     }
 
-    protected function _call($sEndpoint, $aData, $sMethod = 'post-json')
+    protected function _call($sEndpoint, $aData, $sMethod = "post-json")
     {
-        $sResponse = bx_file_get_contents($sEndpoint, $aData, $sMethod, array_merge([
-            'Authorization: Bearer ' . $this->_sKey, 
+        $sResponse = bx_file_get_contents($sEndpoint, $aData, $sMethod, [
+            "Authorization: Bearer " . $this->_sKey, 
+            'Content-Type: application/json', 
             'OpenAI-Beta: assistants=v2'
-        ], ($sMethod != 'post-json' ? ['Content-Type: application/json'] : [])));
+        ]);
 
         $aResponse = json_decode($sResponse, true);
         if(isset($aResponse['error'])) {
-            $this->setError($aResponse['error']);
-
-            $this->_log(['endpoint' => $sEndpoint, 'method' => $sMethod, 'error' => $aResponse['error']]);
+            $this->_log($aResponse['error']);
             return false;
         }
 

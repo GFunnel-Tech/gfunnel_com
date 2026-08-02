@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -41,23 +39,22 @@ class ExternalCampaignList extends ListResource
         // Path Solution
         $this->solution = [
         ];
+
         $this->uri = '/Services/PreregisteredUsa2p';
     }
 
     /**
-     * Helper function for Create
+     * Create the ExternalCampaignInstance
      *
      * @param string $campaignId ID of the preregistered campaign.
-     
      * @param string $messagingServiceSid The SID of the [Messaging Service](https://www.twilio.com/docs/messaging/api/service-resource) that the resource is associated with.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return ExternalCampaignInstance Created ExternalCampaignInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(string $campaignId, string $messagingServiceSid, array $options = []): Response
+    public function create(string $campaignId, string $messagingServiceSid, array $options = []): ExternalCampaignInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -69,54 +66,12 @@ class ExternalCampaignList extends ListResource
                 Serialize::booleanToString($options['cnpMigration']),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the ExternalCampaignInstance
-     *
-     * @param string $campaignId ID of the preregistered campaign.
-     
-     * @param string $messagingServiceSid The SID of the [Messaging Service](https://www.twilio.com/docs/messaging/api/service-resource) that the resource is associated with.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ExternalCampaignInstance Created ExternalCampaignInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(string $campaignId, string $messagingServiceSid, array $options = []): ExternalCampaignInstance
-    {
-        $response = $this->_create( $campaignId,  $messagingServiceSid, $options);
         return new ExternalCampaignInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the ExternalCampaignInstance with Metadata
-     *
-     * @param string $campaignId ID of the preregistered campaign.
-     
-     * @param string $messagingServiceSid The SID of the [Messaging Service](https://www.twilio.com/docs/messaging/api/service-resource) that the resource is associated with.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(string $campaignId, string $messagingServiceSid, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $campaignId,  $messagingServiceSid, $options);
-        $resource = new ExternalCampaignInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

@@ -14,8 +14,6 @@ class BxBaseModPaymentSubscriptions extends BxDol
     protected $MODULE;
     protected $_oModule;
 
-    protected $_bIsApi;
-
     protected $_bSingleSeller;
     protected $_iSingleSeller;
 
@@ -24,8 +22,6 @@ class BxBaseModPaymentSubscriptions extends BxDol
         parent::__construct();
 
         $this->_oModule = BxDolModule::getInstance($this->MODULE);
-
-        $this->_bIsApi = bx_is_api();
 
         $this->_bSingleSeller = $this->_oModule->_oConfig->isSingleSeller();
 

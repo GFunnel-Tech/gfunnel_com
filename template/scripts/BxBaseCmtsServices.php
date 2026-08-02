@@ -286,7 +286,6 @@ class BxBaseCmtsServices extends BxDol
             return false;
 
         $sCmtUrl = $oCmts->getViewUrl($iCmtId);
-        $sCmtUrlApi = $oCmts->getItemUrlApi($iCmtId);
 
         $sSample = '_cmt_txt_sample_comment_single_with_article';
         $sSampleWoArticle = '_cmt_txt_sample_comment_single';
@@ -352,13 +351,11 @@ class BxBaseCmtsServices extends BxDol
                 'markers' => $aActionCustomMarkers
             ),
             'url' => $sCmtUrl,
-            'url_api' => $sCmtUrlApi,
             'content' => array(
                 'sample' => $sSample,
                 'sample_wo_article' => $sSampleWoArticle,
                 'sample_action' => $sAction,
                 'url' => $sCmtUrl,
-                'url_api' => $sCmtUrlApi,
                 'title' => '',
                 'text' => $oCmts->getViewText($aCmt),
                 'images' => array(),
@@ -411,37 +408,15 @@ class BxBaseCmtsServices extends BxDol
 
         $sEntryUrl = '{bx_url_root}' . BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aContentInfo[$CNF['FIELD_ID']]);
         $sEntryCaption = isset($aContentInfo[$CNF['FIELD_TITLE']]) ? $aContentInfo[$CNF['FIELD_TITLE']] : strmaxtextlen($aContentInfo[$CNF['FIELD_TEXT']], 20, '...');
-        $sEntrySummary = isset($aContentInfo[$CNF['FIELD_TEXT']]) ? $aContentInfo[$CNF['FIELD_TEXT']] : '';
 
-        $iCommentId = (int)$aCommentGi['cmt_id'];
-
-        return [
-            'module' => $aCommentSystem['module'],
+        return array(
             'entry_sample' => $CNF['T']['txt_sample_single'],
             'entry_url' => $sEntryUrl,
             'entry_caption' => $sEntryCaption,
-            'entry_summary' => $sEntrySummary,
             'subentry_sample' => $CNF['T']['txt_sample_comment_single'],
-            'subentry_url' => $oComment->getItemUrl($iCommentId, '{bx_url_root}'),
-            'subentry_url_api' => $oComment->getItemUrlApi($iCommentId, '{bx_url_root}'),
-            'subentry_summary' => $oComment->getViewText($iCommentId),
+            'subentry_url' => '{bx_url_root}' . $oComment->getViewUrl((int)$aCommentGi['cmt_id'], false),
             'lang_key' => '', //may be empty or not specified. In this case the default one from Notification module will be used.
-        ];
-    }
-
-    public function serviceGetNotificationsCommentReported($aEvent)
-    {
-        $iCmtIdUnique = (int)$aEvent['object_id'];
-
-        $aCmtInfo = BxDolCmts::getGlobalInfo($iCmtIdUnique);
-        if(empty($aCmtInfo) || !is_array($aCmtInfo))
-            return [];
-
-        $oCmts = BxDolCmts::getObjectInstance($aCmtInfo['system_name'], 0, false);
-        if(!$oCmts || !$oCmts->isEnabled())
-            return [];
-
-        return $this->_getNotificationsData($iCmtIdUnique, (int)$aCmtInfo['cmt_id'], $oCmts);
+        );
     }
 
     /**
@@ -449,7 +424,32 @@ class BxBaseCmtsServices extends BxDol
      */
     public function serviceGetNotificationsVote($aEvent)
     {
-        return $this->_serviceGetNotificationsVote($aEvent, 'vote');
+        $iCmtIdUnique = (int)$aEvent['object_id'];
+
+        $aCmtInfo = BxDolCmts::getGlobalInfo($iCmtIdUnique);
+        if(empty($aCmtInfo) || !is_array($aCmtInfo))
+            return array();
+
+        $oCmts = BxDolCmts::getObjectInstance($aCmtInfo['system_name'], 0, false);
+        if(!$oCmts || !$oCmts->isEnabled())
+            return array();
+
+        $oVote = $oCmts->getVoteObject($iCmtIdUnique);
+        if(!$oVote)
+            return array();
+
+        $iCmtId = (int)$aCmtInfo['cmt_id'];
+        $sCmtUrl = str_replace(BX_DOL_URL_ROOT, '{bx_url_root}', $oCmts->serviceGetLink($iCmtId));
+        $sCmtCaption = strmaxtextlen($oCmts->serviceGetText($iCmtId), 20, '...');
+
+        return array(
+            'entry_sample' => $oCmts->getLanguageKey('txt_sample_single'),
+            'entry_url' => $sCmtUrl,
+            'entry_caption' => $sCmtCaption,
+            'entry_author' => $aCmtInfo['author_id'],
+            'subentry_sample' => $oCmts->getLanguageKey('txt_sample_vote_single'),
+            'lang_key' => '', //may be empty or not specified. In this case the default one from Notification module will be used.
+        );
     }
 
     /**
@@ -482,11 +482,19 @@ class BxBaseCmtsServices extends BxDol
         else
             $aSubentrySampleParams[] = '_undefined';
 
-        return array_merge($this->_getNotificationsData($iCmtIdUnique, (int)$aCmtInfo['cmt_id'], $oCmts), [
+        $iCmtId = (int)$aCmtInfo['cmt_id'];
+        $sCmtUrl = str_replace(BX_DOL_URL_ROOT, '{bx_url_root}', $oCmts->serviceGetLink($iCmtId));
+        $sCmtCaption = strmaxtextlen($oCmts->serviceGetText($iCmtId), 20, '...');
+
+        return array(
+            'entry_sample' => $oCmts->getLanguageKey('txt_sample_single'),
+            'entry_url' => $sCmtUrl,
+            'entry_caption' => $sCmtCaption,
             'entry_author' => $aCmtInfo['author_id'],
             'subentry_sample' => $oCmts->getLanguageKey('txt_sample_reaction_single'),
-            'subentry_sample_params' => $aSubentrySampleParams
-        ]);
+            'subentry_sample_params' => $aSubentrySampleParams,
+            'lang_key' => '', //may be empty or not specified. In this case the default one from Notification module will be used.
+        );
     }
 
     /**
@@ -494,7 +502,7 @@ class BxBaseCmtsServices extends BxDol
      */
     public function serviceGetNotificationsScoreUp($aEvent)
     {
-    	return $this->_serviceGetNotificationsVote($aEvent, 'score', 'up');
+    	return $this->_serviceGetNotificationsScore('up', $aEvent);
     }
 
     /**
@@ -502,53 +510,39 @@ class BxBaseCmtsServices extends BxDol
      */
     public function serviceGetNotificationsScoreDown($aEvent)
     {
-    	return $this->_serviceGetNotificationsVote($aEvent, 'score', 'down');
+    	return $this->_serviceGetNotificationsScore('down', $aEvent);
     }
 
-    protected function _serviceGetNotificationsVote($aEvent, $sAction, $sType = '')
+    protected function _serviceGetNotificationsScore($sType, $aEvent)
     {
         $iCmtIdUnique = (int)$aEvent['object_id'];
 
         $aCmtInfo = BxDolCmts::getGlobalInfo($iCmtIdUnique);
         if(empty($aCmtInfo) || !is_array($aCmtInfo))
-            return [];
+            return array();
 
         $oCmts = BxDolCmts::getObjectInstance($aCmtInfo['system_name'], 0, false);
         if(!$oCmts || !$oCmts->isEnabled())
-            return [];
+            return array();
 
-        $oAction = $oCmts->{'get' . ucfirst($sAction) . 'Object'}($iCmtIdUnique);
-        if(!$oAction)
-            return [];
+        $oScore = $oCmts->getScoreObject($iCmtIdUnique);
+        if(!$oScore)
+            return array();
 
-        return array_merge($this->_getNotificationsData($iCmtIdUnique, (int)$aCmtInfo['cmt_id'], $oCmts), [
-            'entry_author' => $aCmtInfo['author_id'],
-            'subentry_sample' => $oCmts->getLanguageKey('txt_sample_' . $sAction . ($sType ? '_' . $sType : '') . '_single'),
-        ]);
-    }
-
-    protected function _getNotificationsData($iCmtIdUnique, $iCmtId, $oCmts)
-    {
+        $iCmtId = (int)$aCmtInfo['cmt_id'];
+        $sCmtUrl = str_replace(BX_DOL_URL_ROOT, '{bx_url_root}', $oCmts->serviceGetLink($iCmtId));
         $sCmtCaption = strmaxtextlen($oCmts->serviceGetText($iCmtId), 20, '...');
 
-        $sCmtUrl = $sCmtUrlApi = '';
-        if(($aCmt = $oCmts->getCommentsBy(['type' => 'uniq_id', 'uniq_id' => $iCmtIdUnique])) && is_array($aCmt)) {
-            $oCmts->init($aCmt['cmt_object_id']);
-
-            $sCmtUrl = $oCmts->getItemUrl($iCmtId, '{bx_url_root}');
-            $sCmtUrlApi = $oCmts->getItemUrlApi($iCmtId, '{bx_url_root}');
-        }
-
-        return [
-            'module' => $oCmts->getModule(),
+        return array(
             'entry_sample' => $oCmts->getLanguageKey('txt_sample_single'),
             'entry_url' => $sCmtUrl,
-            'entry_url_api' => $sCmtUrlApi,
             'entry_caption' => $sCmtCaption,
+            'entry_author' => $aCmtInfo['author_id'],
+            'subentry_sample' => $oCmts->getLanguageKey('txt_sample_score_' . $sType . '_single'),
             'lang_key' => '', //may be empty or not specified. In this case the default one from Notification module will be used.
-        ];
+        );
     }
-
+    
     /**
      * @page service Service Calls
      * @section bx_system_cmts System Services 

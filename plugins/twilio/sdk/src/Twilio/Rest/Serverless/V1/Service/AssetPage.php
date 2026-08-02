@@ -43,7 +43,6 @@ class AssetPage extends Page
         return new AssetInstance($this->version, $payload, $this->solution['serviceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

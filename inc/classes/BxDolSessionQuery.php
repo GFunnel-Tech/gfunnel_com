@@ -26,7 +26,7 @@ class BxDolSessionQuery extends BxDolDb
     }
     function exists($sId)
     {
-        $aSession = $this->getRow("SELECT * FROM `" . $this->sTable . "` WHERE `id`=:id LIMIT 1", [
+        $aSession = $this->getRow("SELECT `id`, `user_id`, `data` FROM `" . $this->sTable . "` WHERE `id`=:id LIMIT 1", [
             'id' => (string)$sId
         ]);
 
@@ -40,7 +40,7 @@ class BxDolSessionQuery extends BxDolDb
         $aBind = $aSet;
         unset($aBind['date']);
 
-        if ($this->getOne("SELECT `date` FROM `" . $this->sTable . "` WHERE `id` = :id AND `data` = :data AND `user_id` = :user_id AND `ttl` = :ttl AND `date` > UNIX_TIMESTAMP() - " . BX_DOL_SESSION_SKIP_UPDATE, $aBind))
+        if ($this->getOne("SELECT `date` FROM `" . $this->sTable . "` WHERE `id` = :id AND `data` = :data AND `user_id` = :user_id AND `date` > UNIX_TIMESTAMP() - " . BX_DOL_SESSION_SKIP_UPDATE, $aBind))
             return true;
 
         $this->updateLastActivity($sId);
@@ -69,18 +69,17 @@ class BxDolSessionQuery extends BxDolDb
     }
     function deleteExpired()
     {
-        $iIdleUser = time() - BX_DOL_SESSION_IDLE_TIMEOUT;
-        $iIdleGuest = time() - BX_DOL_SESSION_IDLE_TIMEOUT_GUESTS;
-        $aRows = $this->getAll("SELECT `user_id`, `date` FROM `" . $this->sTable . "` WHERE ((`date` < :time AND `ttl` = 0) OR (`ttl` != 0 AND `ttl` < :now)) AND `user_id` != 0 ORDER BY `date` DESC LIMIT 50000", ['time' => $iIdleUser, 'now' => time()]);
+        $iTime = time() - BX_DOL_SESSION_LIFETIME;
+        $sSql = $this->prepare("SELECT `user_id`, `date` FROM `" . $this->sTable . "` WHERE `date` < ? AND `user_id` != 0 ORDER BY `date` DESC LIMIT 50000", $iTime);
+        $aRows = $this->getAll($sSql);
 
         foreach ($aRows as $aRow) {
             $this->updateLastActivityAccount($aRow['user_id'], $aRow['date']);
         }
-        
-        $iRet = (int)$this->query("DELETE FROM `" . $this->sTable . "` WHERE `date` < :time AND `ttl` = 0 AND `user_id` = 0", ['time' => $iIdleGuest]);
-        $iRet += (int)$this->query("DELETE FROM `" . $this->sTable . "` WHERE `date` < :time AND `ttl` = 0 AND `user_id` != 0", ['time' => $iIdleUser]);
-        $iRet += (int)$this->query("DELETE FROM `" . $this->sTable . "` WHERE `ttl` != 0 AND `ttl` < :now", ['now' => time()]);
-        if ($iRet > 10)
+
+        $sSql = $this->prepare("DELETE FROM `" . $this->sTable . "` WHERE `date` < ?", $iTime);
+        $iRet = (int)$this->query($sSql);
+        if ($iRet)
             $this->query("OPTIMIZE TABLE `" . $this->sTable . "`");
         return $iRet;
     }

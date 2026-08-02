@@ -11,38 +11,36 @@ class Invoice extends Model
 
   protected $allowed = [
     'id',
+    'poNumber',
     'customerId',
-    'paymentOwner',
     'subscriptionId',
     'recurring',
     'status',
+    'vatNumber',
+    'priceType',
     'date',
     'dueDate',
     'netTermDays',
-    'poNumber',
-    'vatNumber',
-    'priceType',
     'exchangeRate',
-    'localCurrencyExchangeRate',
     'currencyCode',
-    'localCurrencyCode',
-    'tax',
-    'subTotal',
-    'subTotalInLocalCurrency',
     'total',
-    'totalInLocalCurrency',
-    'amountDue',
-    'amountAdjusted',
     'amountPaid',
-    'paidAt',
+    'amountAdjusted',
     'writeOffAmount',
     'creditsApplied',
+    'amountDue',
+    'paidAt',
     'dunningStatus',
     'nextRetryAt',
     'voidedAt',
     'resourceVersion',
     'updatedAt',
-    'lineItemsNextOffset',
+    'subTotal',
+    'subTotalInLocalCurrency',
+    'totalInLocalCurrency',
+    'localCurrencyCode',
+    'tax',
+    'localCurrencyExchangeRate',
     'firstInvoice',
     'newSalesAmount',
     'hasAdvanceCharges',
@@ -53,16 +51,13 @@ class Invoice extends Model
     'amountToCollect',
     'roundOffAmount',
     'lineItems',
-    'lineItemTiers',
+    'discounts',
     'lineItemDiscounts',
+    'taxes',
     'lineItemTaxes',
     'lineItemCredits',
-    'lineItemAddresses',
-    'discounts',
-    'taxes',
-    'taxOrigin',
+    'lineItemTiers',
     'linkedPayments',
-    'referenceTransactions',
     'dunningAttempts',
     'appliedCredits',
     'adjustmentCreditNotes',
@@ -70,9 +65,10 @@ class Invoice extends Model
     'linkedOrders',
     'notes',
     'shippingAddress',
-    'billingAddress',
     'statementDescriptor',
+    'billingAddress',
     'einvoice',
+    'paymentOwner',
     'voidReasonCode',
     'deleted',
     'taxCategory',
@@ -80,6 +76,7 @@ class Invoice extends Model
     'channel',
     'businessEntityId',
     'siteDetailsAtCreation',
+    'taxOrigin',
   ];
 
 
@@ -131,20 +128,6 @@ class Invoice extends Model
     $jsonKeys = array(
     );
     return Request::send(Request::POST, Util::encodeURIPath("invoices",$id,"stop_dunning"), $params, $env, $headers, null, false, $jsonKeys);
-  }
-
-  public static function pauseDunning($id, $params, $env = null, $headers = array())
-  {
-    $jsonKeys = array(
-    );
-    return Request::send(Request::POST, Util::encodeURIPath("invoices",$id,"pause_dunning"), $params, $env, $headers, null, false, $jsonKeys);
-  }
-
-  public static function resumeDunning($id, $params = array(), $env = null, $headers = array())
-  {
-    $jsonKeys = array(
-    );
-    return Request::send(Request::POST, Util::encodeURIPath("invoices",$id,"resume_dunning"), $params, $env, $headers, null, false, $jsonKeys);
   }
 
   public static function importInvoice($params, $env = null, $headers = array())
@@ -203,11 +186,11 @@ class Invoice extends Model
     return Request::send(Request::GET, Util::encodeURIPath("subscriptions",$id,"invoices"), $params, $env, $headers, null, false, $jsonKeys);
   }
 
-  public static function retrieve($id, $params = array(), $env = null, $headers = array())
+  public static function retrieve($id, $env = null, $headers = array())
   {
     $jsonKeys = array(
     );
-    return Request::send(Request::GET, Util::encodeURIPath("invoices",$id), $params, $env, $headers, null, false, $jsonKeys);
+    return Request::send(Request::GET, Util::encodeURIPath("invoices",$id), array(), $env, $headers, null, false, $jsonKeys);
   }
 
   public static function pdf($id, $params = array(), $env = null, $headers = array())

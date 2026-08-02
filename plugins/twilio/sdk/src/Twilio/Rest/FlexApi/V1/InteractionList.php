@@ -21,8 +21,6 @@ use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -41,21 +39,21 @@ class InteractionList extends ListResource
         // Path Solution
         $this->solution = [
         ];
+
         $this->uri = '/Interactions';
     }
 
     /**
-     * Helper function for Create
+     * Create the InteractionInstance
      *
      * @param array $channel The Interaction's channel.
-     
      * @param array|Options $options Optional Arguments
-     * @return Response Created Response
+     * @return InteractionInstance Created InteractionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _create(array $channel, array $options = []): Response
+    public function create(array $channel, array $options = []): InteractionInstance
     {
-        
+
         $options = new Values($options);
 
         $data = Values::of([
@@ -65,54 +63,14 @@ class InteractionList extends ListResource
                 Serialize::jsonObject($options['routing']),
             'InteractionContextSid' =>
                 $options['interactionContextSid'],
-            'WebhookTtid' =>
-                $options['webhookTtid'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "create");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->create('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Create the InteractionInstance
-     *
-     * @param array $channel The Interaction's channel.
-     
-     * @param array|Options $options Optional Arguments
-     * @return InteractionInstance Created InteractionInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function create(array $channel, array $options = []): InteractionInstance
-    {
-        $response = $this->_create( $channel, $options);
         return new InteractionInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Create the InteractionInstance with Metadata
-     *
-     * @param array $channel The Interaction's channel.
-     
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Created Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function createWithMetadata(array $channel, array $options = []): ResourceMetadata
-    {
-        $response = $this->_create( $channel, $options);
-        $resource = new InteractionInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

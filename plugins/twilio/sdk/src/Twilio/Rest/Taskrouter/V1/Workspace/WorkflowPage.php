@@ -43,7 +43,6 @@ class WorkflowPage extends Page
         return new WorkflowInstance($this->version, $payload, $this->solution['workspaceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

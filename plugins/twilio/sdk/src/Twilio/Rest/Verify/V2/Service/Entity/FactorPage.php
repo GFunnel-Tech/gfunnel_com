@@ -43,7 +43,6 @@ class FactorPage extends Page
         return new FactorInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['identity']);
     }
 
-
     /**
      * Provide a friendly representation
      *

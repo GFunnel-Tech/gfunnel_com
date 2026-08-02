@@ -43,7 +43,6 @@ class RoomPage extends Page
         return new RoomInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -22,8 +22,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -47,27 +45,6 @@ class DeactivationsContext extends InstanceContext
     }
 
     /**
-     * Helper function for Fetch
-     *
-     * @param array|Options $options Optional Arguments
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(array $options = []): Response
-    {
-        
-        $options = new Values($options);
-
-        $params = Values::of([
-            'Date' =>
-                Serialize::iso8601Date($options['date']),
-        ]);
-
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
-    }
-
-    /**
      * Fetch the DeactivationsInstance
      *
      * @param array|Options $options Optional Arguments
@@ -76,33 +53,20 @@ class DeactivationsContext extends InstanceContext
      */
     public function fetch(array $options = []): DeactivationsInstance
     {
-        $response = $this->_fetch($options);
+
+        $options = new Values($options);
+
+        $params = Values::of([
+            'Date' =>
+                Serialize::iso8601Date($options['date']),
+        ]);
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
+
         return new DeactivationsInstance(
             $this->version,
-            $response->getContent()
-        );
-        
-    }
-
-    /**
-     * Fetch the DeactivationsInstance with Metadata
-     *
-     * @param array|Options $options Optional Arguments
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(array $options = []): ResourceMetadata
-    {
-        $response = $this->_fetch($options);
-        $resource = new DeactivationsInstance(
-                        $this->version,
-                        $response->getContent()
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
+            $payload
         );
     }
 

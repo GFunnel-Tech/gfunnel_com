@@ -78,13 +78,11 @@
     <string name="_bx_ads_form_entry_price_year_display_view"><![CDATA[С указанием цены и года: Просмотреть]]></string>
 
     <string name="_bx_ads_form_entry_input_author"><![CDATA[Автор]]></string>
-    <string name="_bx_ads_form_entry_input_sys_do_select"><![CDATA[Выбирать]]></string>
-    <string name="_bx_ads_form_entry_input_do_select"><![CDATA[Выбирать]]></string>
     <string name="_bx_ads_form_entry_input_sys_do_submit"><![CDATA[Выполнить]]></string>
     <string name="_bx_ads_form_entry_input_do_submit"><![CDATA[Выполнить]]></string>
     <string name="_bx_ads_form_entry_input_sys_title"><![CDATA[Заголовок]]></string>
     <string name="_bx_ads_form_entry_input_title"><![CDATA[Заголовок]]></string>
-    <string name="_bx_ads_form_entry_input_title_err"><![CDATA[Заголовок обязателен, мин. 3 макс. 160.]]></string>
+    <string name="_bx_ads_form_entry_input_title_err"><![CDATA[Заголовок обязателен. Пожалуйста, заполните это поле.]]></string>
     <string name="_bx_ads_form_entry_input_sys_name"><![CDATA[Имя]]></string>
     <string name="_bx_ads_form_entry_input_name"><![CDATA[Имя]]></string>
     <string name="_bx_ads_form_entry_input_name_err"><![CDATA[Имя должно быть уникально и будет использоваться для внутренних целей. Пожалуйста, заполните это поле]]></string>
@@ -657,11 +655,9 @@
     <string name="_bx_ads_txt_poll_answer_vote_percent"><![CDATA[({0}%)]]></string>
 
     <string name="_bx_ads_alert_action_doInterest_personal"><![CDATA[Кто-то заинтересовался вашим объявлением]]></string>
-    <string name="_bx_ads_alert_action_info_doInterest_personal"><![CDATA[Участник проявил интерес к вашей рекламе.]]></string>
     <string name="_bx_ads_txt_ntfs_subobject_interested"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> {subentry_sample} <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
 
     <string name="_bx_ads_alert_action_license_register_personal"><![CDATA[Ваш товар был куплен]]></string>
-    <string name="_bx_ads_alert_action_info_license_register_personal"><![CDATA[Участник приобрел рекламируемый вами товар или услугу.]]></string>
     <string name="_bx_ads_txt_ntfs_object_license_register"><![CDATA[<b class="bx-ntfs-content-profile">{owner_name}</b> купил ваш товар <b class="bx-ntfs-content-entry">{entry_caption}</b>]]></string>
 
     <string name="_bx_ads_alert_action_shipped_personal"><![CDATA[Товар отправлен]]></string>

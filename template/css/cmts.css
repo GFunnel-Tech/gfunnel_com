@@ -42,12 +42,6 @@ form.cmt-post-reply .bx-form-input-files-uploaders a.cmts-uploader-button {
 span.cmt-reply-to a {
     display: inline-block !important;
 }
-span.cmt-reply-to a > * {
-    vertical-align: middle;
-}
-span.cmt-reply-to a .sys-icon {
-    display: inline;
-}
 span.cmt-reply-to a .bx-base-pofile-unit-wo-info .bx-base-pofile-unit-online {
     display: none;
 }
@@ -98,10 +92,6 @@ span.cmt-reply-to a .bx-def-icon-size {
 /*--- Comment Element Styles ---*/
 .cmt-counter .bx-base-pofile-unit-online {
     display: none;
-}
-.cmt-counter .cmt-counter-icon svg {
-    width: 1.0rem;
-    height: 1.0rem;
 }
 .cmt-counter .cmt-counter-text {
     margin-left: 0.5rem;

@@ -15,9 +15,13 @@ class BxBaseEmbedIframely extends BxDolEmbed
 {
     public function __construct ($aObject, $oTemplate)
     {
-        $this->_sTableData = 'sys_iframely_data';
+        $this->_sTableName = 'sys_iframely_data';
+        parent::__construct ($aObject);
 
-        parent::__construct ($aObject, $oTemplate);
+        if ($oTemplate)
+            $this->_oTemplate = $oTemplate;
+        else
+            $this->_oTemplate = BxDolTemplate::getInstance();
     }
 
     public function getLinkHTML ($sLink, $sTitle = '', $sMaxWidth = '')

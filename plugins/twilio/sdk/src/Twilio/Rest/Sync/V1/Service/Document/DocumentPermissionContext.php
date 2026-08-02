@@ -21,8 +21,6 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
-use Twilio\Http\Response;
-use Twilio\Metadata\ResourceMetadata;
 use Twilio\Serialize;
 
 
@@ -61,143 +59,53 @@ class DocumentPermissionContext extends InstanceContext
     }
 
     /**
-     * Helper function for Delete
-     *
-     
-     
-     
-     * @return Response Deleted Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _delete(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        return $this->version->handleRequest('DELETE', $this->uri, [], [], $headers, "delete");
-    }
-
-    /**
      * Delete the DocumentPermissionInstance
      *
-     
-     
-     
      * @return bool True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
     public function delete(): bool
     {
-        $response = $this->_delete();
-        
-        return true;
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        return $this->version->delete('DELETE', $this->uri, [], [], $headers);
     }
 
-    /**
-     * Delete the DocumentPermissionInstance with Metadata
-     *
-     
-     
-     
-     * @return ResourceMetadata The Deleted Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function deleteWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_delete();
-        
-        
-        return new ResourceMetadata(
-            null,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
-    }
-
-
-    /**
-     * Helper function for Fetch
-     *
-     
-     
-     
-     * @return Response Fetched Response
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    private function _fetch(): Response
-    {
-        
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('GET', $this->uri, [], [], $headers, "fetch");
-    }
 
     /**
      * Fetch the DocumentPermissionInstance
      *
-     
-     
-     
      * @return DocumentPermissionInstance Fetched DocumentPermissionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
     public function fetch(): DocumentPermissionInstance
     {
-        $response = $this->_fetch();
+
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
+
         return new DocumentPermissionInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid'],
             $this->solution['documentSid'],
             $this->solution['identity']
         );
-        
-    }
-
-    /**
-     * Fetch the DocumentPermissionInstance with Metadata
-     *
-     
-     
-     
-     * @return ResourceMetadata The Fetched Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function fetchWithMetadata(): ResourceMetadata
-    {
-        $response = $this->_fetch();
-        $resource = new DocumentPermissionInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid'],
-                        $this->solution['documentSid'],
-                        $this->solution['identity']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
-        );
     }
 
 
     /**
-     * Helper function for Update
+     * Update the DocumentPermissionInstance
      *
-     
-     
-     
      * @param bool $read Whether the identity can read the Sync Document. Default value is `false`.
-     
      * @param bool $write Whether the identity can update the Sync Document. Default value is `false`.
-     
      * @param bool $manage Whether the identity can delete the Sync Document. Default value is `false`.
-     
-     * @return Response Updated Response
+     * @return DocumentPermissionInstance Updated DocumentPermissionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    private function _update(bool $read, bool $write, bool $manage): Response
+    public function update(bool $read, bool $write, bool $manage): DocumentPermissionInstance
     {
-        
+
         $data = Values::of([
             'Read' =>
                 Serialize::booleanToString($read),
@@ -207,68 +115,15 @@ class DocumentPermissionContext extends InstanceContext
                 Serialize::booleanToString($manage),
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
-        return $this->version->handleRequest('POST', $this->uri, [], $data, $headers, "update");
-    }
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
+        $payload = $this->version->update('POST', $this->uri, [], $data, $headers);
 
-    /**
-     * Update the DocumentPermissionInstance
-     *
-     
-     
-     
-     * @param bool $read Whether the identity can read the Sync Document. Default value is `false`.
-     
-     * @param bool $write Whether the identity can update the Sync Document. Default value is `false`.
-     
-     * @param bool $manage Whether the identity can delete the Sync Document. Default value is `false`.
-     
-     * @return DocumentPermissionInstance Updated DocumentPermissionInstance
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function update(bool $read, bool $write, bool $manage): DocumentPermissionInstance
-    {
-        $response = $this->_update( $read,  $write,  $manage);
         return new DocumentPermissionInstance(
             $this->version,
-            $response->getContent(),
+            $payload,
             $this->solution['serviceSid'],
             $this->solution['documentSid'],
             $this->solution['identity']
-        );
-        
-    }
-
-    /**
-     * Update the DocumentPermissionInstance with Metadata
-     *
-     
-     
-     
-     * @param bool $read Whether the identity can read the Sync Document. Default value is `false`.
-     
-     * @param bool $write Whether the identity can update the Sync Document. Default value is `false`.
-     
-     * @param bool $manage Whether the identity can delete the Sync Document. Default value is `false`.
-     
-     * @return ResourceMetadata The Updated Resource with Metadata
-     * @throws TwilioException When an HTTP error occurs.
-     */
-    public function updateWithMetadata(bool $read, bool $write, bool $manage): ResourceMetadata
-    {
-        $response = $this->_update( $read,  $write,  $manage);
-        $resource = new DocumentPermissionInstance(
-                        $this->version,
-                        $response->getContent(),
-                        $this->solution['serviceSid'],
-                        $this->solution['documentSid'],
-                        $this->solution['identity']
-                    );
-        
-        return new ResourceMetadata(
-            $resource,
-            $response->getStatusCode(),
-            $response->getHeaders()
         );
     }
 

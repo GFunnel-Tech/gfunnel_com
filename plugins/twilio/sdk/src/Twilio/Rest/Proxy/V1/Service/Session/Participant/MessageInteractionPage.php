@@ -43,7 +43,6 @@ class MessageInteractionPage extends Page
         return new MessageInteractionInstance($this->version, $payload, $this->solution['serviceSid'], $this->solution['sessionSid'], $this->solution['participantSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *

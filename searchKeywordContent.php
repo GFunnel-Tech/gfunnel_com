@@ -13,7 +13,16 @@ require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
 if (bx_get('keyword')){
     bx_import('BxDolLanguages');
 
-    $sClass = bx_get_search_class_name();
+    $sClass = 'BxDolSearch';
+
+    $sElsName = 'bx_elasticsearch';
+    $sElsMethod = 'is_configured';
+    if(BxDolRequest::serviceExists($sElsName, $sElsMethod) && BxDolService::call($sElsName, $sElsMethod)) {
+         $oModule = BxDolModule::getInstance($sElsName);
+
+         bx_import('Search', $oModule->_aModule);
+         $sClass = 'BxElsSearch';
+    }
 
     $o = new $sClass(bx_get('section'));
     $o->setLiveSearch(bx_get('live_search') ? 1 : 0);

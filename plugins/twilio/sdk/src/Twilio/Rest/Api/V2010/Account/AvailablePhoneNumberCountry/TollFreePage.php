@@ -43,7 +43,6 @@ class TollFreePage extends Page
         return new TollFreeInstance($this->version, $payload, $this->solution['accountSid'], $this->solution['countryCode']);
     }
 
-
     /**
      * Provide a friendly representation
      *

@@ -194,10 +194,8 @@ class BxBaseStudioFormsCategories extends BxDolStudioFormsCategories
         return parent::_getCellDefault(_t($mixedValue), $sKey, $aField, $aRow);
     }
     
-    protected function _getForm($sAction, $aCategory = [])
+    protected function _getForm($sAction, $aCategory = array())
     {
-        $sIconType = !empty($aCategory['icon_type']) ? $aCategory['icon_type'] : '';
-
         $aForm = array(
             'form_attrs' => array(
                 'id' => 'adm-form-cats-form-' . $sAction,
@@ -239,35 +237,6 @@ class BxBaseStudioFormsCategories extends BxDolStudioFormsCategories
                         'error' => _t('_adm_form_err_categories_value'),
                     ),
                 ),
-                'icon_type' => [
-                    'type' => 'select',
-                    'name' => 'icon_type',
-                    'caption' => _t('_adm_form_txt_pre_values_icon_type'),
-                    'info' => '',
-                    'values' => [
-                        ['key' => '', 'value' => _t('_sys_please_select')],
-                        ['key' => 'icon', 'value' => _t('_adm_form_txt_pre_values_icon_type_icon')],
-                        ['key' => 'emoji', 'value' => _t('_adm_form_txt_pre_values_icon_type_emoji')],
-                        ['key' => 'image', 'value' => _t('_adm_form_txt_pre_values_icon_type_image')]
-                    ],
-                    'value' => isset($aCategory['icon_type']) ? $aCategory['icon_type'] : '',
-                    'required' => '0',
-                    'db' => [
-                        'pass' => 'Xss',
-                    ]
-                ],
-                'icon' => [
-                    'type' => 'textarea',
-                    'name' => 'icon',
-                    'caption' => _t('_adm_form_txt_pre_values_icon'),
-                    'info' => '',
-                    'value' => isset($aCategory['icon']) ? $aCategory['icon'] : '',
-                    'required' => '0',
-                    'code' => 1,
-                    'db' => [
-                        'pass' => 'Xss',
-                    ]
-                ],
                 'controls' => array(
                     'name' => 'controls',
                     'type' => 'input_set',
@@ -318,23 +287,43 @@ class BxBaseStudioFormsCategories extends BxDolStudioFormsCategories
         parent::_getFilterControls();
 
         $aInputModules = $this->getModulesSelectOneArray('getCategories', false, false);
+		foreach($aInputModules['values'] as $sKey => $sValue){
+			$bEnable = false;
+			$oModule = BxDolModule::getInstance($sKey);
+			if (isset($oModule->_oConfig) && isset($oModule->_oConfig->CNF)){
+				$CNF = $oModule->_oConfig->CNF;
+				if (isset($CNF['PARAM_MULTICAT_ENABLED']) && $CNF['PARAM_MULTICAT_ENABLED'] == true){
+					$bEnable = true;
+				}
+			}
+			if (!$bEnable)
+				unset($aInputModules['values'][$sKey]);
+		}
+		$aInputModules['values'] = array_merge(array('' => _t('_adm_txt_select_module')), $aInputModules['values']);
+		$oForm = new BxTemplStudioFormView(array());
+        $sContent = $oForm->genRow($aInputModules);
+        $oForm = new BxTemplStudioFormView(array());
 
-        $aValues = [['key' => '', 'value' => _t('_adm_txt_select_module')]];
-        foreach($aInputModules['values'] as $sName => $sTitle)
-            if(($sKey = 'PARAM_MULTICAT_ENABLED') && ($oModule = BxDolModule::getInstance($sName)) && ($CNF = $oModule->_oConfig->CNF ?? false) && isset($CNF[$sKey]) && $CNF[$sKey])
-                $aValues[] = ['key' => $sName, 'value' => $sTitle];
+        $aInputSearch = array(
+            'type' => 'text',
+            'name' => 'keyword',
+            'attrs' => array(
+                'id' => 'bx-grid-search-' . $this->_sObject,
+            ),
+            'tr_attrs' => array(
+                'style' => 'display:none;'
+            )
+        );
+        $sContent .= $oForm->genRow($aInputSearch);
 
-        $aInputModules['values'] = $aValues;
-
-        $oForm = new BxTemplStudioFormView([]);
-        return $oForm->genRow($aInputModules) . parent::_getSearchInput();
+        return  $sContent;
     }
-
+    
     function getJsObject()
     {
         return 'oBxDolStudioFormsCategories';
     }
-
+    
     function getCode($isDisplayHeader = true)
     {
         return $this->_oTemplate->parseHtmlByName('forms_categories.html', array(

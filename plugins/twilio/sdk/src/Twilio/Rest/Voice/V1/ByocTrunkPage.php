@@ -43,7 +43,6 @@ class ByocTrunkPage extends Page
         return new ByocTrunkInstance($this->version, $payload);
     }
 
-
     /**
      * Provide a friendly representation
      *

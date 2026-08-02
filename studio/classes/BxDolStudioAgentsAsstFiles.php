@@ -7,7 +7,7 @@
  * @{
  */
 
-class BxDolStudioAgentsAsstFiles extends BxTemplStudioGridAgents
+class BxDolStudioAgentsAsstFiles extends BxTemplStudioGrid
 {
     protected $_oDb;
 

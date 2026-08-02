@@ -43,7 +43,6 @@ class UsAppToPersonUsecasePage extends Page
         return new UsAppToPersonUsecaseInstance($this->version, $payload, $this->solution['messagingServiceSid']);
     }
 
-
     /**
      * Provide a friendly representation
      *
