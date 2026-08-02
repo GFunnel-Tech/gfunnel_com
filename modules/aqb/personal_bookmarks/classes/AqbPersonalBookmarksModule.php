@@ -48,7 +48,13 @@ class AqbPersonalBookmarksModule extends BxBaseModGeneralModule {
 
         if (!$sUrl || !$sName) return;
 
-        $sUrl = str_replace(BX_DOL_URL_ROOT, '', $sUrl);
+        if (preg_match('#^https?://#i', $sUrl) && strpos($sUrl, BX_DOL_URL_ROOT) !== 0) {
+            // External absolute URL - store it unchanged so it isn't reinterpreted as an internal path on display.
+        }
+        else {
+            // Internal page - store as a site-relative path (original behaviour).
+            $sUrl = str_replace(BX_DOL_URL_ROOT, '', $sUrl);
+        }
 
         $this->_oDb->addAccountBookmark(getLoggedId(), $sUrl, $sName);
 

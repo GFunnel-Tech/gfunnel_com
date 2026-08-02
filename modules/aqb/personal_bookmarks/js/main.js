@@ -31,6 +31,25 @@ function aqb_personal_bookmarks_add() {
     }, 'html');
 }
 
+function aqb_personal_bookmarks_add_link() {
+	var sUrl = prompt(_t('_aqb_personal_bookmarks_add_link_url'), 'https://');
+	if (sUrl === null) return;
+	sUrl = sUrl.replace(/^\s+|\s+$/g, '');
+	if (!sUrl || sUrl == 'https://' || sUrl == 'http://') return;
+
+	var sName = prompt(_t('_aqb_personal_bookmarks_name'), sUrl);
+	if (!sName) return;
+
+	var oDate = new Date();
+
+    bx_loading('aqb_extruder_viewport', true);
+
+    $.post(sUrlRoot + 'modules/?r=aqb_personal_bookmarks/add_bookmark/', {url: sUrl, name: sName, t:oDate.getTime()}, function(sResponse) {
+        bx_loading('aqb_extruder_viewport', false);
+    	$('#aqb_extruder_links').html(sResponse);
+    }, 'html');
+}
+
 function aqb_personal_bookmarks_delete(id) {
 	if (!confirm(_t('_Are_you_sure'))) return;
 
@@ -44,9 +63,12 @@ function aqb_personal_bookmarks_delete(id) {
     }, 'html');
 }
 
-function aqb_personal_bookmarks_open_link(sLink) {
+function aqb_personal_bookmarks_open_link(sLink, bExternal) {
     $('#aqb_extruder').closeMbExtruder();
-    window.location.href = sLink;
+    if (bExternal)
+        window.open(sLink, '_blank');
+    else
+        window.location.href = sLink;
 }
 
 
