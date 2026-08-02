@@ -314,6 +314,7 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/gfunnel-home-blocks.md`, `docs/homepage-module-mapping.md` | homepage sections, the GFunnel Home service blocks, and the section→module/data-source mapping |
 | `docs/sql/*.sql` | DB schema (departments, directory apps, workspace invites) |
 | `docs/roadmap/PLATFORM_ROADMAP.md` | planning any fix/expansion/test work — the module-by-module backlog + cross-cutting initiatives + phased plan |
+| `docs/una15-fresh-install-runbook.md` | standing up UNA 15 from a fresh database and re-installing all GFunnel + 3rd-party modules (the supported path vs. the fragile in-place 14→15 upgrade) |
 
 If your change alters behavior a doc describes, update that doc in the same commit.
 
