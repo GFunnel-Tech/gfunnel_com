@@ -46,7 +46,7 @@ URI DNSBL - это DNSBL, которые перечисляют доменные
 	<string name="_bx_antispam_chain_spammers"><![CDATA[Чёрный список IP]]></string>
 	<string name="_bx_antispam_chain_uridns"><![CDATA[Текст спама]]></string>
 	<string name="_bx_antispam_rule_note_country"><![CDATA[Страна: {0}]]></string>
-	<string name="_bx_antispam_rule_note_spamhaus_org"><![CDATA[Определить IP спамера]]></string>
+	<string name="_bx_antispam_rule_note_spamhaus_org"><![CDATA[Обнаруживайте спамерские IP: чтобы пользоваться сервисом бесплатно, ваш сервер должен использовать собственный приватный DNS и иметь обратную PTR-запись для своего публичного IP]]></string>
 	<string name="_bx_antispam_rule_note_zomgbl_spameatingmonkey_net"><![CDATA[Всё добавлено в Чёрный список, <u>использовать только, если что-то добавлено в Белый список!</u>]]></string>
 	<string name="_bx_antispam_rule_note_surbl_org"><![CDATA[Определить URL спамеров из SURBL (списки веб-сайтов, фигурирующих в спам-сообщениях)]]></string>
 	<string name="_bx_antispam_rule_note_dnsbl_tornevall_org"><![CDATA[Определить анонимные/элитные прокси и IP злоумышленников]]></string>

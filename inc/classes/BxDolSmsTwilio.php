@@ -36,7 +36,7 @@ class BxDolSmsTwilio extends BxDolSms
             return true;
         }
         catch (Exception $oException) {
-            $this->_writeLog($oException->getFile() . ':' . $oException->getLine() . ' ' . $oException->getMessage());
+            $this->_writeLog($oException->getFile() . ':' . $oException->getLine() . ' ' . $oException->getMessage(), BX_LOG_ERR);
 
             return false;
         }

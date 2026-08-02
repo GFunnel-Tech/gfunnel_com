@@ -153,13 +153,13 @@ class BxBaseModTemplateConfig extends BxBaseModGeneralConfig
             return $iHeaderHeight;
 
         switch(count($aHeaderPaddings)) {
-            case 1;
-            case 2;
+            case 1:
+            case 2:
                 $iPTop = $iPBottom = $this->_str2px($aHeaderPaddings[0]);
                 break;
 
-            case 3;
-            case 4;
+            case 3:
+            case 4:
                 $iPTop = $this->_str2px($aHeaderPaddings[0]);
                 $iPBottom = $this->_str2px($aHeaderPaddings[2]);
                 break;

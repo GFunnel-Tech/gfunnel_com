@@ -30,12 +30,13 @@ abstract class CallOptions
      * @param string $statusCallback The URL we should call using the `status_callback_method` to send status information to your application. If no `status_callback_event` is specified, we will send the `completed` status. If an `application_sid` parameter is present, this parameter is ignored. URLs must contain a valid hostname (underscores are not permitted).
      * @param string[] $statusCallbackEvent The call progress events that we will send to the `status_callback` URL. Can be: `initiated`, `ringing`, `answered`, and `completed`. If no event is specified, we send the `completed` status. If you want to receive multiple events, specify each one in a separate `status_callback_event` parameter. See the code sample for [monitoring call progress](https://www.twilio.com/docs/voice/api/call-resource?code-sample=code-create-a-call-resource-and-specify-a-statuscallbackevent&code-sdk-version=json). If an `application_sid` is present, this parameter is ignored.
      * @param string $statusCallbackMethod The HTTP method we should use when calling the `status_callback` URL. Can be: `GET` or `POST` and the default is `POST`. If an `application_sid` parameter is present, this parameter is ignored.
-     * @param string $sendDigits A string of keys to dial after connecting to the number, maximum of 32 digits. Valid digits in the string include: any digit (`0`-`9`), '`#`', '`*`' and '`w`', to insert a half second pause. For example, if you connected to a company phone number and wanted to pause for one second, and then dial extension 1234 followed by the pound key, the value of this parameter would be `ww1234#`. Remember to URL-encode this string, since the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
+     * @param string $sendDigits The string of keys to dial after connecting to the number, with a maximum length of 32 digits. Valid digits in the string include any digit (`0`-`9`), '`A`', '`B`', '`C`', '`D`', '`#`', and '`*`'. You can also use '`w`' to insert a half-second pause and '`W`' to insert a one-second pause. For example, to pause for one second after connecting and then dial extension 1234 followed by the # key, set this parameter to `W1234#`. Be sure to URL-encode this string because the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
      * @param int $timeout The integer number of seconds that we should allow the phone to ring before assuming there is no answer. The default is `60` seconds and the maximum is `600` seconds. For some call flows, we will add a 5-second buffer to the timeout value you provide. For this reason, a timeout value of 10 seconds could result in an actual timeout closer to 15 seconds. You can set this to a short time, such as `15` seconds, to hang up before reaching an answering machine or voicemail.
      * @param bool $record Whether to record the call. Can be `true` to record the phone call, or `false` to not. The default is `false`. The `recording_url` is sent to the `status_callback` URL.
      * @param string $recordingChannels The number of channels in the final recording. Can be: `mono` or `dual`. The default is `mono`. `mono` records both legs of the call in a single channel of the recording file. `dual` records each leg to a separate channel of the recording file. The first channel of a dual-channel recording contains the parent call and the second channel contains the child call.
      * @param string $recordingStatusCallback The URL that we call when the recording is available to be accessed.
      * @param string $recordingStatusCallbackMethod The HTTP method we should use when calling the `recording_status_callback` URL. Can be: `GET` or `POST` and the default is `POST`.
+     * @param string $recordingConfigurationId The identifier of the configuration to be used when creating and processing the recording
      * @param string $sipAuthUsername The username used to authenticate the caller making a SIP call.
      * @param string $sipAuthPassword The password required to authenticate the user account specified in `sip_auth_username`.
      * @param string $machineDetection Whether to detect if a human, answering machine, or fax has picked up the call. Can be: `Enable` or `DetectMessageEnd`. Use `Enable` if you would like us to return `AnsweredBy` as soon as the called party is identified. Use `DetectMessageEnd`, if you would like to leave a message on an answering machine. If `send_digits` is provided, this parameter is ignored. For more information, see [Answering Machine Detection](https://www.twilio.com/docs/voice/answering-machine-detection).
@@ -54,6 +55,7 @@ abstract class CallOptions
      * @param string $callToken A token string needed to invoke a forwarded call. A call_token is generated when an incoming call is received on a Twilio number. Pass an incoming call's call_token value to a forwarded call via the call_token parameter when creating a new call. A forwarded call should bear the same CallerID of the original incoming call.
      * @param string $recordingTrack The audio track to record for the call. Can be: `inbound`, `outbound` or `both`. The default is `both`. `inbound` records the audio that is received by Twilio. `outbound` records the audio that is generated from Twilio. `both` records the audio that is received and generated by Twilio.
      * @param int $timeLimit The maximum duration of the call in seconds. Constraints depend on account and configuration.
+     * @param string $clientNotificationUrl The URL that we should use to deliver `push call notification`.
      * @return CreateCallOptions Options builder
      */
     public static function create(
@@ -73,6 +75,7 @@ abstract class CallOptions
         string $recordingChannels = Values::NONE,
         string $recordingStatusCallback = Values::NONE,
         string $recordingStatusCallbackMethod = Values::NONE,
+        string $recordingConfigurationId = Values::NONE,
         string $sipAuthUsername = Values::NONE,
         string $sipAuthPassword = Values::NONE,
         string $machineDetection = Values::NONE,
@@ -90,7 +93,8 @@ abstract class CallOptions
         string $callReason = Values::NONE,
         string $callToken = Values::NONE,
         string $recordingTrack = Values::NONE,
-        int $timeLimit = Values::INT_NONE
+        int $timeLimit = Values::INT_NONE,
+        string $clientNotificationUrl = Values::NONE
 
     ): CreateCallOptions
     {
@@ -110,6 +114,7 @@ abstract class CallOptions
             $recordingChannels,
             $recordingStatusCallback,
             $recordingStatusCallbackMethod,
+            $recordingConfigurationId,
             $sipAuthUsername,
             $sipAuthPassword,
             $machineDetection,
@@ -127,7 +132,8 @@ abstract class CallOptions
             $callReason,
             $callToken,
             $recordingTrack,
-            $timeLimit
+            $timeLimit,
+            $clientNotificationUrl
         );
     }
 
@@ -138,12 +144,12 @@ abstract class CallOptions
      * @param string $from Only include calls from this phone number, SIP address, Client identifier or SIM SID.
      * @param string $parentCallSid Only include calls spawned by calls with this SID.
      * @param string $status The status of the calls to include. Can be: `queued`, `ringing`, `in-progress`, `canceled`, `completed`, `failed`, `busy`, or `no-answer`.
-     * @param string $startTimeBefore Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
-     * @param string $startTime Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
-     * @param string $startTimeAfter Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
-     * @param string $endTimeBefore Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
-     * @param string $endTime Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
-     * @param string $endTimeAfter Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * @param string $startTimeBefore Only include calls that started before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started before this date.
+     * @param string $startTime Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date.
+     * @param string $startTimeAfter Only include calls that started on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on or after this date.
+     * @param string $endTimeBefore Only include calls that ended before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended before this date.
+     * @param string $endTime Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date.
+     * @param string $endTimeAfter Only include calls that ended on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on or after this date.
      * @return ReadCallOptions Options builder
      */
     public static function read(
@@ -152,12 +158,12 @@ abstract class CallOptions
         string $from = Values::NONE,
         string $parentCallSid = Values::NONE,
         string $status = Values::NONE,
-        string $startTimeBefore = null,
-        string $startTime = null,
-        string $startTimeAfter = null,
-        string $endTimeBefore = null,
-        string $endTime = null,
-        string $endTimeAfter = null
+        ?string $startTimeBefore = null,
+        ?string $startTime = null,
+        ?string $startTimeAfter = null,
+        ?string $endTimeBefore = null,
+        ?string $endTime = null,
+        ?string $endTimeAfter = null
 
     ): ReadCallOptions
     {
@@ -228,12 +234,13 @@ class CreateCallOptions extends Options
      * @param string $statusCallback The URL we should call using the `status_callback_method` to send status information to your application. If no `status_callback_event` is specified, we will send the `completed` status. If an `application_sid` parameter is present, this parameter is ignored. URLs must contain a valid hostname (underscores are not permitted).
      * @param string[] $statusCallbackEvent The call progress events that we will send to the `status_callback` URL. Can be: `initiated`, `ringing`, `answered`, and `completed`. If no event is specified, we send the `completed` status. If you want to receive multiple events, specify each one in a separate `status_callback_event` parameter. See the code sample for [monitoring call progress](https://www.twilio.com/docs/voice/api/call-resource?code-sample=code-create-a-call-resource-and-specify-a-statuscallbackevent&code-sdk-version=json). If an `application_sid` is present, this parameter is ignored.
      * @param string $statusCallbackMethod The HTTP method we should use when calling the `status_callback` URL. Can be: `GET` or `POST` and the default is `POST`. If an `application_sid` parameter is present, this parameter is ignored.
-     * @param string $sendDigits A string of keys to dial after connecting to the number, maximum of 32 digits. Valid digits in the string include: any digit (`0`-`9`), '`#`', '`*`' and '`w`', to insert a half second pause. For example, if you connected to a company phone number and wanted to pause for one second, and then dial extension 1234 followed by the pound key, the value of this parameter would be `ww1234#`. Remember to URL-encode this string, since the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
+     * @param string $sendDigits The string of keys to dial after connecting to the number, with a maximum length of 32 digits. Valid digits in the string include any digit (`0`-`9`), '`A`', '`B`', '`C`', '`D`', '`#`', and '`*`'. You can also use '`w`' to insert a half-second pause and '`W`' to insert a one-second pause. For example, to pause for one second after connecting and then dial extension 1234 followed by the # key, set this parameter to `W1234#`. Be sure to URL-encode this string because the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
      * @param int $timeout The integer number of seconds that we should allow the phone to ring before assuming there is no answer. The default is `60` seconds and the maximum is `600` seconds. For some call flows, we will add a 5-second buffer to the timeout value you provide. For this reason, a timeout value of 10 seconds could result in an actual timeout closer to 15 seconds. You can set this to a short time, such as `15` seconds, to hang up before reaching an answering machine or voicemail.
      * @param bool $record Whether to record the call. Can be `true` to record the phone call, or `false` to not. The default is `false`. The `recording_url` is sent to the `status_callback` URL.
      * @param string $recordingChannels The number of channels in the final recording. Can be: `mono` or `dual`. The default is `mono`. `mono` records both legs of the call in a single channel of the recording file. `dual` records each leg to a separate channel of the recording file. The first channel of a dual-channel recording contains the parent call and the second channel contains the child call.
      * @param string $recordingStatusCallback The URL that we call when the recording is available to be accessed.
      * @param string $recordingStatusCallbackMethod The HTTP method we should use when calling the `recording_status_callback` URL. Can be: `GET` or `POST` and the default is `POST`.
+     * @param string $recordingConfigurationId The identifier of the configuration to be used when creating and processing the recording
      * @param string $sipAuthUsername The username used to authenticate the caller making a SIP call.
      * @param string $sipAuthPassword The password required to authenticate the user account specified in `sip_auth_username`.
      * @param string $machineDetection Whether to detect if a human, answering machine, or fax has picked up the call. Can be: `Enable` or `DetectMessageEnd`. Use `Enable` if you would like us to return `AnsweredBy` as soon as the called party is identified. Use `DetectMessageEnd`, if you would like to leave a message on an answering machine. If `send_digits` is provided, this parameter is ignored. For more information, see [Answering Machine Detection](https://www.twilio.com/docs/voice/answering-machine-detection).
@@ -252,6 +259,7 @@ class CreateCallOptions extends Options
      * @param string $callToken A token string needed to invoke a forwarded call. A call_token is generated when an incoming call is received on a Twilio number. Pass an incoming call's call_token value to a forwarded call via the call_token parameter when creating a new call. A forwarded call should bear the same CallerID of the original incoming call.
      * @param string $recordingTrack The audio track to record for the call. Can be: `inbound`, `outbound` or `both`. The default is `both`. `inbound` records the audio that is received by Twilio. `outbound` records the audio that is generated from Twilio. `both` records the audio that is received and generated by Twilio.
      * @param int $timeLimit The maximum duration of the call in seconds. Constraints depend on account and configuration.
+     * @param string $clientNotificationUrl The URL that we should use to deliver `push call notification`.
      */
     public function __construct(
         
@@ -270,6 +278,7 @@ class CreateCallOptions extends Options
         string $recordingChannels = Values::NONE,
         string $recordingStatusCallback = Values::NONE,
         string $recordingStatusCallbackMethod = Values::NONE,
+        string $recordingConfigurationId = Values::NONE,
         string $sipAuthUsername = Values::NONE,
         string $sipAuthPassword = Values::NONE,
         string $machineDetection = Values::NONE,
@@ -287,7 +296,8 @@ class CreateCallOptions extends Options
         string $callReason = Values::NONE,
         string $callToken = Values::NONE,
         string $recordingTrack = Values::NONE,
-        int $timeLimit = Values::INT_NONE
+        int $timeLimit = Values::INT_NONE,
+        string $clientNotificationUrl = Values::NONE
 
     ) {
         $this->options['url'] = $url;
@@ -305,6 +315,7 @@ class CreateCallOptions extends Options
         $this->options['recordingChannels'] = $recordingChannels;
         $this->options['recordingStatusCallback'] = $recordingStatusCallback;
         $this->options['recordingStatusCallbackMethod'] = $recordingStatusCallbackMethod;
+        $this->options['recordingConfigurationId'] = $recordingConfigurationId;
         $this->options['sipAuthUsername'] = $sipAuthUsername;
         $this->options['sipAuthPassword'] = $sipAuthPassword;
         $this->options['machineDetection'] = $machineDetection;
@@ -323,6 +334,7 @@ class CreateCallOptions extends Options
         $this->options['callToken'] = $callToken;
         $this->options['recordingTrack'] = $recordingTrack;
         $this->options['timeLimit'] = $timeLimit;
+        $this->options['clientNotificationUrl'] = $clientNotificationUrl;
     }
 
     /**
@@ -434,9 +446,9 @@ class CreateCallOptions extends Options
     }
 
     /**
-     * A string of keys to dial after connecting to the number, maximum of 32 digits. Valid digits in the string include: any digit (`0`-`9`), '`#`', '`*`' and '`w`', to insert a half second pause. For example, if you connected to a company phone number and wanted to pause for one second, and then dial extension 1234 followed by the pound key, the value of this parameter would be `ww1234#`. Remember to URL-encode this string, since the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
+     * The string of keys to dial after connecting to the number, with a maximum length of 32 digits. Valid digits in the string include any digit (`0`-`9`), '`A`', '`B`', '`C`', '`D`', '`#`', and '`*`'. You can also use '`w`' to insert a half-second pause and '`W`' to insert a one-second pause. For example, to pause for one second after connecting and then dial extension 1234 followed by the # key, set this parameter to `W1234#`. Be sure to URL-encode this string because the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
      *
-     * @param string $sendDigits A string of keys to dial after connecting to the number, maximum of 32 digits. Valid digits in the string include: any digit (`0`-`9`), '`#`', '`*`' and '`w`', to insert a half second pause. For example, if you connected to a company phone number and wanted to pause for one second, and then dial extension 1234 followed by the pound key, the value of this parameter would be `ww1234#`. Remember to URL-encode this string, since the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
+     * @param string $sendDigits The string of keys to dial after connecting to the number, with a maximum length of 32 digits. Valid digits in the string include any digit (`0`-`9`), '`A`', '`B`', '`C`', '`D`', '`#`', and '`*`'. You can also use '`w`' to insert a half-second pause and '`W`' to insert a one-second pause. For example, to pause for one second after connecting and then dial extension 1234 followed by the # key, set this parameter to `W1234#`. Be sure to URL-encode this string because the '`#`' character has special meaning in a URL. If both `SendDigits` and `MachineDetection` parameters are provided, then `MachineDetection` will be ignored.
      * @return $this Fluent Builder
      */
     public function setSendDigits(string $sendDigits): self
@@ -502,6 +514,18 @@ class CreateCallOptions extends Options
     public function setRecordingStatusCallbackMethod(string $recordingStatusCallbackMethod): self
     {
         $this->options['recordingStatusCallbackMethod'] = $recordingStatusCallbackMethod;
+        return $this;
+    }
+
+    /**
+     * The identifier of the configuration to be used when creating and processing the recording
+     *
+     * @param string $recordingConfigurationId The identifier of the configuration to be used when creating and processing the recording
+     * @return $this Fluent Builder
+     */
+    public function setRecordingConfigurationId(string $recordingConfigurationId): self
+    {
+        $this->options['recordingConfigurationId'] = $recordingConfigurationId;
         return $this;
     }
 
@@ -722,6 +746,18 @@ class CreateCallOptions extends Options
     }
 
     /**
+     * The URL that we should use to deliver `push call notification`.
+     *
+     * @param string $clientNotificationUrl The URL that we should use to deliver `push call notification`.
+     * @return $this Fluent Builder
+     */
+    public function setClientNotificationUrl(string $clientNotificationUrl): self
+    {
+        $this->options['clientNotificationUrl'] = $clientNotificationUrl;
+        return $this;
+    }
+
+    /**
      * Provide a friendly representation
      *
      * @return string Machine friendly representation
@@ -742,12 +778,12 @@ class ReadCallOptions extends Options
      * @param string $from Only include calls from this phone number, SIP address, Client identifier or SIM SID.
      * @param string $parentCallSid Only include calls spawned by calls with this SID.
      * @param string $status The status of the calls to include. Can be: `queued`, `ringing`, `in-progress`, `canceled`, `completed`, `failed`, `busy`, or `no-answer`.
-     * @param string $startTimeBefore Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
-     * @param string $startTime Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
-     * @param string $startTimeAfter Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
-     * @param string $endTimeBefore Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
-     * @param string $endTime Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
-     * @param string $endTimeAfter Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * @param string $startTimeBefore Only include calls that started before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started before this date.
+     * @param string $startTime Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date.
+     * @param string $startTimeAfter Only include calls that started on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on or after this date.
+     * @param string $endTimeBefore Only include calls that ended before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended before this date.
+     * @param string $endTime Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date.
+     * @param string $endTimeAfter Only include calls that ended on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on or after this date.
      */
     public function __construct(
         
@@ -755,12 +791,12 @@ class ReadCallOptions extends Options
         string $from = Values::NONE,
         string $parentCallSid = Values::NONE,
         string $status = Values::NONE,
-        string $startTimeBefore = null,
-        string $startTime = null,
-        string $startTimeAfter = null,
-        string $endTimeBefore = null,
-        string $endTime = null,
-        string $endTimeAfter = null
+        ?string $startTimeBefore = null,
+        ?string $startTime = null,
+        ?string $startTimeAfter = null,
+        ?string $endTimeBefore = null,
+        ?string $endTime = null,
+        ?string $endTimeAfter = null
 
     ) {
         $this->options['to'] = $to;
@@ -824,9 +860,9 @@ class ReadCallOptions extends Options
     }
 
     /**
-     * Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
+     * Only include calls that started before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started before this date.
      *
-     * @param string $startTimeBefore Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
+     * @param string $startTimeBefore Only include calls that started before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started before this date.
      * @return $this Fluent Builder
      */
     public function setStartTimeBefore(string $startTimeBefore): self
@@ -836,9 +872,9 @@ class ReadCallOptions extends Options
     }
 
     /**
-     * Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
+     * Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date.
      *
-     * @param string $startTime Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
+     * @param string $startTime Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date.
      * @return $this Fluent Builder
      */
     public function setStartTime(string $startTime): self
@@ -848,9 +884,9 @@ class ReadCallOptions extends Options
     }
 
     /**
-     * Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
+     * Only include calls that started on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on or after this date.
      *
-     * @param string $startTimeAfter Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.
+     * @param string $startTimeAfter Only include calls that started on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on or after this date.
      * @return $this Fluent Builder
      */
     public function setStartTimeAfter(string $startTimeAfter): self
@@ -860,9 +896,9 @@ class ReadCallOptions extends Options
     }
 
     /**
-     * Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * Only include calls that ended before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended before this date.
      *
-     * @param string $endTimeBefore Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * @param string $endTimeBefore Only include calls that ended before this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended before this date.
      * @return $this Fluent Builder
      */
     public function setEndTimeBefore(string $endTimeBefore): self
@@ -872,9 +908,9 @@ class ReadCallOptions extends Options
     }
 
     /**
-     * Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date.
      *
-     * @param string $endTime Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * @param string $endTime Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date.
      * @return $this Fluent Builder
      */
     public function setEndTime(string $endTime): self
@@ -884,9 +920,9 @@ class ReadCallOptions extends Options
     }
 
     /**
-     * Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * Only include calls that ended on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on or after this date.
      *
-     * @param string $endTimeAfter Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.
+     * @param string $endTimeAfter Only include calls that ended on or after this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on or after this date.
      * @return $this Fluent Builder
      */
     public function setEndTimeAfter(string $endTimeAfter): self

@@ -83,7 +83,7 @@ class BxDolScoreQuery extends BxDolObjectQuery
         return (int)$this->getOne("SELECT `object_id` FROM `" . $this->_sTableTrack . "` WHERE 1" . $sWhereClause, $aBindings) == 0;
     }
 
-    public function getScore($iObjectId)
+    public function getVote($iObjectId)
     {
         $aResult = $this->getRow("SELECT `count_up`, `count_down`, `count_up` - `count_down` AS `score` FROM {$this->_sTable} WHERE `object_id` = :object_id LIMIT 1", array(
             'object_id' => $iObjectId
@@ -93,6 +93,14 @@ class BxDolScoreQuery extends BxDolObjectQuery
             $aResult = array('count_up' => 0, 'count_down' => 0, 'score' => 0);
 
         return $aResult;
+    }
+
+    /**
+     * For backward compatibility. Can be removed in UNA 16.
+     */
+    public function getScore($iObjectId)
+    {
+        return $this->getVote($iObjectId);
     }
 
     public function putVote($iObjectId, $iAuthorId, $sAuthorIp, $aData, $bUndo = false)

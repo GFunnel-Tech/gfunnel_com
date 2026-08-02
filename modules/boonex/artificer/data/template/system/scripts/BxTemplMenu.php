@@ -65,7 +65,7 @@ class BxTemplMenu extends BxBaseMenu
         if($aResult === false)
             return $aResult;
 
-        if(!empty($a['primary'])) {
+        if(!$this->_bIsApi && !empty($a['primary'])) {
             if(!isset($aResult['class_add']))
                 $aResult['class_add'] = '';
 

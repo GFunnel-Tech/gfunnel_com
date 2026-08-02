@@ -38,7 +38,8 @@ define('BX_DOL_SEARCH_KEYWORD_PAGE', 'site-search-page');
 class BxDolSearch extends BxDol
 {
     protected $_bIsApi;
-
+    protected $_bAssitantForLiveSearch = true;
+        
     protected $aClasses = array(); ///< array of all search classes
     protected $aChoice  = array(); ///< array of current search classes which were choosen in search area
     protected $_bRawProcessing = false; ///< display search results without design box and paginate
@@ -61,16 +62,7 @@ class BxDolSearch extends BxDol
 
         $this->_bIsApi = bx_is_api();
 
-        $this->aClasses = BxDolDb::getInstance()->fromCache('sys_objects_search', 'getAllWithKey',
-           'SELECT `ID` as `id`,
-                   `Title` as `title`,
-                   `ClassName` as `class`,
-                   `ClassPath` as `file`,
-                   `ObjectName`,
-                   `GlobalSearch`
-            FROM `sys_objects_search`
-            ORDER BY `Order` ASC', 'ObjectName'
-        );
+        $this->aClasses = self::getSections();
 
         if (is_array($aChoice) && !empty($aChoice)) {
             foreach ($aChoice as $sValue) {
@@ -82,6 +74,35 @@ class BxDolSearch extends BxDol
         }
     }
 
+    public static function getSections($bGlobal = null) 
+    {
+        $sWhere = '';
+        if ($bGlobal != null)
+            $sWhere = ' AND `GlobalSearch` = ' . ($bGlobal ? '1' : '0');
+
+        return BxDolDb::getInstance()->fromCache('sys_objects_search', 'getAllWithKey',
+           'SELECT `ID` as `id`,
+                   `Title` as `title`,
+                   `ClassName` as `class`,
+                   `ClassPath` as `file`,
+                   `ObjectName`,
+                   `GlobalSearch`
+            FROM `sys_objects_search`
+            WHERE 1 ' . $sWhere . '
+            ORDER BY `Order` ASC', 'ObjectName'
+        );
+    }
+
+    public function setApiOutput($bIsApi)
+    {
+        $this->_bIsApi = $bIsApi;
+    }   
+
+    public function setAssistantForLiveSearch($bAssistantForLiveSearch)
+    {
+        $this->_bAssitantForLiveSearch = $bAssistantForLiveSearch;
+    }  
+
     /**
      * create units for all classes and calling their processing methods
      */
@@ -89,12 +110,13 @@ class BxDolSearch extends BxDol
     {
         $sCode = $this->_bDataProcessing ? [] : '';
 
-        if($this->_bLiveSearch && ($iAssistant = BxDolAI::getAssistantForLiveSearch()) != 0) {
+        if($this->_bAssitantForLiveSearch && $this->_bLiveSearch && ($iAssistant = BxDolAI::getAssistantForLiveSearch()) != 0) {
             $sKeyword = '';
             if(($sKeyword = bx_get('keyword')) !== false)
                 $sKeyword = bx_process_input($sKeyword);
 
-            $sCode .= BxDolAIAssistant::getObjectInstance($iAssistant)->getAskButton($sKeyword);
+            if($this->_bIsApi)
+                $sCode .= BxDolAIAssistant::getObjectInstance($iAssistant)->getAskButton($sKeyword);
         }
 
         $bSingle = count($this->aChoice) == 1;
@@ -127,8 +149,13 @@ class BxDolSearch extends BxDol
 
             if($this->_bDataProcessing) {
                 if($this->_bIsApi) {
-                    if($bSingle)
-                        $sCode = $oEx->decodeDataAPI($oEx->getSearchData());
+                    if($bSingle) {
+                        $sMethod = 'decodeDataAPI';
+                        if($this->_bLiveSearch && ($sMethodLs = 'decodeLsDataAPI') && method_exists($oEx, $sMethodLs))
+                            $sMethod = $sMethodLs;
+
+                        $sCode = $oEx->$sMethod($oEx->getSearchData());
+                    }
                     else
                         $sCode[$sKey] = $oEx->getSearchQuery($sKey);
                 }
@@ -162,6 +189,29 @@ class BxDolSearch extends BxDol
     {
         $sKey = _t('_Empty');
         return DesignBoxContent($sKey, MsgBox($sKey), BX_DB_PADDING_DEF);
+    }
+
+    public function getSearchResultObject($sChoice = '')
+    {
+        $aSearchResult = [];
+
+        if($sChoice) {
+            if(empty($this->aChoice[$sChoice]) || !is_array($this->aChoice[$sChoice]))
+                return false;
+
+            $aSearchResult = $this->aChoice[$sChoice];
+        }
+        else
+            $aSearchResult = reset($this->aChoice);
+
+        $sClassName = 'BxTemplSearchResult';
+        if(!empty($aSearchResult['class'])) {
+            $sClassName = $aSearchResult['class'];
+            if(!empty($aSearchResult['file']))
+                require_once(BX_DIRECTORY_PATH_ROOT . $aSearchResult['file']);
+        }
+
+        return new $sClassName();
     }
 
     protected function getKeyTitlesPairs ()
@@ -365,7 +415,6 @@ class BxDolSearchResult implements iBxDolReplaceable
     protected $_aParams = [];
     protected $_sCategoryObject = '';
     protected $_aCustomSearchCondition = array();
-    protected $_bValidate = false;
 
     protected $_aMarkers = array (); ///< markers to replace somewhere, usually title and browse url (defined in custom class)
     
@@ -535,9 +584,6 @@ class BxDolSearchResult implements iBxDolReplaceable
         if($this->_bIsApi)
             return $this->processingAPI();
 
-        if($this->_bValidate)
-            return $this->getSearchData();
-
         $sCode = $this->displayResultBlock();
         if ($this->aCurrent['paginate']['num'] > 0) {
             $sPaginate = $this->showPagination();
@@ -550,10 +596,12 @@ class BxDolSearchResult implements iBxDolReplaceable
         return $sCode;
     }
 
-    function processingAPI () 
+    function processingAPI ($bForceGetData = false)
     {
         $sModule = 'system';
         $sUnitType = 'content';
+        $sHomeUrl = '';
+        
         if(!empty($this->oModule)) {
             $sModule = $this->oModule->getName();
 
@@ -561,21 +609,34 @@ class BxDolSearchResult implements iBxDolReplaceable
                  $sUnitType = 'profile';
             if(method_exists($this->oModule, 'serviceIsGroupProfile') && $this->oModule->serviceIsGroupProfile())
                  $sUnitType = 'context';
+            
+            $sHomeUrl = bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($this->oModule->_oConfig->CNF['URL_HOME']));
         }
 
         $sUnit =  'list';
         if(in_array($this->sUnitViewDefault, ['showcase', 'gallery']))
             $sUnit = 'card';
         
-        $aData = defined('BX_API_PAGE') ? [] : $this->decodeDataAPI($this->getSearchData());
-        
+        $aData = defined('BX_API_PAGE') && !$bForceGetData ? [] : $this->decodeDataAPI($this->getSearchData());
+
         $aParams =  [
-            'per_page' => $this->aCurrent['paginate']['perPage'],
-            'start' => $this->aCurrent['paginate']['start'],
             'type' => $this->_sMode,
+            'start' => $this->aCurrent['paginate']['start'],
+            'per_page' => $this->aCurrent['paginate']['perPage'],
+            'view' => $this->_aParams['unit_view'] ?? '',
         ];
 
-        foreach(['author', 'category', 'context'] as $sParamAdd)
+        if($sHomeUrl)
+            $aParams['home_url'] = $sHomeUrl;
+
+        if(($sK = 'class_search_result') && isset($this->_aParams[$sK]))
+            $aParams[$sK] = $this->_aParams[$sK];
+
+        $aParamsAdd = [];
+        if(($sMethod = 'addProcessingParamsAPI') && method_exists($this, $sMethod))
+            $aParamsAdd = $this->$sMethod();
+
+        foreach($aParamsAdd as $sParamAdd)
             if(isset($this->_aParams[$sParamAdd]))
                 $aParams[$sParamAdd] = $this->_aParams[$sParamAdd];
 
@@ -586,6 +647,11 @@ class BxDolSearchResult implements iBxDolReplaceable
             'data' =>  $aData,
             'params' => $aParams
         ];
+    }
+
+    function addProcessingParamsAPI()
+    {
+        return ['author', 'category', 'context', 'joined_profile', 'followed_contexts', 'level'];
     }
 
     function decodeDataAPI ($a)
@@ -758,6 +824,7 @@ class BxDolSearchResult implements iBxDolReplaceable
          */
         bx_alert('simple_search', 'before_get_data', 0, false, [
             'object' => &$this->aCurrent, 
+            'object_ref' => &$this->aCurrent, 
             'mode' => $this->_sMode
         ]);
 
@@ -766,16 +833,6 @@ class BxDolSearchResult implements iBxDolReplaceable
 
         $this->setConditionParams();
         $aData = $this->aCurrent['paginate']['num'] > 0 ? $this->getSearchDataByParams() : [];
-        
-        if($this->_bValidate) {
-            $aIds = array_map(function($aItem) {
-                return $aItem['id'];
-            }, $aData);
-
-            sort($aIds);
-            sort($this->_aParams['validate']);
-            $aData = $aIds == $this->_aParams['validate'] ? 'valid' : 'invalid';
-        }
 
         /**
          * @hooks
@@ -792,8 +849,10 @@ class BxDolSearchResult implements iBxDolReplaceable
          */
         bx_alert('simple_search', 'get_data', 0, false, [
             'object' => &$this->aCurrent, 
+            'object_ref' => &$this->aCurrent, 
             'mode' => $this->_sMode, 
-            'search_results' => &$aData
+            'search_results' => &$aData,
+            'search_results_ref' => &$aData
         ]);
 
         return $aData;
@@ -834,9 +893,11 @@ class BxDolSearchResult implements iBxDolReplaceable
          */
         bx_alert('simple_search', 'get_query', 0, false, [
             'object' => &$this->aCurrent, 
+            'object_ref' => &$this->aCurrent, 
             'mode' => $this->_sMode, 
             'search_object' => $sObject,
-            'search_query' => &$aQuery
+            'search_query' => &$aQuery,
+            'search_query_ref' => &$aQuery
         ]);
 
         return $aQuery;
@@ -1023,11 +1084,12 @@ class BxDolSearchResult implements iBxDolReplaceable
 
         // keyword
         $sKeyword = bx_process_input(isset($this->_aCustomSearchCondition['keyword']) ? $this->_aCustomSearchCondition['keyword'] : bx_get('keyword'));
+        $bKeyword = !empty($sKeyword);
 
-        if ($this->_bLiveSearch && empty($sKeyword))
+        if ($this->_bLiveSearch && !$bKeyword)
             return;
 
-        if ($sKeyword !== false) {
+        if ($bKeyword) {
             if (substr($sKeyword, 0, 1) == '@') {
                 $sModule = $this->aCurrent['module_name'];
                 $sMethod = 'act_as_profile';
@@ -1063,47 +1125,71 @@ class BxDolSearchResult implements iBxDolReplaceable
             $o = BxDolMetatags::getObjectInstance($this->aCurrent['object_metatags']);
             if ($o) {
                 unset($this->aCurrent['restriction']['keyword']);
+
+                $aLocationString = [];
                 switch ($this->_sMetaType) {
                     case 'location_country':
+                        $aLocationString['country'] = $sKeyword;
                         $o->locationsSetSearchCondition($this, $sKeyword);
                         break;
                     case 'location_country_state':
-                        $o->locationsSetSearchCondition($this, $sKeyword, bx_process_input(isset($this->_aCustomSearchCondition['state']) ? $this->_aCustomSearchCondition['state'] : bx_get('state')));
+                        $aLocationString['country'] = $sKeyword;
+                        $aLocationString['state'] = bx_process_input(isset($this->_aCustomSearchCondition['state']) ? $this->_aCustomSearchCondition['state'] : bx_get('state'));
+                        $o->locationsSetSearchCondition($this, $sKeyword, $aLocationString['state']);
                         break;
                     case 'location_country_city':
-                        $o->locationsSetSearchCondition($this, $sKeyword, bx_process_input(isset($this->_aCustomSearchCondition['state']) ? $this->_aCustomSearchCondition['state'] : bx_get('state')), bx_process_input(isset($this->_aCustomSearchCondition['city']) ? $this->_aCustomSearchCondition['city'] : bx_get('city')));
+                        $aLocationString['country'] = $sKeyword;
+                        $aLocationString['state'] = bx_process_input(isset($this->_aCustomSearchCondition['state']) ? $this->_aCustomSearchCondition['state'] : bx_get('state'));
+                        $aLocationString['city'] = bx_process_input(isset($this->_aCustomSearchCondition['city']) ? $this->_aCustomSearchCondition['city'] : bx_get('city'));
+                        $o->locationsSetSearchCondition($this, $sKeyword, $aLocationString['state'], $aLocationString['city']);
                         break;
                     case 'location_state':
+                        $aLocationString['state'] = $sKeyword;
                         $o->locationsSetSearchCondition($this, false, $sKeyword);
                         break;
                     case 'location_city':
+                        $aLocationString['city'] = $sKeyword;
                         $o->locationsSetSearchCondition($this, false, false, $sKeyword);
                         break;
                     case 'mention':
                         $oCmts = !empty($this->sModuleObjectComments) ? BxDolCmts::getObjectInstance($this->sModuleObjectComments, 0, false) : false;
                         $o->mentionsSetSearchCondition($this, $sKeyword, $oCmts ? $oCmts->getSystemId() : 0);
+
+                        if(($oProfile = BxDolProfile::getInstance((int)$sKeyword)) !== false)
+                            $this->_setPageDescription('_sys_page_description_mention', $oProfile->getDisplayName(), $this->aCurrent['title']);
                         break;
                     case 'keyword':
                         $oCmts = !empty($this->sModuleObjectComments) ? BxDolCmts::getObjectInstance($this->sModuleObjectComments, 0, false) : false;
                         $o->keywordsSetSearchCondition($this, $sKeyword, $oCmts ? $oCmts->getSystemId() : 0);
+
+                        $this->_setPageDescription('_sys_page_description_hashtag', $sKeyword, $this->aCurrent['title']);
                         break;
                 }
+
+                if(in_array($this->_sMetaType, ['location_country', 'location_country_state', 'location_country_city', 'location_state', 'location_city']))
+                    $this->_setPageDescription('_sys_page_description_location', $o->locationsStringFromArray($aLocationString, false), $this->aCurrent['title']);
             }
         }
 
         // category
-        if ($this->_sCategoryObject){
+        if ($this->_sCategoryObject) {
             if(($o = BxDolCategory::getObjectInstance($this->_sCategoryObject)) && $this->_bSingleSearch) {
                 if ($this->aCurrent['name'] == $o->getSearchObject()) {
                     unset($this->aCurrent['restriction']['keyword']);
                     $o->setSearchCondition($this, $sKeyword);
                 }
+
+                $this->_setPageDescription('_sys_page_description_category', $o->getCategoryTitle($sKeyword), $this->aCurrent['title']);
             }
+
             if ($this->_sCategoryObject == 'multi'){
                 unset($this->aCurrent['restriction']['keyword']);
                 $this->setCategoriesCondition($sKeyword);
             }
         }
+
+        if($bKeyword && !$this->_sMetaType && !$this->_sCategoryObject)
+            $this->_setPageDescription('_sys_page_description_keyword', $sKeyword, $this->aCurrent['title']);
 
         $this->setPaginate();
         $iNum = $this->getNum();
@@ -1263,13 +1349,6 @@ class BxDolSearchResult implements iBxDolReplaceable
      */
     function setPaginate ()
     {
-        if($this->_bValidate) {
-            $this->aCurrent['paginate']['start'] = 0;
-            $this->aCurrent['paginate']['perPage'] = count($this->_aParams['validate']);
-
-            return;
-        }
-
         $iStart = 0;
         $iPerPage = 0;
 
@@ -1416,6 +1495,16 @@ class BxDolSearchResult implements iBxDolReplaceable
     protected function _replaceMarkers ($mixed)
     {
         return bx_replace_markers($mixed, $this->_aMarkers);
+    }
+
+    protected function _setPageDescription()
+    {
+        $aArgs = func_get_args();
+
+        if($this->_bSingleSearch)
+            $aArgs[0] .= '_in_section';
+
+        BxDolTemplate::getInstance()->setPageDescription(call_user_func_array('_t', $aArgs));
     }
 }
 

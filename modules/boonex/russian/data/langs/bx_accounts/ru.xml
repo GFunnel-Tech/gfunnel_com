@@ -3,6 +3,7 @@
     <string name="_bx_accnt"><![CDATA[Аккаунты]]></string>
     <string name="_bx_accounts"><![CDATA[Аккаунты]]></string>
 
+    <string name="_bx_accounts_option_last_active_sorting"><![CDATA[Включить сортировку по последней активности]]></string>
     <string name="_bx_accounts_option_export_to"><![CDATA[Экспортировать в]]></string>
     <string name="_bx_accounts_option_export_fields"><![CDATA[Экспортируемые поля]]></string>
 
@@ -40,8 +41,8 @@
     <string name="_bx_accnt_menu_item_title_make_operator"><![CDATA[Дать доступ Оператора]]></string>
     <string name="_bx_accnt_menu_item_title_system_unmake_operator"><![CDATA[Отменить доступ Оператора]]></string>
     <string name="_bx_accnt_menu_item_title_unmake_operator"><![CDATA[Отменить доступ Оператора]]></string>
-    <string name="_bx_accnt_menu_item_title_system_set_operator_role"><![CDATA[Сменить роль опуратора]]></string>
-    <string name="_bx_accnt_menu_item_title_set_operator_role"><![CDATA[Сменить роль опуратора]]></string>
+    <string name="_bx_accnt_menu_item_title_system_set_operator_role"><![CDATA[Сменить роль оператора]]></string>
+    <string name="_bx_accnt_menu_item_title_set_operator_role"><![CDATA[Сменить роль оператора]]></string>
     <string name="_bx_accnt_menu_item_title_system_admt_accounts"><![CDATA[Аккаунты]]></string>
     <string name="_bx_accnt_menu_item_title_admt_accounts"><![CDATA[Аккаунты]]></string>
     <string name="_bx_accnt_menu_item_title_manage"><![CDATA[Управление]]></string>
@@ -84,6 +85,7 @@
     <string name="_bx_accnt_grid_action_title_adm_send_message"><![CDATA[Отправить письмо]]></string>
     <string name="_bx_accnt_grid_action_title_adm_more_actions"><![CDATA[Дополнительно]]></string>
     <string name="_bx_accnt_grid_action_title_adm_more_add"><![CDATA[Добавить новый]]></string>
+    <string name="_bx_accnt_grid_action_msg_delete_scheduled"><![CDATA[Удаление аккаунта(ов) запланировано и будет выполнено через несколько минут.]]></string>
     <string name="_bx_accnt_grid_action_err_delete"><![CDATA[Невозможно удалить выбранный(ные) аккаунт(ы).]]></string>
     <string name="_bx_accnt_grid_action_err_perform"><![CDATA[Невозможно выполнить действие для выбранного(ных) аккаунта(ов).]]></string>
     <string name="_bx_accnt_grid_action_unlock_successed"><![CDATA[Успешно разблокирован]]></string>

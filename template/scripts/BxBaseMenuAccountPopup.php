@@ -46,11 +46,8 @@ class BxBaseMenuAccountPopup extends BxTemplMenuCustom
 
     protected function _getMenuItemProfileSwitcher ($aItem)
     {
-        // GFunnel: the workspace switcher now lives in the top nav (right of the
-        // logo, workspace/app layout only) via
-        // BxBaseFunctions::getGfWorkspaceSelector(). Suppress the duplicate list
-        // in the account (avatar) dropdown so there is a single switch surface.
-        return '';
+        $aResult = bx_srv('system', 'account_profile_switcher', [], 'TemplServiceProfiles');
+        return $aResult['content'];
     }
 
     protected function _getMenuItemProfileCreate ($aItem)

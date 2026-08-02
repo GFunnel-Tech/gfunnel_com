@@ -188,43 +188,14 @@ class BxBaseStudioFormsForms extends BxDolStudioFormsForms
     {
         parent::_getFilterControls();
 
-        $sContent = "";
+        $aCounter = [];
+        $this->oDb->getForms(['type' => 'counter_by_modules'], $aCounter, false);
 
-        $sJsObject = $this->getJsObject();
-        $oForm = new BxTemplStudioFormView(array());
+        $aModules = $this->getModules(false);
+        foreach($aModules as $sKey => $sValue)
+            $aModules[$sKey] = $aModules[$sKey] . " (" . ($aCounter[$sKey] ?? 0) . ")";
 
-        $aInputModules = array(
-            'type' => 'select',
-            'name' => 'module',
-            'attrs' => array(
-                'id' => 'bx-grid-module-' . $this->_sObject,
-                'onChange' => 'javascript:' . $this->getJsObject() . '.onChangeFilter()'
-            ),
-            'value' => '',
-            'values' => $this->getModules(false)
-        );
-
-        $aCounter = array();
-        $this->oDb->getForms(array('type' => 'counter_by_modules'), $aCounter, false);
-        foreach($aInputModules['values'] as $sKey => $sValue)
-            $aInputModules['values'][$sKey] = $aInputModules['values'][$sKey] . " (" . (isset($aCounter[$sKey]) ? $aCounter[$sKey] : "0") . ")";
-
-        $aInputModules['values'] = array_merge(array('' => _t('_adm_form_txt_all_modules')), $aInputModules['values']);
-
-        $sContent .= $oForm->genRow($aInputModules);
-
-        $aInputSearch = array(
-            'type' => 'text',
-            'name' => 'keyword',
-            'attrs' => array(
-                'id' => 'bx-grid-search-' . $this->_sObject,
-                'onKeyup' => 'javascript:$(this).off(\'keyup focusout\'); ' . $sJsObject . '.onChangeFilter()',
-            	'onBlur' => 'javascript:' . $sJsObject . '.onChangeFilter()',
-            )
-        );
-        $sContent .= $oForm->genRow($aInputSearch);
-
-        return  $sContent;
+        return parent::_getFilterSelectOne('module', '', $aModules, '_adm_form_txt_all_modules') . $this->getSearchInput();
     }
 }
 

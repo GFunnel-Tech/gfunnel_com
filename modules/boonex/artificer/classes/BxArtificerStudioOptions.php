@@ -29,6 +29,12 @@ class BxArtificerStudioOptions extends BxTemplStudioOptions
         $aField = parent::field($aItem, $aItems2Mixes);
 
         switch($aItem['name']) {
+            case $sPrefix . 'styles_custom':
+                $aField = array_merge($aField, [
+                    'code' => 1
+                ]);
+                break;
+
             case $sPrefix . 'images_custom':
                 $aField = array_merge($aField, [
                     'info' => _t('_bx_artificer_stg_cpt_option_images_custom_inf'),

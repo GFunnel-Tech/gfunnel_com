@@ -861,7 +861,9 @@ class BxDolForm extends BxDol implements iBxDolReplaceable
 
             // init form with submitted data, overwrite prevously declared values
 
-            $oChecker->enableFormCsrfChecking(isset($this->aParams['csrf']['disable']) && $this->aParams['csrf']['disable'] === true ? false : true);
+            $bViewMode = isset($this->aParams['view_mode']) && (int)$this->aParams['view_mode'] == 1;
+            $bCsrfDisabled = isset($this->aParams['csrf']['disable']) && $this->aParams['csrf']['disable'] === true;
+            $oChecker->enableFormCsrfChecking(!$bViewMode && !$bCsrfDisabled);
 
             $this->_isValid = $oChecker->check($this->aInputs, $aValues);
 
@@ -883,6 +885,7 @@ class BxDolForm extends BxDol implements iBxDolReplaceable
          */
         bx_alert('system', 'form_check', 0, 0, [
             'object' => &$this,
+            'inputs_ref' => &$this->aInputs,
         ]);
     }
 
@@ -929,6 +932,7 @@ class BxDolForm extends BxDol implements iBxDolReplaceable
                 'module' => isset($this->aParams['module']) ? $this->aParams['module'] : '',
                 'entry_id' => $iRes,
                 'form_object' => &$this,
+                'inputs_ref' => &$this->aInputs,
             ]);
 
             return $iRes;
@@ -966,6 +970,7 @@ class BxDolForm extends BxDol implements iBxDolReplaceable
             'module' => isset($this->aParams['module']) ? $this->aParams['module'] : '',
             'entry_id' => $val,
             'form_object' => &$this,
+            'inputs_ref' => &$this->aInputs,
         ]);
 
         return $bRes;
@@ -1029,7 +1034,7 @@ class BxDolForm extends BxDol implements iBxDolReplaceable
             $oRv =  $oChecker->get ($sName);
 
         // process comma separated string for api values
-        if ($this->_bIsApi && isset($this->aInputs[$sName]['type']) && !empty($oRv) && (in_array($this->aInputs[$sName]['type'], ['checkbox_set', 'files', 'select_multiple']) || in_array($sName, ['labels'])))
+        if ($this->_bIsApi && isset($this->aInputs[$sName]['type']) && !empty($oRv) && is_string($oRv) && (in_array($this->aInputs[$sName]['type'], ['checkbox_set', 'files', 'select_multiple']) || in_array($sName, ['labels'])))
             $oRv = explode(',', $oRv);
 
         return $oRv;
@@ -1549,8 +1554,8 @@ class BxDolFormChecker
         }
 
         // add error message near submit button
-        if ($iErrors && $sSubmitName)
-            $aInputs[$sSubmitName]['error'] = _t('_sys_txt_form_submission_error');
+        if ($iErrors && $sSubmitName && !($this->_aFormParams['checker_errors']['summary']['disabled'] ?? false))
+            $aInputs[$sSubmitName]['error'] = _t($this->_aFormParams['checker_errors']['summary']['text'] ?? '_sys_txt_form_submission_error');
     
         return $iErrors ? false : true;
     }
@@ -1581,7 +1586,7 @@ class BxDolFormChecker
             $aValsToUpdate[$sKey] = $valClean;
             $aInputs[$k]['db']['value'] = $valClean;
 
-            if (null !== $aTrackTextFieldsChanges && isset(BxDolForm::$TYPES_TEXT[$aInputs[$k]['type']]) && isset($aTrackTextFieldsChanges['data'][$a['name']]) && $aTrackTextFieldsChanges['data'][$a['name']] != $valClean)
+            if (null !== $aTrackTextFieldsChanges && $this->isTrackableField($a) && isset($aTrackTextFieldsChanges['data'][$a['name']]) && $aTrackTextFieldsChanges['data'][$a['name']] != $valClean)
                 $aTrackTextFieldsChanges['changed_fields'][] = $a['name'];
         }
 
@@ -1661,6 +1666,11 @@ class BxDolFormChecker
             }
         }
     }
+
+    function isTrackableField($aInput)
+    {
+        return isset(BxDolForm::$TYPES_TEXT[$aInput['type']]);
+    }
 }
 
 class BxDolFormCheckerHelper
@@ -1730,6 +1740,15 @@ class BxDolFormCheckerHelper
         }
         return $s ? true : false;
     }
+    static public function checkJson ($mixed, $bAllowEmpty = false )
+    {
+        if (is_array($mixed)) {            
+            foreach ($mixed as $v)
+                if (!self::_isJsonValid($v, $bAllowEmpty))
+                    return false;
+        }
+        return self::_isJsonValid($mixed, $bAllowEmpty);
+    }
     static public function checkProfileName($s)
     {
         if (!self::checkAvail($s))
@@ -1788,10 +1807,7 @@ class BxDolFormCheckerHelper
     }
     static public function checkCaptcha($s)
     {
-        $oCaptcha = BxDolCaptcha::getObjectInstance();
-        if (!$oCaptcha)
-            return true;
-        return $oCaptcha->check ();
+        return !bx_is_api() && ($oCaptcha = BxDolCaptcha::getObjectInstance()) !== false ? $oCaptcha->check() : true;
     }
     static public function checkIsSpam(&$val, $sType = 'textarea')
     {
@@ -1813,6 +1829,10 @@ class BxDolFormCheckerHelper
         bx_alert('system', 'check_spam', 0, getLoggedId(), [
             'is_spam' => &$bSpam, 
             'content' => &$val, 
+
+            'is_spam_ref' => &$bSpam, 
+            'content_ref' => &$val,
+
             'where' => 'form', 
             'type' => $sType
         ]);
@@ -2006,6 +2026,11 @@ class BxDolFormCheckerHelper
 
     // display functions, prepare values to output to the screen
 
+    static public function displayRaw ($s)
+    {
+        return $s;
+    }
+
     static public function displayDate ($i)
     {
         return bx_process_output ($i, BX_DATA_DATE_UTC);
@@ -2056,6 +2081,15 @@ class BxDolFormCheckerHelper
     static public function _isFullArray ($a)
     {
         return bx_is_full_array($a);
+    }
+
+    static public function _isJsonValid($s, $bAllowEmpty = false)
+    {
+        if ($bAllowEmpty && empty($s))
+            return true;
+
+        json_decode($s);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 }
 

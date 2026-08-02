@@ -14,6 +14,7 @@
 class BxBaseGrid extends BxDolGrid
 {
     protected $_oTemplate;
+    protected $_oFunctions;
     protected $_aPopupOptions = false;
     protected $_aQueryAppend = [];
     protected $_aQueryAppendExclude = false; // an array of keys which shouldn't be pathed in http requests, but can be stored (used) in 'Query Append' array.
@@ -31,6 +32,8 @@ class BxBaseGrid extends BxDolGrid
             $this->_oTemplate = $oTemplate;
         else
             $this->_oTemplate = BxDolTemplate::getInstance();
+
+        $this->_oFunctions = BxTemplFunctions::getInstanceWithTemplate($this->_oTemplate);
 
         $this->_aPopupOptions = [];
 
@@ -624,7 +627,7 @@ class BxBaseGrid extends BxDolGrid
     {
         $sRow = '';
         if(is_string($mixedRow))
-            $sRow = '<td class="bx-def-padding-sec-topbottom bx-def-font-bold" colspan="' . count($this->_aOptions['fields']) . '">' . $mixedRow . '</td>';
+            $sRow = '<td class="bx-grid-cell bx-gc-string bx-def-padding-sec-topbottom bx-def-font-bold" colspan="' . count($this->_aOptions['fields']) . '">' . $mixedRow . '</td>';
         else
             foreach($this->_aOptions['fields'] as $sKey => $aField)
                 $sRow .= $this->_getCellDesign($sKey, $aField, $mixedRow);
@@ -730,12 +733,20 @@ class BxBaseGrid extends BxDolGrid
 
     protected function _getCellDefault ($mixedValue, $sKey, $aField, $aRow)
     {
-        if($this->_bIsApi)
-            return ['type' => 'text', 'value'=> (int)$aField['translatable'] ? _t($mixedValue) : $mixedValue];    
+        if($this->_bIsApi) {
+            $sType = $mixedValue['type'] ?? 'text';
+            if(isset($mixedValue['type']))
+                unset($mixedValue['type']);
+
+            return [
+                'type' =>  $sType, 
+                'value'=> (int)$aField['translatable'] ? _t($mixedValue) : $mixedValue
+            ];
+        }
 
         $sAttr = $this->_convertAttrs(
             $aField, 'attr_cell',
-            'bx-def-padding-sec-bottom bx-def-padding-sec-top', // add default classes
+            'bx-grid-cell' . (!empty($aField['name']) ? ' bx-gc-' . $aField['name'] : '') . ' bx-def-padding-sec-bottom bx-def-padding-sec-top', // add default classes
             isset($aField['width']) ? 'width:' . $aField['width'] : false // add default styles
         );
         return '<td ' . $sAttr . '>' . $mixedValue . '</td>';
@@ -827,10 +838,14 @@ class BxBaseGrid extends BxDolGrid
         $sIcon = '';
         $sImage = '';
         if (!empty($a['icon'])) {
-            if (false === strpos($a['icon'], '.'))
-                $sIcon = '<i class="sys-icon ' . $a['icon'] . '"></i>';
-            elseif ($sIconUrl = $this->_oTemplate->getIconUrl($a['icon']))
+            list($sIconFont, $sIconUrl, $sIconA, $sIconHtml) = $this->_oFunctions->getIcon($a['icon']);
+
+            if ($sIconFont)
+                $sIcon = '<i class="sys-icon ' . $sIconFont . '"></i>';
+            else if($sIconUrl)
                 $sImage = '<img style="background-image:url(' . $sIconUrl . ');" src="' . $this->_oTemplate->getIconUrl('spacer.gif') .'" />';
+            else if($sIconHtml)
+                $sImage = $sIconHtml;
         }
 
         return '<button ' . $sAttr . '>' . $sIcon . $sImage . ($a['icon_only'] || empty($a['title']) ? '' : '<u>' . $a['title'] . '</u>') . '</button>';
@@ -848,7 +863,7 @@ class BxBaseGrid extends BxDolGrid
 
     protected function _getFilterControls ()
     {
-        $oForm = new BxTemplFormView(array());
+        $oForm = new BxTemplFormView([]);
 
         $aInput = array(
             'type' => 'text',
@@ -870,6 +885,123 @@ class BxBaseGrid extends BxDolGrid
         return $aFilters;
     }
 
+    protected function _getFilterOnChange()
+    {
+        return '';
+    }
+
+    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, $mixedAddSelectOne = true, $bAsArray = false)
+    {
+        if(empty($sFilterName))
+            return '';
+
+        $aInputValues = [];
+        if(($mixedAddSelectOne === true && ($sKey = '_Select_one')) || (is_string($mixedAddSelectOne) && ($sKey = $mixedAddSelectOne)))
+            $aInputValues[''] = _t($sKey);
+
+        foreach($aFilterValues as $mixedKey => $mixedValue)
+            if(is_array($mixedValue) && isset($mixedValue['key'], $mixedValue['value']))
+                $aInputValues[$mixedValue['key']] = _t($mixedValue['value']);
+            else
+                $aInputValues[$mixedKey] = _t($mixedValue);
+
+        $aInputSelect = [
+            'type' => 'select',
+            'name' => $sFilterName,
+            'attrs' => [
+                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
+                'onChange' => ($sOnChange = $this->_getFilterOnChange()) ? 'javascript:' . $sOnChange : '',
+            ],
+            'value' => $sFilterValue,
+            'values' => $aInputValues
+        ];
+
+        if($bAsArray)
+            return $aInputSelect;
+
+        $oForm = new BxTemplFormView([]);
+        return $oForm->genRow($aInputSelect);
+    }
+
+    protected function _getFilterDatePicker($sFilterName, $sFilterValue, $bAsArray = false)
+    {
+        if(empty($sFilterName))
+            return '';
+
+        $aInputDatePicker = [
+            'type' => 'datepicker',
+            'name' => $sFilterName,
+            'attrs' => [
+                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
+                'onChange' => ($sOnChange = $this->_getFilterOnChange()) ? 'javascript:' . $sOnChange : '',
+            ],
+            'value' => $sFilterValue,
+        ];
+
+        if($bAsArray)
+            return $aInputDatePicker;
+
+        $oForm = new BxTemplFormView([]);
+        return $oForm->genRow($aInputDatePicker);
+    }
+
+    protected function _getFilterButton($bAsArray = false)
+    {
+        $sOnChange = $this->_getFilterOnChange();
+
+        $aInputButton = [
+            'type' => 'button',
+            'name' => 'button',
+            'attrs' => [
+                'id' => 'bx-grid-button-' . $this->_sObject,
+                'onClick' => 'javascript:' . $sOnChange,
+            ],
+            'value' => _t('_Search'),
+        ];
+
+        if($bAsArray)
+            return $aInputButton;
+
+        $oForm = new BxTemplFormView([]);
+        return $oForm->genRow($aInputButton);
+    }
+
+    protected function _getFilterLabel($sFilterValue, $bAsArray = false)
+    {
+        $aInputLabel = [
+            'type' => 'value',
+            'value' => $sFilterValue,
+            'tr_attrs' => ['class' => 'bx-grid-controls-filter-label'],
+        ];
+
+        if($bAsArray)
+            return $aInputLabel;
+
+        $oForm = new BxTemplFormView([]);
+        return $oForm->genRow($aInputLabel);
+    }
+
+    protected function _getSearchInput($bAsArray = false)
+    {
+        $sOnChange = $this->_getFilterOnChange();
+
+        $aInputSearch = [
+            'type' => 'text',
+            'name' => 'search',
+            'attrs' => [
+                'id' => 'bx-grid-search-' . $this->_sObject,
+                'onKeyup' => 'javascript:$(this).off(\'keyup focusout\'); ' . $sOnChange,
+                'onBlur' => 'javascript:' . $sOnChange,
+            ]
+        ];
+
+        if($bAsArray)
+            return $aInputSearch;
+
+        $oForm = new BxTemplFormView([]);
+        return $oForm->genRow($aInputSearch);
+    }
+
     protected function _getCounter()
     {
         return _t('_sys_grid_total_count', $this->_iTotalCount);
@@ -877,9 +1009,10 @@ class BxBaseGrid extends BxDolGrid
 
     protected function _limitMaxLength ($mixedValue, $sKey, $aField, $aRow, $isDisplayPopupOnTextOverflow, $bReturnString = true)
     {
-        if ($aField['chars_limit'] > 0)
-            $mixedValue = BxTemplFunctions::getInstance()->getStringWithLimitedLength($mixedValue, $aField['chars_limit'], $isDisplayPopupOnTextOverflow, $bReturnString);
-        return $mixedValue;
+        if((int)$aField['chars_limit'] <= 0)
+            return $mixedValue;
+
+        return $this->_oFunctions->getStringWithLimitedLength([strip_tags($mixedValue), $mixedValue], $aField['chars_limit'], $isDisplayPopupOnTextOverflow, $bReturnString);
     }
 
     protected function _convertAttrs ($aField, $sAttrName, $sClasses = false, $sStyles = false)

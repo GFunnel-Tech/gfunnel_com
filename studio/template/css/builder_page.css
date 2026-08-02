@@ -1,13 +1,29 @@
 /*--- Panel Top style ---*/
-div.bx-std-pt-pages {
-    position: relative;
-    float: left;
+div.bx-std-pt-bp-types div.bx-form-element-wrapper {
+    width: 10rem;
 }
-div.bx-std-pt-pages div.bx-form-element-wrapper {
-    width: 165px;
+div.bx-std-pt-bp-pages div.bx-form-element-wrapper {
+    width: 20rem;
 }
-div.bx-std-pt-buttons {
-    float: right;
+div.bx-std-pt-bp-selects .select2-container .select2-selection--single {
+    height: 2.5rem;
+    border-radius: 0.375rem;
+    opacity: 0.9;
+}
+div.bx-std-pt-bp-selects .select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 0;
+    line-height: 2.375rem;
+}
+div.bx-std-pt-bp-selects .select2-container .select2-selection--single .select2-selection__arrow {
+    height: 2.375rem;
+}
+.adm-bp-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.adm-bp-page .adm-bpp-cnt {
+    font-weight: 600;
 }
 
 /*--- Main section style ---*/
@@ -53,8 +69,8 @@ div.adm-bpb-content {
 
 div.adm-bpb-icon,
 div.adm-bpb-icon-bg,
-div.adm-bpb-icon img,
-div.adm-bpb-icon i.sys-icon {
+div.adm-bpb-icon-cnt,
+div.adm-bpb-icon img {
     width: 2.5rem;
     height: 2.5rem;
     max-width: none;
@@ -73,19 +89,22 @@ div.adm-bpb-icon-bg {
     background-color: #323c46;
     border-radius: 0.5rem;
 }
-div.adm-bpb-icon img {
-    border-radius: 0.5rem;
-}
-div.adm-bpb-icon i.sys-icon {
+div.adm-bpb-icon-cnt {
     position: absolute;
     top: 0px;
     left: 0px;
-
+}   
+div.adm-bpb-icon-cnt .sys-icon {
+    color: white;
+}
+div.adm-bpb-icon-cnt i.sys-icon {
     text-align: center;
     text-shadow: none;
     line-height: 2.5rem;
     font-size: 20px;
-    color:white;
+}
+div.adm-bpb-icon img {
+    border-radius: 0.5rem;
 }
 div.adm-bpb-info {
     -webkit-flex-grow: 2;

@@ -177,9 +177,6 @@ class BxBaseModGroupsFormsEntryHelper extends BxBaseModProfileFormsEntryHelper
         else
             $sUrl = 'page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aContentInfo[$CNF['FIELD_ID']];
 
-        if(bx_is_api())
-            return bx_api_get_block('redirect', ['uri' => '/' . BxDolPermalinks::getInstance()->permalink($sUrl), 'timeout' => 1000]);
-
         /**
          * @hooks
          * @hookdef hook-bx_base_groups-redirect_after_edit '{module_name}', 'redirect_after_edit' - hook to override redirect URL which is used after content changing
@@ -190,6 +187,9 @@ class BxBaseModGroupsFormsEntryHelper extends BxBaseModProfileFormsEntryHelper
             'content' => $aContentInfo,
             'override_result' => &$sUrl,
         ]);
+
+        if($this->_bIsApi)
+            return bx_api_get_block('redirect', ['uri' => bx_api_get_relative_url(BxDolPermalinks::getInstance()->permalink($sUrl))]);
 
         $this->_redirectAndExit($sUrl);
     }
@@ -255,7 +255,18 @@ class BxBaseModGroupsFormsEntryHelper extends BxBaseModProfileFormsEntryHelper
      */ 
     protected function makeAuthorAdmin ($oGroupProfile, $aInitialProfiles)
     {
-        $this->makeAdmin (bx_get_logged_profile_id(), $oGroupProfile, $aInitialProfiles);
+        $iAuthorProfileId = 0;
+        if($oGroupProfile && ($sModule = $oGroupProfile->getModule()) && ($sMethod = 'get_author') && bx_is_srv($sModule, $sMethod))
+            $iAuthorProfileId = bx_srv($sModule, $sMethod, [$oGroupProfile->getContentId()]);
+        if(!$iAuthorProfileId)
+            return;
+
+        if(!is_array($aInitialProfiles))
+            $aInitialProfiles = [];
+        if(!in_array($iAuthorProfileId, $aInitialProfiles))
+            $aInitialProfiles[] = $iAuthorProfileId;
+
+        $this->makeAdmin($iAuthorProfileId, $oGroupProfile, $aInitialProfiles);
     }
 
     /**

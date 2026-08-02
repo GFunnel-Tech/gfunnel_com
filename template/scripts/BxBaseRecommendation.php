@@ -25,6 +25,8 @@ class BxBaseRecommendation extends BxDolRecommendation
             $this->_oTemplate = $oTemplate;
         else
             $this->_oTemplate = BxDolTemplate::getInstance();
+
+        $this->_sClassWrapper = '';
     }
 
     public function getCode($iProfileId = 0, $aParams = [])
@@ -33,36 +35,55 @@ class BxBaseRecommendation extends BxDolRecommendation
 
         if(!$iProfileId)
             $iProfileId = $this->_iProfileId;
+        
+        $bShowcaseView = (bool)($aParams['showcase'] ?? false);
 
         $iStart = !empty($aParams['start']) ? (int)$aParams['start'] : 0;
-        $iPerPage = !empty($aParams['per_page']) ? (int)$aParams['per_page'] : $this->_iPerPageDefault;
+        $iPerPage = !empty($aParams['per_page']) ? (int)$aParams['per_page'] : $this->{'_iPerPageDefault' . ($bShowcaseView ? 'Showcase' : '')};
 
-        $aItems = $this->_oDb->get($iProfileId, $this->_aObject['id'], array_merge($aParams, ['per_page' => $iPerPage + 1]));
+        $aItems = $this->_oDb->get($iProfileId, $this->_aObject['id'], array_merge($aParams, ['start' => $iStart, 'per_page' => $iPerPage + ($bShowcaseView ? 0 : 1)]));
         if(empty($aItems) || !is_array($aItems))
             return $sResult;
 
-        $iItems = count($aItems);
-        $oPaginate = new BxTemplPaginate([
-            'on_change_page' => "return !loadDynamicBlockAutoPaginate(this, '{start}', '{per_page}')",
-            'num' => $iItems,
-            'start' => $iStart,
-            'per_page' => $iPerPage,
-        ]);
-        $sPaginate = $oPaginate->getSimplePaginate();
+        $sClassWrapper = $this->_sClassWrapper;
+        $sPaginate = '';
 
-        if($iItems > $iPerPage)
-            array_pop($aItems);
+        if(!$bShowcaseView) {
+            $iItems = count($aItems);
+            $oPaginate = new BxTemplPaginate([
+                'on_change_page' => "return !loadDynamicBlockAutoPaginate(this, '{start}', '{per_page}')",
+                'num' => $iItems,
+                'start' => $iStart,
+                'per_page' => $iPerPage,
+            ]);
+            $sPaginate = $oPaginate->getSimplePaginate();
+
+            if($iItems > $iPerPage)
+                array_pop($aItems);
+        }
+        else {
+            $sClassWrapper = 'bx-recommendation-showcase';
+
+            $this->_oTemplate->addCss([BX_DIRECTORY_PATH_PLUGINS_PUBLIC . 'flickity/|flickity.css']);
+            $this->_oTemplate->addJs(['flickity/flickity.pkgd.min.js', 'modules/base/general/js/|showcase.js']);
+        }
 
         foreach($aItems as $iId => $iCount)
             $sResult .= $this->getCodeItem($iId, $iCount);
 
         return $this->_oTemplate->parseHtmlByName('recommendation_block.html', [
-            'class' => $this->_sClassWrapper,
+            'class' => $sClassWrapper,
             'content' => $sResult,
             'bx_if:show_paginate' => [
-                'condition' => !empty($sPaginate),
+                'condition' => !$bShowcaseView && !empty($sPaginate),
                 'content' => [
                     'paginate' => $sPaginate
+                ]
+            ],
+            'bx_if:show_showcase' => [
+                'condition' => $bShowcaseView,
+                'content' => [
+                    'class' => $sClassWrapper
                 ]
             ]
         ]);
@@ -73,43 +94,38 @@ class BxBaseRecommendation extends BxDolRecommendation
         if(!$iProfileId)
             $iProfileId = $this->_iProfileId;
 
-        $iStart = !empty($aParams['start']) ? (int)$aParams['start'] : 0;
-        $iPerPage = !empty($aParams['per_page']) ? (int)$aParams['per_page'] : $this->_iPerPageDefault;
+        $bShowcaseView = (bool)($aParams['showcase'] ?? false);
 
-        if(empty($aParams['validate']) || !is_array($aParams['validate'])) {
-            $aItems = [];
-            if(!defined('BX_API_PAGE'))
-                $aItems = $this->_oDb->get($iProfileId, $this->_aObject['id'], $aParams);
+        $aParams['start'] = (int)($aParams['start'] ??= 0);
+        $aParams['per_page'] = (int)($aParams['per_page'] ??= 0) ?: $this->{'_iPerPageDefault' . ($bShowcaseView ? 'Showcase' : '')};
 
-            $aData = [];
-            foreach($aItems as $iId => $iCount) {
-                $aItem = $this->getCodeItem($iId, $iCount);
-                $aItem['id'] = $iId;
-
-                $aData[] = $aItem;
-            }
+        $bForceGetData = false;
+        if(($sK = 'force_get_data') && isset($aParams[$sK])) {
+            $bForceGetData = (bool)$aParams[$sK];
+            unset($aParams[$sK]);
         }
-        else
-            $aData = $this->validate($iProfileId, $aParams);
+
+        $aItems = [];
+        if(!defined('BX_API_PAGE') || $bForceGetData)
+            $aItems = $this->_oDb->get($iProfileId, $this->_aObject['id'], $aParams);
+
+        $aData = [];
+        foreach($aItems as $iId => $iCount) {
+            $aItem = $this->getCodeItem($iId, $iCount);
+            $aItem['id'] = $iId;
+
+            $aData[] = $aItem;
+        }
 
         return [
             'request_url' => '',
             'data' => $aData,
             'params' => [
-                'start' => $iStart,
-                'per_page' => $iPerPage,
+                'showcase' => (int)$bShowcaseView,
+                'start' => $aParams['start'],
+                'per_page' => $aParams['per_page'],
             ],
         ];
-    }
-
-    public function validate($iProfileId = 0, $aParams = [])
-    {
-        $aItems = $this->_oDb->get($iProfileId, $this->_aObject['id'], array_merge($aParams, [
-            'start' => 0,
-            'per_page' => count($aParams['validate'])
-        ]));
-
-        return sort(array_keys($aItems)) == sort($aParams['validate']) ? 'valid' : 'invalid';
     }
 }
 

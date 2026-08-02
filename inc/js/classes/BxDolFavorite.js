@@ -108,94 +108,93 @@ BxDolFavorite.prototype.onEditFavoriteList = function (oData, oElement) {
 
 BxDolFavorite.prototype.onFavorite = function(oData, oElement)
 {
-	var $this = this;
-	var fContinue = function() {
-            if(oData && oData.code != 0)
-	        return;
+    var $this = this;
+    var fContinue = function() {
+        if(oData && oData.code != 0)
+            return;
 
-            if(oData && oData.label_icon)
-                $(oElement).find('.sys-action-do-icon .sys-icon').attr('class', 'sys-icon ' + oData.label_icon);
+        if(oData && oData.label_icon)
+            $(oElement).find('.sys-action-do-icon .sys-icon').attr('class', 'sys-icon ' + oData.label_icon);
 
-            if(oData && oData.label_title) {
-                $(oElement).attr('title', oData.label_title);
-                $(oElement).find('.sys-action-do-text').html(oData.label_title);
-            }
+        if(oData && oData.label_title) {
+            $(oElement).attr('title', oData.label_title);
+            $(oElement).find('.sys-action-do-text').html(oData.label_title);
+        }
 
-            if(oData && oData.disabled)
-                $(oElement).removeAttr('onclick').addClass($(oElement).hasClass('bx-btn') ? 'bx-btn-disabled' : 'bx-favorite-disabled');
+        if(oData && oData.disabled)
+            $(oElement).removeAttr('onclick').addClass($(oElement).hasClass('bx-btn') ? 'bx-btn-disabled' : 'bx-favorite-disabled');
 
-	    var oCounter = $this._getCounter(oElement);
-	    if(oCounter && oCounter.length > 0) {
-	    	oCounter.html(oData.countf);
+        var oCounter = $this._getCounter(oElement);
+        if(oCounter && oCounter.length > 0) {
+            oCounter.html(oData.countf);
 
-	    	oCounter.parents('.' + $this._sSP + '-counter-holder:first').bx_anim(oData.count > 0 ? 'show' : 'hide');
-	    }
-	};
+            oCounter.parents('.' + $this._sSP + '-counter-holder:first').bx_anim(oData.count > 0 ? 'show' : 'hide');
+        }
+    };
 
-	if(oData && oData.msg != undefined && oData.msg.length > 0)
+    if(oData && oData.msg != undefined && oData.msg.length > 0)
         bx_alert(oData.msg, fContinue);
-	else
-		fContinue();
+    else
+        fContinue();
 };
 
 BxDolFavorite.prototype.processJson = function (oData, oElement)
 {
-	oElement = oElement != undefined ? oElement : this._oParent;
-	var $this = this;
+    oElement = oElement != undefined ? oElement : this._oParent;
+    var $this = this;
 
-	var fContinue = function() {
-		//--- Show Popup
-	    if(oData && oData.popup != undefined) {
-	        $('.' + $this._sSP + '-do-form').parents(".bx-popup-wrapper").remove();
-	        $(oData.popup).hide().prependTo('body').dolPopup({
-	    		pointer: {
-	    			el: oElement
-	    		},
-	            fog: {
-					color: '#fff',
-					opacity: .7
-	            }
-	        });
-	    }
+    var fContinue = function() {
+        //--- Show Popup
+        if(oData && oData.popup != undefined) {
+            $('.' + $this._sSP + '-do-form').parents(".bx-popup-wrapper").remove();
+            $(oData.popup).hide().prependTo('body').bxProcessHtml().dolPopup({
+                pointer: {
+                    el: oElement
+                },
+                fog: {
+                    color: '#fff',
+                    opacity: .7
+                }
+            });
+        }
 
-	    //--- Evaluate JS code
-	    if (oData && oData.eval != undefined)
-	        eval(oData.eval);
-	};
+        //--- Evaluate JS code
+        if (oData && oData.eval != undefined)
+            eval(oData.eval);
+    };
 
     //--- Show Message
     if(oData && oData.message != undefined)
         bx_alert(oData.message, fContinue);
-	else
-        if (oData && oData.redirect != undefined)
-            document.location = oData.redirect;
-        else
-    	    fContinue();
+    else if (oData && oData.redirect != undefined)
+        document.location = oData.redirect;
+    else
+        fContinue();
 };
 
 BxDolFavorite.prototype._getButtons = function(oElement) {
-	if($(oElement).hasClass(this._sSP))
-		return $(oElement).find('.' + this._sSP + '-button');
-	else
-		return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-button');
+    if($(oElement).hasClass(this._sSP))
+        return $(oElement).find('.' + this._sSP + '-button');
+    else
+        return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-button');
 };
 
 BxDolFavorite.prototype._getCounter = function(oElement) {
-	if($(oElement).hasClass(this._sSP))
-		return $(oElement).find('.' + this._sSP + '-counter');
-	else 
-		return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-counter');
+    if($(oElement).hasClass(this._sSP))
+        return $(oElement).find('.' + this._sSP + '-counter');
+    else 
+        return $(oElement).parents('.' + this._sSP + ':first').find('.' + this._sSP + '-counter');
 };
 
 BxDolFavorite.prototype._loadingInButton = function(e, bShow) {
-	if($(e).length)
-		bx_loading_btn($(e), bShow);
-	else
-		bx_loading($('body'), bShow);	
+    if($(e).length)
+        bx_loading_btn($(e), bShow);
+    else
+        bx_loading($('body'), bShow);	
 };
 
 BxDolFavorite.prototype._getDefaultParams = function() {
-	var oDate = new Date();
+    var oDate = new Date();
     return {
         sys: this._sSystem,
         object_id: this._iObjId,

@@ -17,6 +17,20 @@ function BxDolStudioFormsCategories(oOptions) {
     this.sTextSearchInput = oOptions.sTextSearchInput == undefined ? '' : oOptions.sTextSearchInput;
 }
 
+BxDolStudioFormsCategories.prototype.onChangeFilter = function() {
+    var $this = this;
+    var sValueModule = $('#bx-grid-module-' + this.sObjNameGrid).val();
+
+    var sValueSearch = $('#bx-grid-search-' + this.sObjNameGrid).val();
+    if(sValueSearch == this.sTextSearchInput)
+        sValueSearch = '';
+
+    clearTimeout($this._iSearchTimeoutId);
+    $this._iSearchTimeoutId = setTimeout(function () {
+    	glGrids[$this.sObjNameGrid].setFilter(sValueModule + $this.sParamsDivider + sValueSearch, true);
+    }, 500);
+};
+
 BxDolStudioFormsCategories.prototype.onChangeModule = function () {
     this.reloadGrid($('#bx-grid-module-' + this.sObjNameGrid).val());
 };

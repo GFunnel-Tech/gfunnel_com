@@ -179,11 +179,25 @@ class BxDolEditor extends BxDolFactory implements iBxDolFactoryObject
      * Attach editor to HTML element, in most cases - textarea.
      * @param $sSelector - jQuery selector to attach editor to.
      * @param $iViewMode - editor view mode: BX_EDITOR_STANDARD, BX_EDITOR_MINI, BX_EDITOR_FULL
-     * @param $bDynamicMode - is AJAX mode or not, the HTML with editor area is loaded synamically.
+     * @param $bDynamicMode - is AJAX mode or not, the HTML with editor area is loaded dynamically.
+     * @param $aAttrs - array of additional attributes/parameters
      */
-    public function attachEditor ($sSelector, $iViewMode, $bDynamicMode = false)
+    public function attachEditor ($sSelector, $iViewMode, $bDynamicMode = false, $aAttrs = [])
     {
         // override this function in particular editor class
+    }
+
+    /**
+     * Get HTML editors info.
+     * @param $sSelector - jQuery selector to attach editor to.
+     * @param $iViewMode - editor view mode: BX_EDITOR_STANDARD, BX_EDITOR_MINI, BX_EDITOR_FULL
+     * @param $bDynamicMode - is AJAX mode or not, the HTML with editor area is loaded dynamically.
+     * @param $aAttrs - array of additional attributes/parameters
+     */
+    public function getEditorInfo ($sSelector, $iViewMode, $bDynamicMode = false, $aAttrs = [])
+    {
+        // override this function in particular editor class
+        return [];
     }
 
     /**

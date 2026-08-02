@@ -28,15 +28,6 @@ class BxBaseStudioAudit extends BxDolStudioAudit
         ];
     }
 
-    function getPageJsCode($aOptions = array(), $bWrap = true)
-    {
-        $aOptions = array_merge($aOptions, array(
-            'sActionUrl' => BX_DOL_URL_STUDIO . 'audit.php'
-        ));
-
-        return parent::getPageJsCode($aOptions, $bWrap);
-    }
-
     function getPageMenu($aMenu = [], $aMarkers = [])
     {
         $sJsObject = $this->getPageJsObject();

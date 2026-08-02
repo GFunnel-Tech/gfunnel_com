@@ -22,15 +22,9 @@ class BxDolStudioDesign extends BxTemplStudioModule
         $this->sLangPrefix = 'dsn';
         $this->sParamPrefix = 'dsn';
 
-        $this->sManageUrl = BX_DOL_URL_STUDIO . 'design.php?name=' . $this->aPage['name'];
-    }
-
-    public function init()
-    {
-        parent::init();
-
-        $this->aPage['header'] = $this->aModule['title'];
-        $this->aPage['caption'] = $this->aModule['title'];
+        $this->sManageUrl = '';
+        if($this->bPage)
+            $this->sManageUrl = BX_DOL_URL_STUDIO . 'design.php?name=' . $this->aPage['name'];
     }
 
     public function checkAction()

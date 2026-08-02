@@ -180,6 +180,45 @@ class BxDolSearchExtended extends BxDolFactory implements iBxDolFactoryObject
         return json_decode(base64_decode(urldecode($sConditions)), true);
     }
 
+    static public function processParams($aParams, $aQueryParts)
+    {
+        $oDb = BxDolDb::getInstance();
+
+        $sWhereConditions = "1";
+        foreach($aParams as $sSearchParam => $aSearchParam) {
+            $sSearchValue = "";
+            switch ($aSearchParam['operator']) {
+                case 'like':
+                    $sSearchValue = " LIKE " . $oDb->escape("%" . $aSearchParam['value'] . "%");
+                    break;
+
+                case 'in':
+                    $sSearchValue = " IN (" . $oDb->implode_escape($aSearchParam['value']) . ")";
+                    break;
+
+                case 'and':
+                    $iResult = 0;
+                    if (is_array($aSearchParam['value']))
+                        foreach ($aSearchParam['value'] as $iValue)
+                            $iResult |= pow (2, $iValue - 1);
+                    else 
+                        $iResult = (int)$aSearchParam['value'];
+
+                    $sSearchValue = " & " . $iResult . "";
+                    break;
+
+                default:
+                    $sSearchValue = " " . $aSearchParam['operator'] . " :" . $sSearchParam;
+
+                    $aQueryParts['bindings'][$sSearchParam] = $aSearchParam['value'];
+            }
+
+            $sWhereConditions .= " AND `" . $aQueryParts['table'] . "`.`" . $sSearchParam . "`" . $sSearchValue;
+        }
+
+        $aQueryParts['where_clause'] .= " AND (" . $sWhereConditions . ")";
+    }
+
     public function isEnabled()
     {
         return isset($this->_aObject['active']) && (int)$this->_aObject['active'] != 0;

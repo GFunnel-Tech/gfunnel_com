@@ -76,16 +76,10 @@ define('BX_DOL_SCORE_DO_DOWN', 'down');
  *
  */
 
-class BxDolScore extends BxDolObject
+class BxDolScore extends BxDolObjectVote
 {
     protected static $_sCounterStyleSimple = 'simple'; // total counter only.
     protected static $_sCounterStyleDivided = 'divided'; // counters [icon + counter] divided by action (up/down).
-
-    protected $_aScore;
-
-    protected $_aElementDefaults;
-    protected $_aElementDefaultsApi;
-    protected $_aElementParamsApi; //--- Params from DefaultsApi array to be passed to Api
 
     protected function __construct($sSystem, $iId, $iInit = true, $oTemplate = false)
     {
@@ -153,37 +147,15 @@ class BxDolScore extends BxDolObject
         return $GLOBALS[$sKey];
     }
 
-    public static function onAuthorDelete ($iAuthorId)
-    {
-        $aSystems = self::getSystems();
-        foreach($aSystems as $sSystem => $aSystem)
-            self::getObjectInstance($sSystem, 0)->getQueryObject()->deleteAuthorEntries($iAuthorId);
-
-        return true;
-    }
-
     public function isPerformed($iObjectId, $iAuthorId, $iAuthorIp = 0)
     {
         return parent::isPerformed($iObjectId, $iAuthorId) && !$this->_oQuery->isPostTimeoutEnded($iObjectId, $iAuthorId, $iAuthorIp);        
-    }
-
-	public function getObjectAuthorId($iObjectId = 0)
-    {
-    	if(empty($this->_aSystem['trigger_field_author']))
-    		return 0;
-
-        return $this->_oQuery->getObjectAuthorId($iObjectId ? $iObjectId : $this->getId());
     }
 
 
     /**
      * Interface functions for outer usage
      */
-    public function isUndo()
-    {
-        return (int)$this->_aSystem['is_undo'] == 1;
-    }
-
     public function getStatCounterUp()
     {
         $aScore = $this->_getVote();
@@ -400,61 +372,6 @@ class BxDolScore extends BxDolObject
         return $aResult;
     }
 
-
-    /**
-     * Permissions functions
-     */
-    public function isAllowedVote($isPerformAction = false)
-    {
-        if(isAdmin())
-            return true;
-
-        if(!$this->checkAction('vote', $isPerformAction))
-            return false;
-
-        $aObject = $this->_oQuery->getObjectInfo($this->_iId);
-        if(empty($aObject) || !is_array($aObject))
-            return false;
-
-        return $this->_isAllowedVoteByObject($aObject);
-    }
-
-    public function msgErrAllowedVote()
-    {
-        $sMsg = $this->checkActionErrorMsg('vote');
-        if(empty($sMsg))
-            $sMsg = _t('_sys_txt_access_denied');
-
-        return $sMsg;
-    }
-
-    public function isAllowedVoteView($isPerformAction = false)
-    {
-        if(isAdmin())
-            return true;
-
-        return $this->checkAction('vote_view', $isPerformAction);
-    }
-
-    public function msgErrAllowedVoteView()
-    {
-        return $this->checkActionErrorMsg('vote_view');
-    }
-
-    public function isAllowedVoteViewVoters($isPerformAction = false)
-    {
-        if(isAdmin())
-            return true;
-
-        return $this->checkAction('vote_view_voters', $isPerformAction);
-    }
-
-    public function msgErrAllowedVoteViewVoters()
-    {
-        return $this->checkActionErrorMsg('vote_view_voters');
-    }
-
-
     /**
      * Internal functions
      */
@@ -476,18 +393,6 @@ class BxDolScore extends BxDolObject
         return array_intersect_key($aData, array_flip($aMask));
     }
 
-    protected function _getVote($iObjectId = 0, $bForceGet = false)
-    {
-        if(!empty($this->_aScore) && !$bForceGet)
-            return $this->_aScore;
-
-        if(empty($iObjectId))
-            $iObjectId = $this->getId();
-
-        $this->_aScore = $this->_oQuery->getScore($iObjectId);
-        return $this->_aScore;
-    }
-
     protected function _isVote($iObjectId = 0, $bForceGet = false)
     {
         $aScore = $this->_getVote($iObjectId, $bForceGet);
@@ -501,11 +406,6 @@ class BxDolScore extends BxDolObject
             $aScore = $this->_getVote();
 
         return (isset($aScore['count_up']) && (int)$aScore['count_up'] != 0) || (isset($aScore['count_down']) && (int)$aScore['count_down'] != 0);
-    }
-
-    protected function _getTrack($iObjectId, $iAuthorId)
-    {
-        return $this->_oQuery->getTrack($iObjectId, $iAuthorId);
     }
 
     /**

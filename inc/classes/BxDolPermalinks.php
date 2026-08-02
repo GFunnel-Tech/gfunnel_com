@@ -178,6 +178,7 @@ class BxDolPermalinks extends BxDolDb implements iBxDolSingleton
         bx_alert('system', 'permalink', 0, 0, [
             'link' => $sLink, 
             'params' => &$aParams, 
+            'params_ref' => &$aParams, 
             'return_data' => &$sRet
         ]);
         if (null !== $sRet)

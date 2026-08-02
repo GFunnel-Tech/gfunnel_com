@@ -163,8 +163,12 @@ class BxDolWikiQuery extends BxDolDb
     {
         $oQueryPageBuilder = new BxDolStudioBuilderPageQuery();
         $iPageId = $oQueryPageBuilder->insertPage($this->_aObject['module'] . '_' . str_replace('-', '_', $sUri), $this->_aObject['module'], $sUri, $sUrl, $sTitleLangKey, $iType, $iLayoutId, $iVisibleForLevels, $sClass);
-        if ($iPageId)
+        if ($iPageId) {
             $oQueryPageBuilder->updatePage($iPageId, ['sticky_columns' => 1]);
+            $this->cleanCache('sys_pages_objects_data');
+            $this->cleanCache('sys_pages_uri_object_map');
+            $this->cleanCache('sys_pages_urirewrite_object_map');
+        }
         return $iPageId;
     }
 

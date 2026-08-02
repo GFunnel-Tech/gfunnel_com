@@ -80,8 +80,8 @@ div.bx-std-widget-cont {
     position: relative;
 }
 div.bx-std-widget-empty {
-    width: 5.0rem;
-    height: 6.25rem;
+    width: 4.5rem;
+    height: 5.75rem;
 }
 
 .bx-std-widget-dragging {
@@ -94,19 +94,19 @@ div.bx-std-widget-empty {
 .bx-std-widget-icon {
     position: relative;
     top: 0px;
-    width: 5.0rem;
-    height: 5.0rem;
+    width: 4.5rem;
+    height: 4.5rem;
 
     background-color: transparent;
 
-    line-height: 5.0rem;
+    line-height: 4.5rem;
 }
 
 .bx-std-widget-icon i.sys-icon {
     position: absolute;
     z-index: 2;
     left: 0px;
-    width: 5.0rem;
+    width: 4.5rem;
 
     font-size: 48px;
     text-align: center;
@@ -126,8 +126,8 @@ div.bx-std-widget-empty {
     position: relative;
     z-index: -1;
 
-    width: 5.0rem;
-    height: 5.0rem;
+    width: 4.5rem;
+    height: 4.5rem;
 
     background-color: transparent;
     background-position: 0px 0px;
@@ -138,8 +138,8 @@ div.bx-std-widget-icon-jitter {
     position: absolute;
     top: 0;
     left: 0;
-    width: 5.0rem;
-    height: 5.0rem;
+    width: 4.5rem;
+    height: 4.5rem;
     z-index: 5;
 
     background-color: transparent;
@@ -229,7 +229,7 @@ div.bx-std-widget-action i.sys-icon {
     display: none;
     position: absolute;
     bottom: -2.0rem;
-    width: 5.0rem;
+    width: 4.5rem;
     height: 2.0rem;
 
     background-image: url(../images/loading.gif);
@@ -242,7 +242,7 @@ div.bx-std-widget-action i.sys-icon {
 }
 div.bx-std-widget-caption {
     position: relative;
-    width: 5.0rem;
+    width: 4.5rem;
     height: 2rem;
 
     line-height: 2rem;

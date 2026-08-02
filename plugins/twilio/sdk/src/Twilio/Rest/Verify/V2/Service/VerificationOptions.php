@@ -22,7 +22,7 @@ abstract class VerificationOptions
 {
     /**
      * @param string $customFriendlyName A custom user defined friendly name that overwrites the existing one in the verification message
-     * @param string $customMessage The text of a custom message to use for the verification.
+     * @param string $customMessage The text of a custom message to use for the verification [DEPRECATED].
      * @param string $sendDigits The digits to send after a phone call is answered, for example, to dial an extension. For more information, see the Programmable Voice documentation of [sendDigits](https://www.twilio.com/docs/voice/twiml/number#attributes-sendDigits).
      * @param string $locale Locale will automatically resolve based on phone number country code for SMS, WhatsApp, and call channel verifications. It will fallback to English or the template’s default translation if the selected translation is not available. This parameter will override the automatic locale resolution. [See supported languages and more information here](https://www.twilio.com/docs/verify/supported-languages).
      * @param string $customCode A pre-generated code to use for verification. The code can be between 4 and 10 characters, inclusive.
@@ -36,7 +36,7 @@ abstract class VerificationOptions
      * @param string $deviceIp Strongly encouraged if using the auto channel. The IP address of the client's device. If provided, it has to be a valid IPv4 or IPv6 address.
      * @param bool $enableSnaClientToken An optional Boolean value to indicate the requirement of sna client token in the SNA URL invocation response for added security. This token must match in the Verification Check request to confirm phone number verification.
      * @param string $riskCheck
-     * @param string $tags A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length.
+     * @param string $tags A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The tags will also be included as part of the verification and message status event type payloads. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length. **This value should not contain PII.**
      * @return CreateVerificationOptions Options builder
      */
     public static function create(
@@ -88,7 +88,7 @@ class CreateVerificationOptions extends Options
     {
     /**
      * @param string $customFriendlyName A custom user defined friendly name that overwrites the existing one in the verification message
-     * @param string $customMessage The text of a custom message to use for the verification.
+     * @param string $customMessage The text of a custom message to use for the verification [DEPRECATED].
      * @param string $sendDigits The digits to send after a phone call is answered, for example, to dial an extension. For more information, see the Programmable Voice documentation of [sendDigits](https://www.twilio.com/docs/voice/twiml/number#attributes-sendDigits).
      * @param string $locale Locale will automatically resolve based on phone number country code for SMS, WhatsApp, and call channel verifications. It will fallback to English or the template’s default translation if the selected translation is not available. This parameter will override the automatic locale resolution. [See supported languages and more information here](https://www.twilio.com/docs/verify/supported-languages).
      * @param string $customCode A pre-generated code to use for verification. The code can be between 4 and 10 characters, inclusive.
@@ -102,7 +102,7 @@ class CreateVerificationOptions extends Options
      * @param string $deviceIp Strongly encouraged if using the auto channel. The IP address of the client's device. If provided, it has to be a valid IPv4 or IPv6 address.
      * @param bool $enableSnaClientToken An optional Boolean value to indicate the requirement of sna client token in the SNA URL invocation response for added security. This token must match in the Verification Check request to confirm phone number verification.
      * @param string $riskCheck
-     * @param string $tags A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length.
+     * @param string $tags A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The tags will also be included as part of the verification and message status event type payloads. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length. **This value should not contain PII.**
      */
     public function __construct(
         
@@ -155,9 +155,9 @@ class CreateVerificationOptions extends Options
     }
 
     /**
-     * The text of a custom message to use for the verification.
+     * The text of a custom message to use for the verification [DEPRECATED].
      *
-     * @param string $customMessage The text of a custom message to use for the verification.
+     * @param string $customMessage The text of a custom message to use for the verification [DEPRECATED].
      * @return $this Fluent Builder
      */
     public function setCustomMessage(string $customMessage): self
@@ -321,9 +321,9 @@ class CreateVerificationOptions extends Options
     }
 
     /**
-     * A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length.
+     * A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The tags will also be included as part of the verification and message status event type payloads. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length. **This value should not contain PII.**
      *
-     * @param string $tags A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length.
+     * @param string $tags A string containing a JSON map of key value pairs of tags to be recorded as metadata for the message. The tags will also be included as part of the verification and message status event type payloads. The object may contain up to 10 tags. Keys and values can each be up to 128 characters in length. **This value should not contain PII.**
      * @return $this Fluent Builder
      */
     public function setTags(string $tags): self

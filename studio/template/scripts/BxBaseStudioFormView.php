@@ -28,6 +28,14 @@ class BxBaseStudioFormView extends BxDolStudioForm
         ));
     }
 
+    function genRowStandard(&$aInput, $isOneLine = false)
+    {
+        $aInput['attrs_wrapper']['class'] ??= '';
+        $aInput['attrs_wrapper']['class'] .= ' bx-form-input-translatable';
+
+        return parent::genRowStandard($aInput, $isOneLine);
+    }
+
     function genInput(&$aInput)
     {
         $sInput = '';

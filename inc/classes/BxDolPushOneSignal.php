@@ -60,33 +60,73 @@ class BxDolPushOneSignal extends BxDolPush
         else
             $sUrlApp = $sUrlWeb;
 
+        $aFilters = [
+            ['field' => 'tag', 'key' => 'user_hash', 'relation' => '=', 'value' => encryptUserId($iProfileId)]
+        ];
+        $aContents = !empty($aMessage['contents']) && is_array($aMessage['contents']) ? $aMessage['contents'] : [];
+        $aHeadings = !empty($aMessage['headings']) && is_array($aMessage['headings']) ? $aMessage['headings'] : [];
+
+        $sIcon = !empty($aMessage['icon']) ? $aMessage['icon'] : BxTemplFunctions::getInstance()->getMainLogoUrl();
+
+        $bResult = null;
+        /**
+         * @hooks
+         * @hookdef hook-system-check_send_push 'system', 'check_send_push' - hook for disabling push sending 
+         * - $unit_name - equals `system`
+         * - $action - equals `check_send_push` 
+         * - $object_id - recipient profile id 
+         * - $sender_id - not used 
+         * - $extra_params - array of additional params with the following array keys:
+         *      - `name` - [string] push notification processor
+         *      - `app_id` - [string] App ID 
+         *      - `filters` - [array] filters list
+         *      - `contents` - [array] contents
+         *      - `headings` - [array] headings list
+         *      - `web_url` - [string] URL for WEB
+         *      - `app_url` - [string] URL for APP
+         *      - `icon` - [string] icon URL
+         *      - `override_result` - [boolean] override result of `send` function, if the result isn't null sending will stop
+         * @hook @ref hook-system-check_send_push
+         */
+        bx_alert('system', 'check_send_push', $iProfileId, '', [
+            'name' => 'onesignal',
+            'app_id' => $this->_sAppId,
+            'filters' => $aFilters,
+            'contents' => $aContents,
+            'headings' => $aHeadings,
+            'web_url' => $sUrlWeb,
+            'app_url' => $sUrlApp,
+            'icon' => $sIcon,
+            'override_result' => &$bResult,
+        ]);
+
+        if($bResult !== null)
+            return $bResult;
+
         $aFields = [
             'app_id' => $this->_sAppId,
-            'filters' => [
-                ['field' => 'tag', 'key' => 'user_hash', 'relation' => '=', 'value' => encryptUserId($iProfileId)]
-            ],
-            'contents' => !empty($aMessage['contents']) && is_array($aMessage['contents']) ? $aMessage['contents'] : [],
-            'headings' => !empty($aMessage['headings']) && is_array($aMessage['headings']) ? $aMessage['headings'] : [],
+            'filters' => $aFilters,
+            'contents' => $aContents,
+            'headings' => $aHeadings,
             'web_url' => $sUrlWeb,
             'app_url' => $sUrlApp,
             'data' => [
                 'url' => $sUrlWeb
-            ],
+            ]
         ];
-        
-        if(empty($aMessage['icon']))
-            $aMessage['icon'] = BxTemplFunctions::getInstance()->getMainLogoUrl();
 
-        if(!empty($aMessage['icon'])){
-            $aFields['chrome_web_icon'] = $aMessage['icon'];
-            $aFields['large_icon'] = $aMessage['icon'];
-            $aFields['ios_attachments'] = ['id'=> $aMessage['icon']];
-        }
+        if($sIcon)
+            $aFields = array_merge($aFields, [
+                'chrome_web_icon' => $sIcon,
+                'large_icon' => $sIcon,
+                'ios_attachments' => [
+                    'id' => $sIcon
+                ]
+            ]);
 
         if('on' == getParam('bx_nexus_option_push_notifications_count')) {
-            $iBadgeCount = $this->getNotificationsCount($iProfileId);
             $aFields['ios_badgeType'] = 'SetTo';
-            $aFields['ios_badgeCount'] = $iBadgeCount;
+            $aFields['ios_badgeCount'] = $this->getNotificationsCount($iProfileId);
         }
 
         $oChannel = curl_init();
@@ -103,12 +143,11 @@ class BxDolPushOneSignal extends BxDolPush
             curl_setopt($oChannel, CURLOPT_SSL_VERIFYPEER, false);
 
         $sResult = curl_exec($oChannel);
-        curl_close($oChannel);
 
         $oResult = @json_decode($sResult, true);
         if(isset($oResult['errors']))
             foreach($oResult['errors'] as $sError) {  
-                bx_log('sys_push', $sError . " Message:" . json_encode($aMessage));
+                bx_log('sys_push', $sError . " Message:" . json_encode($aMessage), BX_LOG_ERR);
             }
 
         return $sResult;

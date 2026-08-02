@@ -104,7 +104,7 @@ class BxBaseChartServices extends BxDol
         $oForm = new BxTemplFormView($aForm);
 
         $oTemplate = BxDolTemplate::getInstance();
-        $oTemplate->addJs(array('chart.min.js', 'BxDolChartGrowth.js'));
+        $oTemplate->addJs(array('chart.umd.min.js', 'chartjs-adapter-moment.min.js', 'BxDolChartGrowth.js'));
         $oTemplate->addCss(array('chart.css'));
 
         return $oTemplate->parseHtmlByName('chart_growth.html', [

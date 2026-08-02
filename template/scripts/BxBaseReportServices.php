@@ -47,7 +47,7 @@ class BxBaseReportServices extends BxDol
         if(!$oReport || !$oReport->isEnabled())
             return ['code' => BX_DOL_OBJECT_ERR_NOT_AVAILABLE];
 
-        $aResult = $oReport->report($aParams);
+        $aResult = $oReport->report(array_diff_key($aParams, array_flip(['s', 'o'])));
         return (int)$aResult['code'] != 0 ? $aResult : $aResult['api'];
     }
 

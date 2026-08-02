@@ -83,8 +83,12 @@ class BxBaseCover extends BxDolCover
          */
         bx_alert('system', 'display_cover', 0, 0, [
             'res' => &$sResult, 
+
             'template_name' => &$this->_sTemplateName, 
             'params' => &$aParams, 
+
+            'template_name_ref' => &$this->_sTemplateName, 
+            'params_ref' => &$aParams, 
         ]);
 
         if ($sResult  != null)

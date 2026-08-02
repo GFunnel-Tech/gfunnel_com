@@ -29,15 +29,6 @@ class BxBaseStudioBadges extends BxDolStudioBadges
     {
         return array_merge(parent::getPageCss(), array('forms.css', 'paginate.css', 'badges.css'));
     }
-
-    function getPageJsCode($aOptions = array(), $bWrap = true)
-    {
-        $aOptions = array_merge($aOptions, array(
-            'sActionUrl' => BX_DOL_URL_STUDIO . 'badges.php'
-        ));
-
-        return parent::getPageJsCode($aOptions, $bWrap);
-    }
     
     function getPageMenu($aMenu = [], $aMarkers = [])
     {
