@@ -3,6 +3,8 @@
 	<string name="_aqb_personal_bookmarks"><![CDATA[Personal Bookmarks]]></string>
 	<string name="_aqb_personal_bookmarks_my"><![CDATA[My Bookmarks]]></string>
 	<string name="_aqb_personal_bookmarks_add"><![CDATA[Add this page]]></string>
+	<string name="_aqb_personal_bookmarks_add_link"><![CDATA[Add a link]]></string>
+	<string name="_aqb_personal_bookmarks_add_link_url"><![CDATA[Enter the link address (URL)]]></string>
 	<string name="_aqb_personal_bookmarks_name"><![CDATA[Name of this bookmark]]></string>
 	<string name="_aqb_personal_bookmarks_sure"><![CDATA[Are you sure you want to delete this bookmark?]]></string>
 	<string name="_aqb_personal_bookmarks_adm_setting_type"><![CDATA[Personal Bookmarks]]></string>

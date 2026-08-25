@@ -9,46 +9,13 @@
  * @{
  */
 
-class BxBaseModProfilePrivacyPost extends BxTemplPrivacy
-{
-    protected $_sModule;
-    protected $_oModule;
+require_once('BxBaseModProfilePrivacyAction.php');
 
+class BxBaseModProfilePrivacyPost extends BxBaseModProfilePrivacyAction
+{
     public function __construct($aOptions, $oTemplate = false)
     {
         parent::__construct($aOptions, $oTemplate);
-
-        $this->_oModule = BxDolModule::getInstance($this->_sModule);
-    }
-
-    protected function getObjectInfo($sAction, $iObjectId)
-    {
-        $oProfile = BxDolProfile::getInstanceByContentAndType($iObjectId, $this->_sModule);
-        if(!$oProfile)
-            return false;
-
-        $a = $this->_oDb->getObjectInfo($sAction, $iObjectId);
-        $a['owner_id'] = $oProfile->id();
-
-        return $a;
-    }
-
-    protected function isSelectGroupCustomUsers($aParams)
-    {
-        return $this->_isSelectGroupCustomItems($aParams);
-    }
-
-    protected function isSelectGroupCustomMemberships($aParams)
-    {
-        return $this->_isSelectGroupCustomItems($aParams);
-    }
-
-    protected function _isSelectGroupCustomItems($aParams)
-    {
-        if($this->_oModule->serviceActAsProfile() && empty($aParams['content_id']))
-            return _t('_sys_ps_ferr_incorrect_gc_not_allowed');
-
-        return true;
     }
 }
 

@@ -24,8 +24,6 @@ class BxBaseModGeneralSearchResult extends BxTemplSearchResult
         $this->_sMode = $sMode;
         $this->_aParams = $aParams;
 
-        $this->_bValidate = isset($this->_aParams['validate']) && is_array($this->_aParams['validate']);
-
         parent::__construct();
     }
 
@@ -93,9 +91,9 @@ class BxBaseModGeneralSearchResult extends BxTemplSearchResult
         return parent::rss();
     }
 
-    function processingAPI () 
+    function processingAPI ($bForceGetData = false) 
     {
-        $aResult = parent::processingAPI();
+        $aResult = parent::processingAPI($bForceGetData);
 
         if(isset($this->_aParams['filters']) && is_array($this->_aParams['filters'])) {
             $oModule = $this->getMain();
@@ -103,7 +101,7 @@ class BxBaseModGeneralSearchResult extends BxTemplSearchResult
             if(!empty($this->_aParams['filters']['values']) && is_array($this->_aParams['filters']['values']))
                 $aResult['params']['filters'] = $this->_aParams['filters']['values'];
 
-            $aResult['filters'] = $oModule->_oTemplate->getBrowsingFilters(['mode' => $this->_sMode]);
+            $aResult['filters'] = $oModule->_oTemplate->getBrowsingFilters(array_merge(['mode' => $this->_sMode], $this->_aParams));
         }
 
         return $aResult;
@@ -242,13 +240,18 @@ class BxBaseModGeneralSearchResult extends BxTemplSearchResult
 
     protected function getItemPerPageInShowCase ()
     {
-        $iPerPageInShowCase = BX_SYS_PER_PAGE_BROWSE_SHOWCASE;
+        $iPerPageInShowCase = (int)getParam('sys_per_page_browse_showcase');
+
         $CNF = &$this->oModule->_oConfig->CNF;
-        if (isset($CNF['PARAM_PER_PAGE_BROWSE_SHOWCASE']))
-            $iPerPageInShowCase = getParam($CNF['PARAM_PER_PAGE_BROWSE_SHOWCASE']);
+        if(isset($CNF['PARAM_PER_PAGE_BROWSE_SHOWCASE']))
+            $iPerPageInShowCase = (int)getParam($CNF['PARAM_PER_PAGE_BROWSE_SHOWCASE']);
+
+        if(!$iPerPageInShowCase)
+            $iPerPageInShowCase = BX_SYS_PER_PAGE_BROWSE_SHOWCASE;
+
         return $iPerPageInShowCase;
     }
-    
+
     function displayResultBlock()
     {
         if ($this->bShowcaseView) {
@@ -281,7 +284,7 @@ class BxBaseModGeneralSearchResult extends BxTemplSearchResult
         return str_replace('_', '-', $this->aCurrent['name'] . '-search-result-block-' . $this->_sMode);
     }
 
-    function decodeDataAPI($a)
+    function decodeDataAPI($a, $sMethod = 'getDataAPI')
     {
         if(!is_array($a))
             return $a;
@@ -289,9 +292,38 @@ class BxBaseModGeneralSearchResult extends BxTemplSearchResult
         $bExtendedUnits = getParam('sys_api_extended_units') == 'on';
 
         foreach($a as $i => $r)
-            $a[$i] = $this->oModule->getDataAPI($r, ['extended' => $bExtendedUnits]);
+            $a[$i] = $this->oModule->$sMethod($r, ['extended' => $bExtendedUnits]);
 
         return $a;
+    }
+
+    protected function _updateCurrentForFollowedContexts($sMode, $aParams, &$oProfileContext)
+    {
+        $CNF = &$this->oModule->_oConfig->CNF;
+
+        if(empty($aParams['followed_contexts']))
+            return false;
+
+        $iProfileId = (int)$aParams['followed_contexts'];
+        $aContextTypes = array_keys(bx_srv('system', 'get_modules_by_type', ['context', ['name_as_key' => true]]));
+        $aContextIds = BxDolConnection::getObjectInstance('sys_profiles_subscriptions')->getConnectedContentByType($iProfileId, $aContextTypes);
+
+        $this->aCurrent['restriction']['context'] = [
+            'value' => array_map(function($iValue) {
+                return -$iValue;
+            }, $aContextIds),
+            'field' => $CNF['FIELD_ALLOW_VIEW_TO'],
+            'operator' => 'in',
+        ];
+
+        if(!empty($aParams['per_page']))
+            $this->aCurrent['paginate']['perPage'] = is_numeric($aParams['per_page']) ? (int)$aParams['per_page'] : (int)getParam($aParams['per_page']);
+
+        $this->sBrowseUrl = '';
+        $this->aCurrent['title'] = '';
+        unset($this->aCurrent['rss']);
+
+        return true;
     }
 
     function _getPseudFromParam ()

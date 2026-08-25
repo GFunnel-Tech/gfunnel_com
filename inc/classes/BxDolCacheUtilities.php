@@ -18,6 +18,7 @@ class BxDolCacheUtilities extends BxDol
         parent::__construct();
 
         $this->_aCacheTypes = array(
+            'content' => array('option' => 'sys_content_cache_enable'),
             'db' => array('option' => 'sys_db_cache_enable'),
             'template' => array('option' => 'sys_template_cache_enable'),
             'less' => array(),
@@ -73,6 +74,11 @@ class BxDolCacheUtilities extends BxDol
 
         $oTemplate = BxDolStudioTemplate::getInstance();
         switch ($sCache) {
+            case 'content':
+                $oCache = bx_content_cache_obj();
+                $mixedResult = $this->{$sAction . 'Object'}($oCache, 'content_');
+                break;
+
             case 'db':
                 $oCacheDb = BxDolDb::getInstance()->getDbCacheObject();
                 $this->{$sAction . 'Object'}($oCacheDb, 'menu_');

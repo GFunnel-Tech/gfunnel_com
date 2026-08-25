@@ -9,18 +9,24 @@
 
 require_once("./../inc/header.inc.php");
 
-$GLOBALS['aRequest'] = explode('/', $_GET['r']);
+$sModule = '';
+$aRequest = $aModule = [];
+if(($sRequest = $_GET['r'] ?? false) !== false) {
+    $aRequest = explode('/', $sRequest);
 
-$sName = bx_process_input(array_shift($GLOBALS['aRequest']));
-
-bx_import('BxDolModuleQuery');
-$GLOBALS['aModule'] = BxDolModuleQuery::getInstance()->getModuleByUri($sName);
-
-if (empty($GLOBALS['aModule'])) {
-    require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
-    BxDolRequest::moduleNotFound($sName);
+    if(($sModule = bx_process_input(array_shift($aRequest)))) {
+        bx_import('BxDolModuleQuery');
+        $aModule = BxDolModuleQuery::getInstance()->getModuleByUri($sModule);
+    }
 }
 
+if(empty($aModule)) {
+    require_once(BX_DIRECTORY_PATH_INC . "design.inc.php");
+    BxDolRequest::moduleNotFound($sModule);
+}
+
+$GLOBALS['aRequest'] = $aRequest;
+$GLOBALS['aModule'] = $aModule;
 include(BX_DIRECTORY_PATH_MODULES . $GLOBALS['aModule']['path'] . 'request.php');
 
 /** @} */

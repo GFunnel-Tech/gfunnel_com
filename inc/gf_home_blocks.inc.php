@@ -180,6 +180,66 @@ function gfHomeVersionBadge()
         . 'Live <b>V' . htmlspecialchars($sVer, ENT_QUOTES, 'UTF-8') . '</b></span>';
 }
 
+/**
+ * Shared public nav — ONE source of truth for the header on every GFunnel public
+ * page: the homepage (via the __nav__ marker) and each gf_* SEO route (echo it).
+ * Identical bar everywhere: real logo, five pillars, search field, Live badge,
+ * Sign in + CTA, and the burger/mobile menu. Requires template/css/gf_home.css
+ * and template/js/gf_home.js on the page.
+ *
+ * @param array $aOpts  'active'    => pillar key to mark current
+ *                                     (business|services|software|marketplace|resources)
+ *                      'cta_label' => CTA text  (default "Create Workspace")
+ *                      'cta_url'   => CTA href  (default the create-account page)
+ */
+function gfHomeNav($aOpts = array())
+{
+    $sActive   = isset($aOpts['active']) ? $aOpts['active'] : '';
+    $sCtaLabel = (isset($aOpts['cta_label']) && $aOpts['cta_label'] !== '') ? $aOpts['cta_label'] : 'Create Workspace';
+    $sCtaUrl   = (isset($aOpts['cta_url']) && $aOpts['cta_url'] !== '') ? $aOpts['cta_url'] : gfHomeUrl('create-account');
+    $sLoginUrl = gfHomeUrl('login');
+    $sSearch   = BX_DOL_URL_ROOT . 'searchKeyword.php';
+    $sLogoFile = 'template/images/gf_logo.png';
+    $sLogoUrl  = BX_DOL_URL_ROOT . $sLogoFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sLogoFile);
+
+    $aPillars = array(
+        'business'    => array('Businesses',  BX_DOL_URL_ROOT . 'business'),
+        'services'    => array('Services',    BX_DOL_URL_ROOT . 'services'),
+        'software'    => array('Software',    BX_DOL_URL_ROOT . 'applications'),
+        'marketplace' => array('Marketplace', BX_DOL_URL_ROOT . 'marketplace'),
+        'resources'   => array('Resources',   BX_DOL_URL_ROOT . 'resources'),
+    );
+    $sLinks = '';
+    foreach ($aPillars as $sKey => $a) {
+        $sCur = ($sKey === $sActive) ? ' aria-current="page"' : '';
+        $sLinks .= '<a href="' . bx_html_attribute($a[1]) . '"' . $sCur . '>' . gfHomeOut($a[0]) . '</a>';
+    }
+
+    $sCta      = gfHomeOut($sCtaLabel);
+    $sCtaHref  = bx_html_attribute($sCtaUrl);
+    $sLoginHref = bx_html_attribute($sLoginUrl);
+
+    return '<header class="gfh-nav" id="gfh-header">'
+        . '<div class="gfh-container gfh-nav-in">'
+        . '<a class="gfh-brand" href="' . bx_html_attribute(BX_DOL_URL_ROOT) . '" aria-label="GFunnel home">'
+        .   '<img class="gfh-brand-logo" src="' . bx_html_attribute($sLogoUrl) . '" alt="" aria-hidden="true" width="32" height="32" /> GFunnel</a>'
+        . '<nav class="gfh-nav-links" aria-label="Primary">' . $sLinks . '</nav>'
+        . '<form class="gfh-nav-search" action="' . bx_html_attribute($sSearch) . '" method="get" role="search">'
+        .   '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
+        .   '<input type="text" id="gfh-nav-input" name="keyword" placeholder="Search anything&hellip;" autocomplete="off" aria-label="Search GFunnel" />'
+        .   '<kbd class="gfh-nav-kbd" aria-hidden="true">&#8984;K</kbd></form>'
+        . '<div class="gfh-nav-right">' . gfHomeVersionBadge()
+        .   '<a class="gfh-signin" href="' . $sLoginHref . '">Sign in</a>'
+        .   '<a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="' . $sCtaHref . '">' . $sCta . '</a>'
+        .   '<button class="gfh-burger" id="gfh-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="gfh-mobile">'
+        .     '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>'
+        . '</div></div>'
+        . '<div class="gfh-mobile" id="gfh-mobile">' . $sLinks
+        .   '<a href="' . $sLoginHref . '">Sign in</a>'
+        .   '<a class="gfh-mobile-cta" href="' . $sCtaHref . '">' . $sCta . '</a>'
+        . '</div></header>';
+}
+
 /** Inline SVG for a catalog-card icon. */
 function gfHomeCatIcon($sName)
 {

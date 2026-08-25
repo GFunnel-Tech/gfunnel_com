@@ -22,6 +22,8 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 use Twilio\InstanceContext;
+use Twilio\Http\Response;
+use Twilio\Metadata\ResourceMetadata;
 
 
 class WorkflowRealTimeStatisticsContext extends InstanceContext
@@ -54,15 +56,17 @@ class WorkflowRealTimeStatisticsContext extends InstanceContext
     }
 
     /**
-     * Fetch the WorkflowRealTimeStatisticsInstance
+     * Helper function for Fetch
      *
+     
+     
      * @param array|Options $options Optional Arguments
-     * @return WorkflowRealTimeStatisticsInstance Fetched WorkflowRealTimeStatisticsInstance
+     * @return Response Fetched Response
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function fetch(array $options = []): WorkflowRealTimeStatisticsInstance
+    private function _fetch(array $options = []): Response
     {
-
+        
         $options = new Values($options);
 
         $params = Values::of([
@@ -70,14 +74,54 @@ class WorkflowRealTimeStatisticsContext extends InstanceContext
                 $options['taskChannel'],
         ]);
 
-        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded' ]);
-        $payload = $this->version->fetch('GET', $this->uri, $params, [], $headers);
+        $headers = Values::of(['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json' ]);
+        return $this->version->handleRequest('GET', $this->uri, $params, [], $headers, "fetch");
+    }
 
+    /**
+     * Fetch the WorkflowRealTimeStatisticsInstance
+     *
+     
+     
+     * @param array|Options $options Optional Arguments
+     * @return WorkflowRealTimeStatisticsInstance Fetched WorkflowRealTimeStatisticsInstance
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function fetch(array $options = []): WorkflowRealTimeStatisticsInstance
+    {
+        $response = $this->_fetch($options);
         return new WorkflowRealTimeStatisticsInstance(
             $this->version,
-            $payload,
+            $response->getContent(),
             $this->solution['workspaceSid'],
             $this->solution['workflowSid']
+        );
+        
+    }
+
+    /**
+     * Fetch the WorkflowRealTimeStatisticsInstance with Metadata
+     *
+     
+     
+     * @param array|Options $options Optional Arguments
+     * @return ResourceMetadata The Fetched Resource with Metadata
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function fetchWithMetadata(array $options = []): ResourceMetadata
+    {
+        $response = $this->_fetch($options);
+        $resource = new WorkflowRealTimeStatisticsInstance(
+                        $this->version,
+                        $response->getContent(),
+                        $this->solution['workspaceSid'],
+                        $this->solution['workflowSid']
+                    );
+        
+        return new ResourceMetadata(
+            $resource,
+            $response->getStatusCode(),
+            $response->getHeaders()
         );
     }
 

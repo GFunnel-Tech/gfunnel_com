@@ -56,17 +56,24 @@ class BxBaseServiceProfiles extends BxDol
 
         $oTemplate = BxDolTemplate::getInstance();
 
+        $sSwitcher = '';
+        $aSwitcher = bx_srv('system', 'account_profile_switcher', array(false, null, '', true), 'TemplServiceProfiles');
+        if($aSwitcher !== false)
+            $sSwitcher = BxTemplFunctions::getInstance()->popupBox('bx-profile-switcher', _t('_sys_txt_switch_profiles'), $oTemplate->parseHtmlByName('profile_avatar_switcher.html', array(
+                'profile_switcher' => $aSwitcher['content'],
+                'bx_if:multiple_profiles_mode' => array(
+                    'condition' => empty($aSwitcher['content']) || BxDolAccount::isAllowedCreateMultiple($oProfile->id()),
+                    'content' => array(
+                        'url_switch_profile' => BxDolPermalinks::getInstance()->permalink('page.php?i=account-profile-switcher')
+                    )
+                )
+            )), true);
+        $bSwitcher = !empty($sSwitcher);        
+        $sSwitcherUrl = $bSwitcher ? 'javascript:void(0)' : $sUrl;
+        $sSwitcherOnclick = $bSwitcher ? "javascript:$('#bx-profile-switcher').dolPopup({});" : "";
+
         $sDisplayName = $oProfile->getDisplayName();
         $sUrl = $oProfile->getUrl();
-
-        // GFunnel: the workspace switcher moved to the top nav (right of the
-        // logo, workspace/app layout only). Suppress the left-nav avatar switch
-        // popup so the sidebar avatar simply links to the profile - a single
-        // switch surface across the shell.
-        $sSwitcher = '';
-        $bSwitcher = false;
-        $sSwitcherUrl = $sUrl;
-        $sSwitcherOnclick = '';
 
         $oAcl = BxDolAcl::getInstance();
         $aAcl = $oAcl->getMemberMembershipInfo($iProfileId);
@@ -454,13 +461,15 @@ class BxBaseServiceProfiles extends BxDol
         return $aRet;
     }
 
-    public function serviceProfilesSearch ($sTerm, $mixedParems = [])
+    public function serviceProfilesSearch ($sTerm, $mixedParams = [])
     {
-        $iLimit = (int)getParam('sys_profiles_search_limit');
-        if(is_int($mixedParems)) 
-            $iLimit = (int)$mixedParems;
-        else if(is_array($mixedParems) && isset($mixedParems['limit']))
-            $iLimit = (int)$mixedParems['limit'];
+        $bParams = is_array($mixedParams);
+
+        $iLimit = 0;
+        if((is_numeric($mixedParams) && ($_iLimit = (int)$mixedParams)) || ($bParams && isset($mixedParams['limit']) && ($_iLimit = (int)$mixedParams['limit']))) 
+            $iLimit = $_iLimit;
+        else
+            $iLimit = (int)getParam('sys_profiles_search_limit');
 
         // display friends by default
         if (!$sTerm)
@@ -469,12 +478,20 @@ class BxBaseServiceProfiles extends BxDol
         // get list of "profiles" modules
         $aModules = $this->serviceGetProfilesModules();
 
+        $mixedSearchParams = (int)getParam('sys_per_page_search_keyword_single');
+        if($bParams && !empty($mixedParams['search_params']) && is_array($mixedParams['search_params']))
+            $mixedSearchParams = [
+                'search_params' => $mixedParams['search_params'], 
+                'limit' => $mixedSearchParams
+            ];
+
         // search in each module
-        $a = array();
+        $a = [];
         foreach ($aModules as $aModule) {
-            if (!BxDolService::call($aModule['name'], 'act_as_profile'))
+            if(!bx_srv($aModule['name'], 'act_as_profile'))
                 continue;
-            $a = array_merge($a, BxDolService::call($aModule['name'], 'profiles_search', array($sTerm, getParam('sys_per_page_search_keyword_single'))));
+
+            $a = array_merge($a, bx_srv($aModule['name'], 'profiles_search', [$sTerm, $mixedSearchParams]));
         }
 
         // sort result
@@ -495,27 +512,27 @@ class BxBaseServiceProfiles extends BxDol
          *      - `result` - [array] by ref, array of results, can be overridden in hook processing
          * @hook @ref hook-account-profiles_search_by_location
          */
-        bx_alert('system', 'profiles_search', 0, 0, array(
-            'module' => is_array($mixedParems) && isset($mixedParems['module']) ? $mixedParems['module'] : '',
+        bx_alert('system', 'profiles_search', 0, 0, [
+            'module' => $bParams && isset($mixedParams['module']) ? $mixedParams['module'] : '',
             'term' => $sTerm,
             'result' => &$a
-        ));
+        ]);
 
         // return as array
         return array_slice($a, 0, $iLimit);
     }
 
-    public function serviceProfilesSearchByLocation ($aLocation, $iRadius, $mixedParems = [])
+    public function serviceProfilesSearchByLocation ($aLocation, $iRadius, $mixedParams = [])
     {
-        $sModule = !empty($mixedParems['module']) ? $mixedParems['module'] : '';
+        $sModule = !empty($mixedParams['module']) ? $mixedParams['module'] : '';
         $aModules = !empty($sModule) ? [BxDolModuleDb::getInstance()->getModuleByName($sModule)] : $this->serviceGetProfilesModules();
 
         $iStart = 0;
         $iLimit = 20;
-        if(is_int($mixedParems)) 
-            $iLimit = (int)$mixedParems;
-        else if(is_array($mixedParems) && isset($mixedParems['limit']))
-            $iLimit = (int)$mixedParems['limit'];
+        if(is_int($mixedParams)) 
+            $iLimit = (int)$mixedParams;
+        else if(is_array($mixedParams) && isset($mixedParams['limit']))
+            $iLimit = (int)$mixedParams['limit'];
 
         $aLocation[] = $iRadius;
         $oProfileQuery = BxDolProfileQuery::getInstance();
@@ -871,15 +888,253 @@ class BxBaseServiceProfiles extends BxDol
         return $this->_serviceBrowseConnections('connections', $aParamsBrowse, $aParams['design_box'], $aParams['empty_message'], $aParams['ajax_paginate']);
     }
 
+    public function serviceBrowseInvitations ($iProfileId = 0, $aParams = [])
+    {
+        $sMode = 'invitations';
+
+        if($this->_bIsApi)
+            $aParams = bx_api_get_browse_params($aParams);
+
+        $iLoggedId = bx_get_logged_profile_id();
+        if(!$iProfileId)
+            $iProfileId = $iLoggedId;
+        if(!$iProfileId || $iProfileId != $iLoggedId)
+            return '';
+
+        $aParams = array_merge([
+            'params' => false,
+            'design_box' => BX_DB_PADDING_DEF,
+            'empty_message' => false,
+            'ajax_paginate' => true,
+        ], $aParams);
+
+        $aParamsBrowse = [
+            'profile' => $iProfileId, 
+        ];
+        if(!empty($aParams['params']) && is_array($aParams['params']))
+            $aParamsBrowse = array_merge($aParamsBrowse, $aParams['params']);
+
+        $aModules = [];
+        if(empty($aParamsBrowse['modules']) || !is_array($aParamsBrowse['modules'])) {
+            $aModules = bx_srv('system', 'get_modules_by_type', ['context', ['name_as_key' => true]]);
+            if(!empty($aModules) && is_array($aModules))
+                $aModules = array_keys($aModules);
+        }
+        else
+            $aModules = $aParamsBrowse['modules'];
+
+        $sApiContentType = 'browse';
+        $bApiBrowseSimple = $bApiGetData = false;
+        if($this->_bIsApi) {
+            $aBlock = BxDolPage::getBlockProcessing();
+
+            $sApiContentType = 'browse';
+            if(($sK = 'config_api') && $aBlock[$sK] && is_array($aBlock[$sK]))
+                $sApiContentType = $aBlock[$sK]['content_type'] ?? $sApiContentType;
+
+            $bApiBrowseSimple = $sApiContentType == 'browse_simple';
+            $bApiGetData = !defined('BX_API_PAGE') || $bApiBrowseSimple;
+        }
+        
+        $aData = $this->_bIsApi ? ['queries' => [], 'limit' => ''] : [];
+        foreach($aModules as $sModule) {
+            $o = new BxTemplProfileSearchResult($sMode, array_merge($aParamsBrowse, ['module' => $sModule]));
+            $o->setDesignBoxTemplateId($aParams['design_box']);
+            $o->setDisplayEmptyMsg($aParams['empty_message']);
+            $o->setAjaxPaginate($aParams['ajax_paginate']);
+            $o->setUnitParams(['context' => $sMode]);
+
+            if($o->isError)
+                continue;
+
+            if($this->_bIsApi && $bApiGetData) {
+                $aQuery = $o->getSearchQuery($sModule);
+
+                if(!empty($aQuery['query']))
+                    $aData['queries'][] = $aQuery['query'];
+                if(!empty($aQuery['limit']) && empty($aData['limit']))
+                    $aData['limit'] = $aQuery['limit'];
+            }
+            else
+                $aData = array_merge($aData, $o->getSearchData());
+        }
+ 
+        if($this->_bIsApi) {
+            $aDataApi = [];
+            if($bApiGetData) {
+                $aItems = BxDolDb::getInstance()->getAll('(' . implode(') UNION (', $aData['queries']) . ') ORDER BY `added` DESC ' . $aData['limit']);
+
+                $oProfileQuery = BxDolProfileQuery::getInstance();
+                foreach($aItems as $aItem) 
+                    if(($iContextPid = (int)$aItem['id']) && ($aContextProfileInfo = $oProfileQuery->getInfoById($iContextPid))) {
+                        $sContext = $aContextProfileInfo['type'];
+                        $oContext = BxDolModule::getInstance($sContext);
+                        if(!$oContext)
+                            continue;
+
+                        $CNF_CONTEXT = &$oContext->_oConfig->CNF;
+
+                        $iContextId = (int)$aContextProfileInfo['content_id'];
+                        $aContentInfo = $oContext->serviceGetInfo($iContextId, false);
+
+                        $sKey = $oContext->serviceGetInvitedKey($iContextPid, $iProfileId);
+                        $sCallback = '/api.php?r=' . $sContext . '/process_invite/&params[]=' . $sKey . '&params[]=' . $iContextPid . '&params[]=';
+
+                        $aDataAdd = [
+                            'callback_accept' => $sCallback . '1',
+                            'callback_decline' => $sCallback . '0',
+                        ];
+                        $aDataAddView = [
+                            'redirect_url' => $oContext->serviceGetLink($iContextId),
+                            'redirect_title' => _t('_View_and_Join')
+                        ];
+
+                        if($oContext->serviceIsPaidJoinAvaliable($iContextPid)) {
+                            $aDataAdd = $aDataAddView;
+                        }
+                        else if(($iPtContextPid = $aContentInfo[$CNF_CONTEXT['FIELD_ALLOW_VIEW_TO']]) < 0) {
+                            $iPtContextPid = abs($iPtContextPid);
+                            $aPtContextProfileInfo = $oProfileQuery->getInfoById($iPtContextPid);
+                            if($aPtContextProfileInfo && bx_srv($aPtContextProfileInfo['type'], 'is_paid_join_avaliable', [$iPtContextPid]))
+                                $aDataAdd = $aDataAddView;
+                        }
+
+                        $aDataApi[] = array_merge(bx_srv($aContextProfileInfo['type'], 'get_search_result_unit', [$iContextId]), $aDataAdd);
+                    }
+            }
+            
+            if(!$bApiBrowseSimple || $aDataApi)
+                $aDataApi = [bx_api_get_block($sApiContentType, [
+                    'module' => 'system',
+                    'unit' => 'invitations',
+                    'request_url' => '/api.php?r=system/browse_invitations/TemplServiceProfiles&params[]=' . $iProfileId . '&params[]=',
+                    'data' =>  $aDataApi,
+                    'params' => [
+                        'start' => 0, 
+                        'per_page' => 999
+                    ]
+                ])];
+
+            return $aDataApi;
+        }
+        else {
+            if(!$aData && $aParams['empty_message'])
+                return MsgBox(_t('_Empty'));
+            
+            $aUnitParams = [
+                'template' => [
+                    'name' => 'unit_with_cover'
+                ]
+            ];
+            if(isset($aParams['unit_params']))
+                $aUnitParams = array_merge($aUnitParams, $aParams['unit_params']);
+
+            return $this->serviceBrowseQuick($aData, 0, 0, [
+                'unit_params' => $aUnitParams
+            ]);
+        }
+    }
+
+    public function serviceBrowseQuick($aProfiles, $iStart = 0, $iLimit = 0, $aParams = [])
+    {
+        $sCode = $sPaginate = '';
+
+        if($iLimit) {
+            $aAdditionalParams = isset($aParams['additional_params']) ? $aParams['additional_params'] : [];
+
+            $oPaginate = new BxTemplPaginate([
+                'on_change_page' => "return !loadDynamicBlockAutoPaginate(this, '{start}', '{per_page}', " . bx_js_string(json_encode($aAdditionalParams)) . ");",
+                'num' => count($aProfiles),
+                'per_page' => $iLimit,
+                'start' => $iStart,
+            ]);
+
+            /* 
+             * Remove last item from connection array, because we've got one more item for pagination calculations only
+             */
+            if(count($aProfiles) > $iLimit)
+                array_pop($aProfiles);
+
+            if($iStart || $oPaginate->getNum() > $iLimit)
+                $sPaginate = $oPaginate->getSimplePaginate();
+        }
+
+        $bUnitParams = !empty($aParams['unit_params']) && is_array($aParams['unit_params']);
+
+        foreach ($aProfiles as $mixedProfile) {
+            $bProfile = is_array($mixedProfile);
+
+            $oProfile = BxDolProfile::getInstance($bProfile ? (int)$mixedProfile['id'] : (int)$mixedProfile);
+            if(!$oProfile)
+                continue;
+
+            $aUnitParams = ['template' => ['name' => 'unit', 'size' => 'thumb']];
+            if(BxDolModule::getInstance($oProfile->getModule()) instanceof BxBaseModGroupsModule)
+                $aUnitParams['template']['name'] = 'unit_wo_cover';
+
+            if($bProfile && !empty($mixedProfile['info']) && is_array($mixedProfile['info']))
+                $aUnitParams['template']['vars'] = $mixedProfile['info'];
+
+            if($bUnitParams)
+                $aUnitParams = array_merge($aUnitParams, $aParams['unit_params']);
+
+            $sCode .= $oProfile->getUnit(0, $aUnitParams);
+        }
+
+        return BxDolTemplate::getInstance()->parseHtmlByName('profiles_browse_quick.html', [
+            'code' => $sCode,
+            'bx_if:show_paginate' => [
+                'condition' => !empty($sPaginate),
+                'content' => [
+                    'paginate' => $sPaginate
+                ]
+            ]
+        ]);
+    }
+
     public function serviceBrowseRecommendationsFriends ($iProfileId = 0, $aParams = [])
     {
         if($this->_bIsApi)
             $aParams = bx_api_get_browse_params($aParams, true);
 
+        return $this->_serviceBrowseRecommendations($iProfileId, array_merge([
+            'object' => 'sys_friends',
+            'uri' => 'browse_recommendations_friends',
+        ], $aParams));
+    }
+
+    public function serviceBrowseRecommendationsSubscriptions ($iProfileId = 0, $aParams = [])
+    {
+        if($this->_bIsApi)
+            $aParams = bx_api_get_browse_params($aParams, true);
+
+        $aModules = bx_srv('system', 'get_modules_by_type', ['profile', ['name_as_key' => true]]);
+        
+        return $this->_serviceBrowseRecommendations($iProfileId, array_merge([
+            'object' => 'sys_subscriptions',
+            'uri' => 'browse_recommendations_subscriptions',
+            'type' => !empty($aModules) && is_array($aModules) ? array_keys($aModules) : '',
+        ], $aParams));
+    }
+
+    protected function _serviceBrowseRecommendations($iProfileId = 0, $aParams = [])
+    {
         if(!$iProfileId)
             $iProfileId = bx_get_logged_profile_id();
         if(!$iProfileId)
             return '';
+
+        $sObject = '';
+        if(isset($aParams['object'])) {
+            $sObject = $aParams['object'];
+            unset($aParams['object']);
+        }
+
+        $sUri = '';
+        if(isset($aParams['uri'])) {
+            $sUri = $aParams['uri'];
+            unset($aParams['uri']);
+        }
 
         $aParams = array_merge([
             'empty_message' => false,
@@ -893,19 +1148,28 @@ class BxBaseServiceProfiles extends BxDol
         if(($iPerPageGet = bx_get('per_page')) !== false)
             $aParams['per_page'] = (int)$iPerPageGet;
 
-        $oRecommendation = BxDolRecommendation::getObjectInstance('sys_friends');
+        $oRecommendation = BxDolRecommendation::getObjectInstance($sObject);
         if(!$oRecommendation)
             return false;
 
-        if(bx_is_api()) {
-            $aData = $oRecommendation->getCodeAPI($iProfileId, $aParams);
-            $aData = array_merge($aData, [
-                'module' => 'system',
-                'unit' => 'mixed', 
-                'request_url' => '/api.php?r=system/browse_recommendations_friends/TemplServiceProfiles&params[]=' . $iProfileId . '&params[]='
-            ]);
+        if($this->_bIsApi) {
+            $aBlock = BxDolPage::getBlockProcessing();
+            
+            $sContentType = 'browse';
+            if(($sK = 'config_api') && $aBlock[$sK] && is_array($aBlock[$sK]))
+                $sContentType = $aBlock[$sK]['content_type'] ?? $sContentType;
 
-            return [bx_api_get_block('browse', $aData)];
+            $bBrowseSimple = $sContentType == 'browse_simple';
+
+            $aData = $oRecommendation->getCodeAPI($iProfileId, array_merge($aParams, ['force_get_data' => $bBrowseSimple]));
+            if(!$bBrowseSimple || $aData['data'])
+                $aData = [bx_api_get_block($sContentType, array_merge($aData, [
+                    'module' => 'system',
+                    'unit' => 'mixed', 
+                    'request_url' => '/api.php?r=system/' . $sUri . '/TemplServiceProfiles&params[]=' . $iProfileId . '&params[]='
+                ]))];
+
+            return $aData;
         }
 
         $sCode = $oRecommendation->getCode($iProfileId, $aParams);
@@ -942,65 +1206,50 @@ class BxBaseServiceProfiles extends BxDol
         return true;//$aResult;
     }
 
-    public function serviceBrowseRecommendationsSubscriptions ($iProfileId = 0, $aParams = [])
+    public function serviceResetMembership($mixedProfileId)
     {
-        if($this->_bIsApi)
-            $aParams = bx_api_get_browse_params($aParams, true);
+        if(!is_array($mixedProfileId))
+            $mixedProfileId = [$mixedProfileId];
 
-        if(!$iProfileId)
-            $iProfileId = bx_get_logged_profile_id();
-        if(!$iProfileId)
-            return '';
+        $oAcl = BxDolAcl::getInstance();
+        $iAclLevelId = MEMBERSHIP_ID_STANDARD;
 
-        $aModules = bx_srv('system', 'get_modules_by_type', ['profile', ['name_as_key' => true]]);
+        $iReset = 0;
+        foreach($mixedProfileId as $iProfileId) {
+            if(!$oAcl->setMembership($iProfileId, $iAclLevelId, 0, true))
+                continue;
 
-        $aParams = array_merge([
-            'empty_message' => false,
-            'type' => !empty($aModules) && is_array($aModules) ? array_keys($aModules) : '',
-            'start' => 0,
-            'per_page' => 0
-        ], $aParams);
-
-        if(($iStartGet = bx_get('start')) !== false)
-            $aParams['start'] = (int)$iStartGet;
-
-        if(($iPerPageGet = bx_get('per_page')) !== false)
-            $aParams['per_page'] = (int)$iPerPageGet;
-
-        $oRecommendation = BxDolRecommendation::getObjectInstance('sys_subscriptions');
-        if(!$oRecommendation)
-            return false;
-
-        if(bx_is_api()) {
-            $aData = $oRecommendation->getCodeAPI($iProfileId, $aParams);
-            $aData = array_merge($aData, [
-                'module' => 'system',
-                'unit' => 'mixed',
-                'request_url' => '/api.php?r=system/browse_recommendations_subscriptions/TemplServiceProfiles&params[]=' . $iProfileId . '&params[]='
-            ]);
-
-            return [bx_api_get_block('browse', $aData)];
+            $iReset += 1;
         }
 
-        $sCode = $oRecommendation->getCode($iProfileId, $aParams);
-        if(!$sCode && $aParams['empty_message'])
-            $sCode = MsgBox(_t('_Empty'));
-
-        return $sCode;
+        return $iReset != 0;
     }
 
     public function serviceAccountProfileSwitcher ($iAccountId = false, $iActiveProfileId = null, $sUrlProfileAction = '', $bShowAll = 0, $sButtonTitle = '', $sProfileTemplate = '')
     {
-    	$oTemplate = BxDolTemplate::getInstance();
+        if (!$iAccountId)
+            $iAccountId = getLoggedId();
 
         $oProfilesQuery = BxDolProfileQuery::getInstance();
-
-        $aProfiles = $oProfilesQuery->getProfilesByAccount($iAccountId ? $iAccountId : getLoggedId());
+        $aProfiles = $oProfilesQuery->getProfilesByAccount($iAccountId);
         if (!$aProfiles)
             return false;
 
         if (null === $iActiveProfileId)
             $iActiveProfileId = bx_get_logged_profile_id();
+        
+        $oTemplate = null;
+        if (!$this->_bIsApi) {
+            $oTemplate = BxDolTemplate::getInstance();
+            $oTemplate->addCss('account.css');
+        }
+
+        $sCacheKey = "profile_switcher_{$iAccountId}_" . ($this->_bIsApi ? 1 : 0);
+        if ($sUrlProfileAction == '' && $bShowAll == 0 && $sButtonTitle == '' && $sProfileTemplate == '') { // cache is enabled only for default params (profile switcher in account popup)
+            $mixedCache = bx_content_cache_get($sCacheKey);
+            if ($mixedCache !== null)
+                return $mixedCache;
+        }
 
         $oModuleDb = BxDolModuleQuery::getInstance();
 
@@ -1028,12 +1277,20 @@ class BxBaseServiceProfiles extends BxDol
         
         bx_alert('system', 'account_profile_switcher', 0, false, array(
             'account_id' => $iAccountId,
+
             'active_profile_id' => &$iActiveProfileId,
             'url_profile_action' => &$sUrlProfileAction,
             'show_all' => &$bShowAll,
             'button_title' => &$sButtonTitle,
             'profile_template' => &$sProfileTemplate,
-            'profiles' => &$aProfiles
+            'profiles' => &$aProfiles,
+
+            'active_profile_id_ref' => &$iActiveProfileId,
+            'url_profile_action_ref' => &$sUrlProfileAction,
+            'show_all_ref' => &$bShowAll,
+            'button_title_ref' => &$sButtonTitle,
+            'profile_template_ref' => &$sProfileTemplate,
+            'profiles_ref' => &$aProfiles,
         ));
 
         $aProfilesData = [];
@@ -1076,13 +1333,20 @@ class BxBaseServiceProfiles extends BxDol
         }
 
         if($this->_bIsApi){
-            return [bx_api_get_block ('profile_switcher', ['active_profile_id' => $iActiveProfileId, 'profiles' => $aProfilesData])];
+            $a = [bx_api_get_block ('profile_switcher', ['active_profile_id' => $iActiveProfileId, 'profiles' => $aProfilesData])];
+            if ($sUrlProfileAction == '' && $bShowAll == 0 && $sButtonTitle == '' && $sProfileTemplate == '') {
+                bx_content_cache_set($sCacheKey, $a);
+            }
+            return $a;
         }
         
-        $oTemplate->addCss('account.css');
-        return array(
+        $a = array(
             'content' => $oTemplate->parseHtmlByName('profile_switch_row.html', $aVars),
         );
+        if ($sUrlProfileAction == '' && $bShowAll == 0 && $sButtonTitle == '' && $sProfileTemplate == '') {
+            bx_content_cache_set($sCacheKey, $a);
+        }
+        return $a;
     }
 
     public function serviceAccountProfileSwitcherAll ($iAccountId = false, $iActiveProfileId = null, $sUrlProfileAction = '', $bShowAll = true, $sButtonTitle = '', $sProfileTemplate = '')

@@ -19,8 +19,6 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
         $this->_sMode = $sMode;
         $this->_aParams = $aParams;
 
-        $this->_bValidate = isset($this->_aParams['validate']) && is_array($this->_aParams['validate']);
-
         parent::__construct();
 
         $this->_bIsApi = bx_is_api();
@@ -91,8 +89,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     'profile2' => 0
                 ]);
                 
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $this->aCurrent = array_merge($this->aCurrent, [
                     'title' => _t('_sys_page_title_browse_connections', BxDolProfile::getInstanceMagic($aParams['profile'])->getDisplayName()),
@@ -108,8 +108,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     'profile2' => 0
                 ]);
                 
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $this->aCurrent = array_merge($this->aCurrent, [
                     'title' => _t('_sys_page_title_browse_connections', BxDolProfile::getInstanceMagic($aParams['profile'])->getDisplayName()),
@@ -125,8 +127,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     'profile2' => 0
                 ]);
                 
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $this->aCurrent = array_merge($this->aCurrent, [
                     'title' => _t('_sys_page_title_browse_connections', BxDolProfile::getInstanceMagic($aParams['profile'])->getDisplayName()),
@@ -142,8 +146,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     'profile2' => 0
                 ]);
 
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $this->aCurrent = array_merge($this->aCurrent, [
                     'title' => _t('_sys_page_title_browse_connections', BxDolProfile::getInstanceMagic($aParams['profile'])->getDisplayName()),
@@ -159,8 +165,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     'profile2' => 0
                 ]);
 
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $this->aCurrent = array_merge($this->aCurrent, [
                     'title' => _t('_sys_page_title_browse_connections', BxDolProfile::getInstanceMagic($aParams['profile'])->getDisplayName()),
@@ -175,8 +183,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     'profile2' => 0
                 ]);
 
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $this->aCurrent = array_merge($this->aCurrent, [
                     'title' => _t('_sys_page_title_browse_connections', BxDolProfile::getInstanceMagic($aParams['profile'])->getDisplayName()),
@@ -185,8 +195,10 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                 break;
 
             case 'connections':
-                if (!$this->_setConnectionsConditions($aParams)) 
+                if(!$this->_setConnectionsConditions($aParams)) {
+                    $this->isError = true;
                     break;
+                }
 
                 $oProfile = BxDolProfile::getInstance($aParams['profile']);
                 $oProfile2 = isset($aParams['profile2']) ? BxDolProfile::getInstance($aParams['profile2']) : null;
@@ -198,6 +210,18 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                     $this->aCurrent['title'] = _t('_sys_page_title_browse_connections', $oProfile->getDisplayName());
 
                 $this->aCurrent['api_request_url'] = '/api.php?r=system/browse_connections/TemplServiceProfiles&params[]=' . $aParams['profile'] . '&params[]=';
+                break;
+
+            case 'invitations':
+                if(!$this->_setInvitationsConditions($aParams)) {
+                    $this->isError = true;
+                    break;
+                }
+
+                if(($oProfile = BxDolProfile::getInstance($aParams['profile'])) !== false)
+                    $this->aCurrent['title'] = _t('_sys_page_title_browse_invitations', $oProfile->getDisplayName());
+
+                $this->aCurrent['api_request_url'] = '/api.php?r=system/browse_invitations/TemplServiceProfiles&params[]=' . $aParams['profile'] . '&params[]=';
                 break;
         }
     }
@@ -229,6 +253,7 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
                 return ['order' => ' ORDER BY `sys_accounts`.`logged` DESC '];
 
             case 'last_connected':
+            case 'last_invited':
                 return ['order' => ' ORDER BY `' . $this->aCurrent['sorting']['table'] . '`.`added` DESC '];
 
             case 'last':
@@ -271,6 +296,44 @@ class BxBaseProfileSearchResult extends BxTemplSearchResult
         $this->aCurrent['sorting'] = [
             'type' => 'last_connected',
             'table' => current($aConnection['join'])['table']
+        ];
+
+        return true;
+    }
+
+    protected function _setInvitationsConditions ($aParams)
+    {
+        if(empty($aParams['profile']) || empty($aParams['module']))
+            return false;
+
+        $oModule = BxDolModule::getInstance($aParams['module']);
+        if(!$oModule || empty($oModule->_oConfig->CNF['TABLE_INVITES']))
+            return false;
+
+        $sKey = 'invitations_' . $aParams['module'];
+        $sTable = $oModule->_oConfig->CNF['TABLE_INVITES'];
+
+        $this->aCurrent['tableSearch'] = $sTable;
+        $this->aCurrent['ident'] = 'group_profile_id';
+
+        $this->aCurrent['restriction']['perofileType']['value'] = '';
+        $this->aCurrent['restriction'][$sKey] = [
+            'value' => (int)$aParams['profile'],
+            'table' => $sTable,
+            'field' => 'invited_profile_id',
+            'operator' => '='
+        ];
+        $this->aCurrent['join'][$sKey] = [
+            'type' => 'INNER',
+            'table' => $oModule->_oConfig->CNF['TABLE_INVITES'],
+            'mainField' => 'id',
+            'onField' => 'group_profile_id',
+            'joinFields' => []
+        ];
+
+        $this->aCurrent['sorting'] = [
+            'type' => 'last_invited',
+            'table' => $sTable
         ];
 
         return true;

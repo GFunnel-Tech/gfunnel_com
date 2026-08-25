@@ -21,7 +21,7 @@ class BxDolCacheAPC extends BxDolCache
     function getData($sKey, $iTTL = false)
     {
         $isSucess = false;
-        $mixedData = apc_fetch ($sKey, $isSucess);
+        $mixedData = apcu_fetch ($sKey, $isSucess);
         if (!$isSucess)
             return null;
 
@@ -37,7 +37,7 @@ class BxDolCacheAPC extends BxDolCache
      */
     function setData($sKey, $mixedData, $iTTL = false)
     {
-        return apc_store ($sKey, $mixedData, false === $iTTL ? $this->iTTL : $iTTL);
+        return apcu_store ($sKey, $mixedData, false === $iTTL ? $this->iTTL : $iTTL);
     }
 
     /**
@@ -49,11 +49,11 @@ class BxDolCacheAPC extends BxDolCache
     function delData($sKey)
     {
         $isSucess = false;
-        apc_fetch ($sKey, $isSucess);
+        apcu_fetch ($sKey, $isSucess);
         if (!$isSucess)
             return true;
 
-        return apc_delete($sKey);
+        return apcu_delete($sKey);
     }
 
     /**
@@ -62,7 +62,7 @@ class BxDolCacheAPC extends BxDolCache
      */
     function isAvailable()
     {
-        return function_exists('apc_store');
+        return function_exists('apcu_store');
     }
 
     /**
@@ -71,7 +71,7 @@ class BxDolCacheAPC extends BxDolCache
      */
     function isInstalled()
     {
-        return extension_loaded('apc');
+        return extension_loaded('apcu');
     }
 
     /**
@@ -81,7 +81,7 @@ class BxDolCacheAPC extends BxDolCache
     function removeAllByPrefix ($s)
     {
         $l = strlen($s);
-        $aKeys = apc_cache_info('user');
+        $aKeys = apcu_cache_info();
         if (isset($aKeys['cache_list']) && is_array($aKeys['cache_list'])) {
             foreach ($aKeys['cache_list'] as $r) {
                 $sKey = $r['info'];

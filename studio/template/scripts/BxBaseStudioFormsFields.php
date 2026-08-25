@@ -346,17 +346,19 @@ class BxBaseStudioFormsFields extends BxDolStudioFormsFields
         $oForm->addCssJs();
     }
 
-	protected function _getFieldObject ($sType, $aParams = array(), $aField = array())
-	{
-		$sClass = $this->sClass . $this->getClassName($sType);
+    protected function _getFieldObject ($sType, $aParams = array(), $aField = array())
+    {
+        $sClass = $this->sClass . $this->getClassName($sType);
         if(!class_exists($sClass)) 
-        	return false;
+            return false;
 
         $oClass = new $sClass($aParams, $aField);
         $oClass->init();
+        if(method_exists($oClass, 'onInit'))
+            $oClass->onInit();
 
         return $oClass;
-	}
+    }
 
     protected function _getCellSwitcher ($mixedValue, $sKey, $aField, $aRow)
     {

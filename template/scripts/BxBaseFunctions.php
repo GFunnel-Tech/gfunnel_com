@@ -13,13 +13,6 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
     protected $_sDesignBoxMenuTmplDefault;
 
-    /**
-     * Pages may switch the subheader (hub tabs + clock) off before the page is
-     * rendered, e.g. the workspace picker shows the 48px header bar only:
-     * BxTemplFunctions::$bGfToolbarSubheader = false;
-     */
-    public static $bGfToolbarSubheader = true;
-
     protected $_sDesignBoxMenuIcon;
     protected $_sDesignBoxMenuIconType;
     protected $_sDesignBoxMenuClick;
@@ -82,451 +75,9 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                     'sys_site_search' => $oSearch->getForm(BX_DB_PADDING_DEF, false, true) . $oSearch->getResultsContainer()
                 ]);
                 break;
-
-            case 'gf_toolbar':
-                $mixedResult = $this->getGfToolbar();
-                break;
-
-            case 'gf_toolbar_protean':
-                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_protean.html', 'gf-flow');
-                break;
-
-            case 'gf_toolbar_lucid':
-                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_lucid.html', 'gf-flow');
-                break;
-
-            case 'gf_toolbar_app':
-                // The application layout is the org/workspace experience (it is
-                // the only layout with the left sidebar). The workspace selector
-                // shows here, not on the gfunnel.com main-site layouts.
-                $mixedResult = $this->getGfToolbar('_page_toolbar_classic_app.html', 'gf-fixed', true);
-                break;
         }
 
         return $mixedResult;
-    }
-
-    /**
-     * GFunnel toolbar: logged-in members get the two-bar (header + subheader) chrome,
-     * visitors keep the classic toolbar.
-     *
-     * @param string $sClassicTemplate per-template fallback markup shown to visitors
-     * @param string $sChromeClass 'gf-fixed' for templates whose toolbar is fixed and
-     *               compensated with content padding, 'gf-flow' for in-flow (sticky) toolbars
-     * @param boolean $bWorkspaceCtx workspace/app layout: render the workspace
-     *               selector (hidden on the gfunnel.com main-site layouts)
-     */
-    public function getGfToolbar($sClassicTemplate = '_page_toolbar_classic.html', $sChromeClass = 'gf-fixed', $bWorkspaceCtx = false)
-    {
-        if(!isLogged())
-            return $this->_oTemplate->parseHtmlByName($sClassicTemplate, []);
-
-        // remember the workspace the member is in (picker links carry ?gf_ws=N)
-        $this->getGfActiveWorkspaceId();
-
-        // The subheader lives in its own sub-template: the compiled-template
-        // engine can't nest bx_repeat inside bx_if, so it's parsed separately
-        // and passed as ready HTML (empty when the page opted out).
-        $sSubheader = '';
-        if(self::$bGfToolbarSubheader)
-            $sSubheader = $this->getGfSubheader();
-        else
-            $sChromeClass .= ' gf-no-subheader';
-
-        // Header action buttons: enabled with working defaults; each setting
-        // overrides the destination, and the value 'off' hides the button.
-        $sWhatsNewUrl = $this->_getGfHeaderUrl(getParam('gf_header_whats_new_url'), 'page.php?i=news-home');
-        $sAiUrl = $this->_getGfHeaderUrl(getParam('gf_header_ai_url'), 'agents.php');
-        $sMessagesUrl = $this->_getGfHeaderUrl(getParam('gf_header_messages_url'), 'page.php?i=messenger');
-
-        // unread badge: conversations with unread messages from the messenger module
-        $iUnreadMessages = 0;
-        if(!empty($sMessagesUrl) && BxDolRequest::serviceExists('bx_messenger', 'get_unread_lots')) {
-            $aUnreadLots = BxDolService::call('bx_messenger', 'get_unread_lots', [bx_get_logged_profile_id()]);
-            if(is_array($aUnreadLots))
-                $iUnreadMessages = count($aUnreadLots);
-        }
-
-        $sSearchPlaceholder = getParam('gf_header_search_placeholder');
-        if(empty($sSearchPlaceholder))
-            $sSearchPlaceholder = 'Ask anything';
-
-        $sCssFile = 'template/css/gf_header.css';
-        $sTimerCssFile = 'template/css/gf_timer.css';
-        $sTimerJsFile = 'template/js/gf_timer.js';
-
-        // Bug report widget: on by default, gf_bug_reports = 'off' disables it;
-        // gf_bug_komodo_url overrides the external-recording referral target.
-        $bBug = getParam('gf_bug_reports') != 'off';
-        $sBugKomodoUrl = trim((string)getParam('gf_bug_komodo_url'));
-        if(empty($sBugKomodoUrl))
-            $sBugKomodoUrl = 'https://kommodo.gfunnel.com';
-
-        $sBugCssFile = 'template/css/gf_bug.css';
-        $sBugJsFile = 'template/js/gf_bug.js';
-
-        return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth.html', [
-            'chrome_class' => $sChromeClass,
-            'timer_css_url' => BX_DOL_URL_ROOT . $sTimerCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerCssFile),
-            'timer_js_url' => BX_DOL_URL_ROOT . $sTimerJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sTimerJsFile),
-            'timer_boot' => $this->getGfTimerBoot(),
-            'ws_selector' => $bWorkspaceCtx ? $this->getGfWorkspaceSelector() : '',
-            'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
-            'search_placeholder' => bx_html_attribute($sSearchPlaceholder),
-            'subheader' => $sSubheader,
-            'bx_if:whats_new' => [
-                'condition' => !empty($sWhatsNewUrl),
-                'content' => [
-                    'whats_new_url' => $sWhatsNewUrl,
-                    'whats_new_title' => "What's New"
-                ]
-            ],
-            'bx_if:bug' => [
-                'condition' => $bBug,
-                'content' => [
-                    'bug_css_url' => BX_DOL_URL_ROOT . $sBugCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sBugCssFile),
-                    'bug_js_url' => BX_DOL_URL_ROOT . $sBugJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sBugJsFile),
-                    'bug_endpoint' => BX_DOL_URL_ROOT . 'gf_bug.php',
-                    'bug_h2c_url' => BX_DOL_URL_ROOT . 'plugins_public/html2canvas/html2canvas.min.js',
-                    'bug_komodo_url' => bx_html_attribute($sBugKomodoUrl)
-                ]
-            ],
-            'bx_if:ai' => [
-                'condition' => !empty($sAiUrl),
-                'content' => [
-                    'ai_url' => $sAiUrl,
-                    'ai_title' => 'Ask AI'
-                ]
-            ],
-            'bx_if:messages' => [
-                'condition' => !empty($sMessagesUrl),
-                'content' => [
-                    'messages_url' => $sMessagesUrl,
-                    'messages_badge' => $iUnreadMessages > 0 ? '<span class="gf-hdr-badge">' . ($iUnreadMessages > 99 ? '99+' : $iUnreadMessages) . '</span>' : '',
-                    'messages_panel_empty' => $iUnreadMessages > 0
-                        ? ('You have ' . (int)$iUnreadMessages . ' unread conversation' . ($iUnreadMessages == 1 ? '' : 's') . '.')
-                        : "You're all caught up."
-                ]
-            ]
-        ]);
-    }
-
-    protected function _getGfHeaderUrl($sUrl, $sDefault = '')
-    {
-        $sUrl = trim((string)$sUrl);
-        if($sUrl == 'off')
-            return '';
-        if(empty($sUrl))
-            $sUrl = $sDefault;
-        if(empty($sUrl))
-            return '';
-
-        if(preg_match('/^https?:\/\//i', $sUrl))
-            return $sUrl;
-
-        if(strncmp($sUrl, 'page.php', 8) === 0)
-            $sUrl = BxDolPermalinks::getInstance()->permalink($sUrl);
-
-        return BX_DOL_URL_ROOT . ltrim($sUrl, '/');
-    }
-
-    /**
-     * GFunnel active workspace (a workspace is a profile: organization, space,
-     * group or the member's own person profile). The workspace picker appends
-     * ?gf_ws=<profile_id> to its Launch links; the first request carrying it
-     * pins the workspace in the session, so every later page - and the
-     * gf_menu.php endpoint - knows which workspace's menu preferences apply.
-     *
-     * @return int workspace profile id, 0 before any workspace was launched.
-     */
-    public function getGfActiveWorkspaceId()
-    {
-        $oSession = BxDolSession::getInstance();
-
-        $iWorkspace = (int)bx_get('gf_ws');
-        if($iWorkspace > 0)
-            $oSession->setValue('gf_active_workspace', $iWorkspace);
-        else
-            $iWorkspace = (int)$oSession->getValue('gf_active_workspace');
-
-        return $iWorkspace;
-    }
-
-    /**
-     * GFunnel workspace selector for the top nav (right of the logo).
-     *
-     * Lists the account's workspaces - owned profiles (personal + workspaces)
-     * plus workspaces joined through each group module's fans connections -
-     * exactly as the /workspaces picker enumerates them. Each entry links with
-     * ?gf_ws=<id> so launching from the top nav pins the workspace in the
-     * session just like the picker does. The active workspace is shown on the
-     * trigger. Returns '' for visitors or when there is nothing to switch to.
-     *
-     * @return string ready selector HTML (button + dropdown), or ''
-     */
-    public function getGfWorkspaceSelector()
-    {
-        if(!isLogged())
-            return '';
-
-        $oProfile = BxDolProfile::getInstance(bx_get_logged_profile_id());
-        if(!$oProfile || !($oAccount = $oProfile->getAccountObject()))
-            return '';
-
-        $iActive = $this->getGfActiveWorkspaceId();
-
-        $aItems = array();
-        $aOwnedIds = array();
-
-        //--- Owned profiles on this account (personal profile + owned workspaces).
-        foreach($oAccount->getProfiles() as $iProfileId => $aProfileInfo) {
-            if(empty($aProfileInfo['type']) || $aProfileInfo['type'] == 'system')
-                continue;
-
-            $oWs = BxDolProfile::getInstance((int)$iProfileId);
-            if(!$oWs)
-                continue;
-
-            $aOwnedIds[] = (int)$iProfileId;
-            $aItems[(int)$iProfileId] = array(
-                'id' => (int)$iProfileId,
-                'title' => $oWs->getDisplayName(),
-                'thumb' => $oWs->getThumb(),
-                'url' => bx_append_url_params($oWs->getUrl(), array('gf_ws' => (int)$iProfileId))
-            );
-        }
-
-        //--- Joined workspaces: membership lives in each group module's fans connections.
-        $sWorkspaceModules = trim((string)getParam('gf_workspace_modules'));
-        if(empty($sWorkspaceModules))
-            $sWorkspaceModules = 'bx_organizations,bx_spaces,bx_groups';
-
-        foreach(explode(',', $sWorkspaceModules) as $sWsModule) {
-            $sWsModule = trim($sWsModule);
-            if($sWsModule === '' || !($oWsModule = BxDolModule::getInstance($sWsModule)) || empty($oWsModule->_oConfig->CNF['OBJECT_CONNECTIONS']))
-                continue;
-
-            $oConnection = BxDolConnection::getObjectInstance($oWsModule->_oConfig->CNF['OBJECT_CONNECTIONS']);
-            if(!$oConnection || !is_array($aJoinedIds = $oConnection->getConnectedContent($oProfile->id())))
-                continue;
-
-            foreach($aJoinedIds as $iJoinedId) {
-                $iJoinedId = (int)$iJoinedId;
-                if($iJoinedId <= 0 || isset($aItems[$iJoinedId]) || in_array($iJoinedId, $aOwnedIds))
-                    continue;
-
-                $oJoined = BxDolProfile::getInstance($iJoinedId);
-                if(!$oJoined || $oJoined->getModule() != $sWsModule)
-                    continue;
-
-                $aItems[$iJoinedId] = array(
-                    'id' => $iJoinedId,
-                    'title' => $oJoined->getDisplayName(),
-                    'thumb' => $oJoined->getThumb(),
-                    'url' => bx_append_url_params($oJoined->getUrl(), array('gf_ws' => $iJoinedId))
-                );
-            }
-        }
-
-        if(empty($aItems))
-            return '';
-
-        //--- Current workspace shown on the trigger (falls back to the first).
-        $aActive = isset($aItems[$iActive]) ? $aItems[$iActive] : reset($aItems);
-
-        $aRepeat = array();
-        foreach($aItems as $aItem)
-            $aRepeat[] = array(
-                'url' => bx_html_attribute($aItem['url']),
-                'title' => bx_html_attribute($aItem['title']),
-                'initial' => mb_strtoupper(mb_substr($aItem['title'] !== '' ? $aItem['title'] : 'W', 0, 1)),
-                'thumb_style' => $aItem['thumb'] !== '' ? 'background-image:url(' . bx_html_attribute($aItem['thumb']) . ')' : '',
-                'class_active' => $aItem['id'] == $aActive['id'] ? 'gf-ws-item-active' : ''
-            );
-
-        return $this->_oTemplate->parseHtmlByName('_page_toolbar_ws.html', array(
-            'active_title' => bx_html_attribute($aActive['title']),
-            'active_initial' => mb_strtoupper(mb_substr($aActive['title'] !== '' ? $aActive['title'] : 'W', 0, 1)),
-            'active_thumb_style' => $aActive['thumb'] !== '' ? 'background-image:url(' . bx_html_attribute($aActive['thumb']) . ')' : '',
-            'bx_repeat:items' => $aRepeat
-        ));
-    }
-
-    /**
-     * GFunnel time tracking: initial state for the header pill + popup
-     * (template/js/gf_timer.js), embedded as JSON so no extra request is
-     * needed on page load. Tables are created lazily by gf_timer.php, so
-     * until the first popup action this degrades to "no running timer".
-     */
-    public function getGfTimerBoot()
-    {
-        $iWorkspace = $this->getGfActiveWorkspaceId();
-
-        $sWsName = 'General';
-        if($iWorkspace > 0 && ($oWsProfile = BxDolProfile::getInstance($iWorkspace)))
-            $sWsName = $oWsProfile->getDisplayName();
-
-        $aTimer = null;
-        $oDb = BxDolDb::getInstance();
-        if($oDb->isTableExists('gf_time_entries')) {
-            $aRow = $oDb->getRow($oDb->prepare(
-                "SELECT * FROM `gf_time_entries` WHERE `account_id` = ? AND `running` = 1 ORDER BY `id` DESC LIMIT 1",
-                (int)getLoggedId()
-            ));
-            if(!empty($aRow)) {
-                $sTimerWsName = 'General';
-                if((int)$aRow['workspace_id'] > 0 && ($oTimerWsProfile = BxDolProfile::getInstance((int)$aRow['workspace_id'])))
-                    $sTimerWsName = $oTimerWsProfile->getDisplayName();
-
-                // raw values: the popup JS escapes everything at render time
-                $aTimer = [
-                    'id' => (int)$aRow['id'],
-                    'title' => $aRow['title'],
-                    'description' => $aRow['description'],
-                    'date_start' => (int)$aRow['date_start'],
-                    'ws' => (int)$aRow['workspace_id'],
-                    'ws_name' => $sTimerWsName
-                ];
-            }
-        }
-
-        return json_encode([
-            'url' => BX_DOL_URL_ROOT . 'gf_timer.php',
-            'now' => time(),
-            'ws' => $iWorkspace,
-            'ws_name' => $sWsName,
-            'timer' => $aTimer
-        ]);
-    }
-
-    /**
-     * GFunnel subheader: the hub tabs from the shared menu object, personalized
-     * per member and per workspace from the gf_user_menu table (hidden tabs,
-     * custom order, member's own links), plus the customize panel. Reused by
-     * gf_menu.php to re-render the bar in place after every edit.
-     */
-    public function getGfSubheader()
-    {
-        //--- Stock tabs are taken from a regular UNA menu object.
-        $sTabsMenu = getParam('gf_header_tabs_menu');
-        if(empty($sTabsMenu))
-            $sTabsMenu = 'sys_site';
-
-        $aStock = [];
-        $oTabsMenu = BxDolMenu::getObjectInstance($sTabsMenu);
-        if($oTabsMenu && is_array($aItems = $oTabsMenu->getMenuItems()))
-            foreach($aItems as $aItem) {
-                if(isset($aItem['name']) && in_array($aItem['name'], ['search', 'more-auto']))
-                    continue;
-
-                $aStock[] = $aItem;
-            }
-
-        //--- The member's saved choices for the active workspace. The feature
-        //--- degrades to the stock tabs until the gf_user_menu table exists.
-        $oDb = BxDolDb::getInstance();
-        $bPrefs = $oDb->isTableExists('gf_user_menu');
-
-        $aPrefs = [];
-        $aCustom = [];
-        if($bPrefs) {
-            $aRows = $oDb->getAll(
-                "SELECT * FROM `gf_user_menu` WHERE `account_id` = :account AND `workspace_id` = :workspace",
-                ['account' => getLoggedId(), 'workspace' => $this->getGfActiveWorkspaceId()]
-            );
-            if(is_array($aRows))
-                foreach($aRows as $aRow)
-                    if((int)$aRow['custom'])
-                        $aCustom[] = $aRow;
-                    else
-                        $aPrefs[$aRow['item']] = $aRow;
-        }
-
-        //--- Merge: stock tabs with per-member overrides, then the member's own links.
-        //--- Unsaved items keep their natural position after every explicitly ordered one.
-        $aAll = [];
-        foreach($aStock as $iIndex => $aTab) {
-            $sName = !empty($aTab['name']) ? $aTab['name'] : 'tab' . $iIndex;
-            $aPref = isset($aPrefs[$sName]) ? $aPrefs[$sName] : false;
-
-            $aAll[] = [
-                'key' => $sName,
-                'tab' => $aTab,
-                'title' => isset($aTab['title']) ? $aTab['title'] : $sName,
-                'hidden' => $aPref ? (int)$aPref['hidden'] : 0,
-                'order' => $aPref && (int)$aPref['order'] > 0 ? (int)$aPref['order'] : 10000 + $iIndex,
-                'custom' => 0
-            ];
-        }
-
-        foreach($aCustom as $iIndex => $aRow)
-            $aAll[] = [
-                'key' => 'c' . $aRow['id'],
-                'tab' => $this->_getGfMenuCustomTab($aRow),
-                'title' => bx_process_output($aRow['title']),
-                'hidden' => (int)$aRow['hidden'],
-                'order' => (int)$aRow['order'] > 0 ? (int)$aRow['order'] : 20000 + $iIndex,
-                'custom' => 1
-            ];
-
-        usort($aAll, function($a, $b) {
-            return $a['order'] - $b['order'];
-        });
-
-        $aTabs = [];
-        $aEditItems = [];
-        foreach($aAll as $aItem) {
-            if(!$aItem['hidden'])
-                $aTabs[] = $aItem['tab'];
-
-            $aEditItems[] = [
-                'key' => bx_html_attribute($aItem['key']),
-                'title' => $aItem['title'],
-                'class_off' => $aItem['hidden'] ? 'gf-mrow-off' : '',
-                'bx_if:custom' => [
-                    'condition' => (bool)$aItem['custom'],
-                    'content' => ['key' => bx_html_attribute($aItem['key'])]
-                ]
-            ];
-        }
-
-        return $this->_oTemplate->parseHtmlByName('_page_toolbar_auth_subheader.html', [
-            'bx_repeat:tabs' => $aTabs,
-            'bx_repeat:edit_items' => $aEditItems,
-            'bx_if:editor' => [
-                'condition' => $bPrefs,
-                'content' => ['editor' => 1] // non-empty content required by the template compiler
-            ]
-        ]);
-    }
-
-    /**
-     * Build a member's own link (gf_user_menu row) as a tab item compatible
-     * with the stock items produced by BxBaseMenu::_getMenuItem.
-     */
-    protected function _getGfMenuCustomTab($aRow)
-    {
-        $sTitle = bx_process_output($aRow['title']);
-        $sTitleAttr = bx_html_attribute($aRow['title']);
-
-        $sUrl = trim((string)$aRow['url']);
-        $bExternal = preg_match('/^https?:\/\//i', $sUrl) && strncasecmp($sUrl, BX_DOL_URL_ROOT, strlen(BX_DOL_URL_ROOT)) != 0;
-        if(!preg_match('/^https?:\/\//i', $sUrl))
-            $sUrl = BX_DOL_URL_ROOT . ltrim($sUrl, '/');
-
-        return [
-            'name' => 'c' . $aRow['id'],
-            'link' => bx_html_attribute($sUrl),
-            'title' => $sTitle,
-            'title_attr' => $sTitleAttr,
-            'class_add' => 'gf-tab-custom',
-            'attrs' => $bExternal ? 'target="_blank" rel="noopener"' : '',
-            'bx_if:icon' => ['condition' => true, 'content' => ['icon' => $bExternal ? 'external-link-alt' : 'link']],
-            'bx_if:image' => ['condition' => false, 'content' => ['icon_url' => '']],
-            'bx_if:icon-html' => ['condition' => false, 'content' => ['icon' => '']],
-            'bx_if:title' => ['condition' => true, 'content' => ['title' => $sTitle, 'title_attr' => $sTitleAttr]],
-            'bx_if:onclick' => ['condition' => false, 'content' => ['onclick' => '']]
-        ];
     }
 
     function msgBox($sText, $iTimer = 0, $sOnClose = "")
@@ -744,6 +295,36 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $aIcons = $this->getIcon($sCode, $aAttrs);
         return $aIcons[3] . $aIcons[4]; 
     }
+    
+    function getIconPreview($iId, $sIconImage = '', $sIcon = '')
+    {
+        $bIconImage = !empty($sIconImage);
+
+        $aIcons = $this->getIcon($sIcon);
+        $sIconHtml = $aIcons[2] . $aIcons[3] . $aIcons[4];
+        $bIconHtml = !empty($sIconHtml) && !$bIconImage;
+
+        return $this->_oTemplate->parseHtmlByName('item_icon_preview.html', [
+            'id' => $iId,
+            'bx_if:show_icon_empty' => [
+                'condition' => !$bIconImage && !$bIconHtml,
+                'content' => []
+            ],
+            'bx_if:show_icon_image' => [
+                'condition' => $bIconImage,
+                'content' => [
+                    'url' => $sIconImage,
+                    'id' => $iId
+                ]
+            ],
+            'bx_if:show_icon_html' => [
+                'condition' => $bIconHtml,
+                'content' => [
+                    'icon' => $sIconHtml
+                ]
+            ]
+        ]);
+    }
 
     function getTemplateIcon($sName)
     {
@@ -765,13 +346,18 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
     /**
      * functions for limiting maximal string length
      */
-    function getStringWithLimitedLength($sString, $iWidth = 45, $isPopupOnOverflow = false, $bReturnString = true)
+    function getStringWithLimitedLength($mixedString, $iWidth = 45, $isPopupOnOverflow = false, $bReturnString = true, $sPopupString = null)
     {
-        if (empty($sString) || mb_strlen($sString, 'UTF-8') <= $iWidth)
-            return $bReturnString ? $sString : array($sString);
+        if(is_array($mixedString))
+            list($sStrPlane, $sStrOriginal) = $mixedString;
+        else
+            $sStrPlane = $sStrOriginal = $mixedString;
+
+        if(empty($sStrPlane) || mb_strlen($sStrPlane, 'UTF-8') <= $iWidth)
+            return $bReturnString ? $sStrPlane : [$sStrPlane];
 
         $sResult = '';
-        $aWords = mb_split("[\s\r\n]", $sString);
+        $aWords = mb_split("[\s\r\n]", $sStrPlane);
         $iPosition = 0;
         $iWidthReal = $iWidth - 3;
         $iWidthMin = $iWidth - 15;
@@ -794,15 +380,15 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         // add tripple dot
         if(!$isPopupOnOverflow) {
             $sResult .= '...';
-            return $bReturnString ? $sResult : array($sResult);
+            return $bReturnString ? $sResult : [$sResult];
         }
 
         // add button width popup
         $sId = 'bx-str-limit-' . rand(1, PHP_INT_MAX);
-        $sPopup = '<span class="bx-str-limit" onclick="$(\'#' . $sId . '\').dolPopup({pointer:{el:$(this), offset:\'10 1\'}})"/><i class="sys-icon ellipsis-h"></i></span>';
-        $sPopup .= '<div id="' . $sId . '" style="display:none;">' . BxTemplFunctions::getInstance()->transBox('', '<div class="bx-def-padding">'.$sString.'</div>') . '</div>';
+        $sPopup = '<a class="bx-str-limit pl-2" href="javascript:void(0)" onclick="$(\'#' . $sId . '\').dolPopup({pointer:{el:$(this), offset:\'10 1\'}})"><i class="sys-icon ellipsis-h"></i></a>';
+        $sPopup .= BxTemplFunctions::getInstance()->transBox($sId, '<div class="bx-def-padding">' . ($sPopupString ?? $sStrOriginal) . '</div>', true);
 
-        return $bReturnString ? $sResult . $sPopup : array($sResult, $sPopup);
+        return $bReturnString ? $sResult . $sPopup : [$sResult, $sPopup];
     }
 
     /**
@@ -827,16 +413,62 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
      * @see BX_DB_PADDING_DEF
      * @see BX_DB_PADDING_NO_CAPTION
      */
-    function designBoxContent ($sTitle, $sContent, $iTemplateNum = BX_DB_DEF, $mixedMenu = false, $mixedButtons = array())
+    function designBoxContent ($sTitle, $sContent, $iTemplateNum = BX_DB_DEF, $mixedMenu = false, $mixedButtons = [])
     {
-        return $this->_oTemplate->parseHtmlByName('designbox_' . (int)$iTemplateNum . '.html', array(
-            'title' => $sTitle,
-            'designbox_content' => $sContent,
-            'caption_item' => $this->designBoxMenu($mixedMenu, $mixedButtons),
-        ));
+        $bNoTitle = in_array($iTemplateNum, [BX_DB_CONTENT_ONLY, BX_DB_PADDING_CONTENT_ONLY, BX_DB_NO_CAPTION, BX_DB_PADDING_NO_CAPTION]);
+        $sMenu = $this->designBoxMenu($mixedMenu, $mixedButtons);
+
+        $aTmplVarsDbMenu = [];
+        if($bNoTitle && $sMenu)
+            $aTmplVarsDbMenu = [
+                'caption_item' => $sMenu
+            ];
+
+        $sDescription = $sIcon = $sIconHtml = '';
+        if(is_array($sTitle)) {
+            list($sTitle, $sDescription, $sIcon) = $sTitle;
+
+            if($sIcon) {
+                list($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $this->getIcon($sIcon);
+
+                if($sIcon)
+                    $sIcon = BxDolIconset::getObjectInstance()->getIcon($sIcon);
+            }
+        }
+
+        return $this->_oTemplate->parseHtmlByName('designbox_' . (int)$iTemplateNum . '.html', array_merge([
+                'bx_if:show_db_icon' => [
+                    'condition' => !empty($sIcon),
+                    'content' =>  [
+                        'icon' => $sIcon,
+                    ]
+                ],
+                'bx_if:show_db_icon_html' => [
+                    'condition' => !empty($sIconHtml),
+                    'content' =>  [
+                        'icon_html' => $sIconHtml,
+                    ]
+                ],
+                'title' => $sTitle,
+                'bx_if:show_db_description' => [
+                    'condition' => !empty($sDescription),
+                    'content' =>  [
+                        'description' => $sDescription,
+                    ]
+                ],
+                'designbox_content' => $sContent,
+            ], ($bNoTitle ? [
+                'bx_if:show_db_menu' => [
+                    'condition' => !empty($aTmplVarsDbMenu),
+                    'content' => $aTmplVarsDbMenu
+                ]
+            ] : [
+                'caption_item' => $sMenu
+            ]))
+        );
     }
 
-    function designBoxMenu ($mixedMenu, $mixedButtons = array())
+    function designBoxMenu ($mixedMenu, $mixedButtons = [])
     {
         $bUseTabs = is_bool($mixedButtons) && $mixedButtons === true;
 
@@ -906,9 +538,13 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
                         continue;
                 }
 
-                $aAttrs = array();
-                if(!empty($aButton['onclick']))
+                $aAttrs = [];
+                if(!empty($aButton['href']))
+                    $aAttrs['href'] = $aButton['href'];
+                if(!empty($aButton['onclick'])) {
+                    $aAttrs['href'] = "javascript:void(0);";
                     $aAttrs['onclick'] = $aButton['onclick'];
+                }
                 
                 $aAttrs['class'] = 'bx-btn bx-btn-small';
                 if(!empty($aButton['class']))
@@ -1065,7 +701,10 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
 
         bx_alert('system', 'get_logo', 0, 0, [
             'tmpl_name' => &$sTmplName,
-            'tmpl_vars' => &$aTmplVars
+            'tmpl_vars' => &$aTmplVars,
+
+            'tmpl_name_ref' => &$sTmplName,
+            'tmpl_vars_ref' => &$aTmplVars,
         ]);
 
         return $this->_oTemplate->parseHtmlByName($sTmplName, $aTmplVars);
@@ -1122,7 +761,7 @@ class BxBaseFunctions extends BxDolFactory implements iBxDolSingleton
         $sRet = '';
         if($sImageUrlFav)
             $sRet .= '<link rel="icon" href="' . $sImageUrlFav . '" sizes="any" />';
-        if($sImageUrlFav)
+        if($sImageUrlSvg)
             $sRet .= '<link rel="icon" href="' . $sImageUrlSvg . '" type="image/svg+xml" />';
         $sRet .= '<link rel="apple-touch-icon" href="' . $sImageUrlApl . '" />';
 

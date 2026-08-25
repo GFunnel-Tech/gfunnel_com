@@ -15,7 +15,7 @@ class BxBaseCmtsPageView extends BxTemplPage
     public function __construct($aObject, $oTemplate)
     {
         parent::__construct($aObject, $oTemplate);
-        
+
         $sSystem = bx_get('sys');
         $sSystem = $sSystem !== false ? $sSystem = bx_process_input($sSystem) : '';
 
@@ -35,18 +35,23 @@ class BxBaseCmtsPageView extends BxTemplPage
         $sObjectTitle = bx_process_output(strip_tags($this->_oCmts->getObjectTitle($iObjectId)));
         $sObjectUrl = $this->_oCmts->getBaseUrl();
 
-        $this->addMarkers(array(
+        $this->addMarkers([
             'system' => $sSystem,
             'object_id' => $iObjectId,
             'object_title' => $sObjectTitle,
             'object_url' => $sObjectUrl,
-            'comment_id' => $iCommentId
-        ));
+            'comment_id' => $iCommentId,
+            'comment_snippet' => $this->_oCmts->getViewSnippet($iCommentId)
+        ]);
     }
-    
+
     protected function _isAvailablePage ($a)
     {
-        if (!$this->_iCmtId)
+        if(!$this->_iCmtId)
+            return false;
+
+        $aCmt = $this->_oCmts->getCommentSimple($this->_iCmtId);
+        if(empty($aCmt) || !is_array($aCmt))
             return false;
 
         return parent::_isAvailablePage($a);
@@ -54,6 +59,11 @@ class BxBaseCmtsPageView extends BxTemplPage
 
     public function getCode()
     {
+        if (!$this->_isAvailablePage($this->_aObject)) {
+            $this->_oTemplate->displayPageNotFound();
+            exit;
+        }
+
         if($this->_oCmts)
             BxDolTemplate::getInstance()->setPageUrl($this->_oCmts->getViewUrl($this->_iCmtId));
 

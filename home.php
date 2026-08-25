@@ -33,6 +33,7 @@ function gfHomeMarkerArray($fnPageUrl)
         'css_url' => BX_DOL_URL_ROOT . $sCssFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCssFile),
         'js_url' => BX_DOL_URL_ROOT . $sJsFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sJsFile),
         'logo_url' => BX_DOL_URL_ROOT . $sLogoFile . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sLogoFile),
+        'nav' => gfHomeNav(), // shared header — same bar as the gf_* routes
         'site_url' => BX_DOL_URL_ROOT,
         'search_url' => BX_DOL_URL_ROOT . 'searchKeyword.php',
         'year' => date('Y'),

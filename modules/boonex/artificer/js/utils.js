@@ -84,10 +84,7 @@ BxArtificerUtils.prototype.setColorSchemeHtml = function()
 
 BxArtificerUtils.prototype.setColorSchemeIcon = function() 
 {
-    if(this.isColorSchemeDark())
-        $('.bx-sb-theme-switcher .sys-icon').addClass('moon').removeClass('sun');
-    else
-        $('.bx-sb-theme-switcher .sys-icon').addClass('sun').removeClass('moon');
+    $('.bx-sb-theme-current').html('<i class="sys-icon ' + (this.isColorSchemeDark() ? 'moon' : 'sun') + '"></i>').bxProcessHtml();
 };
 
 BxArtificerUtils.prototype.onColorSchemeChange = function(iCode) 

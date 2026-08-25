@@ -47,7 +47,6 @@ class BxDolXmlParser extends BxDolFactory implements iBxDolSingleton
         $aValues = $aIndexes = array();
         $rParser = xml_parser_create("UTF-8");
         xml_parse_into_struct($rParser, $sXmlContent, $aValues, $aIndexes);
-        xml_parser_free($rParser);
 
         $sTag = strtoupper($sXmlTag);
         if(!isset($aIndexes[$sTag]))
@@ -69,7 +68,6 @@ class BxDolXmlParser extends BxDolFactory implements iBxDolSingleton
         $aValues = $aIndexes = array();
         $rParser = xml_parser_create("UTF-8");
         xml_parse_into_struct($rParser, $sXmlContent, $aValues, $aIndexes);
-        xml_parser_free($rParser);
 
         /**
          * gets two-dimensional array of attributes.
@@ -98,7 +96,6 @@ class BxDolXmlParser extends BxDolFactory implements iBxDolSingleton
         $aValues = $aIndexes = array();
         $rParser = xml_parser_create("UTF-8");
         xml_parse_into_struct($rParser, $sXmlContent, $aValues, $aIndexes);
-        xml_parser_free($rParser);
 
         //--- Get an array of tags ---//
         if($iXmlTagIndex == -1) {
@@ -138,7 +135,6 @@ class BxDolXmlParser extends BxDolFactory implements iBxDolSingleton
         $aValues = $aIndexes = array();
         $rParser = xml_parser_create("UTF-8");
         xml_parse_into_struct($rParser, $sXmlContent, $aValues, $aIndexes);
-        xml_parser_free($rParser);
 
         $sTag = strtoupper($sXmlTagName);
         $aTagIndexes = isset($aIndexes[$sTag]) ? $aIndexes[$sTag] : array();
@@ -161,7 +157,6 @@ class BxDolXmlParser extends BxDolFactory implements iBxDolSingleton
         $aValues = $aIndexes = array();
         $rParser = xml_parser_create("UTF-8");
         xml_parse_into_struct($rParser, $sXmlContent, $aValues, $aIndexes);
-        xml_parser_free($rParser);
 
         $aTagIndexes = $aIndexes[strtoupper($sXmlTagName)];
         if(count($aTagIndexes) == 0) return $this->getContent();
@@ -182,7 +177,6 @@ class BxDolXmlParser extends BxDolFactory implements iBxDolSingleton
         $aValues = $aIndexes = array();
         $rParser = xml_parser_create("UTF-8");
         xml_parse_into_struct($rParser, $sXmlContent, $aValues, $aIndexes);
-        xml_parser_free($rParser);
 
         $aTagIndexes = $aIndexes[strtoupper($sXmlTagName)];
         $iLastTagIndex = $aTagIndexes[count($aTagIndexes) - 1];

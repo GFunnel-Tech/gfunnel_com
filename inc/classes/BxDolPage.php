@@ -113,10 +113,14 @@
  */
 class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolReplaceable
 {
+    protected static $_aBlockProcessing = [];
+
     protected $_sObject;
     protected $_aObject;
     protected $_oQuery;
-    protected $_aMarkers = array ();
+    protected $_aMarkers = [];
+
+    protected $_sForceRedirect = false;
 
     /**
      * Constructor
@@ -156,21 +160,35 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
      */
     static public function getObjectInstanceByURI($sURI = '', $oTemplate = false, $bRedirectCheck = false)
     {
-    	if(empty($sURI) && bx_get('i') !== false)
-    		$sURI = bx_process_input(bx_get('i'));
+        if(empty($sURI) && bx_get('i') !== false)
+            $sURI = bx_process_input(bx_get('i'));
 
-    	if(empty($sURI))
-			return false;
+        if(empty($sURI))
+            return false;
 
         $sObject = BxDolPageQuery::getPageObjectNameByURI($sURI);
-        if ($bRedirectCheck && !$sObject && '/' == substr($sURI, -1)) {
-            header("HTTP/1.1 301 Moved Permanently");
+        if($bRedirectCheck && !$sObject && '/' == substr($sURI, -1)) {
             unset($_GET['i']);
-            header ('Location:' . bx_append_url_params(bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . trim($sURI, '/'))), $_GET));
+
+            header("HTTP/1.1 301 Moved Permanently");
+            header('Location:' . bx_append_url_params(bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . trim($sURI, '/'))), $_GET));
             exit;
         }
 
-        return $sObject ? self::getObjectInstance($sObject, $oTemplate) : false;
+        if(!$sObject)
+            return false;
+
+        $oObject = self::getObjectInstance($sObject, $oTemplate);
+        if(($sRedirectUrl = $oObject->getForceRedirect()) !== false) {
+            if(!bx_is_api()) {
+                header("Location: " . $sRedirectUrl);
+                exit;
+            }
+            else 
+                $oObject = bx_api_get_relative_url($sRedirectUrl);
+        }
+
+        return $oObject;
     }
 
     /**
@@ -443,6 +461,10 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
      */
     static public function transformSeoLink ($sLink, $sPrefix, $aParams = array())
     {
+        static $aMemoryUrls = [];
+        if (isset($aMemoryUrls[$sLink]))
+            return $aMemoryUrls[$sLink];
+
         if (!getParam('permalinks_seo_links'))
             return false;
 
@@ -465,26 +487,30 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
             return false;
 
         $sPageModule = '';
+
         $aSeoParams = array('id', 'profile_id'); // supported SEO params which are transformed to SEO strings
         $sSeoParamName = '';
         $sSeoParamValue = '';
-        foreach ($aSeoParams as $k) {
-            if (empty($aQueryParams[$k]) && empty($aParams[$k]))
-                continue;
-            $sSeoParamName = $k;
-            $sSeoParamValue = !empty($aParams[$k]) ? $aParams[$k] : $aQueryParams[$k];
-            unset($aQueryParams[$k]);
-            unset($aParams[$k]);
-            break; // only 1 SEO param will be transformed
+        if ('cmts-view' != $sPageUri) {
+            foreach ($aSeoParams as $k) {
+                if (empty($aQueryParams[$k]) && empty($aParams[$k]))
+                    continue;
+                $sSeoParamName = $k;
+                $sSeoParamValue = !empty($aParams[$k]) ? $aParams[$k] : $aQueryParams[$k];
+                unset($aQueryParams[$k]);
+                unset($aParams[$k]);
+                break; // only 1 SEO param will be transformed
+            }
         }
-
         if (!empty($sSeoParamValue) && 0 === strpos($sSeoParamValue, '{'))
             return false;
-
-        $sSeoPageUri = $sPageUri;
+        
         $aSeoUriRewrites = BxDolPageQuery::getSeoUriRewrites();
-        if (isset($aSeoUriRewrites[$sSeoPageUri]))
-            $sSeoPageUri = $aSeoUriRewrites[$sSeoPageUri];
+        if (isset($aSeoUriRewrites[$sPageUri])) {
+            $sSeoPageUri = $aSeoUriRewrites[$sPageUri];
+        } else {
+            $sSeoPageUri = $sPageUri;
+        }
 
         if ($sSeoParamName && $sSeoParamValue) { // process page with SEO param
             $sPageName = BxDolPageQuery::getPageObjectNameByURI($sPageUri);
@@ -492,19 +518,34 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
             if ($aPage) {
                 $sPageModule = $aPage['module'];
                 $sContentInfo = !empty($aPage['content_info']) ? $aPage['content_info'] : $aPage['module'];
+                $bSeoUrlFound = true;
+
                 if ('id' == $sSeoParamName) {
                     $oContentInfo = BxDolContentInfo::getObjectInstance($sContentInfo);
-                    $sSeoTitle = $oContentInfo ? $oContentInfo->getContentTitle($sSeoParamValue) : '';
-                    if (!$sSeoTitle) 
-                        $sSeoTitle = self::getSeoHash($sSeoParamValue);
+                    if (!$oContentInfo) {
+                        $bSeoUrlFound = false;
+                    } else {
+                        $sSeoTitle = $oContentInfo->getContentTitle($sSeoParamValue);
+                    }
+                    if (!$sSeoTitle)
+                        $sSeoTitle = base_convert((string)sprintf('%u', crc32($sSeoParamValue . BX_DOL_SECRET)), 10, 36);
                 }
                 elseif ('profile_id' == $sSeoParamName) {
                     $oProfile = BxDolProfile::getInstance($sSeoParamValue);
-                    $sSeoTitle = $oProfile ? $oProfile->getDisplayName() : self::getSeoHash($sSeoParamValue);
+                    if (!$oProfile) {
+                        $bSeoUrlFound = false;
+                    } else {
+                        $sSeoTitle = $oProfile->getDisplayName();
+                    }
                 }
                 
-                $r = BxDolPageQuery::getSeoLink($sPageModule, $sPageUri, ['param_value' => $sSeoParamValue]);
-                if (!$r) {
+                $r = false;
+                if (!$bSeoUrlFound) {
+                    $sSeoPageUri = false;
+                } else {
+                    $r = BxDolPageQuery::getSeoLink($sPageModule, $sPageUri, ['param_value' => $sSeoParamValue]);
+                }
+                if ($bSeoUrlFound && !$r) {
                     $sSeoTitleLimited = BxTemplFunctions::getInstance()->getStringWithLimitedLength($sSeoTitle, 45);
                     $sUri = uriGenerate ($sSeoTitleLimited, 'sys_seo_links', 'uri', ['cond' => ['module' => $sPageModule, 'page_uri' => $sPageUri]]);
 
@@ -531,11 +572,12 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
                         'param_value' => $sSeoParamValue,
                         'title' => $sSeoTitle,
                         'uri' => &$sUri,
+                        'uri_ref' => &$sUri,
                     ]);
 
                     BxDolPageQuery::insertSeoLink($sPageModule, $sPageUri, $sSeoParamName, $sSeoParamValue, $sUri);
                 }
-                elseif ($r['param_name'] == $sSeoParamName) {
+                elseif ($r && $r['param_name'] == $sSeoParamName) {
                     $sUri = $r['uri'];
                 } 
                 else {
@@ -549,17 +591,22 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
             }
         }
 
-        if (!$sSeoPageUri)
-            return false;
-
-        $sLink = $sPrefix . bx_append_url_params($sSeoPageUri, array_merge($aQueryParams, $aParams), false);
-        if (defined('BX_MULTISITE_MODULE')) {
-
-            $s = BxDolPage::multisiteLinkCheck ($sLink, $sPageUri, $sPageModule, [$sSeoParamName => $sSeoParamValue]);
-            if (false !== $s) 
-                return $s;
+        $sRet = false;        
+        if ($sSeoPageUri) {
+            $sLinkTransformed = $sPrefix . bx_append_url_params($sSeoPageUri, array_merge($aQueryParams, $aParams), false);
+            if (defined('BX_MULTISITE_MODULE')) {
+                $s = BxDolPage::multisiteLinkCheck ($sLinkTransformed, $sPageUri, $sPageModule, [$sSeoParamName => $sSeoParamValue]);
+                if (false !== $s) 
+                    $sRet = $s;
+            }
+            else {
+                $sRet = $sLinkTransformed;
+            }
         }
-        return $sLink;
+        
+        $aMemoryUrls[$sLink] = $sRet;
+
+        return $sRet;
     }
 
 	/**
@@ -656,20 +703,21 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
         unset($aUrl[1]['i']);
         $aParams = $aUrl[1];
 
-        $sAuthorName = $sAuthorUrl = $sThumb = '';
-        if (isset($aParams['id'])){
-            $sContentInfoObject = BxDolPageQuery::getContentInfoObjectNameByURI($sUri);
-            $oContentInfo = BxDolContentInfo::getObjectInstance($sContentInfoObject);
-
-            $sTitle = $oContentInfo->getContentTitle($aParams['id']);
-            $iAuthor = $oContentInfo->getContentAuthor($aParams['id']);
-            $sAuthorName = BxDolProfile::getInstance($iAuthor)->getDisplayName();
-            $sAuthorUrl = BxDolProfile::getInstance($iAuthor)->getUrl();
-            $sThumb = $oContentInfo->getContentThumb($aParams['id']);
-            $sHtml = $oContentInfo->getContentEmbed($aParams['id']);
-
+        $sTitle = $sAuthorName = $sAuthorUrl = $sThumb = $sHtml = '';
+        if (isset($aParams['id'])) {
+            $sContentInfo = BxDolPageQuery::getContentInfoObjectNameByURI($sUri);
+            if(($oContentInfo = BxDolContentInfo::getObjectInstance($sContentInfo))) {
+                $sTitle = $oContentInfo->getContentTitle($aParams['id']);
+                $iAuthor = $oContentInfo->getContentAuthor($aParams['id']);
+                if(($oAuthor = BxDolProfile::getInstance($iAuthor)) !== false) {
+                    $sAuthorName = $oAuthor->getDisplayName();
+                    $sAuthorUrl = $oAuthor->getUrl();
+                }
+                $sThumb = $oContentInfo->getContentThumb($aParams['id']);
+                $sHtml = $oContentInfo->getContentEmbed($aParams['id']);
+            }
         }
-        else{
+        else {
             $oPage = BxDolPage::getObjectInstanceByURI($sUri, false, true);
             $aPage = $oPage->getObject();
             $sTitle = $oPage->_getPageTitle();
@@ -688,12 +736,19 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
         $sData = $oDb->getPageBlockData($iBlockId, $iContentId, $sContentModule);
         $aData = !empty($sData) ? json_decode($sData, true) : [];
 
-        $oEmbed = BxDolEmbed::getObjectInstance('sys_system');
-
         foreach($aData as &$j) {
             foreach($j as &$k) {
-                if($k['type'] == 'link') {
-                    $k['content_data'] = $oEmbed->getData($k['content'], '');
+                switch($k['type']) {
+                    case 'image':
+                        $aImage = bx_api_get_image(['sys_images_editor', 'sys_images_editor'], (int)$k['content']);
+                        if($aImage && is_array($aImage))
+                            $k['content'] = $aImage;
+                        break;
+
+                    case 'link':
+                        if(($oEmbed = BxDolEmbed::getObjectInstance('sys_system')) !== false)
+                            $k['content_data'] = $oEmbed->getData($k['content'], '');
+                        break;
                 }
             }
         }
@@ -708,6 +763,21 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
         $sData = is_array($mixedData) ? json_encode($mixedData) : $mixedData;
 
         return $oDb->setPageBlockData($iBlockId, $iContentId, $sContentModule, $sData);
+    }
+    
+    static public function getBlockProcessing()
+    {
+        return self::$_aBlockProcessing;
+    }
+
+    static public function setBlockProcessing($aBlock)
+    {
+        self::$_aBlockProcessing = $aBlock && is_array($aBlock) ? $aBlock : [];
+    }
+
+    static public function unsetBlockProcessing()
+    {
+        self::$_aBlockProcessing = [];
     }
 
     /**
@@ -794,7 +864,7 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
     	return $this->_aObject;
     }
     
-    public function getInjections()
+    public function getInjections ()
     {
         $aResult = array();
 
@@ -803,6 +873,16 @@ class BxDolPage extends BxDolFactory implements iBxDolFactoryObject, iBxDolRepla
                 $aResult[substr($sKey, 4)] = $sValue;
 
         return $aResult;
+    }
+
+    public function getForceRedirect ()
+    {
+        return $this->_sForceRedirect ?: false;
+    }
+
+    public function setForceRedirect ($sUrl)
+    {
+        $this->_sForceRedirect = $sUrl;
     }
 
     public function setTitle ($sTitle)

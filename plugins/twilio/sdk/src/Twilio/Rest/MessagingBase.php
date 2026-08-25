@@ -15,12 +15,18 @@ namespace Twilio\Rest;
 use Twilio\Domain;
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Messaging\V1;
+use Twilio\Rest\Messaging\V2;
+use Twilio\Rest\Messaging\V3;
 
 /**
  * @property \Twilio\Rest\Messaging\V1 $v1
+ * @property \Twilio\Rest\Messaging\V2 $v2
+ * @property \Twilio\Rest\Messaging\V3 $v3
  */
 class MessagingBase extends Domain {
     protected $_v1;
+    protected $_v2;
+    protected $_v3;
 
     /**
      * Construct the Messaging Domain
@@ -42,6 +48,26 @@ class MessagingBase extends Domain {
             $this->_v1 = new V1($this);
         }
         return $this->_v1;
+    }
+
+    /**
+     * @return V2 Version v2 of messaging
+     */
+    protected function getV2(): V2 {
+        if (!$this->_v2) {
+            $this->_v2 = new V2($this);
+        }
+        return $this->_v2;
+    }
+
+    /**
+     * @return V3 Version v3 of messaging
+     */
+    protected function getV3(): V3 {
+        if (!$this->_v3) {
+            $this->_v3 = new V3($this);
+        }
+        return $this->_v3;
     }
 
     /**

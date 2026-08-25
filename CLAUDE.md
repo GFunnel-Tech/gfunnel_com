@@ -204,6 +204,7 @@ what you `grep` for to find a module's code.
 | `gf_onboarding.php` | post-signup onboarding (step 2) | | `gf_marketplace.php` | **Marketplace** over `bx_market`, `/marketplace` |
 | `gf_bug.php` | bug-report endpoint | | `gf_resources.php` | **Resources** library (articles/guides), `/resources` |
 | `gf_menu.php` | member menu personalization (hub tabs) | | `gf_timer.php` | time-tracking popup endpoint |
+| `gf_sidebar.php` | member LEFT-sidebar personalization (workspace shell rail): add/remove/reorder items + custom links (iframe/new-tab/current-window), Home+Applications pinned. Renders via `BxBaseFunctions::getGfSidebar()` into `template/_gf_sidebar.html` (skin: `template/css/gf_sidebar.css` + `template/js/gf_sidebar.js`); the artificer `pt_application.html` slot is `__gf_sidebar__`. Table `gf_sidebar_menu`. Mirrors `gf_menu.php`. | | | |
 
 > These SEO landing routes (`/applications`, `/marketplace/applications`, `/business`,
 > `/services`, `/marketplace`, `/resources`) are all
@@ -312,6 +313,7 @@ Find behavior with `grep -ril "keyword" inc/classes/`.
 | `docs/audits/homepage-audit.md` | the home page |
 | `docs/gfunnel-home-blocks.md`, `docs/homepage-module-mapping.md` | homepage sections, the GFunnel Home service blocks, and the section→module/data-source mapping |
 | `docs/sql/*.sql` | DB schema (departments, directory apps, workspace invites) |
+| `docs/roadmap/PLATFORM_ROADMAP.md` | planning any fix/expansion/test work — the module-by-module backlog + cross-cutting initiatives + phased plan |
 
 If your change alters behavior a doc describes, update that doc in the same commit.
 

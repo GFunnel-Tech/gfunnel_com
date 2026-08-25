@@ -134,13 +134,12 @@ class BxBaseStudioPage extends BxDolStudioPage
                 'title' => ''
             ];
 
-        if(!$bPageHome)
-            $aMenuItems['page'] = [
-                'name' => 'page',
-                'icon' => '', //$this->aPage['icon'],
-                'link' => $this->getPageUrl(),
-                'title' => _t($this->aPage['caption'])
-            ];
+        $aMenuItems['page'] = [
+            'name' => 'page',
+            'icon' => '', //$this->aPage['icon'],
+            'link' => $this->getPageUrl(),
+            'title' => _t($this->aPage['caption'])
+        ];
 
         $oMenu = new BxTemplStudioMenu([
             'template' => 'page_breadcrumb.html',
@@ -148,10 +147,23 @@ class BxBaseStudioPage extends BxDolStudioPage
         ]);
         $sMenu = $oMenu->getCode();
 
+        $sActions = getParam('sys_std_show_header_left') == 'on' ? $this->getPageCaptionActions() : '';
+
         return BxDolStudioTemplate::getInstance()->parseHtmlByContent($sMenu, [
+            'bx_if:show_page_action' => [
+                'condition' => (bool)$sActions,
+                'content' => [
+                    'onclick' => $sActions,
+                ]
+            ],
             'bx_if:show_search' => [
                 'condition' => $bPageHome && getParam('sys_std_show_header_left_search') == 'on',
-                'content' => [true]
+                'content' => [
+                    'bx_if:show_active' => [
+                        'condition' => false,
+                        'content' => []
+                    ]
+                ]
             ]
         ]); 
     }
@@ -177,12 +189,16 @@ class BxBaseStudioPage extends BxDolStudioPage
         if($aMenu === false)
             return '';
 
+        foreach($aMenu as $aItem)
+            if(($aItem['selected'] ?? false))
+                $this->aPage['subcaption'] = $aItem['title'] ?? '';
+
         return $this->getPageMenuObject($aMenu, $aMarkers)->getCode();
     }
 
     public function getPageCode($sPage = '', $bWrap = true) {
         if(empty($this->aPage) || !is_array($this->aPage)) {
-            $this->setError('_sys_txt_not_found');
+            $this->setError([404, '_sys_request_page_not_found_cpt']);
             return false;
         }
 
@@ -196,6 +212,23 @@ class BxBaseStudioPage extends BxDolStudioPage
             $oMenu->addMarkers($aMarkers);
 
         return $oMenu;
+    }
+
+    protected function getPageCaptionActions()
+    {
+        $sActions = $this->getPageActions();
+        if(empty($sActions))
+            return '';
+
+        $oTemplate = BxDolStudioTemplate::getInstance(); 
+
+        $sActions = $oTemplate->parseHtmlByName('page_caption_actions.html', [
+            'content' => $sActions
+        ]);
+
+        $oTemplate->addInjection('injection_header', 'text', BxTemplStudioFunctions::getInstance()->transBox('bx-std-pmenu-popup-actions', $sActions, true));
+
+        return BX_DOL_STUDIO_PAGE_JS_OBJECT . ".togglePopup('actions', this)";
     }
 
     protected function getPageCaptionHelp()
@@ -220,13 +253,18 @@ class BxBaseStudioPage extends BxDolStudioPage
 
         $oTemplate = BxDolStudioTemplate::getInstance();
 
-        $sContent = $oAssistant->getAskChat($this->iPageAssistantChatName, '', $oTemplate);
+        $sContent = $oAssistant->getAskChat($this->sPageAssistantChatName, $this->sPageAssistantChatDescription, '', $oTemplate);
         if(!$sContent)
             return '';
 
         return $oTemplate->parseHtmlByName('page_caption_assistant.html', [
             'content' => $sContent
         ]);
+    }
+
+    protected function getPageActions($iWidgetId = 0)
+    {
+        return '';
     }
 
     protected function getJsResult($sMessage, $bTranslate = true, $bRedirect = false, $sRedirect = '', $sOnResult = '')

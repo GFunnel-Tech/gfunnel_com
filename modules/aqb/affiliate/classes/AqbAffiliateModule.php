@@ -1114,7 +1114,7 @@ class AqbAffiliateModule extends BxBaseModTextModule
 	   if ($bUsePageUrl)
 	       return $this->_oConfig->getReferralLink($iProfileId, 0, $bUsePageUrl);
 
-	   return [$this->_oConfig->CNF['REFER_PREFIX'] => $this->getAdsHash($iProfileId)];
+	   return [$this->_oConfig->CNF['REFER_PREFIX'] => $this->_oConfig->getAdsHash($iProfileId)];
     }
 
     /**

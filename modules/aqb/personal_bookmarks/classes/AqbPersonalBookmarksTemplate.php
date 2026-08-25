@@ -32,6 +32,7 @@ class AqbPersonalBookmarksTemplate extends BxBaseModGeneralTemplate {
 
 		return $this->parseHtmlByName('floating_block.html', array(
 			'js_lang_name' => _t('_aqb_personal_bookmarks_name'),
+			'js_lang_add_link_url' => _t('_aqb_personal_bookmarks_add_link_url'),
 			'links' => $this->getLinksList($aBookmarks),
 			'vpos' => $this->_oDb->getParam('aqb_personal_bookmarks_vpos'),
 			'width' => $this->_oDb->getParam('aqb_personal_bookmarks_width'),
@@ -41,7 +42,13 @@ class AqbPersonalBookmarksTemplate extends BxBaseModGeneralTemplate {
 	function getLinksList($aBookmarks) {
 		if ($aBookmarks)
 		foreach($aBookmarks as $iBookmark => $aBookmark) {
+			$sUrl = $aBookmarks[$iBookmark]['url'];
+			$bExternal = (bool)preg_match('#^https?://#i', $sUrl);
+			$sUrlFull = $bExternal ? $sUrl : BX_DOL_URL_ROOT . $sUrl;
+
 			$aBookmarks[$iBookmark]['name'] = htmlspecialchars($aBookmarks[$iBookmark]['name']);
+			$aBookmarks[$iBookmark]['url_full'] = bx_js_string($sUrlFull, BX_ESCAPE_STR_APOS);
+			$aBookmarks[$iBookmark]['is_external'] = $bExternal ? 'true' : 'false';
 		}
 
 		return $this->parseHtmlByName('links.html', array('bx_repeat:links' => $aBookmarks));

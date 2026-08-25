@@ -367,10 +367,10 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
     public function keywordsAdd($iId, $s) 
     {
         /**
-         * First of all remove <a> HTML tags which don't have 'bx-mention-link' class WITH their content.
+         * First of all remove <a> HTML tags which don't have 'bx-tag-link' class WITH their content.
          * It's needed because hashtags cannot be used inside links, otherwise we'll get link inside link.
          */
-        $s = preg_replace("/<a\b((?!bx-mention-link)[^>])*>(.*?)<\/a>/si", '', $s);
+        $s = preg_replace("/<a\b((?!bx-tag-link)[^>])*>(.*?)<\/a>/si", '', $s);
 
         //--- Strip the other HTML tags.
         $s = strip_tags(str_replace(array('<br>', '<br />', '<hr>', '<hr />', '</p>', '</h1>', '</h2>', '</h3>', '</h4>', '</h5>', '</h6>'), "\n", $s));
@@ -488,14 +488,14 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
             return $s;
 
         /**
-         * Replace <a> tags, which have 'bx-mention-link' class, with their content. 
+         * Replace <a> tags, which have 'bx-tag-link' class, with their content. 
          * It's needed to avoid link inside link after hashtags parsing.
          */
-        $s = preg_replace('/<a\b[^>]*\bbx-mention-link\b[^>]*>(.*?)<\/a>/si', '$1', $s);
+        $s = preg_replace('/<a\b[^>]*\bbx-tag-link\b[^>]*>(.*?)<\/a>/si', '$1', $s);
 
         foreach ($a as $sKeyword) {
             $f = function ($a) use ($sKeyword, $iId) {
-                return $a[1] . '<a class="bx-tag" rel="tag" href="' . $this->keywordsGetHashTagUrl($sKeyword, $iId) . '">' . (bx_is_api() ? '#' . $sKeyword : '<s>#</s><b>' . $sKeyword . '</b>') . '</a>';
+                return $a[1] . '<a class="bx-tag-link" rel="tag" href="' . $this->keywordsGetHashTagUrl($sKeyword, $iId) . '">' . (bx_is_api() ? '#' . $sKeyword : '<s>#</s><b>' . $sKeyword . '</b>') . '</a>';
             };
 
             $s = preg_replace_callback('/([^\pN^\pL])\#(' . preg_quote($sKeyword, '/') . ')/u', $f, $s);
@@ -519,23 +519,19 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
     
         foreach ($a as $sKeyword)
             if (0 === strcasecmp(mb_strtolower($s), mb_strtolower($sKeyword)))
-                $s = '<a class="bx-tag" rel="tag" href="' . $this->keywordsGetHashTagUrl($sKeyword, $iId) . '">' . $sKeyword . '</a>';
+                $s = '<a class="bx-tag-link" rel="tag" href="' . $this->keywordsGetHashTagUrl($sKeyword, $iId) . '">' . $sKeyword . '</a>';
 
         return $s;
     }
 	
     public function keywordsGetHashTagUrl($sKeyword, $iId, $mixedSection = false) 
-    {   
-        $sSectionPart = '';
-        if (!empty($mixedSection)) {
-            if (is_array($mixedSection))
-                $sSectionPart = '&section[]=' . implode('&section[]=', $mixedSection);
-            elseif (is_string($mixedSection))
-                $sSectionPart = '&section[]=' . $mixedSection;
-        }
-        
-        $sUrl = BX_DOL_URL_ROOT . 'searchKeyword.php?type=keyword&keyword=' . rawurlencode($sKeyword) . $sSectionPart;
-        
+    {
+        $aUrlParams = ['type' => 'keyword', 'keyword' => rawurlencode($sKeyword)];
+        if(!empty($mixedSection))
+            $aUrlParams['section'] = $mixedSection;
+
+        $sUrl = BX_DOL_URL_ROOT . BxDolPermalinks::getInstance()->permalink('page.php?i=search-keyword', $aUrlParams);
+
         /**
          * @hooks
          * @hookdef hook-meta_keyword-url 'meta_keyword', 'url' - hook to override meta keyword URL
@@ -553,6 +549,7 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
          */
         bx_alert('meta_keyword', 'url', 0, false, [
             'url' => &$sUrl,
+            'url_ref' => &$sUrl,
             'keyword' => $sKeyword,
             'id' => $iId,
             'object' => $this->_sObject,
@@ -717,7 +714,7 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
         $aResults = [];
         foreach(self::$_aLocationKeys as $sKey) {
             $sValue = $oForm->getCleanValue($sPrefix . $sKey);
-            if(!$sValue || $sValue == 'null')
+            if(!$sValue || in_array($sValue, ['null', 'false']))
                 $sValue = '';
 
             $aResults[] = $sValue;
@@ -820,6 +817,9 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
     {
         bx_import('BxDolForm');        
         $aLocation = $this->locationGet($iId);
+        if(bx_is_api())
+            return bx_api_get_location_string($aLocation);
+
         return $this->locationsStringFromArray($aLocation, $bHTML, $aParams);
     }
 
@@ -858,6 +858,31 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
         }
 
         return $bHTML ? $s : trim(strip_tags($s));
+    }
+
+    public function locationsStringFromArrayAPI($mixedValue)
+    {
+        if(!is_array($mixedValue)) {
+            $aValue = @unserialize($mixedValue);
+            if(!$aValue)
+                $aValue = json_decode($mixedValue, true);
+        }
+        else
+            $aValue = $mixedValue;
+
+        if(empty($aValue) || !is_array($aValue) || empty($aValue['country'])) 
+            return '';
+
+        $aCountries = BxDolFormQuery::getDataItems('Country');
+
+        $sResult = '';
+        $sResult .= $aValue['street_number'] ? $aValue['street_number'] . ', ' : '';
+        $sResult .= $aValue['street'] ? $aValue['street'] . ', ' : '';
+        $sResult .= $aValue['city'] ? $aValue['city'] . ', ' : '';
+        $sResult .= $aValue['state'] ? $aValue['state'] . ', ' : '';
+        $sResult .= $aCountries[$aValue['country']];
+
+        return $sResult;
     }
 
     /**
@@ -963,7 +988,11 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
      */
     public function mentionsAdd($iId, $s) 
     {
-        return $this->_metaAdd($iId, $s, '/data\-profile\-id="([0-9a-zA-Z]+)"/u', 'mentionsDelete', 'mentionsAdd', 'mentionsGet', (int)getParam('sys_metatags_mentions_max'), 'mention');
+        $sPreg = '/data\-profile\-id="([0-9a-zA-Z]+)"/u';
+        if(bx_is_api())
+            $sPreg = str_replace ('"', '', $sPreg);
+
+        return $this->_metaAdd($iId, $s, $sPreg, 'mentionsDelete', 'mentionsAdd', 'mentionsGet', (int)getParam('sys_metatags_mentions_max'), 'mention');
     }
 
     /**
@@ -1129,6 +1158,35 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
             return 0;
         }
 
+        /**
+         * @hooks
+         * @hookdef hook-meta_keyword-before_add_multiple 'meta_keyword', 'before_add_multiple' - hook to override meta keywords before it will be processed
+         * - $unit_name - equals `meta_keyword` or `meta_mention` 
+         * - $action - equals `before_add_multiple`
+         * - $object_id - content id 
+         * - $sender_id - currently logged in profile id
+         * - $extra_params - array of additional params with the following array keys:
+         *      - `metas` - [array] array of keyword/mentions, can be overridden in hook processing
+         *      - `text` - [string] original string with keywords
+         *      - `content_id` - [int] content id
+         *      - `object` - [string] metatags object name
+         * @hook @ref hook-meta_keyword-before_add_multiple
+         */
+        /**
+         * @hooks
+         * @hookdef hook-meta_keyword-before_add_multiple 'meta_keyword', 'before_add_multiple' - hook to override meta keyword/mention before it will be processed
+         * It's equivalent to @ref hook-meta_mention-before_added
+         * except mention value is used as $iObjectId
+         * @hook @ref hook-meta_keyword-before_add_multiple
+         */
+        bx_alert('meta_' . $sAlertName, 'before_add_multiple', 'mention' == $sAlertName ? 0 : $iId, bx_get_logged_profile_id(), [
+            'metas' => &$aMetas,
+            'metas_ref' => &$aMetas,
+            'text' => $s,
+            'content_id' => $iId, 
+            'object' => $this->_sObject
+        ]);
+
         if ($iRet = $this->_oQuery->$sFuncAdd($iId, $aMetas)) {
             foreach ($aMetas as $sMeta) {
                 $iObjectId = 'mention' == $sAlertName ? $sMeta : $iId;
@@ -1148,13 +1206,14 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
                  */
                 /**
                  * @hooks
-                 * @hookdef hook-meta_mention-before_added 'meta_mention', 'before_added' - hook to override meta mention before it will be processed
-                 * It's equivalent to @ref hook-meta_keyword-before_added
-                 * except mention value is used in $object_id
-                 * @hook @ref hook-meta_mention-before_added
+                 * @hookdef hook-meta_keyword-before_added 'meta_mention', 'before_added' - hook to override meta keyword before it will be processed
+                 * It's equivalent to @ref hook-meta_mention-before_added
+                 * except mention value is used in object id param
+                 * @hook @ref hook-meta_keyword-before_added
                  */
                 bx_alert('meta_' . $sAlertName, 'before_added', $iObjectId, bx_get_logged_profile_id(), [
                     'meta' => &$sMeta, 
+                    'meta_ref' => &$sMeta, 
                     'content_id' => $iId, 
                     'object' => $this->_sObject
                 ]);
@@ -1162,7 +1221,7 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
                 $sSource = $this->_sObject . '_' . $iId;
                 /**
                  * @hooks
-                 * @hookdef hook-bx_dol_metatags-keyword_added '{object_name}', 'keyword_added' - hook after meta keyword was processed (added)
+                 * @hookdef hook-bx_dol_metatags-keyword_added '{object_name}', 'keyword_added' - hook after meta keyword/mention was processed (added)
                  * - $unit_name - metatags object name
                  * - $action - equals `keyword_added`
                  * - $object_id - object id
@@ -1175,9 +1234,9 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
                  */
                 /**
                  * @hooks
-                 * @hookdef hook-bx_dol_metatags-mention_added '{object_name}', 'mention_added' - hook after meta mention was processed
+                 * @hookdef hook-bx_dol_metatags-keyword_added '{object_name}', 'keyword_added' - hook after meta keyword/mention was processed
                  * It's equivalent to @ref hook-bx_dol_metatags-keyword_added
-                 * @hook @ref hook-bx_dol_metatags-mention_added
+                 * @hook @ref hook-bx_dol_metatags-keyword_added
                  */
                 bx_alert($this->_sObject, $sAlertName . '_added', $iObjectId, bx_get_logged_profile_id(), [
                     'meta' => $sMeta, 
@@ -1201,9 +1260,9 @@ class BxDolMetatags extends BxDolFactory implements iBxDolFactoryObject
                  */
                 /**
                  * @hooks
-                 * @hookdef hook-meta_mention-added 'meta_mention', 'added' - hook after meta mention was processed
+                 * @hookdef hook-meta_keyword-added 'meta_keyword', 'added' - hook after meta mention/keyword was processed
                  * It's equivalent to @ref hook-meta_keyword-added
-                 * @hook @ref hook-meta_mention-added
+                 * @hook @ref hook-meta_keyword-added
                  */
                 bx_alert('meta_' . $sAlertName, 'added', $iObjectId, bx_get_logged_profile_id(), [
                     'meta' => $sMeta, 

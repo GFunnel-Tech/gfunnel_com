@@ -11,11 +11,8 @@
 define('BX_DOL_MANAGE_TOOLS_ADMINISTRATION', 'administration');
 define('BX_DOL_MANAGE_TOOLS_COMMON', 'common');
 
-class BxBaseModGeneralGridAdministration extends BxTemplGrid
+class BxBaseModGeneralGridAdministration extends BxBaseModGeneralGrid
 {
-    protected $MODULE;
-    protected $_oModule;
-
     protected $_sManageType;
     protected $_sParamsDivider;
 
@@ -26,10 +23,6 @@ class BxBaseModGeneralGridAdministration extends BxTemplGrid
 
     public function __construct ($aOptions, $oTemplate = false)
     {
-    	$this->_oModule = BxDolModule::getInstance($this->MODULE);
-    	if(!$oTemplate)
-            $oTemplate = $this->_oModule->_oTemplate;
-
         parent::__construct ($aOptions, $oTemplate);
 
         $this->_aQueryReset = array($this->_aOptions['filter_get'], $this->_aOptions['paginate_get_start'], $this->_aOptions['paginate_get_per_page']);
@@ -182,55 +175,12 @@ class BxBaseModGeneralGridAdministration extends BxTemplGrid
         return parent::_getFilterControlsAPI($aFilters);
     }
 
-    protected function _getFilterSelectOne($sFilterName, $sFilterValue, $aFilterValues, $bAddSelectOne = true)
+    protected function _getFilterOnChange()
     {
-        if(empty($sFilterName) || empty($aFilterValues))
-            return '';
-
-        $CNF = &$this->_oModule->_oConfig->CNF;
-        $sJsObject = $this->_oModule->_oConfig->getJsObject('manage_tools');
-
-        $aInputValues = [];
-        if($bAddSelectOne)
-            $aInputValues[''] = _t($CNF['T']['filter_item_select_one_' . $sFilterName]);
-
-        foreach($aFilterValues as $sKey => $sValue)
-            $aInputValues[$sKey] = _t($sValue);
-
-        $aInputModules = [
-            'type' => 'select',
-            'name' => $sFilterName,
-            'attrs' => [
-                'id' => 'bx-grid-' . $sFilterName . '-' . $this->_sObject,
-                'onChange' => 'javascript:' . $sJsObject . '.onChangeFilter(this)'
-            ],
-            'value' => $sFilterValue,
-            'values' => $aInputValues
-        ];
-
-        $oForm = new BxTemplFormView([]);
-        return $oForm->genRow($aInputModules);
+        return $this->_oModule->_oConfig->getJsObject('manage_tools') . '.onChangeFilter(this)';
     }
 
-    protected function _getSearchInput()
-    {
-        $sJsObject = $this->_oModule->_oConfig->getJsObject('manage_tools');
-
-        $aInputSearch = array(
-            'type' => 'text',
-            'name' => 'search',
-            'attrs' => array(
-                'id' => 'bx-grid-search-' . $this->_sObject,
-                'onKeyup' => 'javascript:$(this).off(\'keyup focusout\'); ' . $sJsObject . '.onChangeFilter(this)',
-                'onBlur' => 'javascript:' . $sJsObject . '.onChangeFilter(this)',
-            )
-        );
-
-        $oForm = new BxTemplFormView(array());
-        return $oForm->genRow($aInputSearch);
-    }
-
-	protected function _getContentInfo($iId)
+    protected function _getContentInfo($iId)
     {
     	return $this->_oModule->_oDb->getContentInfoById($iId);
     }
@@ -240,25 +190,23 @@ class BxBaseModGeneralGridAdministration extends BxTemplGrid
         return BxDolProfile::getInstanceMagic($iId);
     }
 
-	protected function _getManageAccountUrl($sFilter = '')
+    protected function _getManageAccountUrl($sFilter = '')
     {
     	$sModuleAccounts = 'bx_accounts';
     	if(!BxDolModuleQuery::getInstance()->isEnabledByName($sModuleAccounts))
-    		return '';
+            return '';
 
-		$sTypeUpc = strtoupper($this->_sManageType);
-		$oModuleAccounts = BxDolModule::getInstance($sModuleAccounts);
-		if(!$oModuleAccounts || empty($oModuleAccounts->_oConfig->CNF['URL_MANAGE_' . $sTypeUpc]))
-			return '';
+        $sTypeUpc = strtoupper($this->_sManageType);
+        $oModuleAccounts = BxDolModule::getInstance($sModuleAccounts);
+        if(!$oModuleAccounts || empty($oModuleAccounts->_oConfig->CNF['URL_MANAGE_' . $sTypeUpc]))
+            return '';
 
-		$sLink = $oModuleAccounts->_oConfig->CNF['URL_MANAGE_' . $sTypeUpc];
+        $sLink = $oModuleAccounts->_oConfig->CNF['URL_MANAGE_' . $sTypeUpc];
+        $sLink = bx_absolute_url(BxDolPermalinks::getInstance()->permalink($sLink));
+        if(!empty($sFilter))
+            $sLink = bx_append_url_params($sLink, ['filter' => $sFilter]);
 
-		$sLink = bx_absolute_url(BxDolPermalinks::getInstance()->permalink($sLink));
-		
-		if(!empty($sFilter))
-			$sLink = bx_append_url_params($sLink, array('filter' => $sFilter));
-
-		return $sLink;
+        return $sLink;
     }
 
     protected function _enable ($mixedId, $isChecked)

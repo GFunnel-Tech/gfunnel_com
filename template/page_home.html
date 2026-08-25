@@ -8,49 +8,9 @@
     <a class="gfh-skip" href="#gfh-main">Skip to content</a>
 
     <!-- ============================================================ -->
-    <!-- Nav                                                          -->
+    <!-- Nav — shared renderer (gfHomeNav), identical across all pages -->
     <!-- ============================================================ -->
-    <header class="gfh-nav" id="gfh-header">
-        <div class="gfh-container gfh-nav-in">
-            <a class="gfh-brand" href="__site_url__" aria-label="GFunnel home">
-                <img class="gfh-brand-logo" src="__logo_url__" alt="" aria-hidden="true" width="32" height="32" />
-                GFunnel
-            </a>
-
-            <nav class="gfh-nav-links" aria-label="Primary">
-                <a href="__business_url__">Businesses</a>
-                <a href="__services_url__">Services</a>
-                <a href="__software_url__">Software</a>
-                <a href="__marketplace_url__">Marketplace</a>
-                <a href="__resources_url__">Resources</a>
-            </nav>
-
-            <form class="gfh-nav-search" action="__search_url__" method="get" role="search">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" id="gfh-nav-input" name="keyword" placeholder="Search anything&hellip;" autocomplete="off" aria-label="Search GFunnel" />
-                <kbd class="gfh-nav-kbd" aria-hidden="true">&#8984;K</kbd>
-            </form>
-
-            <div class="gfh-nav-right">
-                __version_badge__
-                <a class="gfh-signin" href="__login_url__">Sign in</a>
-                <a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="__join_url__">Create Workspace</a>
-                <button class="gfh-burger" id="gfh-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="gfh-mobile">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="gfh-mobile" id="gfh-mobile">
-            <a href="__business_url__">Businesses</a>
-            <a href="__services_url__">Services</a>
-            <a href="__software_url__">Software</a>
-            <a href="__marketplace_url__">Marketplace</a>
-            <a href="__resources_url__">Resources</a>
-            <a href="__login_url__">Sign in</a>
-            <a class="gfh-mobile-cta" href="__join_url__">Create Workspace</a>
-        </div>
-    </header>
+    __nav__
 
     <main id="gfh-main">
 

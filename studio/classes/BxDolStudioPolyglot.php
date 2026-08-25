@@ -18,6 +18,7 @@ class BxDolStudioPolyglot extends BxTemplStudioWidget
 {
     protected $sPage;
 
+    protected $sEtSettingEditor;
     protected $sEtcContent;
 
     function __construct($sPage = "")
@@ -30,6 +31,7 @@ class BxDolStudioPolyglot extends BxTemplStudioWidget
         if(is_string($sPage) && !empty($sPage))
             $this->sPage = $sPage;
 
+        $this->sEtSettingEditor = 'sys_std_pgt_etemplates_editor';
         $this->sEtcContent = '<pre id="etc_content">' . _t('_adm_pgt_txt_et_c_content') . '</pre>';
     }
 
@@ -48,10 +50,21 @@ class BxDolStudioPolyglot extends BxTemplStudioWidget
             case 'get-page-by-type':
                 $sValue = bx_process_input(bx_get('pgt_value'));
                 if(empty($sValue))
-                        break;
+                    break;
 
                 $this->sPage = $sValue;
                 $aResult = array('code' => 0, 'content' => $this->getPageCode());
+                break;
+
+            case 'enable-editor':
+                $iValue = false;
+                if(($iValue = bx_get('pgt_value')) !== false)
+                    $iValue = bx_process_input($iValue, BX_DATA_INT);
+                else
+                    break;
+
+                if(setParam($this->sEtSettingEditor, $iValue ? 'on' : ''))
+                    $aResult = ['code' => 0, 'reload' => 1];
                 break;
 
             /*
@@ -63,9 +76,9 @@ class BxDolStudioPolyglot extends BxTemplStudioWidget
                 $sLanguage = bx_process_input(bx_get('pgt_language'));
 
                 if($oLanguages->compileLanguage($sLanguage))
-                        $aResult = array('code' => 0, 'content' => _t('_adm_pgt_scs_recompiled'));
+                    $aResult = array('code' => 0, 'content' => _t('_adm_pgt_scs_recompiled'));
                 else
-                        $aResult = array('code' => 2, 'content' => _t('_adm_pgt_err_cannot_recompile_lang'));
+                    $aResult = array('code' => 2, 'content' => _t('_adm_pgt_err_cannot_recompile_lang'));
                 break;
 
             /*
@@ -79,9 +92,9 @@ class BxDolStudioPolyglot extends BxTemplStudioWidget
                 $sModule = bx_process_input(bx_get('pgt_module'));
 
                 if($oLanguages->restoreLanguage($sLanguage, $sModule))
-                        $aResult = array('code' => 0, 'content' => _t('_adm_pgt_scs_restored'));
+                    $aResult = array('code' => 0, 'content' => _t('_adm_pgt_scs_restored'));
                 else
-                        $aResult = array('code' => 2, 'content' => _t('_adm_pgt_err_cannot_restore_lang'));
+                    $aResult = array('code' => 2, 'content' => _t('_adm_pgt_err_cannot_restore_lang'));
                 break;
         }
 

@@ -19,25 +19,11 @@ class BxBaseServiceRecommendations extends BxDol
 
     public function serviceUpdateData($iProfileId, $bVerbose = false)
     {
-        $aResults = [];
+        $aResults = BxDolRecommendation::updateData($iProfileId, true);
+        if($aResults === false)
+            return false;
 
-        if(!$iProfileId) {
-            if(isLogged())
-                $iProfileId = bx_get_logged_profile_id();
-            else
-                return $aResults;
-        }
-
-        $aObjects = BxDolRecommendationQuery::getObjects();
-        foreach($aObjects as $aObject)
-            if(($oRecommendation = BxDolRecommendation::getObjectInstance($aObject['name'])) !== false)
-                $aResults[] = [
-                    'object' => $aObject['name'],
-                    'items' => $oRecommendation->processCriteria($iProfileId)
-                ];
-
-        if($bVerbose)
-            return $aResults;
+        return $bVerbose ? $aResults : true;
     }
 
     /**

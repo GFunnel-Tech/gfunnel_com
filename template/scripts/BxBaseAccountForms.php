@@ -39,7 +39,8 @@ class BxBaseAccountForms extends BxDolProfileForms
          * @hook @ref hook-account-add_form_get
          */
         bx_alert('account', 'add_form_get', 0, 0, [
-            'form_object' => &$oForm
+            'form_object' => &$oForm,
+            'form_inputs_ref' => &$oForm->aInputs,
         ]);
 
         return $oForm;
@@ -83,7 +84,8 @@ class BxBaseAccountForms extends BxDolProfileForms
          * @hook @ref hook-account-add_form_check
          */
         bx_alert('account', 'add_form_check', 0, 0, array(
-            'form_object' => &$oForm
+            'form_object' => &$oForm,
+            'form_inputs_ref' => &$oForm->aInputs,
         ));
 
         if (!$oForm->isSubmittedAndValid()) {
@@ -104,7 +106,9 @@ class BxBaseAccountForms extends BxDolProfileForms
              */
             bx_alert('account', 'add_form', 0, 0, array(
                     'form_object' => &$oForm,
-                    'form_code' => &$sCode
+                    'form_inputs_ref' => &$oForm->aInputs,
+                    'form_code' => &$sCode,
+                    'form_code_ref' => &$sCode,
             ));
             
             if($bIsApi){
@@ -130,6 +134,9 @@ class BxBaseAccountForms extends BxDolProfileForms
 
         $iProfileId = $this->onAccountCreated($iAccountId, $oForm->isSetPendingApproval());
 
+        if(($sField = 'picture') && isset($oForm->aInputs[$sField]))
+            $oForm->processFiles($sField, $iAccountId, true);
+
         // perform action
         BxDolAccount::isAllowedCreate ($iProfileId, true);
 
@@ -139,28 +146,20 @@ class BxBaseAccountForms extends BxDolProfileForms
         $bRelocateCustom = !empty($sRelocateCustom);
 
         // check and redirect
-        $aModulesProfile = array(); 
-        $aModules = BxDolModuleQuery::getInstance()->getModulesBy(array('type' => 'modules', 'active' => 1));
-        foreach($aModules as $aModule) {
-        	$oModule = BxDolModule::getInstance($aModule['name']);
-        	if($oModule instanceof iBxDolProfileService && BxDolService::call($aModule['name'], 'act_as_profile') === true)
-        		$aModulesProfile[] = $aModule;
-        }
+        $aModulesProfile = bx_srv('system', 'get_modules_by_type', ['profile']);
 
-        $sDefaultProfileType = getParam('sys_account_default_profile_type');
         if(count($aModulesProfile) == 1)
-        	$sProfileModule = $aModulesProfile[0]['name'];
-        else if(!empty($sDefaultProfileType)) 
+            $sProfileModule = reset($aModulesProfile)['name'];
+        else if(($sDefaultProfileType = getParam('sys_account_default_profile_type')) !== '') 
             $sProfileModule = $sDefaultProfileType;
 
-        if (getParam('sys_account_auto_profile_creation') && !empty($sProfileModule)) {
-            $oAccount = BxDolAccount::getInstance($iAccountId);
-            $aProfileInfo = BxDolService::call($sProfileModule, 'prepare_fields', array(array(
+        if(!empty($sProfileModule) && getParam('sys_account_auto_profile_creation') == 'on') {
+            $aProfileFields = BxDolService::call($sProfileModule, 'prepare_fields', [[
                 'author' => $iProfileId,
-                'name' => $oAccount->getDisplayName(),
-            )));
-            
-            $a = BxDolService::call($sProfileModule, 'entity_add', array($iProfileId, $aProfileInfo));
+                'name' => BxDolAccount::getInstance($iAccountId)->getDisplayName(),
+            ]]);
+
+            $a = BxDolService::call($sProfileModule, 'entity_add_forcedly', [$iProfileId, $aProfileFields]);
 
             // in case of successful profile add redirect to the page after profile creation
             if (0 == $a['code'] && !$bIsApi) {
@@ -187,7 +186,7 @@ class BxBaseAccountForms extends BxDolProfileForms
 
     }
 
-    public function createAccount ($aValues)
+    public function createAccount ($aValues, $iAction = BX_PROFILE_ACTION_MANUAL, $bNeedToLogin = true)
     {
         $oForm = $this->getObjectFormAdd ();
         if (!$oForm)
@@ -208,7 +207,7 @@ class BxBaseAccountForms extends BxDolProfileForms
         if (!$iAccountId)
             return array('code' => 500, 'error' => _t('_sys_txt_error_account_creation'));
 
-        $iProfileId = $this->onAccountCreated($iAccountId, $oForm->isSetPendingApproval());
+        $iProfileId = $this->onAccountCreated($iAccountId, $oForm->isSetPendingApproval(), $iAction, $bNeedToLogin);
 
         return [
             'account_id' => $iAccountId,
@@ -233,7 +232,7 @@ class BxBaseAccountForms extends BxDolProfileForms
         $sStatus = $oProfile->getStatus();
         $isAutoApprove = !$isSetPendingApproval;
         if ($sStatus == BX_PROFILE_STATUS_PENDING && $isAutoApprove)
-            $oProfile->approve(BX_PROFILE_ACTION_AUTO, $iProfileId, getParam('sys_account_activation_letter') == 'on');
+            $oProfile->approve(BX_PROFILE_ACTION_AUTO, $iProfileId, false);
 
         /**
          * @hooks
@@ -347,6 +346,9 @@ class BxBaseAccountForms extends BxDolProfileForms
             else
                 return $sLKey = '_sys_txt_error_account_update' && $bIsApi ? _t($sLKey) : MsgBox(_t($sLKey));
         }
+
+        if(($sField = 'picture') && isset($oForm->aInputs[$sField]))
+            $oForm->processFiles($sField, $iAccountId, false);
 
         // check if email was changed
         if (!empty($aTrackTextFieldsChanges['changed_fields']) && in_array('email', $aTrackTextFieldsChanges['changed_fields'])){

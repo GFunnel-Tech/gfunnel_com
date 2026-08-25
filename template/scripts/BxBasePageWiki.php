@@ -17,6 +17,17 @@ class BxBasePageWiki extends BxTemplPage
         parent::__construct($aObject, $oTemplate);
     }
 
+    public function getPageAPI ($aBlocks = [])
+    {
+        $aPage = parent::getPageAPI ($aBlocks);
+
+        $aPagesList = BxDolPage::getObjectInstance('sys_sub_wiki_pages_list')->getPageContentAPI();
+        if($aPagesList && ($aCell = $aPagesList['elements']['cell_center'] ?? false))
+            $aPage['elements']['cell_left'] = $aCell;
+
+        return $aPage;
+    }
+
     protected function _getPageCodeVars ()
     {
         $aVars = parent::_getPageCodeVars ();

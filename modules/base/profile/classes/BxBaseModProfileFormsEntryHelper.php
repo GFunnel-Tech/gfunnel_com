@@ -132,15 +132,15 @@ class BxBaseModProfileFormsEntryHelper extends BxBaseModGeneralFormsEntryHelper
             $aTrackTextFieldsChanges = array ();
         }
 
-        if(isset($CNF['FIELD_BIRTHDAY']) && isset($aContentInfo[$CNF['FIELD_BIRTHDAY']]))
-            $oForm->addTrackFields($CNF['FIELD_BIRTHDAY'], $aContentInfo);
+        foreach(['TITLE', 'BIRTHDAY', 'PICTURE', 'COVER', 'BADGE'] as $sIt)
+            if(($sField = 'FIELD_' . $sIt) && isset($CNF[$sField], $aContentInfo[$CNF[$sField]]))
+                $oForm->addTrackFields($CNF[$sField], $aContentInfo);
     }
 
     public function onDataEditAfter ($iContentId, $aContentInfo, $aTrackTextFieldsChanges, $oProfile, $oForm)
     {
-        if ($s = parent::onDataEditAfter($iContentId, $aContentInfo, $aTrackTextFieldsChanges, $oProfile, $oForm)){
+        if($s = parent::onDataEditAfter($iContentId, $aContentInfo, $aTrackTextFieldsChanges, $oProfile, $oForm))
             return $s;
-        }
 
         $CNF = &$this->_oModule->_oConfig->CNF;
 
@@ -153,14 +153,23 @@ class BxBaseModProfileFormsEntryHelper extends BxBaseModGeneralFormsEntryHelper
         $oEditedProfile = BxDolProfile::getInstanceMagic($aContentInfo['profile_id']);
         $sStatus = $oEditedProfile->getStatus();
 
-        if (!$this->isAutoApproval(BX_DOL_PROFILE_ACTIVATE_EDIT) && BX_PROFILE_STATUS_ACTIVE == $sStatus && !empty($aTrackTextFieldsChanges['changed_fields']))
+        if(!$this->isAutoApproval(BX_DOL_PROFILE_ACTIVATE_EDIT) && BX_PROFILE_STATUS_ACTIVE == $sStatus && !empty($aTrackTextFieldsChanges['changed_fields']))
             $oEditedProfile->disapprove(BX_PROFILE_ACTION_AUTO, 0, $this->_oModule->serviceActAsProfile());
 
         // process uploaded files
-        if (isset($CNF['FIELD_PICTURE']))
-            $oForm->processFiles($CNF['FIELD_PICTURE'], $iContentId, false);
-        if (isset($CNF['FIELD_COVER']))
-            $oForm->processFiles($CNF['FIELD_COVER'], $iContentId, false);
+        foreach(['PICTURE', 'COVER', 'BADGE'] as $sIt) {
+            $sField = 'FIELD_' . $sIt;
+            if(!isset($CNF[$sField]))
+                continue;
+
+            $oForm->processFiles($CNF[$sField], $iContentId, false);
+
+            if($this->_bIsApi)
+                $oForm->processFilesFlagsApi($CNF[$sField], $iContentId);
+
+            if(($aChanged = $oForm->isTrackFieldChanged($CNF[$sField], true)) !== false)
+                $oForm->processFileDeletion($CNF[$sField], $aChanged['old']);
+        }
 
         if(isset($CNF['FIELD_ALLOW_POST_TO']) && !empty($aContentInfo[$CNF['FIELD_ALLOW_POST_TO']]) && ($oPrivacy = BxDolPrivacy::getObjectInstance($CNF['OBJECT_PRIVACY_POST'])) !== false)
             $oPrivacy->reassociateGroupCustomWithContent($oProfile->id(), $iContentId, (int)$aContentInfo[$CNF['FIELD_ALLOW_POST_TO']]);
@@ -168,6 +177,19 @@ class BxBaseModProfileFormsEntryHelper extends BxBaseModGeneralFormsEntryHelper
         // update content filters
         if(isset($CNF['FIELD_BIRTHDAY']) && $oForm->isTrackFieldChanged($CNF['FIELD_BIRTHDAY']))
             BxDolContentFilter::getInstance()->updateValuesByProfile($oProfile->getInfo());
+
+        // reset profile switcher cache
+        if ($oEditedProfile->id() !== bx_get_logged_profile_id() && $oForm->isTrackFieldChanged($CNF['FIELD_TITLE']) || $oForm->isTrackFieldChanged($CNF['FIELD_PICTURE'])) {
+            bx_content_cache_del("profile_switcher_" . $oEditedProfile->getAccountId() . "_0");
+            bx_content_cache_del("profile_switcher_" . $oEditedProfile->getAccountId() . "_1");
+        }
+
+        bx_content_cache_del_by_prefix('sprofile_unit_vars:' . $oEditedProfile->id() . ':');
+
+        if(($oSockets = BxDolSockets::getInstance()) && $oSockets->isEnabled()) {
+            $aProfileData = BxDolProfile::getDataForPage($oEditedProfile);
+            $oSockets->sendEvent('profile', $aContentInfo['profile_id'], 'changed', json_encode($aProfileData));
+        }
 
         return '';
     }
@@ -191,10 +213,13 @@ class BxBaseModProfileFormsEntryHelper extends BxBaseModGeneralFormsEntryHelper
          */
         $aContentInfo = $this->_oModule->_oDb->getContentInfoById($iContentId);
 
-        // approve profile if auto-approval is enabled and profile status is 'pending'
+        /* 
+         * approve profile if auto-approval is enabled and profile status is 'pending'
+         * don't send Activation letter when 'Auto Approval' mode is enabled.
+         */
         $sStatus = $oProfile->getStatus();
         if ($sStatus == BX_PROFILE_STATUS_PENDING && $this->isAutoApproval(BX_DOL_PROFILE_ACTIVATE_ADD))
-            $oProfile->approve(BX_PROFILE_ACTION_AUTO, 0, $this->_oModule->serviceActAsProfile() && $this->_oModule->serviceIsEnableProfileActivationLetter());
+            $oProfile->approve(BX_PROFILE_ACTION_AUTO, 0, false);
 
         // set created profile some default membership
         if ((int)bx_get('level_id') && bx_srv('bx_acl', 'get_prices', [(int)bx_get('level_id'), true]))
@@ -212,6 +237,8 @@ class BxBaseModProfileFormsEntryHelper extends BxBaseModGeneralFormsEntryHelper
             $oForm->processFiles($CNF['FIELD_PICTURE'], $iContentId, true);
         if (isset($CNF['FIELD_COVER']))
             $oForm->processFiles($CNF['FIELD_COVER'], $iContentId, true);
+        if (isset($CNF['FIELD_BADGE']))
+            $oForm->processFiles($CNF['FIELD_BADGE'], $iContentId, true);
 
         if(isset($CNF['FIELD_ALLOW_POST_TO']) && !empty($aContentInfo[$CNF['FIELD_ALLOW_POST_TO']]) && ($oPrivacy = BxDolPrivacy::getObjectInstance($CNF['OBJECT_PRIVACY_POST'])) !== false)
             $oPrivacy->associateGroupCustomWithContent($oProfile->id(), $iContentId, (int)$aContentInfo[$CNF['FIELD_ALLOW_POST_TO']]);
@@ -222,7 +249,7 @@ class BxBaseModProfileFormsEntryHelper extends BxBaseModGeneralFormsEntryHelper
             $oAccount->updateProfileContext($iProfileId);
 
             //update recomedations
-            BxDolRecommendation::updateData($iProfileId);
+            BxDolRecommendation::updateData($iProfileId, true);
 
             // update content filters
             BxDolContentFilter::getInstance()->updateValuesByProfile($oProfile->getInfo());

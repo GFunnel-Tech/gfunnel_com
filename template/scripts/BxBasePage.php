@@ -53,6 +53,7 @@ class BxBasePage extends BxDolPage
         if (isLogged() && $oProfile = BxDolProfile::getInstance()) {
             $this->addMarkers([
                 'logged_profile_id' => $oProfile->id(),
+                'logged_profile_cid' => $oProfile->getContentId(),
                 'logged_account_id' => $oProfile->getAccountId(),
                 'logged_profile_module' => $oProfile->getModule(),
                 'logged_display_name' => $oProfile->getDisplayName(),
@@ -330,6 +331,7 @@ class BxBasePage extends BxDolPage
             'page_object' => $this,
             'page_query' => $this->_oQuery,
             'page_code' => &$sPageCode,
+            'page_code_ref' => &$sPageCode,
             'sub_page' => $this->_bSubPage,
         ]);
 
@@ -463,6 +465,24 @@ class BxBasePage extends BxDolPage
     }
 
     /**
+     * Get block description.
+     * @return string
+     */
+    public function getBlockDescription ($aBlock)
+    {
+        return $this->_replaceMarkers(_t($aBlock['description']), ['block_id' => $aBlock['id']]);
+    }
+
+    /**
+     * Get block icon.
+     * @return string
+     */
+    public function getBlockIcon ($aBlock)
+    {
+        return $aBlock['icon'] ?? '';
+    }
+
+    /**
      * Get help control if help is available for the block.
      * @return string
      */
@@ -516,13 +536,17 @@ class BxBasePage extends BxDolPage
             $_GET = array_merge($_GET, $aQueryString);
         }
 
+        $bLogged = isLogged();
         $bIsAvailable = $this->_isAvailablePage($this->_aObject);
         $bIsVisible = $this->_isVisiblePage($this->_aObject);
         //TODO: If page isn't Available or isn't Visible then we should exit with related Error Codes immediately.
 
         $sMetaTitle = $this->_getPageMetaTitle();
         $sName = $this->_getPageTitle();
+        $sUri = $this->_aObject['uri'];
         $sModule = $this->getModule();
+        $aElements = $this->getPageBlocksAPI($aBlocks);
+
         $a = [
             'id' => $this->_aObject['id'],
             'title' => $sMetaTitle ? $sMetaTitle : $sName,
@@ -530,20 +554,22 @@ class BxBasePage extends BxDolPage
             'description' => $this->_getPageMetaDesc(),
             'keywords' => $this->_getPageMetaKeywords(),
             'image' => '',
-            'uri' => $this->_aObject['uri'],
-            'url' => ($bGetParams && !empty($aGetParams[0]) ? $aGetParams[0] : $this->_aObject['uri']) . ($sQueryString != '' ? '?' . $sQueryString : ''),
+            'uri' => $sUri,
+            'url' => ($bGetParams && !empty($aGetParams[0]) ? $aGetParams[0] : $sUri) . ($sQueryString != '' ? '?' . $sQueryString : ''),
             'author' => $this->_aObject['author'],
             'added' => $this->_aObject['added'],
             'module' => $sModule,
             'type' => $this->getType (),
-            'layout' => str_replace('.html', '', $this->_aObject['template']),
+            'layout' => !$bLogged && $sUri == 'home' && ($sReplacement = getParam('sys_api_root_page_guest')) == 'splash' ? $sReplacement : str_replace('.html', '', $this->_aObject['template']),
+            'layout_parsed' => !is_numeric(trim(current(array_keys($aElements)), 'cell_')),
             'cover_block' => '',
+            'cover' => $this->_aObject['cover'],
             'menu_top' => '',
             'menu' => '',
             'menu_bottom' => '',
             'menu_add' => '',
             'config' => $this->_aObject['config_api'],
-            'elements' => $this->getPageBlocksAPI($aBlocks),
+            'elements' => $aElements
         ];
 
         $sMenuTop = getParam('sys_api_menu_top');
@@ -555,24 +581,27 @@ class BxBasePage extends BxDolPage
                 $oMenuSubmenu->setObjectSubmenu($sSubmenu, []);
 
             $a['menu'] = $oMenuSubmenu->getCodeAPI();
-            if($sModule && $sModule != 'system' && ($oModule = BxDolModule::getInstance($sModule))) {
+            if($sModule && $sModule != 'system' && (bx_srv('system', 'is_module_content', [$sModule]) || bx_srv('system', 'is_module_context', [$sModule])) && ($oModule = BxDolModule::getInstance($sModule))) {
                 $CNF = &$oModule->_oConfig->CNF;
+
+                $aMenuAdd = [
+                    'name' => $oModule->getName(),
+                    'title' => BxDolModule::getTitle($oModule->_oConfig->getUri()),
+                    'icon' => !empty($CNF['ICON']) ? $CNF['ICON'] : '',
+                ];
 
                 $sUrlAdd = '';
                 if(($sKey = 'URI_ADD_ENTRY') && !empty($CNF[$sKey]))
                     $sUrlAdd = $CNF[$sKey];
                 if(!$sUrlAdd && ($sKey = 'URI_EDIT_ENTRY') && !empty($CNF[$sKey]))
                     $sUrlAdd = str_replace('edit-', 'create-', $CNF[$sKey]);
+                if($sUrlAdd)
+                    $aMenuAdd['add_url'] = $sUrlAdd;
 
-                $a['menu'] = array_merge($a['menu'], [
-                    'name' => $oModule->getName(),
-                    'title' => BxDolModule::getTitle($oModule->_oConfig->getUri()),
-                    'icon' => !empty($CNF['ICON']) ? $CNF['ICON'] : '',
-                    'add_url' => $sUrlAdd 
-                ]);
+                $a['menu'] = array_merge($a['menu'], $aMenuAdd);
             }
         }
-
+    
         /**
          * Profile/Context view page.
          */
@@ -643,27 +672,109 @@ class BxBasePage extends BxDolPage
             }
         }
 
-        if (isLogged()) {
-            $o = BxDolProfile::getInstance();
+        if($bLogged && ($o = BxDolProfile::getInstance()) !== false) {
+            $iLogged = $o->id();
+
             $a['user'] = BxDolProfile::getDataForPage($o);
+
+            if(($sContextSwitcher = getParam('sys_api_context_switcher')) && ($sContextConnection = getParam('sys_api_context_connection'))) {
+                $aCpIds = bx_srv($sContextSwitcher, 'get_participating_profiles', [$iLogged, ($sContextConnection != 'participants' ? $sContextConnection : false)]);
+
+                $aContexts = [];
+                foreach($aCpIds as $iCpId) {
+                    $aProfileData = BxDolProfile::getData($iCpId); 
+                    if($aProfileData['display_name'] === false && $aProfileData['url'] === false )
+                        continue;
+
+                    $aContexts[] = $aProfileData;
+                }
+
+                $aInvitedTo = [];
+                if(($aInvitations = bx_srv($sContextSwitcher, 'invitations', [$iLogged, true])) && is_array($aInvitations))
+                    foreach($aInvitations as $aInvitation)
+                        $aInvitedTo[] = BxDolProfile::getData($aInvitation['group_profile_id']);
+
+                $aCurrent = [];
+                if(($iId = bx_get('id')) !== false) {
+                    $aInfo = bx_srv($sModule, 'get_info', [(int)$iId, false]);
+
+                    if($aInfo && (($iValue = (int)($aInfo['allow_view_to'] ?? 0)) || ($iValue = (int)($aInfo['object_privacy_view'] ?? 0)))) {
+                        $mixedContext = false;
+                        if($iValue < 0) {
+                            $aContext = BxDolProfileQuery::getInstance()->getInfoById(abs($iValue));
+                            if($aContext && $aContext['type'] == $sContextSwitcher)
+                                $mixedContext = (int)$aContext['id'];
+                        }
+                        else if($sModule == $sContextSwitcher)
+                            $mixedContext = BxDolProfile::getInstanceByContentAndType((int)$aInfo['id'], $sModule);
+
+                        if($mixedContext !== false)
+                            $aCurrent = BxDolProfile::getData($mixedContext);
+                    }
+                }
+                else if(($iContextPid = bx_get('profile_id')) !== false && ($oContext = BxDolProfile::getInstance($iContextPid)) !== false)
+                    $aCurrent = BxDolProfile::getData($oContext);
+
+                $_sSample = '_' . $sContextSwitcher . '_txt_sample_single';
+                $sSample = _t($_sSample);
+                if(strcmp($_sSample, $sSample) == 0)
+                    $sSample = _t('_Context');
+
+                $a['context'] = [
+                    'list' => $aContexts,
+                    'invitations' => $aInvitedTo,
+                    'current' => $aCurrent,
+                    'links' => []
+                ];
+
+                if(bx_srv($sContextSwitcher, 'check_allowed', ['add']) === CHECK_ACTION_RESULT_ALLOWED)
+                    $a['context']['links'][] = [
+                        'title' => _t('_api_create_context', $sSample),
+                        'icon' => 'Plus',
+                        'url' => bx_api_get_relative_url(bx_srv($sContextSwitcher, 'get_link_add'))
+                    ];
+            }
         }
 
-        if(!$bIsAvailable)
+        if($bIsAvailable !== true)
             $a['page_status'] = 404;
-        else if(!$bIsVisible)
+        else if($bIsVisible !== true)
             $a['page_status'] = 403;
 
-        return $a;
+        return array_merge($a, [
+            'version' => ($sVersion = bx_get_ver()) && $sVersion == BX_DOL_VERSION ? $sVersion : 'invalid',
+            'ts' => time()
+        ]);
+    }
+
+    public function getPageContentAPI($aBlocks = [])
+    {
+        $sModule = $this->getModule();
+        $sName = $this->_getPageTitle();
+        $sMetaTitle = $this->_getPageMetaTitle();
+
+        return [
+            'module' => $sModule,
+            'title' => $sMetaTitle ? $sMetaTitle : $sName,
+            'elements' => $this->getPageBlocksAPI($aBlocks),
+        ];
     }
 
     public function getPageBlocksAPI($aBlocks = [])
     {
+        $aHiddenOn = [
+            pow(2, BX_DB_HIDDEN_PHONE - 1) => 'phone',
+            pow(2, BX_DB_HIDDEN_TABLET - 1) => 'tablet',
+            pow(2, BX_DB_HIDDEN_DESKTOP - 1) => 'desktop',
+            pow(2, BX_DB_HIDDEN_MOBILE - 1) => 'mobile-app'
+        ];
+        $aFieldsUnset = ['object', 'cell_id', 'title_system', 'class', 'submenu', 'tabs', 'async', 'visible_for_levels', 'type', 'text', 'text_updated', 'cache_lifetime', 'active', 'active_api', 'copyable', 'deletable', 'order'];
+
         $bBlocks = !empty($aBlocks) && is_array($aBlocks);
-        $aFieldsUnset = ['object', 'cell_id', 'title_system', 'class', 'submenu', 'tabs', 'async', 'visible_for_levels', 'hidden_on', 'type', 'text', 'text_updated', 'help', 'cache_lifetime', 'active', 'active_api', 'copyable', 'deletable', 'order'];
 
         $aCells = $this->_oQuery->getPageBlocks(true);
         foreach($aCells as $sKey => &$aCell) {
-            foreach($aCell as $i => $aBlock) {     
+            foreach($aCell as $i => &$aBlock) {
                 if(!$this->_isVisibleBlock($aBlock)) {
                     unset($aCells[$sKey][$i]);
                     continue;
@@ -678,6 +789,8 @@ class BxBasePage extends BxDolPage
                     if(isset($aContent['module'], $aContent['method']))
                         $sSource = $aContent['module'] . ':' . $aContent['method'];
                 }
+                else if($aBlock['type'] == 'custom')
+                    $sSource = $aBlock['content'];
                 else
                     $sSource = 'system:block_' . $aBlock['id'];
 
@@ -685,6 +798,15 @@ class BxBasePage extends BxDolPage
                     unset($aCells[$sKey][$i]);
                     continue;
                 }
+
+                if(($sK = 'config_api') && !empty($aBlock[$sK])) {
+                    $aConfigApi = json_decode($aBlock[$sK], true);
+                    if(!empty($aConfigApi) && is_array($aConfigApi))
+                        $aBlock[$sK] = $aConfigApi;
+                }
+                
+                if(($sK = 'help') && !empty($aBlock[$sK]))
+                    $aBlock[$sK] = _t($aBlock[$sK]);
 
                 $mBlock = $aBlock['content'];
                 if(($sFunc = '_getBlock' . bx_gen_method_name($aBlock['type'])) && method_exists($this, $sFunc))
@@ -695,12 +817,36 @@ class BxBasePage extends BxDolPage
                     continue;
                 }
 
+                $sIcon = '';
+                if(($sIcon = $this->getBlockIcon($aBlock))) {
+                    list($sIcon, $sIconUrl, $sIconA, $sIconHtml) = $this->_oTemplate->getTemplateFunctions()->getIcon($sIcon);
+                    
+                    if($sIcon)
+                        $sIcon = BxDolIconset::getObjectInstance()->getIcon($sIcon);
+                    else if($sIconHtml)
+                        $sIcon = $sIconHtml;
+                }
+
                 $aCells[$sKey][$i] = array_merge($aCells[$sKey][$i], [
                     'title' => isset($mBlock['title']) ? $mBlock['title'] : $this->getBlockTitle($aBlock),
+                    'description' => isset($mBlock['description']) ? $mBlock['description'] : $this->getBlockDescription($aBlock),
+                    'icon' => $sIcon,
                     'content' => isset($mBlock['content']) ? $mBlock['content'] : $mBlock,
                     'menu' => isset($mBlock['menu']) ? $mBlock['menu'] : '',
                     'source' => $sSource
                 ]);
+
+                if(($sK = 'hidden_on') && !empty($aBlock[$sK])) {
+                    $aHoResults = [];
+                    foreach($aHiddenOn as $iHiddenOn => $sHiddenOn)
+                        if((int)$aBlock[$sK] & $iHiddenOn)
+                            $aHoResults[] = $sHiddenOn;
+
+                    $aCells[$sKey][$i][$sK] = $aHoResults;
+                }
+                else 
+                    $aCells[$sKey][$i][$sK] = false;
+                    
 
                 $aCells[$sKey][$i] = array_diff_key($aCells[$sKey][$i], array_flip($aFieldsUnset));
             }
@@ -841,6 +987,8 @@ class BxBasePage extends BxDolPage
         $aDbNoTitle = [BX_DB_CONTENT_ONLY, BX_DB_PADDING_CONTENT_ONLY, BX_DB_NO_CAPTION, BX_DB_PADDING_NO_CAPTION];
 
         $sTitle = $this->getBlockTitle($aBlock);
+        $sDescription = $this->getBlockDescription($aBlock);
+        $sIcon = $this->getBlockIcon($aBlock);
         $sHelp = $this->getBlockHelp($aBlock);
 
         $sFunc = '_getBlock' . ucfirst($aBlock['type']);
@@ -855,11 +1003,11 @@ class BxBasePage extends BxDolPage
                 $sHelpContent = $sHelp;
 
             $sContent = $this->getBlockAsyncCode($aBlock, $iAsync);
-            $aParams = array(
-                $sTitle . $sHelpTitle,
+            $aParams = [
+                ($sBlTitle = $sTitle . $sHelpTitle) && ($sDescription || $sIcon) ? [$sBlTitle, $sDescription, $sIcon] : $sBlTitle,
                 $sContent . $sHelpContent,
                 $iDesignboxId
-            );
+            ];
             $sContentWithBox = call_user_func_array(array($oFunctions, 'designBoxContent'), $aParams);
         } 
         elseif ($bBlockVisible && method_exists($this, $sFunc)) {
@@ -883,6 +1031,7 @@ class BxBasePage extends BxDolPage
                     $this->addMarkers($mixedContent['markers']);
 
                     $sTitle = $this->getBlockTitle($aBlock);
+                    $sDescription = $this->getBlockDescription($aBlock);
                 }
 
                 $sHelpTitle = $sHelpContent = '';
@@ -891,11 +1040,11 @@ class BxBasePage extends BxDolPage
                 else
                     $sHelpContent = $sHelp;
 
-                $aParams = array(
-                    (isset($mixedContent['title']) ? $mixedContent['title'] : $sTitle) . $sHelpTitle,
+                $aParams = [
+                    ($sBlTitle = ($mixedContent['title'] ?? $sTitle) . $sHelpTitle) && ($sDescription || $sIcon) ? [$sBlTitle, $sDescription, $sIcon] : $sBlTitle,
                     $mixedContent['content'] . $sHelpContent,
                     $iDesignboxId
-                );
+                ];
 
                 $mixedMenu = false;
                 if(isset($mixedContent['menu']))
@@ -922,7 +1071,7 @@ class BxBasePage extends BxDolPage
                     $sHelpContent = $sHelp;
 
                 $aParams = array(
-                    $sTitle . $sHelpTitle,
+                    ($sBlTitle = $sTitle . $sHelpTitle) && ($sDescription || $sIcon) ? [$sBlTitle, $sDescription, $sIcon] : $sBlTitle,
                     $mixedContent . $sHelpContent,
                     $iDesignboxId
                 );
@@ -948,7 +1097,7 @@ class BxBasePage extends BxDolPage
      */
     protected function _addJsCss()
     {
-        $this->_oTemplate->addJs(array('BxDolPage.js', 'theia-sticky-sidebar/theia-sticky-sidebar.min.js', 'theia-sticky-sidebar/ResizeSensor.min.js'));
+        $this->_oTemplate->addJs(array('BxDolPage.js', 'theia-sticky-sidebar/theia-sticky-sidebar.umd.js', 'theia-sticky-sidebar/ResizeSensor.min.js'));
         $this->_oTemplate->addCss('page_layouts.css');
     }
 
@@ -982,13 +1131,6 @@ class BxBasePage extends BxDolPage
         $sMetaKeywords = $this->_getPageMetaKeywords();
         if ($sMetaKeywords)
             $oTemplate->addPageKeywords ($sMetaKeywords);
-
-        // Self-referencing canonical: content pages already set their own URL
-        // (BxBaseModGeneralPageEntry sets page.php?i=uri&id=id before this runs),
-        // so only plain/system pages fall through here and get a canonical to
-        // their own page URI — collapsing /uri, /page/uri and ?i=uri duplicates.
-        if ('' === $oTemplate->getPageUrl() && !empty($this->_aObject['uri']))
-            $oTemplate->setPageUrl('page.php?i=' . $this->_aObject['uri']);
     }
 
     /**
@@ -1156,6 +1298,9 @@ class BxBasePage extends BxDolPage
             $sContent = $oWiki->getBlockContent($aBlock['id'], false, (int)bx_get($aBlock['id'].'rev') ? (int)bx_get($aBlock['id'].'rev') : false);
         }
 
+        if(bx_is_api())
+            return [bx_api_get_block('html', ['title' => _t($aBlock['title']), 'content' => $sContent])];
+
         $s = '<div id="bx-page-wiki-container-' . $aBlock['id'] . '" class="bx-page-wiki-container markdown-body bx-def-vanilla-html">' . $sContent . '</div>';
         $s = $this->_replaceMarkers($s, array('block_id' => $aBlock['id']));
         $s = bx_process_macros($s);
@@ -1233,8 +1378,16 @@ class BxBasePage extends BxDolPage
      */
     protected function _getBlockMenu ($aBlock)
     {
+        $bIsApi = bx_is_api();
+
         $oMenu = BxTemplMenu::getObjectInstance($aBlock['content']);
-        return $oMenu ? $oMenu->getCode () : '';
+        if(!$oMenu)
+            return $bIsApi ? [] : '';
+
+        if($bIsApi)
+            return [bx_api_get_block('menu' . ($this->_sObject == 'sys_sub_wiki_pages_list' ? '_wiki' : ''), ['title' => _t($aBlock['title']), 'content' => $oMenu->getCodeAPI()])];
+
+        return $oMenu ? $oMenu->getCode() : '';
     }
 
     /**
@@ -1243,11 +1396,15 @@ class BxBasePage extends BxDolPage
      */
     protected function _getBlockService ($aBlock)
     {
-        $aMarkers = array_merge($this->_aMarkers, [
-            'block_id' => $aBlock['id']
-        ]);
+        self::setBlockProcessing($aBlock);
 
-        return BxDolService::callSerialized($aBlock['content'], $aMarkers);
+        $aResult = BxDolService::callSerialized($aBlock['content'], array_merge($this->_aMarkers, [
+            'block_id' => $aBlock['id']
+        ]));
+
+        self::unsetBlockProcessing();
+
+        return $aResult;
     }
 
     /**

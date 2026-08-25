@@ -88,22 +88,13 @@ class BxBaseModTextGridAdministration extends BxBaseModGeneralGridAdministration
     {
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        $aFilterParts = explode($this->_sParamsDivider, $sFilter);
-        switch (substr_count($sFilter, $this->_sParamsDivider)) {
-            case 1:
-                list($this->_sFilter1Value, $sFilter) = $aFilterParts;
-                break;
-
-            case 2:
-                list($this->_sFilter1Value, $this->_sFilter2Value, $sFilter) = $aFilterParts;
-                break;
-        }
+        $this->_parseFilterValue($sFilter);
 
     	if(!empty($this->_sFilter1Value))
-            $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `" . $this->_sStatusField . "`=?", $this->_sFilter1Value);
+            $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND " . $this->_getSqlField($this->_sStatusField) . "=?", $this->_sFilter1Value);
 
         if($this->_bContentFilter && !empty($this->_sFilter2Value))
-            $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND `" . $CNF['FIELD_CF'] . "`=?", $this->_sFilter2Value);
+            $this->_aOptions['source'] .= $this->_oModule->_oDb->prepareAsString(" AND " . $this->_getSqlField($CNF['FIELD_CF']) . "=?", $this->_sFilter2Value);
 
         return parent::_getDataSql($sFilter, $sOrderField, $sOrderDir, $iStart, $iPerPage);
     }
@@ -141,15 +132,14 @@ class BxBaseModTextGridAdministration extends BxBaseModGeneralGridAdministration
         if((int)$aField['chars_limit'] > 0)
             $sTitle = strmaxtextlen($sTitle, (int)$aField['chars_limit']);
 
-        if ($sTitle == '')
+        if($sTitle == '')
             $sTitle = _t('_sys_txt_no_title');
-        
-        if (bx_is_api()){
+
+        if($this->_bIsApi)
             return ['type' => 'link', 'data' => [
                 'text' => $aRow[$CNF['FIELD_TITLE']],
                 'url' =>  $sUrl = bx_api_get_relative_url(bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aRow[$CNF['FIELD_ID']])))
             ]];
-        }
         
         return parent::_getCellDefault($this->_getEntryLink($sTitle, $aRow), $sKey, $aField, $aRow);
     }
@@ -196,20 +186,20 @@ class BxBaseModTextGridAdministration extends BxBaseModGeneralGridAdministration
 
     protected function _getActionEdit($sType, $sKey, $a, $isSmall = false, $isDisabled = false, $aRow = array())
     {
-    	if($this->_sManageType == BX_DOL_MANAGE_TOOLS_ADMINISTRATION && $this->_oModule->checkAllowedEditAnyEntry() !== CHECK_ACTION_RESULT_ALLOWED)
-			return '';
+        if($this->_sManageType == BX_DOL_MANAGE_TOOLS_ADMINISTRATION && $this->_oModule->checkAllowedEditAnyEntry() !== CHECK_ACTION_RESULT_ALLOWED)
+            return '';
 
     	$CNF = &$this->_oModule->_oConfig->CNF;
 
         $sUrl = bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_EDIT_ENTRY'] . '&id=' . $aRow[$CNF['FIELD_ID']]));
 
-        if (bx_is_api()){
+        if ($this->_bIsApi) {
             $a['type'] = 'link';
             $a['name'] = $sKey;
             $a['url'] = bx_api_get_relative_url($sUrl);
             return $a;
         }
-       
+
     	$a['attr'] = array_merge($a['attr'], array(
     		"onclick" => "window.open('" . $sUrl . "','_self');"
     	));
@@ -221,13 +211,12 @@ class BxBaseModTextGridAdministration extends BxBaseModGeneralGridAdministration
     {
         $CNF = &$this->_oModule->_oConfig->CNF;
 
-        $sUrl = bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aRow[$CNF['FIELD_ID']]));
-
-        return $this->_oTemplate->parseHtmlByName('title_link.html', array(
-            'href' => $sUrl,
+        return $this->_oTemplate->parseHtmlByName('title_link.html', [
+            'href' => bx_absolute_url(BxDolPermalinks::getInstance()->permalink('page.php?i=' . $CNF['URI_VIEW_ENTRY'] . '&id=' . $aRow[$CNF['FIELD_ID']])),
             'title' => bx_html_attribute($mixedValue),
-            'content' => bx_process_output($mixedValue)
-        ));
+            'content' => bx_process_output($mixedValue),
+            'target' => '_blank'
+        ]);
     }
 }
 

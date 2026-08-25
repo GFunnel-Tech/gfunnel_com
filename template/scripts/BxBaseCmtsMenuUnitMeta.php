@@ -70,20 +70,30 @@ class BxBaseCmtsMenuUnitMeta extends BxTemplMenuUnitMeta
     protected function _getMenuItemAuthor($aItem)
     {
         list($sAuthorName, $sAuthorLink, $sAuthorIcon, $sAuthorUnit, $sAuthorBadges) = $this->_oCmts->getAuthorInfo($this->_aCmt['cmt_author_id']);
-    
-        $sResult = '';
-        if(!empty($sAuthorLink))
-            $sResult = $this->getUnitMetaItemLink($sAuthorName, array(
-                'href' => $sAuthorLink,
-                'class' => $this->_sStylePrefix . '-username',
-                'title' => bx_html_attribute($sAuthorName),
-            )). $sAuthorBadges;
-        else
-            $sResult = $this->getUnitMetaItemText($sAuthorName, array(
-                'class' => $this->_sStylePrefix . '-username'
-            )). $sAuthorBadges;
+        $bAuthorLink = !empty($sAuthorLink);
 
-        return $sResult;
+        $sResult = $this->_oTemplate->parseHtmlByName('comment_author.html', [
+            'style_prefix' => $this->_sCmtStylePrefix,
+            'bx_if:show_link' => [
+                'condition' => $bAuthorLink,
+                'content' => [
+                    'style_prefix' => $this->_sCmtStylePrefix,
+                    'href' => $sAuthorLink,
+                    'title' => bx_html_attribute($sAuthorName),
+                    'content' => $sAuthorName
+                ]
+            ],
+            'bx_if:show_text' => [
+                'condition' => !$bAuthorLink,
+                'content' => [
+                    'style_prefix' => $this->_sCmtStylePrefix,
+                    'content' => $sAuthorName
+                ]
+            ],
+            'badges' => $sAuthorBadges
+        ]);
+
+        return $this->getUnitMetaItemCustom($sResult);
     }
 
     protected function _getMenuItemDate($aItem)

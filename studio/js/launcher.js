@@ -194,6 +194,14 @@ BxDolStudioLauncher.prototype.featured = function(sPageName, oLink) {
                 if($this.bInit)
                     oBxDolStudioLauncher.enableJitter();
             }
+            
+            var sClassStatic = 'bx-menu-item-static';
+            var sClassDivider = 'bx-menu-item-divider';
+            var oItem = $('ul.bx-menu-top-center li.bx-menu-tab-active').toggleClass(sClassStatic + ' bx-menu-item-dynamic');
+            if(oItem.hasClass(sClassStatic))
+                $(oItem).insertBefore(oItem.siblings('.' + sClassDivider));
+            else
+                $(oItem).insertAfter(oItem.siblings(':last'));
         },
         'json'
     );
@@ -217,6 +225,14 @@ BxDolStudioLauncher.prototype.bookmark = function(sPageName, oLink) {
                 bx_alert(oData.message);
                 return;
             }
+            
+            var sClassStatic = 'bx-menu-item-static';
+            var sClassDivider = 'bx-menu-item-divider';
+            var oItem = $('ul.bx-menu-top-center li.bx-menu-tab-active').toggleClass(sClassStatic + ' bx-menu-item-dynamic');
+            if(oItem.hasClass(sClassStatic))
+                $(oItem).insertBefore(oItem.siblings('.' + sClassDivider));
+            else
+                $(oItem).insertAfter(oItem.siblings(':last'));
         },
         'json'
     );

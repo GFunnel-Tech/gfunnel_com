@@ -65,6 +65,8 @@ $sJoinUrl = gfHomeUrl('create-account');
 $sSiteName = gfHomeOut(getParam('site_title'));
 $sCss = 'template/css/gf_home.css';
 $sCssUrl = BX_DOL_URL_ROOT . $sCss . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sCss);
+$sJs = 'template/js/gf_home.js';
+$sJsUrl = BX_DOL_URL_ROOT . $sJs . '?v=' . (int)@filemtime(BX_DIRECTORY_PATH_ROOT . $sJs);
 
 $sTitle = 'Business Directory &mdash; Find &amp; Claim Your Business | ' . $sSiteName;
 $sDesc = 'Search the GFunnel business directory, find your business, claim it, and connect it to your workspace. Every business, in one place.';
@@ -155,25 +157,7 @@ header('Content-Type: text/html; charset=utf-8');
 </head>
 <body>
 <div class="gfh" id="gfh">
-    <header class="gfh-nav">
-        <div class="gfh-container gfh-nav-in">
-            <a class="gfh-brand" href="<?php echo BX_DOL_URL_ROOT; ?>" aria-label="GFunnel home">
-                <span class="gfh-brand-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3z" stroke="#94A3B8" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 13.5 24 24l18-10.5M24 24v21" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round"/><path d="m12 22 9 5v8l-9-5v-8z" fill="#EA580C"/><path d="m19 17 9 5v8l-9-5v-8z" fill="#F97316"/><path d="m26 12 9 5v8l-9-5v-8z" fill="#FB923C"/></svg></span>
-                GFunnel
-            </a>
-            <nav class="gfh-nav-links" aria-label="Primary">
-                <a href="<?php echo $sSelf; ?>" aria-current="page">Businesses</a>
-                <a href="<?php echo BX_DOL_URL_ROOT; ?>services">Services</a>
-                <a href="<?php echo BX_DOL_URL_ROOT; ?>applications">Software</a>
-                <a href="<?php echo BX_DOL_URL_ROOT; ?>marketplace">Marketplace</a>
-                <a href="<?php echo BX_DOL_URL_ROOT; ?>resources">Resources</a>
-            </nav>
-            <div class="gfh-nav-right">
-                <a class="gfh-signin" href="<?php echo $sLoginUrl; ?>">Sign in</a>
-                <a class="gfh-btn gfh-btn-orange gfh-btn-sm" href="<?php echo $sClaimUrl; ?>">Claim your business</a>
-            </div>
-        </div>
-    </header>
+    <?php echo gfHomeNav(array('active' => 'business', 'cta_label' => 'Claim your business', 'cta_url' => $sClaimUrl)); ?>
 
     <main id="gfh-main">
         <section class="gfh-hero gfh-dir-hero">
@@ -219,6 +203,7 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
     </footer>
 </div>
+<script src="<?php echo bx_html_attribute($sJsUrl); ?>"></script>
 </body>
 </html>
 <?php

@@ -14,15 +14,17 @@
  */
 class BxBaseEmbedSystem extends BxDolEmbed
 {
+    protected $_sStorage;
+    protected $_iProfileId;
+
     public function __construct ($aObject, $oTemplate)
     {
-        $this->_sTableName = 'sys_embeded_data';
-        parent::__construct ($aObject);
+        $this->_sTableData = 'sys_embeded_data';
 
-        if ($oTemplate)
-            $this->_oTemplate = $oTemplate;
-        else
-            $this->_oTemplate = BxDolTemplate::getInstance();
+        parent::__construct ($aObject, $oTemplate);
+
+        $this->_sStorage = 'sys_images';
+        $this->_iProfileId = 0;
     }
 
     public function getLinkHTML ($sLink, $sTitle = '', $sMaxWidth = '')
@@ -48,26 +50,34 @@ class BxBaseEmbedSystem extends BxDolEmbed
                 $aAttrs['rel'] = 'nofollow';
         }
 
-        $oStorage = BxDolStorage::getObjectInstance('sys_images');
+        $sImage = $sLogo = '';
+        if(($oStorage = BxDolStorage::getObjectInstance($this->_sStorage)) !== false) {
+            if(($iImageId = $aData['image_id'] ?? 0) || (($iImageId = $aData['image'] ?? '') && is_numeric($iImageId)))
+                $sImage = $oStorage->getFileUrlById($iImageId);
 
-        $sImage = $aData['image'];
-        if ($sImage && is_numeric($sImage) && $oStorage) {
-            $sImage = $oStorage->getFileUrlById($sImage);
+            if(($iLogoId = $aData['logo_id'] ?? 0) ||  (($iLogoId = $aData['logo'] ?? '') && is_numeric($iLogoId)))
+                $sLogo = $oStorage->getFileUrlById($iLogoId);
         }
-
-        $sLogo = $aData['logo'];
-        if ($sLogo && is_numeric($sLogo) && $oStorage) {
-            $sLogo = $oStorage->getFileUrlById($sLogo);
-        }
+        $sImage = $sImage ?: ($sLogo ?: $this->_oTemplate->getImageUrl('embed.svg'));
 
         return $this->_oTemplate->parseHtmlByName('embed_system_link.html', [
             'link' => $aData['url'],
             'attrs' => bx_convert_array2attrs($aAttrs),
             'width' => $sMaxWidth,
-            'image' => $sImage ? $sImage : $sLogo,
-            'logo' => $sLogo,
-            'title' => $aData['title'],
-            'description' => $aData['description'],
+            'bx_if:show_image' => [
+                'condition' => (bool)$sImage,
+                'content' => [
+                    'image' => $sImage
+                ]
+            ],
+            'bx_if:show_logo' => [
+                'condition' => (bool)$sLogo,
+                'content' => [
+                    'logo' => $sLogo,
+                ]
+            ],
+            'title' => $aData['title'] ?? '',
+            'description' => $aData['description'] ?? '',
             'domain' => $aData['domain'],
         ]);
     }
@@ -81,48 +91,56 @@ class BxBaseEmbedSystem extends BxDolEmbed
             'icon2' => ['tag' => 'link', 'name_attr' => 'rel', 'name' => 'icon', 'content_attr' => 'href'],
             'icon3' => ['tag' => 'link', 'name_attr' => 'rel', 'name' => 'apple-touch-icon', 'content_attr' => 'href'],
         ]);
-        
+
         $a = array_merge($a, [
-           'image' => $a['OGImage'] ? $a['OGImage'] : $a['thumbnailUrl'],
-           'logo' => $a['icon2'] ? $a['icon2'] : ($a['icon3'] ? $a['icon3'] : $a['icon']),
-           'url' => $sUrl
+            'image' => $a['OGImage'] ? $a['OGImage'] : $a['thumbnailUrl'],
+            'logo' => $a['icon2'] ? $a['icon2'] : ($a['icon3'] ? $a['icon3'] : $a['icon']),
+            'url' => $sUrl,
+            'domain' => parse_url($sUrl, PHP_URL_HOST)
         ]);
 
         unset($a['OGImage'], $a['thumbnailUrl'], $a['icon'], $a['icon2'], $a['icon3']);
 
-        if($a['image'] == '') {
-            $c = [];
-            if (getParam('sys_embed_microlink_key') != ''){
-                $c = bx_file_get_contents("https://pro.microlink.io/?url=" . $sUrl, [], 'get', ['x-api-key: ' . getParam('sys_embed_microlink_key')]);
-            }
-            else{
-                $c = bx_file_get_contents("https://api.microlink.io/?url=" . $sUrl);
-            }
-                
-            $b = json_decode($c, true);
-            $a = [
-                'title' => $b['data']['title'],
-                'description' => $b['data']['description'],
-                'image' => $b['data']['image']['url'],
-                'logo' => $b['data']['logo']['url'],
-                'url' => $sUrl,
-            ];
-        }
-
-        if($a['image'] && ($oStorage = BxDolStorage::getObjectInstance('sys_images')) !== false) {
-            $iMediaId = $oStorage->storeFileFromUrl($a['image'], false);
-            $a['image'] = $iMediaId;
-        }
-
-        if($a['logo'] && ($oStorage = BxDolStorage::getObjectInstance('sys_images')) !== false) {
-            $iMediaId = $oStorage->storeFileFromUrl($a['logo'], false);
-            $a['logo'] = $iMediaId;
-        }
-
-        $aUrl = parse_url($sUrl);
-        $a['domain'] = $aUrl['host'];
+        $this->_storeImages($a);
 
         return json_encode($a);
+    }
+
+    public function onGetDataFromApi ($iId)
+    {
+        if(!$this->_sTableData)
+            return;
+
+        $aLocal = $this->_oDb->getLocalInfoById($iId);
+        if(!$aLocal || !is_array($aLocal))
+            return;
+
+        if(($aData = json_decode($aLocal['data'], true)) && is_array($aData)) {
+            $oStorage = BxDolStorage::getObjectInstance($this->_sStorage);
+            if($oStorage === false)
+                return;
+
+            foreach(['image_id', 'logo_id'] as $sKey)
+                if(($iMediaId = $aData[$sKey] ?? false))
+                    $oStorage->updateGhostsContentId($iMediaId, $this->_iProfileId, $iId, true);
+        }
+    }
+
+    protected function _storeImages (&$a)
+    {
+        $oStorage = BxDolStorage::getObjectInstance($this->_sStorage);
+        if($oStorage === false)
+            return;
+
+        foreach(['image', 'logo'] as $sKey)
+            if(($sMediaUrl = $a[$sKey] ?? false) && ($iMediaId = $oStorage->storeFileFromUrl($sMediaUrl, false, $this->_iProfileId))) {
+                $a = array_merge($a, [
+                    $sKey . '_src' => $a[$sKey],
+                    $sKey . '_id' => $iMediaId
+                ]);
+
+                unset($a[$sKey]);
+            }
     }
 }
 

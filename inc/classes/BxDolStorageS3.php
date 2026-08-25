@@ -42,7 +42,7 @@ class BxDolStorageS3 extends BxDolStorage
 
     protected function init ($aObject)
     {
-        require_once(BX_DIRECTORY_PATH_PLUGINS . 'unaio/amazon-s3-php-class-hmac-v2/S3.php');
+        require_once(BX_DIRECTORY_PATH_PLUGINS . 'unacms/amazon-s3-php-class-hmac-v2/S3.php');
         $this->_s3 = new S3(
             getParam('sys_storage_s3_access_key'), 
             getParam('sys_storage_s3_secret_key'), 
@@ -191,7 +191,7 @@ class BxDolStorageS3 extends BxDolStorage
             }
         } catch (Exception $e) {
             $this->setErrorCode(BX_DOL_STORAGE_ERR_ENGINE_GET);
-            bx_log('sys_storage_s3', $e->getMessage());
+            bx_log('sys_storage_s3', $e->getMessage(), BX_LOG_ERR);
             return false;
         }
 
@@ -236,7 +236,7 @@ class BxDolStorageS3 extends BxDolStorage
             }
         } catch (Exception $e) {
             $this->setErrorCode(BX_DOL_STORAGE_ERR_ENGINE_ADD);
-            bx_log('sys_storage_s3', $e->getMessage());
+            bx_log('sys_storage_s3', $e->getMessage(), BX_LOG_ERR);
             return false;
         }
 
@@ -254,7 +254,7 @@ class BxDolStorageS3 extends BxDolStorage
             }
         } catch (Exception $e) {
             $this->setErrorCode(BX_DOL_STORAGE_ERR_UNLINK);
-            bx_log('sys_storage_s3', $e->getMessage());
+            bx_log('sys_storage_s3', $e->getMessage(), BX_LOG_ERR);
             return false;
         }
 

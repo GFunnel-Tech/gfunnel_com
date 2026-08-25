@@ -51,8 +51,10 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
             'GetFooter' => 'BxBaseServices',
             'SetBadges' => 'BxBaseServices',
 
+            'GetPageContentByRequest' => 'BxBaseServicePages',
             'GetPageBlockData' => 'BxBaseServicePages',
             'SetPageBlockData' => 'BxBaseServicePages',
+            'GetPageBlockImageData' => 'BxBaseServicePages',
             'GetUrlInfo' => 'BxBaseServicePages',
 
             'CreateAccountForm' => 'BxBaseServiceAccount',
@@ -84,11 +86,13 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
             'BrowseRecommendationsSubscriptions' => 'BxBaseServiceProfiles',
             'BrowseFriends' => 'BxBaseServiceProfiles',
             'SetMembership' => 'BxBaseServiceProfiles',
+            'ResetMembership' => 'BxBaseServiceProfiles',
             'BrowseFriendRequests' => 'BxBaseServiceProfiles',
             'BrowseFriendRequested' => 'BxBaseServiceProfiles',
             'BrowseSubscribedMe' => 'BxBaseServiceProfiles',
             'BrowseSubscriptions' => 'BxBaseServiceProfiles',
             'BrowseMembers' => 'BxBaseServiceProfiles',
+            'BrowseInvitations' => 'BxBaseServiceProfiles',
             'UpdateSettings' => 'BxBaseServiceProfiles',
             'Befriend' => 'BxBaseServiceProfiles',
             'ProfileCounters' => 'BxBaseServiceProfiles',
@@ -132,8 +136,14 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
         $sResult = '';
 
         switch($sName) {
-            case 'icons':
-                $sResult = getParam('sys_css_icons_default');
+            case 'icons_css':
+                if(($sCss = BxDolIconset::getObjectInstance()->getPreloaderCss()) !== false)
+                    $sResult = $sCss;
+                break;
+
+            case 'icons_js':
+                if(($sJs = BxDolIconset::getObjectInstance()->getPreloaderJs()) !== false)
+                    $sResult = $sJs;
                 break;
 
             case 'tailwind':
@@ -141,7 +151,14 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
                 if(empty($sFile))
                     $sFile = 'tailwind.min.css';
 
-                $sResult = '{dir_plugins_public}tailwind/css/|' . $sFile;
+                $sPath = '{dir_plugins_public}tailwind/css/|';
+                if($sFile == 'cdn')
+                    $sResult = [
+                        'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4',
+                        $sPath . 'tailwind.min.css' //TODO: Replace this with correct file name.
+                    ];
+                else
+                    $sResult = $sPath . $sFile;
                 break;
         }
 
@@ -519,15 +536,15 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
 
         $iSubtypes = 0;
         switch($sType) {
-            case 'content';
+            case 'content':
                 $iSubtypes = BX_DOL_MODULE_SUBTYPE_TEXT;
                 break;
 
-            case 'context';
+            case 'context':
                 $iSubtypes = BX_DOL_MODULE_SUBTYPE_CONTEXT;
                 break;
 
-            case 'profile';
+            case 'profile':
                 $iSubtypes = BX_DOL_MODULE_SUBTYPE_PROFILE;
                 break;
         }
@@ -553,6 +570,11 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
     {
         return $this->_serviceProfileFunc('getUnit', $iContentId, $aParams);
     }
+    
+    public function serviceProfileUnitApi ($iContentId, $aParams = [])
+    {
+        return $this->_serviceProfileFunc('getUnitApi', $iContentId, $aParams);
+    }
 
     public function serviceHasImage ($iContentId)
     {
@@ -561,12 +583,17 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
 
     public function serviceProfilePicture ($iContentId)
     {
-        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
+        return $this->_serviceProfileFunc('getPicture', $iContentId);
     }
 
     public function serviceProfileAvatar ($iContentId)
     {
-        return BxDolTemplate::getInstance()->getImageUrl('account.svg');
+        return $this->_serviceProfileFunc('getAvatar', $iContentId);
+    }
+
+    public function serviceProfileAvatarBig ($iContentId)
+    {
+        return $this->_serviceProfileFunc('getAvatarBig', $iContentId);
     }
 
     public function serviceProfileCover ($iContentId)
@@ -697,12 +724,25 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
     	}
     	$oMenu->setSelected($sDefault, $sDefault);
 
+        $oContext = false;
         $bContext = $mixedContextId !== false;
-        if($bContext && ($aContextInfo = BxDolProfileQuery::getInstance()->getInfoById(abs($mixedContextId))))
-            if(bx_srv($aContextInfo['type'], 'check_allowed_post_in_profile', [$aContextInfo['content_id'], $sDefault]) !== CHECK_ACTION_RESULT_ALLOWED)
+        if($bContext && ($oContext = BxDolProfile::getInstance(abs($mixedContextId))) !== false)
+            if(bx_srv($oContext->getModule(), 'check_allowed_post_in_profile', [$oContext->getContentId(), $sDefault]) !== CHECK_ACTION_RESULT_ALLOWED)
                 return '';
 
-        $sTitle = _t('_sys_page_block_title_create_post' . (!$bContext ? '_public' : ($mixedContextId < 0 ? '_context' : '')));
+        $sTitle = '_sys_page_block_title_create_post';
+        if(!$bContext)
+            $sTitle = _t($sTitle . '_public');
+        else if($mixedContextId < 0) {
+            $sTitle = _t($sTitle . '_context');
+            if($oContext)
+                $sTitle = bx_replace_markers($sTitle, [
+                    'display_name' => $oContext->getDisplayName()
+                ]);
+        }
+        else
+            $sTitle = _t($sTitle);
+
         $sPlaceholder = _t('_sys_txt_create_post_placeholder', $oProfile->getDisplayName());
 
         $oDbModules = BxDolModuleQuery::getInstance();
@@ -756,7 +796,7 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
                 'js_object' => $sJsObject,
                 'js_content' => $sJsContent
             ]),
-            'menu' => $oMenu
+            'menu' => $oMenu->getMenuItemsCount() > 1 ? $oMenu : ''
         ];
     }
 
@@ -909,6 +949,22 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
         return false;
     }
 
+    public function serviceGetModerators($iContentId)
+    {
+        $aModerators = BxDolAclQuery::getInstance()->getProfilesByMembership([
+            MEMBERSHIP_ID_MODERATOR, 
+            MEMBERSHIP_ID_ADMINISTRATOR
+        ]);
+
+        $aIds = [];
+        array_walk($aModerators, function ($aItem, $iKey, $aParams) {
+            if(!empty($aItem['id']))
+                $aParams[0][] = (int)$aItem['id'];
+        }, [&$aIds]);
+
+        return $aIds;
+    }
+
     public function servicePrepareFields ($aFieldsProfile)
     {
         return $aFieldsProfile;
@@ -1029,16 +1085,17 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
      */
     public function serviceSearchKeywordResult ()
     {
+        $sType = bx_process_input(bx_get('type'));
         $sKeyword = bx_process_input(bx_get('keyword'));
         $bKeyword = $sKeyword !== false;
 
         if(bx_is_api())
             return $this->serviceGetDataSearchApi(['params' => [
-                    'keyword' => $sKeyword,
-                    'section' => bx_process_input(bx_get('section')),
-                    'cat' => bx_process_input(bx_get('cat'))
-                ]
-            ]);
+                'type' => $sType,
+                'keyword' => $sKeyword,
+                'section' => bx_process_input(bx_get('section')),
+                'cat' => bx_process_input(bx_get('cat'))
+            ]]);
 
         $sCode = '';
         if($bKeyword) {
@@ -1075,9 +1132,11 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
             return false;
 
         if(is_string($aParams))
-            $aParams = json_decode($aParams, true);
+            $aParams = bx_api_get_browse_params($aParams);
 
-        $aSections = [];
+        $bForceAll = ($aParams['params']['type'] ?? '') == 'keyword';
+
+        $aSectionsAvail = explode(',', getParam('sys_api_search_sections'));
         $aSectionsAll = BxDolDb::getInstance()->fromCache(
             'sys_global_search_pairs', 
             'getPairs', 
@@ -1085,16 +1144,13 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
             'name', 'title'
         );
 
-        $aSectionNames = explode(',', getParam('sys_api_search_sections'));
-        foreach($aSectionNames as $sSectionName) {
-            if(!isset($aSectionsAll[$sSectionName]))
-                continue;
-
-            $aSections[$sSectionName] = [
-                'name' => $sSectionName,
-                'title' => _t($aSectionsAll[$sSectionName])
-            ];
-        }
+        $aSections = [];
+        foreach($aSectionsAll as $sSectionName => $sSectionTitle)
+            if(in_array($sSectionName, $aSectionsAvail) || $bForceAll)
+                $aSections[$sSectionName] = [
+                    'name' => $sSectionName,
+                    'title' => _t($sSectionTitle)
+                ];
 
         $aParamsBrowse = array_merge([
             'keyword' => '',
@@ -1110,29 +1166,76 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
             $aParamsBrowse['section'] = explode(',', $aParamsBrowse['section']);
 
         $sClass = 'BxTemplSearch';
-        $oSearch = new $sClass($aParamsBrowse['section']);
-        $oSearch->setLiveSearch(true);
-        $oSearch->setDataProcessing(true);
-        $oSearch->setCustomSearchCondition(['keyword' => $aParamsBrowse['keyword']]);
-        $oSearch->setCustomCurrentCondition([
-            'paginate' => [
-                'forceStart' => $aParamsBrowse['start'],
-                'perPage' => $aParamsBrowse['per_page'],
-            ]
-        ]);
+        
+        $sSections = $aParamsBrowse['section'];
+        if ($aParamsBrowse['live'] !== true && count($sSections) > 1){
+            
+            $aParamsBrowse['section'] = [];
+            $aParamsBrowse['sections'] = [];
+            
+            $aDataRv = [];
+            foreach ($sSections as $sSection) {
+                $oSearch = new $sClass($sSection);
+                $oSearch->setLiveSearch(true);
+                $oSearch->setDataProcessing(true);
+                $oSearch->setCustomSearchCondition(['keyword' => $aParamsBrowse['keyword']]);
+                $oSearch->setCustomCurrentCondition([
+                    'paginate' => [
+                        'forceStart' => $aParamsBrowse['start'],
+                        'perPage' => $aParamsBrowse['per_page'],
+                    ]
+                ]);
 
-        $aData = $oSearch->response();
-        if(count($aData) > $aParamsBrowse['per_page'])
-            $aData = array_slice($aData, $aParamsBrowse['start'], $aParamsBrowse['per_page']);
+                $aData = $oSearch->response();
+                if(count($aData) > $aParamsBrowse['per_page'])
+                    $aData = array_slice($aData, $aParamsBrowse['start'], $aParamsBrowse['per_page']);
 
-        return [
-            bx_api_get_block('browse', [
-                'unit' => 'search-results',  
-                'request_url' => '/api.php?r=system/get_data_search_api/TemplServices&params[]=',
-                'params' => $aParamsBrowse,
-                'data' => $aData
-            ])
-        ];
+                if (count($aData) > 0) {
+                    $oSearchResult = $oSearch->getSearchResultObject($sSection);
+                    $sSectionTitle = $oSearchResult->aCurrent['title'];
+
+                    $aParamsBrowse['section'][] = $sSection;
+                    $aParamsBrowse['sections'][] = ['name' => $sSection, 'title' => $sSectionTitle];
+
+                    $aDataRv[] = [
+                        'section' => $sSection, 
+                        'section_name' => $sSectionTitle, 
+                        'data' => $aData,
+                        'is_profile' => bx_srv('system', 'is_module_profile', [$oSearchResult->aCurrent['module_name']])
+                    ];
+                }
+                
+            }
+            return [bx_api_get_block('search_sections', [
+                'data' => $aDataRv,
+                'params' => $aParamsBrowse
+            ])];
+        }
+        else{
+            $oSearch = new $sClass($aParamsBrowse['section']);
+            $oSearch->setLiveSearch(true);
+            $oSearch->setDataProcessing(true);
+            $oSearch->setCustomSearchCondition(['keyword' => $aParamsBrowse['keyword']]);
+            $oSearch->setCustomCurrentCondition([
+                'paginate' => [
+                    'forceStart' => $aParamsBrowse['start'],
+                    'perPage' => $aParamsBrowse['per_page'],
+                ]
+            ]);
+
+            $aData = $oSearch->response();
+            if(count($aData) > $aParamsBrowse['per_page'])
+                $aData = array_slice($aData, $aParamsBrowse['start'], $aParamsBrowse['per_page']);
+
+            return [
+                bx_api_get_block('browse', [
+                    'unit' => 'search-results',  
+                    'request_url' => '/api.php?r=system/get_data_search_api/TemplServices&params[]=',
+                    'params' => $aParamsBrowse,
+                    'data' => $aData
+                ])
+            ];
+        }
     }
 
     /**
@@ -1246,7 +1349,7 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
 
         $aObjects = BxDolEmbedQuery::getObjects();
         foreach($aObjects as $aObject)
-            $aResults[$aObject['object']] = $aObject['title'];
+            $aResults[$aObject['object']] = _t($aObject['title']);
 
         return $aResults;
     }
@@ -1367,7 +1470,44 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
             closedir($oHandle);
         }
 
+        /**
+         * Disabled for now, because CDN and custom compiled build with own styles 
+         * don't work correctly together.
+         * 
+         * $aResults['cdn'] = _t('_adm_stg_cpt_option_sys_css_tailwind_default_cdn');
+         */
+
         return $aResults;
+    }
+
+    public function serviceGetOptionsIconsetDefault()
+    {
+        $aObjects = BxDolIconsetQuery::getObjects();
+        foreach($aObjects as $aObject)
+            $aResults[$aObject['object']] = $aObject['title'];
+
+        return $aResults;
+    }
+
+    public function serviceGetOptionsApiRootPageGuest()
+    {
+        $sKey = '_adm_stg_cpt_option_sys_api_root_page_';
+
+        return [
+            'home' => _t($sKey .'home'), 
+            'splash' => _t($sKey . 'splash')
+        ];
+    }
+
+    public function serviceGetOptionsApiRootPageMember()
+    {
+        $sKey = '_adm_stg_cpt_option_sys_api_root_page_';
+
+        return [
+            'home' => _t($sKey .'home'), 
+            'dashboard' => _t($sKey . 'dashboard'), 
+            'profile' => _t($sKey . 'profile')
+        ];
     }
 
     public function serviceGetOptionsApiMenuTop()
@@ -1382,26 +1522,52 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
         return $aResults;
     }
 
+    public function serviceGetOptionsApiContextSwitcher()
+    {
+        $aContexts = bx_srv('system', 'get_modules_by_type', ['context']);
+
+        $aResults = ['' => _t('_None')];
+        foreach($aContexts as $aContext)
+            $aResults[$aContext['name']] = _t('_' . $aContext['name']);
+
+        return $aResults;
+    }
+
+    public function serviceGetOptionsApiContextConnection()
+    {
+        $aConnections = ['subscriptions', 'fans', 'participants'];
+
+        $aResults = ['' => _t('_sys_please_select')];
+        foreach($aConnections as $sConnection)
+            $aResults[$sConnection] = _t('_adm_stg_cpt_option_sys_api_cnt_cnn_' . $sConnection);
+
+        return $aResults;
+    }
+
     public function serviceGetOptionsAgentsModel()
     {
         return ['' => _t('_Select_one')] + BxDolAI::getInstance()->getModels(['active' => true, 'hidden' => false]);
     }
 
-    public function serviceGetOptionsAgentsProfile($bSelectOne = true)
+    public function serviceGetOptionsAgentsProfile($bSelectOne = true, $sSelectOneLangKey = '_Select_one')
     {
         $aResult = [];
         if($bSelectOne)
-            $aResult[] = ['key' => '', 'value' => _t('_Select_one')];
+            $aResult[] = ['key' => '', 'value' => _t($sSelectOneLangKey)];
 
         $aAccountsIds = BxDolAccountQuery::getInstance()->getOperators();
         foreach($aAccountsIds as $iAccountId) {
             $aProfilesIds = BxDolAccount::getInstance($iAccountId)->getProfilesIds(true, false);
-            foreach($aProfilesIds as $iProfileId)
-                if(($oProfile = BxDolProfile::getInstance($iProfileId)) !== false && ($sProfileModule = $oProfile->getModule()) != 'system')
+            foreach($aProfilesIds as $iProfileId) {
+                $oProfile = BxDolProfile::getInstance($iProfileId);
+                $sProfileModule = false === $oProfile ? '' : $oProfile->getModule();
+                if ($sProfileModule && ($sProfileModule != 'system' || ($sProfileModule == 'system' && empty($oProfile->getAccountObject()->getEmail())))) {
                     $aResult[] = [
                         'key' => $iProfileId,
-                        'value' => _t('_sys_profile_with_type', $oProfile->getDisplayName(), _t('_' . $sProfileModule))
+                        'value' => _t('_sys_profile_with_type', $oProfile->getDisplayName(), $sProfileModule === 'system' ? 'System' : _t('_' . $sProfileModule))
                     ];
+                }
+            }
         }
 
         return $aResult;
@@ -1409,17 +1575,17 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
 
     public function serviceGetOptionsStudioAssistant()
     {
-        return ['' => _t('_Select_one')] + BxDolAI::getInstance()->getAssistants(['active' => true, 'hidden' => false]);
+        return $this->_getOptionsAiAssistants();
     }
 
     public function serviceGetOptionsLiveSearchAssistant()
     {
-        return ['' => _t('_Select_one')] + BxDolAI::getInstance()->getAssistants(['active' => true, 'hidden' => false]);
+        return $this->_getOptionsAiAssistants();
     }
 
     public function serviceGetOptionsAskBlockAssistant()
     {
-        return ['' => _t('_Select_one')] + BxDolAI::getInstance()->getAssistants(['active' => true, 'hidden' => false]);
+        return $this->_getOptionsAiAssistants();
     }
 
     public function serviceRedirect($sUrl = false)
@@ -1452,7 +1618,13 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
              *      - `where` - [string]  equal redirect
              * @hook @ref hook-system-check_spam_url
              */
-            bx_alert('system', 'check_spam_url', 0, getLoggedId(), array('is_spam' => &$bSpam, 'content' => &$sUrl, 'where' => 'redirect'));
+            bx_alert('system', 'check_spam_url', 0, getLoggedId(), array(
+                'is_spam' => &$bSpam, 
+                'content' => &$sUrl, 
+                'is_spam_ref' => &$bSpam, 
+                'content_ref' => &$sUrl, 
+                'where' => 'redirect'
+            ));
 
             $sLangKey = $bSpam ? '_sys_redirect_confirmation_harmful' : '_sys_redirect_confirmation';
             return BxDolTemplate::getInstance()->parseHtmlByName('redirect.html', [
@@ -1558,7 +1730,7 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
          *      - `override_result` - [string] by ref, class name for search, can be overridden in hook processing
          * @hook @ref hook-system-search_keyword
          */
-        bx_alert('system', 'search_keyword', 0, 0, array('class' => &$sClass));
+        bx_alert('system', 'search_keyword', 0, 0, array('class' => &$sClass, 'class_name_ref' => &$sClass));
 
         $oSearch = new $sClass(bx_get('section'));
         $oSearch->setLiveSearch(bx_get('live_search') ? 1 : 0);
@@ -1566,6 +1738,67 @@ class BxBaseServices extends BxDol implements iBxDolProfileService
         $oSearch->setCategoryObject(bx_process_input(bx_get('cat')));
 
         return $oSearch;
+    }
+
+    public function serviceHomeRedirect()
+    {
+        header("Location:" . BX_DOL_URL_ROOT, true, 301);
+        exit;        
+    }
+
+    public function serviceProcessEmbed()
+    {
+        BxDolEmbed::getObjectInstance()->process();
+    }
+
+    public function serviceCallAgent($sType, $aAgent, $aParams)
+    {
+        $oAi = BxDolAI::getInstance();
+        return $oAi->callAgent($sType, $aAgent, $aParams);
+    }
+
+    public function serviceCallAgentForFormInput($iAgentId)
+    {
+        if (!bx_get_logged_profile_id())
+            return echoJson(['code' => 403, 'msg' => _t('_sys_agents_unauthorized')]);
+
+        $sJson = file_get_contents('php://input');
+        $aData = json_decode($sJson, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE)
+            return echoJson(['code' => 500, 'msg' => _t('_sys_agents_json_field_err')]);
+        
+        $sPrompt = $aData['prompt'] ?? null;
+        $sInputName = $aData['input_name'] ?? null;
+        $aValues = $aData['values'] ?? [];
+
+        $aAgent = BxDolAiQuery::getAgentObject($iAgentId);
+        if (!$aAgent || !$aAgent['active'])
+            return echoJson(['code' => 404, 'msg' => _t('_sys_agents_agent_not_found')]);
+        
+        $aParams = [
+            'sender_profile_id' => bx_get_logged_profile_id(),
+            'user_prompt' => $sPrompt,
+            'form_field_name' => $sInputName,
+            'form_values' => $aValues,
+        ];
+
+        $oAi = BxDolAI::getInstance();
+        $mixed = $oAi->callAgent('form-input', $aAgent, $aParams);
+
+        return echoJson(['code' => 200, 'msg' => $mixed]);
+    }
+
+    protected function _getOptionsAiAssistants()
+    {
+        $aResult = ['' => _t('_Select_one')];
+
+        $aAgents = BxDolAI::getInstance()->getAgentsByTriggerType('manual');
+        if($aAgents && is_array($aAgents)) 
+            foreach($aAgents as $aAgent)
+                $aResult[$aAgent['id']] = $aAgent['title'];
+
+        return $aResult;
     }
 }
 

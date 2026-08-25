@@ -29,7 +29,10 @@ function isLogged()
  */
 function getLoggedId()
 {
-    if (getParam('sys_session_auth')) {
+    if ($GLOBALS['glForceCurrentProfileId'] ?? false) {
+        return BxDolProfile::getInstance()->getAccountId();
+    }
+    elseif (getParam('sys_session_auth')) {
         return (!empty($GLOBALS['logged']['member']) || !empty($GLOBALS['logged']['admin'])) ? BxDolSession::getInstance()->getUserId() : 0;
     }
     else {
@@ -184,8 +187,8 @@ function bx_logout($bNotify = true)
         unset($_COOKIE['memberPassword']);
     }
 
-    // BxDolSession::getInstance()->destroy();
-    BxDolSession::getInstance()->setUserId(0);
+    BxDolSession::getInstance()->destroy();
+    // BxDolSession::getInstance()->setUserId(0);
 }
 
 function bx_is_remember_me()
@@ -300,6 +303,7 @@ function bx_check_password($sLogin, $sPassword, $iRole = BX_DOL_ROLE_MEMBER)
             'info' => $aAccountInfo,
 			'pwd' => $sPassword,
             'password' => &$sPassCheck,
+            'password_ref' => &$sPassCheck,
         ));
     
     if ($sErrorMsg = bx_check_login($aAccountInfo['id'], $sPassCheck, $iRole)){
@@ -440,7 +444,5 @@ function bx_login_form($bStudio = false, $bAjaxMode = false, $sForceRelocate = '
 
     exit;
 }
-
-check_logged();
 
 /** @} */

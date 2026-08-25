@@ -604,6 +604,25 @@ class BxDolStudioInstaller extends BxDolInstallerUtils
 
         return $mixedResult === true ? BX_DOL_STUDIO_INSTALLER_SUCCESS : array('code' => BX_DOL_STUDIO_INSTALLER_FAILED, 'content' => $mixedResult);
     }
+    protected function actionExecuteSqlAddons($sOperation)
+    {
+        $sPath = $this->_sHomePath . 'install/sql/';
+        $aMarkers = $this->getMarkersForDb();
+
+        $aErrors = [];
+        if(($rHandle = opendir($sPath)) !== false) {
+            while(($sFile = readdir($rHandle)) !== false) {
+                if(!is_file($sPath . $sFile) || substr($sFile, 0, strlen($sOperation) + 1) != $sOperation . '-')
+                    continue;
+
+                if(($mixedResult = $this->oDb->executeSQL($sPath . $sFile, $aMarkers)) !== true)
+                    $aErrors += $mixedResult;
+            }
+            closedir($rHandle);
+        }
+
+        return !$aErrors ? BX_DOL_STUDIO_INSTALLER_SUCCESS : array('code' => BX_DOL_STUDIO_INSTALLER_FAILED, 'content' => $aErrors);
+    }
     protected function actionExecuteSqlFailed($mixedResult)
     {
     	if(is_int($mixedResult))
@@ -905,6 +924,8 @@ class BxDolStudioInstaller extends BxDolInstallerUtils
 
     protected function _onInstallAfter()
     {
+        $this->actionExecuteSqlAddons('install');
+
         return BX_DOL_STUDIO_INSTALLER_SUCCESS;
     }
 
@@ -915,6 +936,8 @@ class BxDolStudioInstaller extends BxDolInstallerUtils
 
     protected function _onEnableAfter()
     {
+        $this->actionExecuteSqlAddons('enable');
+
         BxDolCmts::onModuleEnable($this->_aConfig['name']);
 
         return BX_DOL_STUDIO_INSTALLER_SUCCESS;
@@ -957,6 +980,9 @@ class BxDolStudioInstaller extends BxDolInstallerUtils
         
         // delete SEO links
         BxDolPage::deleteSeoLinkByModule($this->_aConfig['name']);
+
+        // delete alerts
+        BxDolAlerts::deleteModuleAlerts($this->_aConfig['name']);
 
         // queue for deletion storage files
         if(!empty($this->_aConfig['storages']) && is_array($this->_aConfig['storages']))        

@@ -61,7 +61,7 @@ class BxDolRssFactory extends BxDol
                 $sUnitUrl = $aUnitInfo[$aFields['Link']];
                 $sUnitGuid = $aUnitInfo[$aFields['Guid']];
 
-                $sUnitTitle = strip_tags($aUnitInfo[$aFields['Title']]);
+                $sUnitTitle = strip_tags($aUnitInfo[$aFields['Title']] ?? '');
                 $sUnitDate = gmdate("D, d M Y H:i:s \G\M\T", $aUnitInfo[$aFields['DateTimeUTS']]);
 
                 $sUnitDesc = '';
