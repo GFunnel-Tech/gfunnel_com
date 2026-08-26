@@ -336,11 +336,33 @@ function gfWsPermanentInvite($iWorkspaceId, $iProfileId, $bReset = false)
 function gfWsAffiliateParams($iProfileId)
 {
     $iProfileId = (int)$iProfileId;
-    if($iProfileId <= 0 || !BxDolRequest::serviceExists('aqb_affiliate', 'get_referral_code'))
+    if($iProfileId <= 0)
         return [];
 
-    $mixedParams = BxDolService::call('aqb_affiliate', 'get_referral_code', [$iProfileId, false]);
-    return is_array($mixedParams) ? $mixedParams : [];
+    // Build the affiliate param ([am_id => hash]) straight from the Affiliate
+    // System's config. We deliberately do NOT call get_referral_code(id, false):
+    // in this module version that path runs $this->getAdsHash() on the *module*,
+    // but getAdsHash() lives on the *config*, so it fatals with an undefined
+    // method. getReferralLink() (the page-URL path) works only because it already
+    // executes in the config's scope. Reading the config directly avoids the
+    // broken path; the whole thing is guarded so an affiliate hiccup can never
+    // take down the workspace picker — the invite link just omits am_id.
+    try {
+        $oModule = BxDolModule::getInstance('aqb_affiliate');
+        if(!$oModule || empty($oModule->_oConfig) || !method_exists($oModule->_oConfig, 'getAdsHash'))
+            return [];
+
+        $aCnf = $oModule->_oConfig->CNF;
+        $sPrefix = !empty($aCnf['REFER_PREFIX']) ? $aCnf['REFER_PREFIX'] : '';
+        if($sPrefix === '')
+            return [];
+
+        $sHash = $oModule->_oConfig->getAdsHash($iProfileId);
+        return (is_string($sHash) && $sHash !== '') ? [$sPrefix => $sHash] : [];
+    }
+    catch(\Throwable $oException) {
+        return [];
+    }
 }
 
 function gfWsOpenInvites($sEmail)
